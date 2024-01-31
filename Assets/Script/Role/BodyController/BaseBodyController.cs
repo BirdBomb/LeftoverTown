@@ -14,6 +14,10 @@ public class BaseBodyController : MonoBehaviour
     public Transform Head;
     [SerializeField, Header("身体节点")]
     public Transform Body;
+    [SerializeField, Header("上肢节点")]
+    public Transform Hand;
+    [SerializeField, Header("下肢节点")]
+    public Transform Leg;
     [SerializeField, Header("右手节点")]
     public Transform Hand_Right;
     [SerializeField, Header("左手节点")]

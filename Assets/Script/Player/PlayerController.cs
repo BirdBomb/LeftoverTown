@@ -49,10 +49,10 @@ public class PlayerController : MonoBehaviour
     }
     private void PlayerInput()
     {
+        baseBehaviorController.InputFaceVector(Input.mousePosition);
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             baseBehaviorController.holdingByHand.ClickLeftBtn();
-
         }
         if (Input.GetKeyDown(KeyCode.Mouse1))
         {

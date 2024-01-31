@@ -34,11 +34,23 @@ public class BaseBehaviorController : MonoBehaviour
     private MyTile lastTile;
     public virtual void TurnLeft()
     {
-        Root.localScale = new Vector3(-1, 1, 1);
+        bodyController.Leg.localScale = new Vector3(-1, 1, 1);
+    }
+    public virtual void FaceLeft()
+    {
+        bodyController.Head.localScale = new Vector3(-1, 1, 1);
+        bodyController.Body.localScale = new Vector3(-1, 1, 1);
+        bodyController.Hand.localScale = new Vector3(-1, 1, 1);
     }
     public virtual void TurnRight()
     {
-        Root.localScale = new Vector3(1, 1, 1);
+        bodyController.Leg.localScale = new Vector3(1, 1, 1);
+    }
+    public virtual void FaceRight()
+    {
+        bodyController.Head.localScale = new Vector3(1, 1, 1);
+        bodyController.Body.localScale = new Vector3(1, 1, 1);
+        bodyController.Hand.localScale = new Vector3(1, 1, 1);
     }
     public virtual void SpeedUp(bool up)
     {
@@ -47,6 +59,17 @@ public class BaseBehaviorController : MonoBehaviour
     public virtual void InputMoveVector(UnityEngine.Vector2 vector2,float dt)
     {
         tempVector += vector2;
+    }
+    public virtual void InputFaceVector(Vector3 mousePostion)
+    {
+        if (Camera.main.ScreenToWorldPoint(mousePostion).x > transform.position.x)
+        {
+            FaceRight();
+        }
+        else
+        {
+            FaceLeft();
+        }
     }
     /// <summary>
     /// 按照方向移动

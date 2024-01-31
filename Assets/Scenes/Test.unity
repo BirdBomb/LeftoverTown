@@ -57342,7 +57342,9 @@ MonoBehaviour:
   speed: 0
   Root: {fileID: 120817552}
   Head: {fileID: 1973620705}
-  Body: {fileID: 1876024277}
+  Body: {fileID: 439640039}
+  Hand: {fileID: 1087708139}
+  Leg: {fileID: 2101673954}
   Hand_Right: {fileID: 1348989932}
   Hand_Left: {fileID: 2013110963}
   Animator_Head: {fileID: 1973620706}
@@ -57758,7 +57760,9 @@ MonoBehaviour:
   speed: 0
   Root: {fileID: 306073523}
   Head: {fileID: 816440727}
-  Body: {fileID: 993053652}
+  Body: {fileID: 1796249699}
+  Hand: {fileID: 1019395236}
+  Leg: {fileID: 1643568768}
   Hand_Right: {fileID: 1257382421}
   Hand_Left: {fileID: 79821435}
   Animator_Head: {fileID: 816440728}
@@ -58448,7 +58452,9 @@ MonoBehaviour:
   speed: 0
   Root: {fileID: 568853048}
   Head: {fileID: 789646002}
-  Body: {fileID: 1708953256}
+  Body: {fileID: 1404702242}
+  Hand: {fileID: 1920022476}
+  Leg: {fileID: 1841714933}
   Hand_Right: {fileID: 1713031110}
   Hand_Left: {fileID: 1297064733}
   Animator_Head: {fileID: 789646004}
@@ -118675,6 +118681,8 @@ MonoBehaviour:
   Root: {fileID: 1541471684}
   Head: {fileID: 1839172950}
   Body: {fileID: 1753855470}
+  Hand: {fileID: 0}
+  Leg: {fileID: 0}
   Hand_Right: {fileID: 0}
   Hand_Left: {fileID: 0}
 --- !u!61 &1541471687
