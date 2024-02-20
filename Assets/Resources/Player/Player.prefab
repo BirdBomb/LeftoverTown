@@ -926,7 +926,8 @@ MonoBehaviour:
       Item_ID: 0
       Item_Name: 
       Item_Desc: 
-      Item_Count: 0
+      Item_CurCount: 0
+      Item_MaxCount: 0
       Item_Type: 0
       Average_Weight: 0
       Average_Value: 0
@@ -1061,6 +1062,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerController: {fileID: 8091430848374201477}
+  playerCamera: {fileID: 689959221667614738}
 --- !u!114 &3222013810136728508
 MonoBehaviour:
   m_ObjectHideFlags: 0

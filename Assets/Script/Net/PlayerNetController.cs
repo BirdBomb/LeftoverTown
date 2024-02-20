@@ -4,10 +4,16 @@ using UnityEngine;
 using Fusion;
 public class PlayerNetController : NetworkBehaviour
 {
-    [SerializeField,Header("角色控制器")]
+    [SerializeField, Header("角色控制器")]
     private PlayerController playerController;
+    [SerializeField, Header("角色摄像机")]
+    private Camera playerCamera;
     public override void Spawned()
     {
+        if (!Object.HasInputAuthority)
+        {
+            playerCamera.enabled = false;
+        }
         base.Spawned();
     }
     private Vector2 moveDir_temp;
@@ -55,6 +61,8 @@ public class PlayerNetController : NetworkBehaviour
 
             if (data.goRight)
             {
+                Debug.Log("liscen");
+
                 moveDir_temp += new Vector2(1, 0);
             }
             if (data.goLeft)
