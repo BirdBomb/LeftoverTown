@@ -25,7 +25,7 @@ public class NetManager : MonoBehaviour
         }
         await networkRunner.StartGame(new StartGameArgs()
         {
-            GameMode = GameMode.Single,
+            GameMode = GameMode.AutoHostOrClient,
             SessionName = roomName,
             Scene = scene,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
