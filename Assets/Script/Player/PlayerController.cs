@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-using static Fusion.Allocator;
+using UnityEngine.Windows;
+using Input = UnityEngine.Input;
 /// <summary>
 /// 玩家控制器
 /// </summary>
@@ -12,6 +13,8 @@ public class PlayerController : MonoBehaviour
     public BaseBehaviorController baseBehaviorController;
     [Header("物理")]
     public Rigidbody2D myRigidbody;
+    [Header("物体层级")]
+    public LayerMask itemLayer;
     /// <summary>
     /// 当前持握的物体编号
     /// </summary>
@@ -26,47 +29,71 @@ public class PlayerController : MonoBehaviour
         {
             if (_.moveRole == baseBehaviorController)
             {
-                ClearAround();
                 CheckAround();
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInBag>().Subscribe(_ =>
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_UI_AddItemInBag()
-            {
-                itemConfig = _.itemConfig
-            });
-            baseBehaviorController.AddItem(_.itemConfig);
+            baseBehaviorController.AddItem_Bag(_.itemConfig);
         }).AddTo(this);
+        baseBehaviorController.isPlayer = true;
     }
     private void Update()
     {
         PlayerInput();
     }
-    private void LateUpdate()
+    #region//玩家输入
+    /// <summary>
+    /// 鼠标输入
+    /// </summary>
+    /// <param name="leftClick"></param>
+    /// <param name="rightClick"></param>
+    /// <param name="leftPress"></param>
+    /// <param name="rightPress"></param>
+    public void InputMouse(bool leftClick,bool rightClick,bool leftPress,bool rightPress, float time)
     {
-        baseBehaviorController.MoveByVector(Time.deltaTime);
+        if (leftClick) { baseBehaviorController.holdingByHand.ClickLeftClick(time); }
+        if (rightClick) { baseBehaviorController.holdingByHand.ClickRightClick(time); }
+        if (leftPress) { baseBehaviorController.holdingByHand.PressLeftClick(time); }
+        else { baseBehaviorController.holdingByHand.ReleaseLeftClick(time); }
+        if (rightPress) { baseBehaviorController.holdingByHand.PressRightClick(time); }
+        else { baseBehaviorController.holdingByHand.ReleaseRightClick(time); }
     }
+    /// <summary>
+    /// 位移输入
+    /// </summary>
+    /// <param name="dir">方向</param>
+    /// <param name="deltaTime">间隔</param>
+    /// <param name="speedUp">加速</param>
+    public void InputMoveDir(Vector2 dir,float deltaTime, bool speedUp)
+    {
+        if (dir.x > 0)
+        {
+            baseBehaviorController.TurnRight();
+        }
+        if (dir.x < 0)
+        {
+            baseBehaviorController.TurnLeft();
+        }
+        baseBehaviorController.InputMoveVector(dir, deltaTime);
+        baseBehaviorController.SpeedUp(speedUp);
+        baseBehaviorController.MoveByVector(deltaTime);
+    }
+    /// <summary>
+    /// 朝向输入
+    /// </summary>
+    /// <param name="dir">方向</param>
+    public void InputFaceDir(Vector3 dir, float time)
+    {
+        dir = Camera.main.ScreenToWorldPoint(dir) - transform.position;
+        baseBehaviorController.InputFaceVector(dir);
+        baseBehaviorController.holdingByHand.MousePosition(dir, time);
+    }
+    /// <summary>
+    /// 默认输入
+    /// </summary>
     private void PlayerInput()
     {
-        baseBehaviorController.InputFaceVector(Input.mousePosition);
-        if (Input.GetKeyDown(KeyCode.Mouse0))
-        {
-            baseBehaviorController.holdingByHand.ClickLeftBtn();
-        }
-        if (Input.GetKeyDown(KeyCode.Mouse1))
-        {
-            baseBehaviorController.holdingByHand.ClickRightBtn();
-        }
-        if (Input.GetKey(KeyCode.Mouse1))
-        {
-            baseBehaviorController.holdingByHand.PressRightBtn();
-        }
-        else
-        {
-            baseBehaviorController.holdingByHand.ReleaseRightBtn();
-        }
-
         #region//背包操作
         if (Input.GetKeyDown(KeyCode.Q))
         {
@@ -77,7 +104,7 @@ public class PlayerController : MonoBehaviour
                 {
                     holdingIndex = 0;
                 }
-                baseBehaviorController.HoldItem(baseBehaviorController.Data.Holding_BagList[holdingIndex]);
+                baseBehaviorController.AddItem_Hand(baseBehaviorController.Data.Holding_BagList[holdingIndex]);
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_AddItemInHand
                 {
                     itemConfig = baseBehaviorController.Data.Holding_BagList[holdingIndex]
@@ -87,82 +114,70 @@ public class PlayerController : MonoBehaviour
                     itemConfig = baseBehaviorController.Data.Holding_BagList[holdingIndex]
                 });
             }
-            //GameObject obj = Resources.Load<GameObject>("ItemObj/ItemObj");
-            //GameObject item = Instantiate(obj);
-            //item.GetComponent<ItemObj>().Init(ItemConfigData.itemConfigs[0]);
-            //item.transform.position = transform.position;
         }
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            for (int i = 0; i < ListenTiles.Count; i++)
+            for (int i = 0; i < nearbyTiles.Count; i++)
             {
-                ListenTiles[i].Interactive();
+                nearbyTiles[i].InvokeTile();
             }
 
         }
-        #endregion
-        #region//位移操作
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            baseBehaviorController.TurnLeft();
-            baseBehaviorController.InputMoveVector(Vector2.left, Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            baseBehaviorController.TurnRight();
-            baseBehaviorController.InputMoveVector(Vector2.right, Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            baseBehaviorController.InputMoveVector(Vector2.down, Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.W))
-        {
-            baseBehaviorController.InputMoveVector(Vector2.up, Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            baseBehaviorController.SpeedUp(true);
-        }
-        else
-        {
-            baseBehaviorController.SpeedUp(false);
+            var item = Physics2D.OverlapCircleAll(transform.position, 0.5f, itemLayer);
+            if (item.Length > 0)
+            {
+                Debug.Log("PickUp0");
+                if (item[0].gameObject.TryGetComponent(out ItemObj obj))
+                {
+                    baseBehaviorController.PickUpItem_Bag(obj);
+                }
+            }
         }
         #endregion
+        #region//其他操作
         if (Input.GetKey(KeyCode.M))
         {
             MessageBroker.Default.Publish(new MapEvent.MapEvent_SaveMap
             {
-                
+
             });
         }
+        #endregion
     }
-    public List<MyTile> ListenTiles = new List<MyTile>();
+
+    #endregion
+    public List<MyTile> nearbyTiles = new List<MyTile>();
+    private List<MyTile> tempTiles = new List<MyTile>();
+    /// <summary>
+    /// 检查附近地块
+    /// </summary>
     private void CheckAround()
     {
-
-        List<MyTile> tiles = baseBehaviorController.GetNearbyTile();
-        for (int i = 0; i < tiles.Count; i++)
+        /*周围地块*/
+        tempTiles = baseBehaviorController.GetNearbyTile();
+        /*剔除上次检测的地块*/
+        for (int i = 0; i < nearbyTiles.Count; i++)
         {
-            if (tiles[i] == null) continue;
-
-            if (tiles[i].interactiveType == TileInteractiveType.Cabinet)
+            if (nearbyTiles[i] == null) { continue; }
+            if (!tempTiles.Contains(nearbyTiles[i]))
             {
-                MyTile tile = tiles[i].ShowSignal();
-                if (!ListenTiles.Contains(tile))
+                nearbyTiles[i].FarawayTile();
+                nearbyTiles.RemoveAt(i);
+            }
+        }
+        /*添加本次加入的地块*/
+        for (int i = 0; i < tempTiles.Count; i++)
+        {
+            if (tempTiles[i] == null) { continue; }
+            if (tempTiles[i].NearbyTile())
+            {
+                if (!nearbyTiles.Contains(tempTiles[i]))
                 {
-                    ListenTiles.Add(tile);
+                    nearbyTiles.Add(tempTiles[i]);
                 }
             }
         }
-
-    }
-    private void ClearAround()
-    {
-        for (int i = 0; i < ListenTiles.Count; i++)
-        {
-            ListenTiles[i].HideSignal();
-        }
-        ListenTiles.Clear();
     }
 }

@@ -12,4 +12,9 @@ public class MapEvent : MonoBehaviour
     {
 
     }
+    public class MapEvent_ChangeTile
+    {
+        public Vector3Int tilePos;
+        public string tileName;
+    }
 }

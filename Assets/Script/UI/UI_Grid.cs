@@ -11,12 +11,13 @@ public class UI_Grid : MonoBehaviour
     private List<UI_GridCell> cellList = new List<UI_GridCell>();
     private List<ItemConfig> itemList = new List<ItemConfig>();
 
-    private MyTile_Cabinet cabinet;
+    private TileObj cabinet;
+
     /// <summary>
     /// 初始化
     /// </summary>
     /// <param name="json"></param>
-    public void InitGrid(string json ,MyTile_Cabinet tile)
+    public void InitGrid(string json , TileObj tileObj)
     {
         Debug.Log("打开盒子:" + json);
 
@@ -30,7 +31,7 @@ public class UI_Grid : MonoBehaviour
                 itemList.Add(config);
             }
         }
-        cabinet = tile;
+        cabinet = tileObj;
         DrawEveryCell();
         UpdateInfo();
     }
@@ -90,6 +91,6 @@ public class UI_Grid : MonoBehaviour
             }
 
         }
-        cabinet.UpdateTile(builder.ToString());
+        cabinet.UpdateInfo(builder.ToString());
     }
 }

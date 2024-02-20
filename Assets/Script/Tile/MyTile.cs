@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -5,6 +6,7 @@ using TreeEditor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.WSA;
 using static UnityEngine.Tilemaps.Tile;
 
 [System.Serializable]
@@ -24,7 +26,8 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     public int y;
     [HideInInspector]
     public Vector2 pos;
-
+    [HideInInspector]
+    public GameObject bindObj;
     #region//寻路相关
     /// <summary>
     /// 总权重
@@ -55,26 +58,28 @@ public class MyTile : UnityEngine.Tilemaps.Tile
 
         _temp_fatherTile = null;
     }
-
     #endregion
     /// <summary>
-    /// 复制瓦片
+    /// 实例瓦片
     /// </summary>
-    /// <param name="tile"></param>
-    public virtual void CopyTile(MyTile tile)
+    public virtual void InstantiateTile(GameObject tileObj,MyTile tileScript)
     {
-        name = tile.name;
+        name = tileScript.name;
 
-        passType = tile.passType;
-        interactiveType = tile.interactiveType;
-        passOffset = tile.passOffset;
+        passType = tileScript.passType;
+        interactiveType = tileScript.interactiveType;
+        passOffset = tileScript.passOffset;
 
-        gameObject = tile.gameObject;
+        sprite = tileScript.sprite;
+        color = tileScript.color;
+        flags = tileScript.flags;
+        colliderType = tileScript.colliderType;
 
-        sprite = tile.sprite;
-        color = tile.color;
-        flags = tile.flags; 
-        colliderType = tile.colliderType;
+        if (tileObj)
+        {
+            Debug.Log(tileObj.name);
+            bindObj = GameObject.Instantiate(tileObj);
+        }
     }
     /// <summary>
     /// 初始瓦片
@@ -84,20 +89,35 @@ public class MyTile : UnityEngine.Tilemaps.Tile
         this.x = x;
         this.y = y;
         this.pos = pos;
+        if (bindObj)
+        {
+            bindObj.transform.position = pos + new Vector2(0.5f,0.5f);
+        }
     }
     /// <summary>
     /// 读取瓦片
     /// </summary>
     public virtual void LoadTile(string json)
     {
-
+        if(bindObj && bindObj.TryGetComponent(out TileObj obj))
+        {
+            obj.Init(this); 
+            obj.Load(json);
+        }
     }
     /// <summary>
     /// 保存瓦片
     /// </summary>
-    public virtual string SaveTile()
+    public virtual void SaveTile(out string json)
     {
-        return null;
+        if (bindObj && bindObj.TryGetComponent(out TileObj obj))
+        {
+            obj.Save(out json);
+        }
+        else
+        {
+            json = string.Empty;
+        }
     }
     /// <summary>
     /// 更新瓦片
@@ -108,33 +128,39 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     }
 
     /// <summary>
-    /// 显示信号
+    /// 唤醒瓦片
     /// </summary>
-    public virtual MyTile ShowSignal()
+    public virtual void InvokeTile()
     {
-        return null;
+        if (bindObj && bindObj.TryGetComponent(out TileObj obj))
+        {
+            obj.Invoke();
+        }
     }
     /// <summary>
-    /// 隐藏信号
+    /// 靠近瓦片
     /// </summary>
-    public virtual void HideSignal()
+    public virtual bool NearbyTile()
     {
-       
+        if (bindObj && bindObj.TryGetComponent(out TileObj obj))
+        {
+            return obj.Nearby();
+        }
+        return false;
     }
     /// <summary>
-    /// 交互
+    /// 远离瓦片
     /// </summary>
-    public virtual void Interactive()
+    /// <returns></returns>
+    public virtual bool FarawayTile()
     {
-
+        if (bindObj && bindObj.TryGetComponent(out TileObj obj))
+        {
+            return obj.Faraway();
+        }
+        return false;
     }
     #endregion
-
-    public void Init(MyTileData tileData)
-    {
-        //sprite = res
-    }
-
 #if UNITY_EDITOR
     // 下面是添加菜单项以创建 RoadTile 资源的 helper 函数
     [MenuItem("Assets/Create/MyTile/Base")]

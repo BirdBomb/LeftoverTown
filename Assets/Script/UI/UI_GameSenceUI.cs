@@ -10,21 +10,31 @@ public class UI_GameSenceUI : MonoBehaviour
 {
     [Header("手部槽位")]
     public Image Image_HandSlot;
+    [Header("生命值")]
+    public Text Text_Hp;
+    [Header("饥饿值")]
+    public Text Text_Food;
+    [Header("缺水值")]
+    public Text Text_Water;
     private void Start()
     {
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_UI_AddItemInHand>().Subscribe(_ =>
         {
             UpdateHandSlot(_.itemConfig);
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_UI_AddItemInBag>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_UI_UpdateItemInBag>().Subscribe(_ =>
         {
-            BagAddItem(_.itemConfig);
+            _bagItemList.Clear();
+            for(int i = 0;i < _.itemConfigs.Count; i++)
+            {
+                _bagItemList.Add(_.itemConfigs[i]);
+            }
+            BagUpdateItem();
         }).AddTo(this);
     }
     private void UpdateHandSlot(ItemConfig item)
     {
         Image_HandSlot.sprite= Resources.Load<SpriteAtlas>("Atlas/ItemIcon").GetSprite("Item_"+ item.Item_ID.ToString());
-        Image_HandSlot.SetNativeSize();
     }
     #region//背包
     [SerializeField,Header("背包槽位")]

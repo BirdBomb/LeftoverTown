@@ -19,25 +19,69 @@ public class Item_0 : ItemBase
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_0");
         base.BeHolding(owner, hand);
     }
-    public override void ClickRightBtn()
+    public override void ClickRightClick(float time)
     {
-        base.ClickRightBtn();
+        base.ClickRightClick(time);
     }
-    public override void ClickLeftBtn()
+    public override void ClickLeftClick(float time)
     {
         if (owner)
         {
             owner.bodyController.PlayHandAction(HandAction.Slash_Horizontal, 0.2f, null);
         }
-        base.ClickLeftBtn();
+        base.ClickLeftClick(time);
     }
 }
+/// <summary>
+/// 原木
+/// </summary>
+[Serializable]
+public class Item_1001 : ItemBase
+{
+    public override void BeHolding(BaseBehaviorController owner, Transform hand)
+    {
+        this.owner = owner;
+        hand.GetComponent<SpriteRenderer>().sprite
+            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_1001");
+        base.BeHolding(owner, hand);
+    }
+    public override void ClickRightClick(float time)
+    {
+        base.ClickRightClick(time);
+    }
+    public override void ClickLeftClick(float time)
+    {
+        if (owner)
+        {
+            owner.bodyController.PlayHandAction(HandAction.Slash_Horizontal, 0.2f, null);
+        }
+        base.ClickLeftClick(time);
+    }
+}
+
 /// <summary>
 /// 木斧头
 /// </summary>
 [Serializable]
 public class Item_2001 : ItemBase
 {
+    /// <summary>
+    /// 右键按压状态
+    /// </summary>
+    private bool rightPressState = false;
+    /// <summary>
+    /// 右键当前位置
+    /// </summary>
+    private Vector3 rightPosition = Vector3.zero;
+    /// <summary>
+    /// 右键按压时长
+    /// </summary>
+    private float rightPressTimer = 0;
+    private bool alreadyAttack = false;
+    private const float maxRange = 1;
+    private const float readySpeed = 1;
+    private const float readyTime = 1;
+    private int attack = 5; 
     public override void BeHolding(BaseBehaviorController owner, Transform hand)
     {
         this.owner = owner;
@@ -45,32 +89,70 @@ public class Item_2001 : ItemBase
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_2001");
         base.BeHolding(owner, hand);
     }
-    public override void ClickLeftBtn()
+    public override void ClickLeftClick(float time)
     {
         if (owner)
         {
-            owner.bodyController.PlayHandAction(HandAction.Slash_Vertical_Play, 0.2f, null);
+            if(rightPressTimer >= readyTime)
+            {
+                alreadyAttack = true;
+                owner.bodyController.PlayHandAction(HandAction.Slash_Vertical_Play, 0.2f, Slash_Vertical);
+            }
         }
-        base.ClickLeftBtn();
+        base.ClickLeftClick(time);
     }
-    private bool press = false;
-    public override void PressRightBtn()
+    public override void PressRightClick(float time)
     {
-        if (owner && !press)
+        if (owner && !alreadyAttack)
         {
-            press = true;
-            owner.bodyController.PlayHandAction(HandAction.Slash_Vertical_Ready, 0.2f, null);
+            if (rightPressTimer < readyTime)
+            {
+                rightPressTimer += time * readySpeed;
+            }
+            owner.skillSector.Update_SIsector(rightPosition, rightPressTimer * maxRange, 120);
+            if (!rightPressState)
+            {
+                rightPressState = true;
+                owner.bodyController.PlayHandAction(HandAction.Slash_Vertical_Ready, 0.2f, null);
+            }
         }
-        base.PressRightBtn();
+        base.PressRightClick(time);
     }
-    public override void ReleaseRightBtn()
+    public override void ReleaseRightClick(float time)
     {
-        if (owner && press)
+        if (owner)
         {
-            press = false;
-            owner.bodyController.PlayHandAction(HandAction.Slash_Vertical_Release, 1, null);
+            rightPressTimer = 0;
+            alreadyAttack = false;
+            owner.skillSector.Update_SIsector(rightPosition, rightPressTimer, 180f);
+            if (rightPressState)
+            {
+                rightPressState = false;
+                owner.bodyController.PlayHandAction(HandAction.Slash_Vertical_Release, 1, null);
+            }
         }
-        base.ReleaseRightBtn();
+        base.ReleaseRightClick(time);
+    }
+    public override void MousePosition(Vector3 mouse, float time)
+    {
+        rightPosition = mouse;
+        base.MousePosition(mouse, time);
+    }
+    private void Slash_Vertical(string name)
+    {
+        if (name == "Slash_Vertical")
+        {
+            owner.skillSector.Checkout_SIsector(7, out Transform[] target);
+            owner.skillSector.Update_SIsector(rightPosition, 0, 0);
+            for (int i = 0; i < target.Length; i++)
+            {
+                Debug.Log(target);
+                if (target[i].TryGetComponent(out TileObj furniture))
+                {
+                    furniture.Damaged(attack);
+                }
+            }
+        }
     }
 }
 /// <summary>
@@ -86,13 +168,13 @@ public class Item_2002 : ItemBase
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_2002");
         base.BeHolding(owner, hand);
     }
-    public override void ClickLeftBtn()
+    public override void ClickLeftClick(float time)
     {
         if (owner)
         {
             owner.bodyController.PlayHandAction(HandAction.Slash_Horizontal, 0.2f, null);
         }
-        base.ClickLeftBtn();
+        base.ClickLeftClick(time);
     }
 
 }

@@ -21,7 +21,8 @@ public class UI_GridCell : MonoBehaviour
 
     private ItemConfig _itemConfig;
     private int _itemID;
-    private int _itemCount;
+    private int _itemCurCount;
+    private int _itemMaxCount;
     private string _itemInfo; 
     private UI_Grid _parentGrid;
 
@@ -49,7 +50,8 @@ public class UI_GridCell : MonoBehaviour
         _itemConfig = itemConfig;
 
         _itemID = itemConfig.Item_ID;
-        _itemCount = itemConfig.Item_Count;
+        _itemCurCount = itemConfig.Item_CurCount;
+        _itemMaxCount = itemConfig.Item_MaxCount;
         _itemInfo = itemConfig.Item_Info;
 
         _clickLeft = clickLeft;
@@ -61,9 +63,9 @@ public class UI_GridCell : MonoBehaviour
     private void DrawCell()
     {
         image_Icon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemIcon").GetSprite("Item_" + _itemID.ToString());
-        if (_itemCount > 0)
+        if (_itemCurCount > 0)
         {
-            text_Count.text = _itemCount.ToString();
+            text_Count.text = _itemCurCount.ToString();
         }
     }
     private void BindAction()

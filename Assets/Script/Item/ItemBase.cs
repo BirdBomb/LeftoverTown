@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
+using Vector3 = UnityEngine.Vector3;
+
 public class ItemBase
 {
     private ItemConfig itemConfig;
@@ -23,35 +26,49 @@ public class ItemBase
     /// <summary>
     /// ÓÒ¼üµã»÷
     /// </summary>
-    public virtual void ClickRightBtn()
+    public virtual void ClickRightClick(float time)
     {
 
     }
     /// <summary>
     /// ÓÒ¼ü°´Ñ¹
     /// </summary>
-    public virtual void PressRightBtn()
+    public virtual void PressRightClick(float time)
     {
 
     }
     /// <summary>
     /// ÓÒ¼üÊÍ·Å
     /// </summary>
-    public virtual void ReleaseRightBtn()
+    public virtual void ReleaseRightClick(float time)
     {
 
     }
     /// <summary>
     /// ×ó¼üµã»÷
     /// </summary>
-    public virtual void ClickLeftBtn()
+    public virtual void ClickLeftClick(float time)
     {
 
     }
     /// <summary>
     /// ×ó¼ü°´Ñ¹
     /// </summary>
-    public virtual void PressLeftBtn()
+    public virtual void PressLeftClick(float time)
+    {
+
+    }
+    /// <summary>
+    /// ×ó¼üÊÍ·Å
+    /// </summary>
+    public virtual void ReleaseLeftClick(float time)
+    {
+
+    }
+    /// <summary>
+    /// Êó±êÎ»ÖÃ
+    /// </summary>
+    public virtual void MousePosition(Vector3 mouse, float time)
     {
 
     }

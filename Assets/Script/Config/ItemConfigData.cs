@@ -5,16 +5,21 @@ using UnityEngine;
 
 public class ItemConfigData : MonoBehaviour
 {
+    public static ItemConfig GetItemConfig(int ID)
+    {
+        return itemConfigs.Find((x) => { return x.Item_ID == ID; });
+    }
     /*
-     * 1000 - 1999 工具
-     * 2000 - 2999 材料
+     * 1000 - 1999 材料
+     * 2000 - 2999 工具
      * 
      */
     public readonly static List<ItemConfig> itemConfigs = new List<ItemConfig>()
     {
-        new ItemConfig(){ Item_ID = 0,Item_Name = "原初木棍",Item_Desc = "",Item_Count = 0,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 2001,Item_Name = "木斧头",Item_Desc = "",Item_Count = 0,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 2002,Item_Name = "铁斧头",Item_Desc = "",Item_Count = 0,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 0,Item_Name = "原初木棍",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 9,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 1001,Item_Name = "原木",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 9,Item_Type = ItemType.Materials,Average_Weight = 1,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2001,Item_Name = "木斧头",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2002,Item_Name = "铁斧头",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
     };
 }
 [Serializable]
@@ -26,8 +31,10 @@ public struct ItemConfig
     public string Item_Name;
     [SerializeField]/*描述*/
     public string Item_Desc;
-    [SerializeField]/*数量*/
-    public int Item_Count;
+    [SerializeField]/*当前数量*/
+    public int Item_CurCount;
+    [SerializeField]/*最大数量*/
+    public int Item_MaxCount;
     [SerializeField]/*类别*/
     public ItemType Item_Type;
     [SerializeField]/*重量*/

@@ -9,11 +9,14 @@ using UnityEngine;
 public class HumanBodyController : BaseBodyController
 {
     public Animator Animator_Head;
+    public AnimaEventListen AnimaEventListen_Head;
     public Animator Animator_Body;
-
+    public AnimaEventListen AnimaEventListen_Body;
     public Animator Animator_Hand;
+    public AnimaEventListen AnimaEventListen_Hand;
     public Animator Animator_Leg;
-    public override void PlayBodyAction(BodyAction bodyAction, float speed, Action<BaseBehaviorController> action)
+    public AnimaEventListen AnimaEventListen_Leg;
+    public override void PlayBodyAction(BodyAction bodyAction, float speed, Action<string> action)
     {
         if (bodyAction == BodyAction.Move)
         {
@@ -31,7 +34,7 @@ public class HumanBodyController : BaseBodyController
 
         base.PlayBodyAction(bodyAction, speed, null);
     }
-    public override void PlayHeadAction(HeadAction headAction, float speed, Action<BaseBehaviorController> action)
+    public override void PlayHeadAction(HeadAction headAction, float speed, Action<string> action)
     {
         if (headAction == HeadAction.Move)
         {
@@ -46,10 +49,21 @@ public class HumanBodyController : BaseBodyController
             Animator_Head.SetBool("Idle", true);
             Animator_Head.speed = speed;
         }
+        if( headAction == HeadAction.LowerHead)
+        {
+            Animator_Head.SetTrigger("LowerHead");
+            Animator_Head.speed = speed;
+        }
         base.PlayHeadAction(headAction, speed, action);
     }
-    public override void PlayHandAction(HandAction handAction, float speed, Action<BaseBehaviorController> action)
+    public override void PlayHandAction(HandAction handAction, float speed, Action<string> action)
     {
+        AnimaEventListen_Hand.BindEvent(action);
+        if (handAction == HandAction.PickUp)
+        {
+            Animator_Hand.SetTrigger("Hand_PickUp");
+            Animator_Hand.speed = speed;
+        }
         if (handAction == HandAction.Slash_Horizontal)
         {
             Animator_Hand.SetTrigger("Slash_Horizontal");

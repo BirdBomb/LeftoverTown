@@ -22,14 +22,12 @@ public class CowBehaviorController : BaseBehaviorController
             {
                 tempPosMyPos = GetMyPos();
                 tempPosTargetPos = LookAt[i].GetMyPos();
-                Debug.Log(tempPosMyPos);
-                Debug.Log(tempPosTargetPos);
 
                 /*警惕目标还在范围内*/
                 if (Vector2.Distance(tempPosMyPos, tempPosTargetPos) < LocalScope)
                 {
                     temp++;
-                    FindPathByPos(tempPosMyPos + (tempPosMyPos - tempPosTargetPos).normalized, tempPosMyPos);
+                    FindPath(tempPosMyPos + (tempPosMyPos - tempPosTargetPos).normalized, tempPosMyPos);
                 }
             }
             /*警惕目标丢失*/
@@ -55,9 +53,8 @@ public class CowBehaviorController : BaseBehaviorController
                 /*有生物进入领地范围,朝相反方向移动*/
                 if (Vector2.Distance(tempPosMyPos, tempPosTargetPos) < LocalScope)
                 {
-                    Debug.Log("run");
                     LookAt.Add(who);
-                    FindPathByPos(tempPosMyPos + (tempPosMyPos - tempPosTargetPos).normalized, tempPosMyPos);
+                    FindPath(tempPosMyPos + (tempPosMyPos - tempPosTargetPos).normalized, tempPosMyPos);
                 }
             }
         }

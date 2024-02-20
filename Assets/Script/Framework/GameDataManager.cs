@@ -1,6 +1,6 @@
-using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -54,7 +54,8 @@ public class GameDataManager :SingleTon<GameDataManager> ,ISingleTon
         {
             for (int y = area.yMin; y < area.yMax; y++)
             {
-                tileGrid.tiles[x + "," + y] = mapManager.SaveTile(new Vector3Int(x, y, 0));
+                mapManager.SaveTile(new Vector3Int(x, y, 0),out string json);
+                tileGrid.tiles[x + "," + y] = json;
             }
         }
         Debug.Log(JsonConvert.SerializeObject(tileGrid));

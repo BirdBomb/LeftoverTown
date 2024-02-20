@@ -12,9 +12,9 @@ TagManager:
   - Water
   - UI
   - Role
-  - Tile
-  - 
-  - 
+  - Tile_Ground
+  - Tile_Furniture
+  - ItemObj
   - 
   - 
   - 

@@ -28,4 +28,11 @@ public class PlayerEvent
     {
         public ItemConfig itemConfig;
     }
+    /// <summary>
+    /// 玩家UI-更新背包物体
+    /// </summary>
+    public class PlayerEvent_UI_UpdateItemInBag
+    {
+        public List<ItemConfig> itemConfigs;
+    }
 }

@@ -13,14 +13,17 @@ public class BaseBehaviorController : MonoBehaviour
 {
     [Header("身体控制器")]
     public BaseBodyController bodyController;
+    [Header("技能指示器")]
+    public SI_Sector skillSector;
     [Header("手部持有物")]
     public ItemBase holdingByHand = new ItemBase();
-
+    private Vector2 faceTo = Vector2.zero;
     [SerializeField]
     public RoleData Data = new RoleData();
+    public bool isPlayer = false; 
     private void Start()
     {
-        navManager = GameObject.Find("Grid").GetComponent<NavManager>();
+        navManager = GameObject.Find("Furniture").GetComponent<NavManager>();
         MessageBroker.Default.Receive<GameEvent.GameEvent_SomeoneMove>().Subscribe(_ =>
         {
             ListenRoleMove(_.moveRole,_.moveTile);
@@ -60,9 +63,10 @@ public class BaseBehaviorController : MonoBehaviour
     {
         tempVector += vector2;
     }
-    public virtual void InputFaceVector(Vector3 mousePostion)
+    public virtual void InputFaceVector(Vector3 face)
     {
-        if (Camera.main.ScreenToWorldPoint(mousePostion).x > transform.position.x)
+        faceTo = face;
+        if (faceTo.x > 0)
         {
             FaceRight();
         }
@@ -106,6 +110,7 @@ public class BaseBehaviorController : MonoBehaviour
         }
 
         curTile = GetMyTile();
+        if (!curTile) { return; }
         if (lastTile == null) { lastTile = curTile; }
         if (lastTile.pos != curTile.pos)
         {
@@ -160,12 +165,18 @@ public class BaseBehaviorController : MonoBehaviour
     /*寻路*/
     #region
     public List<MyTile> myLoad = new List<MyTile>();
-
     public NavManager navManager;
     public MyTile GetMyTile()
     {
-        Vector3Int vector3Int = navManager.grid.WorldToCell(transform.position);
-        return (MyTile)navManager.tilemap.GetTile(vector3Int);
+        if (navManager != null)
+        {
+            Vector3Int vector3Int = navManager.grid.WorldToCell(transform.position);
+            return (MyTile)navManager.tilemap.GetTile(vector3Int);
+        }
+        else
+        {
+            return null;
+        }
     }
     List<MyTile> tempTiles = new List<MyTile>();
     public List<MyTile> GetNearbyTile()
@@ -180,14 +191,13 @@ public class BaseBehaviorController : MonoBehaviour
         tempTiles.Add((MyTile)navManager.tilemap.GetTile(new Vector3Int(tile.x, tile.y - 1, 0)));
         return tempTiles;
     }
-
     public Vector2 GetMyPos()
     {
         int X = (int)(transform.position.x);
         int Y = (int)(transform.position.y);
         return new Vector2(X,Y);
     }
-    public void FindPathByPos(Vector2 to,Vector2 from,int Step = -1)
+    public void FindPath(Vector2 to,Vector2 from,int Step = -1)
     {
         if (myLoad != null)
         {
@@ -195,11 +205,11 @@ public class BaseBehaviorController : MonoBehaviour
         }
         myLoad = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
         UpdatePath(Step);
-    }
-    public void UpdatePath(int Step)
-    {
-        tempStep = Step;
-        MoveByPath(myLoad);
+        void UpdatePath(int Step)
+        {
+            tempStep = Step;
+            MoveByPath(myLoad);
+        }
     }
     #endregion
     /*监听*/
@@ -223,34 +233,86 @@ public class BaseBehaviorController : MonoBehaviour
     #endregion
     /*行为*/
     #region
-    /// <summary>
-    /// 把物体拿在手上
-    /// </summary>
-    public void HoldItem(ItemConfig config)
+    public void PickUpItem_Bag(ItemObj itemObj)
+    {
+        Debug.Log("PickUp");
+        bodyController.PlayHeadAction( HeadAction.LowerHead, 1, null);
+        bodyController.PlayHandAction( HandAction.PickUp,1,
+            (string x) => 
+            {
+                Debug.Log("OK"+x);
+                if (x == "PickUp")
+                {
+                    Debug.Log("OKthan");
+                    itemObj.PickUp(this);
+                }
+            });
+    }
+    public void AddItem_Hand(ItemConfig config)
     {
         Type type = Type.GetType("Item_" + config.Item_ID.ToString());
         holdingByHand = (ItemBase)Activator.CreateInstance(type);
         holdingByHand.Init(config);
         holdingByHand.BeHolding(this, bodyController.Hand_Right);
     }
-    /// <summary>
-    /// 使用手上的物体
-    /// </summary>
-    public void UseItem(ItemConfig config)
+    public void UseItem_Hand(ItemConfig config)
     {
         
     }
-    /// <summary>
-    /// 获得物体
-    /// </summary>
-    public void AddItem(ItemConfig config)
+    public void SubItem_Hand(ItemConfig config)
     {
-        Data.Holding_BagList.Add(config);
+
     }
-    /// <summary>
-    /// 失去物体
-    /// </summary>
-    public void SubItem(ItemConfig config)
+    public void AddItem_Bag(ItemConfig config)
+    {
+        /*传入物体数量不能为零*/
+        if(config.Item_CurCount <= 0) { config.Item_CurCount = 1; }
+        /*遍历背包*/
+        for(int i = 0; i < Data.Holding_BagList.Count; i++)
+        {
+            /*检查背包里有同种物体*/
+            if (Data.Holding_BagList[i].Item_ID == config.Item_ID)
+            {
+                /*检查背包里的同种物体是否达到堆叠最大值*/
+                if (Data.Holding_BagList[i].Item_CurCount < Data.Holding_BagList[i].Item_MaxCount)
+                {
+                    ItemConfig tempItem = Data.Holding_BagList[i];
+                    /*剩余最大值不够这个物体的叠加*/
+                    if (Data.Holding_BagList[i].Item_MaxCount - Data.Holding_BagList[i].Item_CurCount < config.Item_CurCount)
+                    {
+                        tempItem.Item_CurCount = tempItem.Item_MaxCount;
+                        config.Item_CurCount -= (Data.Holding_BagList[i].Item_MaxCount - Data.Holding_BagList[i].Item_CurCount);
+                        Data.Holding_BagList[i] = tempItem;
+                    }
+                    /*剩余最大值够这个物体的叠加*/
+                    else
+                    {
+                        tempItem.Item_CurCount += config.Item_CurCount;
+                        config.Item_CurCount = 0; 
+                        Data.Holding_BagList[i] = tempItem;
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+            }
+        }
+        /*遍历一遍之后还有剩余*/
+        if(config.Item_CurCount > 0)
+        {
+            Data.Holding_BagList.Add(config);
+        }
+        if (isPlayer)
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_UI_UpdateItemInBag()
+            {
+                itemConfigs = Data.Holding_BagList
+            });
+        }
+
+    }
+    public void SubItem_Bag(ItemConfig config)
     {
         Data.Holding_BagList.Remove(config);
     }

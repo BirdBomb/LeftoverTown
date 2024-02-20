@@ -23,7 +23,7 @@ public class UIManager : SingleTon<UIManager>, ISingleTon
         GameObject obj = _Pool[name].Pop();
         obj.SetActive(true);
         obj.transform.SetParent(_Panel,false);
-        obj.transform.position = Camera.main.WorldToScreenPoint(pos);
+        obj.transform.position = Camera.main.WorldToScreenPoint(pos +(Vector2)Camera.main.transform.position);
         return obj;
     }
     public void HideUI(string name, GameObject ui)

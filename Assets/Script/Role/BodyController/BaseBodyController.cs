@@ -27,7 +27,7 @@ public class BaseBodyController : MonoBehaviour
     /// <summary>
     /// 播放身体动画
     /// </summary>
-    public virtual void PlayBodyAction(BodyAction bodyAction, float speed, Action<BaseBehaviorController> action)
+    public virtual void PlayBodyAction(BodyAction bodyAction, float speed, Action<string> action)
     {
 
     }
@@ -35,7 +35,7 @@ public class BaseBodyController : MonoBehaviour
     /// 播放头部动画
     /// </summary>
     /// <param name="headAction"></param>
-    public virtual void PlayHeadAction(HeadAction headAction, float speed, Action<BaseBehaviorController> action)
+    public virtual void PlayHeadAction(HeadAction headAction, float speed, Action<string> action)
     {
 
     }
@@ -45,7 +45,7 @@ public class BaseBodyController : MonoBehaviour
     /// <param name="handAction"></param>
     /// <param name="speed"></param>
     /// <param name="action"></param>
-    public virtual void PlayHandAction(HandAction handAction,float speed,Action<BaseBehaviorController> action)
+    public virtual void PlayHandAction(HandAction handAction,float speed,Action<string> action)
     {
 
     }
@@ -68,6 +68,7 @@ public enum HeadAction
 {
     Idle,
     Move,
+    LowerHead
 }
 public enum HandAction
 {
@@ -89,11 +90,30 @@ public enum HandAction
     /// 竖直劈砍释放
     /// </summary>
     Slash_Vertical_Release,
-    Spear,//戳刺
-    Lift,//举起
-    Recoil,//后坐力
-    Idle,//静止
-    Step,//步伐
+    /// <summary>
+    /// 戳刺
+    /// </summary>
+    Spear,
+    /// <summary>
+    /// 举起
+    /// </summary>
+    Lift,
+    /// <summary>
+    /// 后坐力
+    /// </summary>
+    Recoil,
+    /// <summary>
+    /// 拾起
+    /// </summary>
+    PickUp,
+    /// <summary>
+    /// 呼吸
+    /// </summary>
+    Idle,
+    /// <summary>
+    /// 步伐
+    /// </summary>
+    Step,
 }
 public enum LegAction
 {

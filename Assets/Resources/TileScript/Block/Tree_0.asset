@@ -31,15 +31,15 @@ MonoBehaviour:
     e31: 0
     e32: 0
     e33: 1
-  m_InstancedGameObject: {fileID: 223198607764510710, guid: cfa9134a7fe751a48ac62278b2af46af, type: 3}
+  m_InstancedGameObject: {fileID: 0}
   m_Flags: 1
   m_ColliderType: 2
-  passType: 2
+  passType: 0
   interactiveType: 0
-  passOffset: 99
-  x: 44
-  y: 33
-  pos: {x: 0, y: 0}
+  passOffset: 0
+  x: 15
+  y: 0
+  pos: {x: 15, y: 0}
   _temp_DistanceMain: 0
   _temp_DistanceToFrom: 0
   _temp_DistanceToTarget: 0
