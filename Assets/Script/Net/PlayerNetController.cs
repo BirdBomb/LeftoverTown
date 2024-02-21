@@ -23,7 +23,7 @@ public class PlayerNetController : NetworkBehaviour
     private bool right_press = false;
     public override void FixedUpdateNetwork()
     {
-        if (Object.HasStateAuthority&&GetInput(out NetworkInputData data))
+        if (Object.HasStateAuthority && GetInput(out NetworkInputData data))
         {
             moveDir_temp = Vector2.zero;
             if (data.ClickLeftMouse > 0)
@@ -61,6 +61,7 @@ public class PlayerNetController : NetworkBehaviour
 
             if (data.goRight)
             {
+                Debug.Log("s");
                 moveDir_temp += new Vector2(1, 0);
             }
             if (data.goLeft)
