@@ -52,6 +52,7 @@ public class PlayerController : MonoBehaviour
     /// <param name="rightPress"></param>
     public void InputMouse(bool leftClick,bool rightClick,bool leftPress,bool rightPress, float time)
     {
+        Debug.Log(rightPress);
         if (leftClick) { baseBehaviorController.holdingByHand.ClickLeftClick(time); }
         if (rightClick) { baseBehaviorController.holdingByHand.ClickRightClick(time); }
         if (leftPress) { baseBehaviorController.holdingByHand.PressLeftClick(time); }

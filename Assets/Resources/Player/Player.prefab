@@ -149,7 +149,6 @@ GameObject:
   - component: {fileID: 5796245345849443864}
   - component: {fileID: 2107887346306368779}
   - component: {fileID: 4700032786192033993}
-  - component: {fileID: 4673345818144398472}
   m_Layer: 0
   m_Name: Head
   m_TagString: Untagged
@@ -257,24 +256,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f88e8507930160a4393f3006b6c3ae0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4673345818144398472
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2078427177422873290}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 506319458, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Animator: {fileID: 2107887346306368779}
-  TotalWords: 1
-  ApplyTiming: 2
-  SyncSettings: 79
-  StateHashes: 000000002b1a167c7940695502518be3500bf4ca49b295aca2711d51
-  TriggerHashes: 00000000f7130503
 --- !u!1 &2605667857106199952
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,7 +435,6 @@ GameObject:
   - component: {fileID: 4027559919473431314}
   - component: {fileID: 3131931894819008118}
   - component: {fileID: 7893506350998783715}
-  - component: {fileID: 8762395850329802961}
   m_Layer: 0
   m_Name: Hand
   m_TagString: Untagged
@@ -512,24 +492,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f88e8507930160a4393f3006b6c3ae0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &8762395850329802961
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3539739904764776903}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 506319458, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Animator: {fileID: 3131931894819008118}
-  TotalWords: 1
-  ApplyTiming: 2
-  SyncSettings: 79
-  StateHashes: 000000002df9c126f35280452b1a167c7940695502518be3500bf4ca31e35691df819ee489ad89d1049ff6ff70d913fd436a36ca
-  TriggerHashes: 000000002df9c12631e3569189ad89d126977efbebf2c04e
 --- !u!1 &3738847054973931422
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,7 +503,6 @@ GameObject:
   - component: {fileID: 4421023233535970336}
   - component: {fileID: 4111008411581940894}
   - component: {fileID: 2027835273665219984}
-  - component: {fileID: 8261083392868127013}
   m_Layer: 0
   m_Name: Leg
   m_TagString: Untagged
@@ -599,24 +560,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f88e8507930160a4393f3006b6c3ae0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &8261083392868127013
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3738847054973931422}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 506319458, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Animator: {fileID: 4111008411581940894}
-  TotalWords: 1
-  ApplyTiming: 2
-  SyncSettings: 79
-  StateHashes: 0000000002518be3500bf4ca2b1a167c79406955
-  TriggerHashes: 00000000
 --- !u!1 &3893875658688742580
 GameObject:
   m_ObjectHideFlags: 0
@@ -767,7 +710,6 @@ GameObject:
   - component: {fileID: 6624507632653350112}
   - component: {fileID: 1565239593870667187}
   - component: {fileID: 1815212672513195986}
-  - component: {fileID: 3449276026004226572}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -875,24 +817,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f88e8507930160a4393f3006b6c3ae0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3449276026004226572
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4949881050819535583}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 506319458, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Animator: {fileID: 1565239593870667187}
-  TotalWords: 1
-  ApplyTiming: 2
-  SyncSettings: 79
-  StateHashes: 000000002b1a167c7940695502518be3500bf4ca
-  TriggerHashes: 00000000
 --- !u!1 &5344209725395026795
 GameObject:
   m_ObjectHideFlags: 0
@@ -1013,16 +937,12 @@ MonoBehaviour:
   Hand_Right: {fileID: 8252820358325040457}
   Hand_Left: {fileID: 2065712486508948466}
   Animator_Head: {fileID: 2107887346306368779}
-  Animator_Head_Network: {fileID: 4673345818144398472}
   AnimaEventListen_Head: {fileID: 4700032786192033993}
   Animator_Body: {fileID: 1565239593870667187}
-  Animator_Body_Network: {fileID: 3449276026004226572}
   AnimaEventListen_Body: {fileID: 1815212672513195986}
   Animator_Hand: {fileID: 3131931894819008118}
-  Animator_Hand_Network: {fileID: 8762395850329802961}
   AnimaEventListen_Hand: {fileID: 7893506350998783715}
   Animator_Leg: {fileID: 4111008411581940894}
-  Animator_Leg_Network: {fileID: 8261083392868127013}
   AnimaEventListen_Leg: {fileID: 2027835273665219984}
 --- !u!61 &2022657539192607843
 BoxCollider2D:
@@ -1141,10 +1061,6 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 4609965642842415961}
   - {fileID: 4250873288007187344}
-  - {fileID: 4673345818144398472}
-  - {fileID: 3449276026004226572}
-  - {fileID: 8762395850329802961}
-  - {fileID: 8261083392868127013}
 --- !u!114 &4250873288007187344
 MonoBehaviour:
   m_ObjectHideFlags: 0

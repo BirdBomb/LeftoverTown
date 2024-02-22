@@ -61,7 +61,6 @@ public class PlayerNetController : NetworkBehaviour
 
             if (data.goRight)
             {
-                Debug.Log("s");
                 moveDir_temp += new Vector2(1, 0);
             }
             if (data.goLeft)
@@ -76,11 +75,40 @@ public class PlayerNetController : NetworkBehaviour
             {
                 moveDir_temp += new Vector2(0, -1);
             }
-            playerController.InputMouse(left_click, right_click, left_press, right_press,Runner.DeltaTime);
-            playerController.InputMoveDir(moveDir_temp,Runner.DeltaTime,data.goFaster);
-            playerController.InputFaceDir(data.mousePostion, Runner.DeltaTime);
+            LeftClick = left_click;
+            RightClick = right_click;
+            LeftPress = left_press;
+            RightPress = right_press;
+            MoveDir = moveDir_temp;
+            MoveSpeedUp = data.goFaster;
+            MousePostion = data.mousePostion;
+
         }
+        playerController.InputMouse(LeftClick, RightClick, LeftPress, RightPress, Runner.DeltaTime);
+        playerController.InputMoveDir(MoveDir, Runner.DeltaTime, MoveSpeedUp);
+        playerController.InputFaceDir(MousePostion, Runner.DeltaTime);
+
         base.FixedUpdateNetwork();
+    }
+    [Networked]
+    public bool LeftClick { get; set; } = false;
+    [Networked]
+    public bool RightClick { get; set; } = false;
+    [Networked]
+    public bool LeftPress { get; set; } = false;
+    [Networked]
+    public bool RightPress { get; set; } = false;
+    [Networked]
+    public Vector2 MoveDir { get; set; } = Vector2.zero;
+    [Networked]
+    public bool MoveSpeedUp { get; set; } = false;
+    [Networked]
+    public Vector3 MousePostion { get; set; } = Vector3.zero;
+    public void FixedUpdate()
+    {
+        //playerController.InputMouse(LeftClick, RightClick, LeftPress, RightPress, Time.fixedDeltaTime);
+        //playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
+        //playerController.InputFaceDir(MousePostion, Time.fixedDeltaTime);
     }
 }
 
