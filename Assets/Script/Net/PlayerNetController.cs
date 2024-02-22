@@ -84,9 +84,9 @@ public class PlayerNetController : NetworkBehaviour
             MousePostion = data.mousePostion;
 
         }
-        playerController.InputMouse(LeftClick, RightClick, LeftPress, RightPress, Runner.DeltaTime);
-        playerController.InputMoveDir(MoveDir, Runner.DeltaTime, MoveSpeedUp);
-        playerController.InputFaceDir(MousePostion, Runner.DeltaTime);
+        //playerController.InputMouse(LeftClick, RightClick, LeftPress, RightPress, Runner.DeltaTime);
+        //playerController.InputMoveDir(MoveDir, Runner.DeltaTime, MoveSpeedUp);
+        //playerController.InputFaceDir(MousePostion, Runner.DeltaTime);
 
         base.FixedUpdateNetwork();
     }
@@ -106,9 +106,9 @@ public class PlayerNetController : NetworkBehaviour
     public Vector3 MousePostion { get; set; } = Vector3.zero;
     public void FixedUpdate()
     {
-        //playerController.InputMouse(LeftClick, RightClick, LeftPress, RightPress, Time.fixedDeltaTime);
-        //playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
-        //playerController.InputFaceDir(MousePostion, Time.fixedDeltaTime);
+        playerController.InputMouse(LeftClick, RightClick, LeftPress, RightPress, Time.fixedDeltaTime);
+        playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
+        playerController.InputFaceDir(MousePostion, Time.fixedDeltaTime);
     }
 }
 
