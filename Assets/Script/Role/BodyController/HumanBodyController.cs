@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 /// <summary>
 /// 人型身体控制器
 /// </summary>
@@ -9,27 +10,31 @@ using UnityEngine;
 public class HumanBodyController : BaseBodyController
 {
     public Animator Animator_Head;
+    public NetworkMecanimAnimator Animator_Head_Network;
     public AnimaEventListen AnimaEventListen_Head;
     public Animator Animator_Body;
+    public NetworkMecanimAnimator Animator_Body_Network;
     public AnimaEventListen AnimaEventListen_Body;
     public Animator Animator_Hand;
+    public NetworkMecanimAnimator Animator_Hand_Network;
     public AnimaEventListen AnimaEventListen_Hand;
     public Animator Animator_Leg;
+    public NetworkMecanimAnimator Animator_Leg_Network;
     public AnimaEventListen AnimaEventListen_Leg;
     public override void PlayBodyAction(BodyAction bodyAction, float speed, Action<string> action)
     {
         if (bodyAction == BodyAction.Move)
         {
-            Animator_Body.SetBool("Step", true);
-            Animator_Body.SetBool("Idle", false);
-            Animator_Body.speed = speed;
+            Animator_Body_Network.Animator.SetBool("Step", true);
+            Animator_Body_Network.Animator.SetBool("Idle", false);
+            Animator_Body_Network.Animator.speed = speed;
 
         }
         if (bodyAction == BodyAction.Idle)
         {
-            Animator_Body.SetBool("Step", false);
-            Animator_Body.SetBool("Idle", true);
-            Animator_Body.speed = speed;
+            Animator_Body_Network.Animator.SetBool("Step", false);
+            Animator_Body_Network.Animator.SetBool("Idle", true);
+            Animator_Body_Network.Animator.speed = speed;
         }
 
         base.PlayBodyAction(bodyAction, speed, null);
@@ -38,21 +43,21 @@ public class HumanBodyController : BaseBodyController
     {
         if (headAction == HeadAction.Move)
         {
-            Animator_Head.SetBool("Step", true);
-            Animator_Head.SetBool("Idle", false);
-            Animator_Head.speed = speed;
+            Animator_Head_Network.Animator.SetBool("Step", true);
+            Animator_Head_Network.Animator.SetBool("Idle", false);
+            Animator_Head_Network.Animator.speed = speed;
 
         }
         if (headAction == HeadAction.Idle)
         {
-            Animator_Head.SetBool("Step", false);
-            Animator_Head.SetBool("Idle", true);
-            Animator_Head.speed = speed;
+            Animator_Head_Network.Animator.SetBool("Step", false);
+            Animator_Head_Network.Animator.SetBool("Idle", true);
+            Animator_Head_Network.Animator.speed = speed;
         }
         if( headAction == HeadAction.LowerHead)
         {
-            Animator_Head.SetTrigger("LowerHead");
-            Animator_Head.speed = speed;
+            Animator_Head_Network.SetTrigger("LowerHead");
+            Animator_Head_Network.Animator.speed = speed;
         }
         base.PlayHeadAction(headAction, speed, action);
     }
@@ -61,47 +66,47 @@ public class HumanBodyController : BaseBodyController
         AnimaEventListen_Hand.BindEvent(action);
         if (handAction == HandAction.PickUp)
         {
-            Animator_Hand.SetTrigger("Hand_PickUp");
-            Animator_Hand.speed = speed;
+            Animator_Hand_Network.SetTrigger("Hand_PickUp");
+            Animator_Hand_Network.Animator.speed = speed;
         }
         if (handAction == HandAction.Slash_Horizontal)
         {
-            Animator_Hand.SetTrigger("Slash_Horizontal");
-            Animator_Hand.speed = speed;
+            Animator_Hand_Network.SetTrigger("Slash_Horizontal");
+            Animator_Hand_Network.Animator.speed = speed;
         }
         if (handAction == HandAction.Slash_Vertical)
         {
-            Animator_Hand.SetTrigger("Slash_Vertical");
-            Animator_Hand.speed = speed;
+            Animator_Hand_Network.SetTrigger("Slash_Vertical");
+            Animator_Hand_Network.Animator.speed = speed;
         }
         if (handAction == HandAction.Slash_Vertical_Ready)
         {
-            Animator_Hand.SetTrigger("Slash_Vertical_Ready");
-            Animator_Hand.SetBool("Slash_Vertical_Release", false);
-            Animator_Hand.ResetTrigger("Slash_Vertical_Play");
-            Animator_Hand.speed = speed;
+            Animator_Hand_Network.SetTrigger("Slash_Vertical_Ready");
+            Animator_Hand_Network.Animator.SetBool("Slash_Vertical_Release", false);
+            Animator_Hand_Network.Animator.ResetTrigger("Slash_Vertical_Play");
+            Animator_Hand_Network.Animator.speed = speed;
         }
         if (handAction == HandAction.Slash_Vertical_Play)
         {
-            Animator_Hand.SetTrigger("Slash_Vertical_Play");
-            Animator_Hand.speed = speed;
+            Animator_Hand_Network.SetTrigger("Slash_Vertical_Play");
+            Animator_Hand_Network.Animator.speed = speed;
         }
         if (handAction == HandAction.Slash_Vertical_Release)
         {
-            Animator_Hand.SetBool("Slash_Vertical_Release",true);
-            Animator_Hand.speed = speed;
+            Animator_Hand_Network.Animator.SetBool("Slash_Vertical_Release",true);
+            Animator_Hand_Network.Animator.speed = speed;
         }
         if (handAction == HandAction.Step)
         {
-            Animator_Hand.SetBool("Step", true);
-            Animator_Hand.SetBool("Idle", false);
-            Animator_Hand.speed = speed;
+            Animator_Hand_Network.Animator.SetBool("Step", true);
+            Animator_Hand_Network.Animator.SetBool("Idle", false);
+            Animator_Hand_Network.Animator.speed = speed;
         }
         if (handAction == HandAction.Idle)
         {
-            Animator_Hand.SetBool("Step", false);
-            Animator_Hand.SetBool("Idle", true);
-            Animator_Hand.speed = speed;
+            Animator_Hand_Network.Animator.SetBool("Step", false);
+            Animator_Hand_Network.Animator.SetBool("Idle", true);
+            Animator_Hand_Network.Animator.speed = speed;
         }
 
         base.PlayHandAction(handAction, speed, action);
@@ -110,15 +115,15 @@ public class HumanBodyController : BaseBodyController
     {
         if(legAction == LegAction.Step)
         {
-            Animator_Leg.SetBool("Step", true);
-            Animator_Leg.SetBool("Idle", false);
-            Animator_Leg.speed = speed;
+            Animator_Leg_Network.Animator.SetBool("Step", true);
+            Animator_Leg_Network.Animator.SetBool("Idle", false);
+            Animator_Leg_Network.Animator.speed = speed;
         }
         if (legAction == LegAction.Idle)
         {
-            Animator_Leg.SetBool("Step", false);
-            Animator_Leg.SetBool("Idle", true);
-            Animator_Leg.speed = speed;
+            Animator_Leg_Network.Animator.SetBool("Step", false);
+            Animator_Leg_Network.Animator.SetBool("Idle", true);
+            Animator_Leg_Network.Animator.speed = speed;
         }
         base.PlayLegAction(legAction, speed);
     }

@@ -1013,12 +1013,16 @@ MonoBehaviour:
   Hand_Right: {fileID: 8252820358325040457}
   Hand_Left: {fileID: 2065712486508948466}
   Animator_Head: {fileID: 2107887346306368779}
+  Animator_Head_Network: {fileID: 4673345818144398472}
   AnimaEventListen_Head: {fileID: 4700032786192033993}
   Animator_Body: {fileID: 1565239593870667187}
+  Animator_Body_Network: {fileID: 3449276026004226572}
   AnimaEventListen_Body: {fileID: 1815212672513195986}
   Animator_Hand: {fileID: 3131931894819008118}
+  Animator_Hand_Network: {fileID: 8762395850329802961}
   AnimaEventListen_Hand: {fileID: 7893506350998783715}
   Animator_Leg: {fileID: 4111008411581940894}
+  Animator_Leg_Network: {fileID: 8261083392868127013}
   AnimaEventListen_Leg: {fileID: 2027835273665219984}
 --- !u!61 &2022657539192607843
 BoxCollider2D:
