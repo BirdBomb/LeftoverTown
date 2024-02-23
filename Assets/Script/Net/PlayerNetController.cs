@@ -17,8 +17,6 @@ public class PlayerNetController : NetworkBehaviour
         base.Spawned();
     }
     private Vector2 moveDir_temp;
-    private bool left_click = false;
-    private bool right_click = false;
     private bool left_press = false;
     private bool right_press = false;
     public override void FixedUpdateNetwork()
@@ -96,11 +94,11 @@ public class PlayerNetController : NetworkBehaviour
     public bool MoveSpeedUp { get; set; } = false;
     [Networked]
     public Vector3 MousePostion { get; set; } = Vector3.zero;
-    //public void FixedUpdate()
-    //{
-    //    playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Time.fixedDeltaTime);
-    //    playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
-    //    playerController.InputFaceDir(MousePostion, Time.fixedDeltaTime);
-    //}
+    public void FixedUpdate()
+    {
+        playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Time.fixedDeltaTime);
+        playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
+        playerController.InputFaceDir(MousePostion, Time.fixedDeltaTime);
+    }
 }
 
