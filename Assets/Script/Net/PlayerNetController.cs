@@ -74,12 +74,12 @@ public class PlayerNetController : NetworkBehaviour
             MousePostion = data.mousePostion;
 
         }
-        if (Object.HasInputAuthority)
-        {
-            playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Runner.DeltaTime);
-            playerController.InputMoveDir(MoveDir, Runner.DeltaTime, MoveSpeedUp);
-            playerController.InputFaceDir(MousePostion, Runner.DeltaTime);
-        }
+        //if (Object.HasInputAuthority)
+        //{
+        //    playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Runner.DeltaTime);
+        //    playerController.InputMoveDir(MoveDir, Runner.DeltaTime, MoveSpeedUp);
+        //    playerController.InputFaceDir(MousePostion, Runner.DeltaTime);
+        //}
         base.FixedUpdateNetwork();
     }
     [Networked]
