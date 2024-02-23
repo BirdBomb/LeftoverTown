@@ -96,11 +96,11 @@ public class PlayerNetController : NetworkBehaviour
     public bool MoveSpeedUp { get; set; } = false;
     [Networked]
     public Vector3 MousePostion { get; set; } = Vector3.zero;
-    public void FixedUpdate()
-    {
-        playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Time.fixedDeltaTime);
-        playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
-        playerController.InputFaceDir(MousePostion, Time.fixedDeltaTime);
-    }
+    //public void FixedUpdate()
+    //{
+    //    playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Time.fixedDeltaTime);
+    //    playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
+    //    playerController.InputFaceDir(MousePostion, Time.fixedDeltaTime);
+    //}
 }
 
