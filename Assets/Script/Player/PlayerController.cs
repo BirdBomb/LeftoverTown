@@ -95,7 +95,7 @@ public class PlayerController : MonoBehaviour
     /// <param name="dir">·½Ïò</param>
     public void InputFaceDir(Vector3 dir, float time)
     {
-        dir = Camera.main.ScreenToWorldPoint(dir) - transform.position;
+        dir = dir - transform.position;
         baseBehaviorController.InputFaceVector(dir);
         baseBehaviorController.holdingByHand.MousePosition(dir, time);
     }

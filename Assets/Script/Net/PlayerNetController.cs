@@ -13,6 +13,7 @@ public class PlayerNetController : NetworkBehaviour
         if (!Object.HasInputAuthority)
         {
             playerCamera.enabled = false;
+            transform.position = RealPosition;
         }
         base.Spawned();
     }
@@ -69,15 +70,9 @@ public class PlayerNetController : NetworkBehaviour
             RightPress = right_press;
             MoveDir = moveDir_temp;
             MoveSpeedUp = data.goFaster;
-            MousePostion = data.mousePostion;
-
+            MousePosition = data.mousePostion;
+            RealPosition = transform.position;
         }
-        //if (Object.HasInputAuthority)
-        //{
-        //    playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Runner.DeltaTime);
-        //    playerController.InputMoveDir(MoveDir, Runner.DeltaTime, MoveSpeedUp);
-        //    playerController.InputFaceDir(MousePostion, Runner.DeltaTime);
-        //}
         base.FixedUpdateNetwork();
     }
     [Networked]
@@ -93,12 +88,15 @@ public class PlayerNetController : NetworkBehaviour
     [Networked]
     public bool MoveSpeedUp { get; set; } = false;
     [Networked]
-    public Vector3 MousePostion { get; set; } = Vector3.zero;
+    public Vector3 MousePosition { get; set; } = Vector3.zero;
+    [Networked]
+    public Vector3 RealPosition { get; set; }
     public void FixedUpdate()
     {
         playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Time.fixedDeltaTime);
         playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
-        playerController.InputFaceDir(MousePostion, Time.fixedDeltaTime);
+        playerController.InputFaceDir(MousePosition, Time.fixedDeltaTime);
+
     }
 }
 
