@@ -59,7 +59,10 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
     {
 
         var data = new NetworkInputData();
-        data.mousePostion = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if (Camera.main != null)
+        {
+            data.mousePostion = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        }
 
         if (leftClick > 0)
         {
