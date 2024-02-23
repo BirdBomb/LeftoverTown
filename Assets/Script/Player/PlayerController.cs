@@ -93,9 +93,8 @@ public class PlayerController : MonoBehaviour
     /// 朝向输入
     /// </summary>
     /// <param name="dir">方向</param>
-    public void InputFaceDir(Vector3 dir, float time)
+    public void InputFaceDir(Vector2 dir, float time)
     {
-        dir = dir - transform.position;
         baseBehaviorController.InputFaceVector(dir);
         baseBehaviorController.holdingByHand.MousePosition(dir, time);
     }

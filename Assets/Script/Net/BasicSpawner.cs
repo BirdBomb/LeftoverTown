@@ -61,7 +61,7 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
         var data = new NetworkInputData();
         if (Camera.main != null)
         {
-            data.mousePostion = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            data.facePostion = Camera.main.ScreenToWorldPoint(Input.mousePosition) - Camera.main.transform.position;
         }
 
         if (leftClick > 0)
@@ -217,12 +217,12 @@ public struct NetworkInputData:INetworkInput
     public int ClickQ;
     public int ClickM;
 
-    public Vector3 mousePostion;
     public int ClickLeftMouse;
     public int ClickRightMouse;
     public bool PressLeftMouse;
     public bool PressRightMouse;
 
+    public Vector2 facePostion;
     public bool goUp;
     public bool goDown;
     public bool goLeft;
