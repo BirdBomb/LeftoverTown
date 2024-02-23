@@ -834,7 +834,6 @@ GameObject:
   - component: {fileID: 6256712466871839779}
   - component: {fileID: 4609965642842415961}
   - component: {fileID: 3222013810136728508}
-  - component: {fileID: 4250873288007187344}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1042,6 +1041,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerController: {fileID: 8091430848374201477}
   playerCamera: {fileID: 689959221667614738}
+  _LeftClickTime: 0
+  _RightClickTime: 0
+  _LeftPress: 0
+  _RightPress: 0
+  _MoveDir: {x: 0, y: 0}
+  _MoveSpeedUp: 0
+  _MousePostion: {x: 0, y: 0, z: 0}
 --- !u!114 &3222013810136728508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1060,23 +1066,6 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 4609965642842415961}
-  - {fileID: 4250873288007187344}
---- !u!114 &4250873288007187344
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5344209725395026795}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SyncScale: 0
-  SyncParent: 0
-  _autoAOIOverride: 1
-  DisableSharedModeInterpolation: 0
 --- !u!1 &5878598784549499012
 GameObject:
   m_ObjectHideFlags: 0
