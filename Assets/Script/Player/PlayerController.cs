@@ -15,6 +15,8 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D myRigidbody;
     [Header("物体层级")]
     public LayerMask itemLayer;
+    private int lastLeftClickTime = 0;
+    private int lastRightClickTime = 0;
     /// <summary>
     /// 当前持握的物体编号
     /// </summary>
@@ -50,12 +52,18 @@ public class PlayerController : MonoBehaviour
     /// <param name="rightClick"></param>
     /// <param name="leftPress"></param>
     /// <param name="rightPress"></param>
-    public void InputMouse(bool leftClick,bool rightClick,bool leftPress,bool rightPress, float time)
+    public void InputMouse(int leftClickTime,int rightClickTime,bool leftPress,bool rightPress, float time)
     {
-        Debug.Log(leftClick);
-        Debug.Log(rightPress);
-        if (leftClick) { baseBehaviorController.holdingByHand.ClickLeftClick(time); }
-        if (rightClick) { baseBehaviorController.holdingByHand.ClickRightClick(time); }
+        if (lastLeftClickTime != leftClickTime) 
+        {
+            lastLeftClickTime = leftClickTime;
+            baseBehaviorController.holdingByHand.ClickLeftClick(time); 
+        }
+        if (lastRightClickTime != rightClickTime) 
+        {
+            lastRightClickTime = rightClickTime;
+            baseBehaviorController.holdingByHand.ClickRightClick(time); 
+        }
         if (leftPress) { baseBehaviorController.holdingByHand.PressLeftClick(time); }
         else { baseBehaviorController.holdingByHand.ReleaseLeftClick(time); }
         if (rightPress) { baseBehaviorController.holdingByHand.PressRightClick(time); }

@@ -118,44 +118,52 @@ public class SI_Sector : MonoBehaviour
     }
     public void CreateSprite(float radius, float angle, Color color)
     {
-        /*扇形尺寸*/
-        var size = (int)(radius * 2 * 100);
-        /*实际半径*/
-        var actualRadius = size / 2;
-        /*半角*/
-        var halfAngle = angle / 2;
-        Texture2D texture2D = new Texture2D(size, size);
-        Vector2 centerPixel = Vector2.one * size / 2;
-
-        // 绘制
-        var emptyColor = Color.clear;
-        Vector2 tempPixel;
-        float tempAngle;
-        float tempDisSqr;
-        for (int x = 0; x < size; x ++)
+        if (radius > 0)
         {
-            for (int y = 0; y < size; y ++)
+            /*扇形尺寸*/
+            var size = (int)(radius * 2 * 100);
+            /*实际半径*/
+            var actualRadius = size / 2;
+            /*半角*/
+            var halfAngle = angle / 2;
+            Texture2D texture2D = new Texture2D(size, size);
+            Vector2 centerPixel = Vector2.one * size / 2;
+
+            // 绘制
+            var emptyColor = Color.clear;
+            Vector2 tempPixel;
+            float tempAngle;
+            float tempDisSqr;
+            for (int x = 0; x < size; x++)
             {
-                tempPixel.x = x - centerPixel.x;
-                tempPixel.y = y - centerPixel.y;
-
-                tempDisSqr = tempPixel.sqrMagnitude;
-                if (tempDisSqr <= actualRadius * actualRadius)
+                for (int y = 0; y < size; y++)
                 {
-                    tempAngle = Vector2.Angle(Dir, tempPixel);
-                    if (tempAngle < halfAngle || tempAngle > 360 - halfAngle)
-                    {
-                        //设置像素色值
-                        texture2D.SetPixel(x, y, color);
-                        continue;
-                    }
-                }
-                texture2D.SetPixel(x, y, emptyColor);
-            }
-        }
+                    tempPixel.x = x - centerPixel.x;
+                    tempPixel.y = y - centerPixel.y;
 
-        texture2D.Apply();
-        _renderer.sprite = Sprite.Create(texture2D, new Rect(0, 0, size, size), Vector2.one * 0.5f);
+                    tempDisSqr = tempPixel.sqrMagnitude;
+                    if (tempDisSqr <= actualRadius * actualRadius)
+                    {
+                        tempAngle = Vector2.Angle(Dir, tempPixel);
+                        if (tempAngle < halfAngle || tempAngle > 360 - halfAngle)
+                        {
+                            //设置像素色值
+                            texture2D.SetPixel(x, y, color);
+                            continue;
+                        }
+                    }
+                    texture2D.SetPixel(x, y, emptyColor);
+                }
+            }
+
+            texture2D.Apply();
+            _renderer.enabled = true;
+            _renderer.sprite = Sprite.Create(texture2D, new Rect(0, 0, size, size), Vector2.one * 0.5f);
+        }
+        else
+        {
+            _renderer.enabled = false;
+        }
     }
     #endregion
 }

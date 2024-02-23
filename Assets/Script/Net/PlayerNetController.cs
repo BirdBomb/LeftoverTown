@@ -28,19 +28,11 @@ public class PlayerNetController : NetworkBehaviour
             moveDir_temp = Vector2.zero;
             if (data.ClickLeftMouse > 0)
             {
-                left_click = true;
-            }
-            else
-            {
-                left_click = false;
+                LeftClickTime += data.ClickLeftMouse;
             }
             if (data.ClickRightMouse > 0)
             {
-                right_click = true;
-            }
-            else
-            {
-                right_click = false;
+                RightClickTime += data.ClickRightMouse;
             }
             if (data.PressLeftMouse)
             {
@@ -75,8 +67,6 @@ public class PlayerNetController : NetworkBehaviour
             {
                 moveDir_temp += new Vector2(0, -1);
             }
-            LeftClick = left_click;
-            RightClick = right_click;
             LeftPress = left_press;
             RightPress = right_press;
             MoveDir = moveDir_temp;
@@ -84,16 +74,18 @@ public class PlayerNetController : NetworkBehaviour
             MousePostion = data.mousePostion;
 
         }
-        //playerController.InputMouse(LeftClick, RightClick, LeftPress, RightPress, Runner.DeltaTime);
-        //playerController.InputMoveDir(MoveDir, Runner.DeltaTime, MoveSpeedUp);
-        //playerController.InputFaceDir(MousePostion, Runner.DeltaTime);
-
+        if (Object.HasInputAuthority)
+        {
+            playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Runner.DeltaTime);
+            playerController.InputMoveDir(MoveDir, Runner.DeltaTime, MoveSpeedUp);
+            playerController.InputFaceDir(MousePostion, Runner.DeltaTime);
+        }
         base.FixedUpdateNetwork();
     }
     [Networked]
-    public bool LeftClick { get; set; } = false;
+    public int LeftClickTime { get; set; } = 0;
     [Networked]
-    public bool RightClick { get; set; } = false;
+    public int RightClickTime { get; set; } = 0;
     [Networked]
     public bool LeftPress { get; set; } = false;
     [Networked]
@@ -106,7 +98,7 @@ public class PlayerNetController : NetworkBehaviour
     public Vector3 MousePostion { get; set; } = Vector3.zero;
     public void FixedUpdate()
     {
-        playerController.InputMouse(LeftClick, RightClick, LeftPress, RightPress, Time.fixedDeltaTime);
+        playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Time.fixedDeltaTime);
         playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
         playerController.InputFaceDir(MousePostion, Time.fixedDeltaTime);
     }
