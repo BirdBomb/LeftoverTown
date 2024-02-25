@@ -21,7 +21,8 @@ public class BaseBehaviorController : MonoBehaviour
     private Vector2 faceTo = Vector2.zero;
     [SerializeField]
     public RoleData Data = new RoleData();
-    public bool isPlayer = false; 
+    [HideInInspector]
+    public bool isPlayer = false;
     private void Start()
     {
         navManager = GameObject.Find("Furniture").GetComponent<NavManager>();
@@ -247,14 +248,14 @@ public class BaseBehaviorController : MonoBehaviour
                 }
             });
     }
-    public void AddItem_Hand(ItemConfig config)
+    public void AddItem_Hand(ItemConfig config,bool showInUI)
     {
         Type type = Type.GetType("Item_" + config.Item_ID.ToString());
         holdingByHand = (ItemBase)Activator.CreateInstance(type);
         holdingByHand.Init(config);
         holdingByHand.BeHolding(this, bodyController.Hand_Right);
         /*更新UI*/
-        if (isPlayer)
+        if (showInUI)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_UI_AddItemInHand()
             {
@@ -270,7 +271,7 @@ public class BaseBehaviorController : MonoBehaviour
     {
 
     }
-    public void AddItem_Bag(ItemConfig config)
+    public void AddItem_Bag(ItemConfig config,bool showInUI)
     {
         /*传入物体数量不能为零*/
         if(config.Item_CurCount <= 0) { config.Item_CurCount = 1; }
@@ -311,7 +312,7 @@ public class BaseBehaviorController : MonoBehaviour
             Data.Holding_BagList.Add(config);
         }
         /*更新UI*/
-        if (isPlayer)
+        if (showInUI)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_UI_UpdateItemInBag()
             {

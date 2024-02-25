@@ -146,13 +146,13 @@ public class PlayerNetController : NetworkBehaviour
     public void RPC_AddItemInHand(NetworkItemConfig itemConfig)
     {
         Debug.Log("玩家" + Object.InputAuthority + "添加物品" + itemConfig.Item_Name + "到持握" );
-        playerController.baseBehaviorController.AddItem_Hand(ItemConfigNetToLocal(itemConfig));
+        playerController.baseBehaviorController.AddItem_Hand(ItemConfigNetToLocal(itemConfig), Object.HasInputAuthority);
     }
     [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
     public void RPC_AddItemInBag(NetworkItemConfig itemConfig)
     {
         Debug.Log("玩家" + Object.InputAuthority + "添加物品" + itemConfig.Item_Name + "到背包");
-        playerController.baseBehaviorController.AddItem_Bag(ItemConfigNetToLocal(itemConfig));
+        playerController.baseBehaviorController.AddItem_Bag(ItemConfigNetToLocal(itemConfig), Object.HasInputAuthority);
     }
     private ItemConfig ItemConfigNetToLocal(NetworkItemConfig config)
     {
