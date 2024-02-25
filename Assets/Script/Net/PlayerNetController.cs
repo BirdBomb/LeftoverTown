@@ -34,11 +34,11 @@ public class PlayerNetController : NetworkBehaviour
 
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInBag>().Subscribe(_ =>
         {
-            RPC_AddItemInBag(ItemConfigLocalToNet(_.itemConfig));
+            RPC_AddItemInBag(ItemConfigLocalToNet(_.itemConfig),Object.InputAuthority);
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInHand>().Subscribe(_ =>
         {
-            RPC_AddItemInHand(ItemConfigLocalToNet(_.itemConfig));
+            RPC_AddItemInHand(ItemConfigLocalToNet(_.itemConfig), Object.InputAuthority);
         }).AddTo(this);
 
         base.Spawned();
@@ -142,17 +142,25 @@ public class PlayerNetController : NetworkBehaviour
         playerController.InputFaceDir(Face, Time.fixedDeltaTime);
         playerController.InputControl(QClickTime, FClickTime, SpaceClickTime);
     }
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.InputAuthority)]
-    public void RPC_AddItemInHand(NetworkItemConfig itemConfig)
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_AddItemInHand(NetworkItemConfig itemConfig,PlayerRef player)
     {
-        Debug.Log("玩家" + Object.InputAuthority + "添加物品" + itemConfig.Item_Name + "到持握" );
-        playerController.baseBehaviorController.AddItem_Hand(ItemConfigNetToLocal(itemConfig), Object.HasInputAuthority);
+        Debug.Log("监听到玩家" + player);
+        if(player == Object.InputAuthority)
+        {
+            Debug.Log("玩家" + Object.InputAuthority + "添加物品" + itemConfig.Item_Name + "到持握");
+            playerController.baseBehaviorController.AddItem_Hand(ItemConfigNetToLocal(itemConfig), Object.HasInputAuthority);
+        }
     }
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.InputAuthority)]
-    public void RPC_AddItemInBag(NetworkItemConfig itemConfig)
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_AddItemInBag(NetworkItemConfig itemConfig, PlayerRef player)
     {
-        Debug.Log("玩家" + Object.InputAuthority + "添加物品" + itemConfig.Item_Name + "到背包");
-        playerController.baseBehaviorController.AddItem_Bag(ItemConfigNetToLocal(itemConfig), Object.HasInputAuthority);
+        Debug.Log("监听到玩家" + player);
+        if (player == Object.InputAuthority)
+        {
+            Debug.Log("玩家" + Object.InputAuthority + "添加物品" + itemConfig.Item_Name + "到背包");
+            playerController.baseBehaviorController.AddItem_Bag(ItemConfigNetToLocal(itemConfig), Object.HasInputAuthority);
+        }
     }
     private ItemConfig ItemConfigNetToLocal(NetworkItemConfig config)
     {
