@@ -24,7 +24,10 @@ public class ItemObj : MonoBehaviour
     }
     public virtual void PickUp(BaseBehaviorController owner)
     {
-        owner.AddItem_Bag(config);
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_AddItemInBag
+        {
+            itemConfig = config
+        });
         DestroyItem();
     }
     public virtual void DestroyItem()

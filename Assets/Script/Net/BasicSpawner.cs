@@ -13,6 +13,9 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
 
     private int leftClick;
     private int rightClick;
+    private int qClick;
+    private int fClick;
+    private int spaceClick;
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -22,6 +25,18 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
         if (Input.GetKeyDown(KeyCode.Mouse1))
         {
             rightClick++;
+        }
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            qClick++;
+        }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            fClick++;
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            spaceClick++;
         }
     }
 
@@ -63,7 +78,21 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
         {
             data.facePostion = Camera.main.ScreenToWorldPoint(Input.mousePosition) - Camera.main.transform.position;
         }
-
+        if (qClick > 0)
+        {
+            data.ClickQ = 1;
+            qClick = 0;
+        }
+        if (fClick > 0)
+        {
+            data.ClickF = 1;
+            fClick = 0;
+        }
+        if (spaceClick > 0)
+        {
+            data.ClickSpace = 1;
+            spaceClick = 0;
+        }
         if (leftClick > 0)
         {
             data.ClickLeftMouse = 1;
@@ -213,9 +242,9 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
 }
 public struct NetworkInputData:INetworkInput
 {
-    public int ClickE;
     public int ClickQ;
-    public int ClickM;
+    public int ClickF;
+    public int ClickSpace;
 
     public int ClickLeftMouse;
     public int ClickRightMouse;

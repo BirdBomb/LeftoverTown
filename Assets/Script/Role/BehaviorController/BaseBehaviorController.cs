@@ -6,6 +6,7 @@ using UnityEngine;
 using UniRx;
 using Unity.VisualScripting;
 using Vector3 = UnityEngine.Vector3;
+using static UnityEditor.Progress;
 /// <summary>
 /// 行为控制器
 /// </summary>
@@ -235,7 +236,6 @@ public class BaseBehaviorController : MonoBehaviour
     #region
     public void PickUpItem_Bag(ItemObj itemObj)
     {
-        Debug.Log("PickUp");
         bodyController.PlayHeadAction( HeadAction.LowerHead, 1, null);
         bodyController.PlayHandAction( HandAction.PickUp,1,
             (string x) => 
@@ -243,7 +243,6 @@ public class BaseBehaviorController : MonoBehaviour
                 Debug.Log("OK"+x);
                 if (x == "PickUp")
                 {
-                    Debug.Log("OKthan");
                     itemObj.PickUp(this);
                 }
             });
@@ -254,6 +253,14 @@ public class BaseBehaviorController : MonoBehaviour
         holdingByHand = (ItemBase)Activator.CreateInstance(type);
         holdingByHand.Init(config);
         holdingByHand.BeHolding(this, bodyController.Hand_Right);
+        /*更新UI*/
+        if (isPlayer)
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_UI_AddItemInHand()
+            {
+                itemConfig = config
+            });
+        }
     }
     public void UseItem_Hand(ItemConfig config)
     {
@@ -303,6 +310,7 @@ public class BaseBehaviorController : MonoBehaviour
         {
             Data.Holding_BagList.Add(config);
         }
+        /*更新UI*/
         if (isPlayer)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_UI_UpdateItemInBag()
@@ -310,7 +318,6 @@ public class BaseBehaviorController : MonoBehaviour
                 itemConfigs = Data.Holding_BagList
             });
         }
-
     }
     public void SubItem_Bag(ItemConfig config)
     {

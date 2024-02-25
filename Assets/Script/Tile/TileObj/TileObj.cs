@@ -124,7 +124,6 @@ public class TileObj : MonoBehaviour
             weight_Main += LootList[j].Weight;
         }
         random = Random.Range(0, weight_Main);
-        Debug.Log(random);
         for (int j = 0; j < LootList.Count; j++)
         {
             weight_temp += LootList[j].Weight;

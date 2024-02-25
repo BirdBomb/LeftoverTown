@@ -23,7 +23,7 @@ public class ItemConfigData : MonoBehaviour
     };
 }
 [Serializable]
-public struct ItemConfig
+public struct ItemConfig 
 {
     [SerializeField]/*±àºÅ*/
     public int Item_ID;

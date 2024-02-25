@@ -93,8 +93,6 @@ public class SI_Sector : MonoBehaviour
     }
     public bool IsInArea(Vector2 pos)
     {
-        Debug.Log(pos);
-        Debug.Log(CenterPos);
         var ret = false;
         if (Vector2.Distance(CenterPos, pos) < _radius)
         {

@@ -15,12 +15,16 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D myRigidbody;
     [Header("物体层级")]
     public LayerMask itemLayer;
-    private int lastLeftClickTime = 0;
-    private int lastRightClickTime = 0;
     /// <summary>
     /// 当前持握的物体编号
     /// </summary>
     private int holdingIndex = 0;
+    [HideInInspector]
+    public bool thisPlayerIsMe = false;
+    [HideInInspector]
+    public bool thisPlayerIsState = false;
+    [HideInInspector]
+    public int thisPlayerID = 0;
     private void Awake()
     {
         myRigidbody.gravityScale = 0;
@@ -34,17 +38,14 @@ public class PlayerController : MonoBehaviour
                 CheckAround();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInBag>().Subscribe(_ =>
-        {
-            baseBehaviorController.AddItem_Bag(_.itemConfig);
-        }).AddTo(this);
         baseBehaviorController.isPlayer = true;
     }
-    private void Update()
-    {
-        PlayerInput();
-    }
     #region//玩家输入
+    private int lastLeftClickTime = 0;
+    private int lastRightClickTime = 0;
+    private int lastQClickTime = 0;
+    private int lastFClickTime = 0;
+    private int lastSpaceClickTime = 0;
     /// <summary>
     /// 鼠标输入
     /// </summary>
@@ -99,51 +100,56 @@ public class PlayerController : MonoBehaviour
         baseBehaviorController.holdingByHand.MousePosition(dir, time);
     }
     /// <summary>
-    /// 默认输入
+    /// 操作输入
     /// </summary>
-    private void PlayerInput()
+    /// <param name="clickQ">Q</param>
+    /// <param name="clickF">F</param>
+    /// <param name="clickSpace">Space</param>
+    public void InputControl(int clickQ,int clickF,int clickSpace)
     {
-        #region//背包操作
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (thisPlayerIsMe)
         {
-            if (baseBehaviorController.Data.Holding_BagList.Count > 0)
+            if (lastQClickTime != clickQ)
             {
-                holdingIndex++;
-                if (holdingIndex >= baseBehaviorController.Data.Holding_BagList.Count)
+                lastQClickTime = clickQ;
+                if (baseBehaviorController.Data.Holding_BagList.Count > 0)
                 {
-                    holdingIndex = 0;
+                    holdingIndex++;
+                    if (holdingIndex >= baseBehaviorController.Data.Holding_BagList.Count)
+                    {
+                        holdingIndex = 0;
+                    }
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_AddItemInHand
+                    {
+                        itemConfig = baseBehaviorController.Data.Holding_BagList[holdingIndex]
+                    });
                 }
-                baseBehaviorController.AddItem_Hand(baseBehaviorController.Data.Holding_BagList[holdingIndex]);
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_AddItemInHand
-                {
-                    itemConfig = baseBehaviorController.Data.Holding_BagList[holdingIndex]
-                });
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_UI_AddItemInHand()
-                {
-                    itemConfig = baseBehaviorController.Data.Holding_BagList[holdingIndex]
-                });
             }
         }
-        if (Input.GetKeyDown(KeyCode.F))
+        if (lastFClickTime != clickF)
         {
-            for (int i = 0; i < nearbyTiles.Count; i++)
+            lastFClickTime = clickF;
+            if (thisPlayerIsMe)
             {
-                nearbyTiles[i].InvokeTile();
+                for (int i = 0; i < nearbyTiles.Count; i++)
+                {
+                    nearbyTiles[i].InvokeTile();
+                }
             }
-
         }
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (lastSpaceClickTime != clickSpace)
         {
+            lastSpaceClickTime = clickSpace;
             var item = Physics2D.OverlapCircleAll(transform.position, 0.5f, itemLayer);
             if (item.Length > 0)
             {
-                Debug.Log("PickUp0");
                 if (item[0].gameObject.TryGetComponent(out ItemObj obj))
                 {
                     baseBehaviorController.PickUpItem_Bag(obj);
                 }
             }
         }
+        #region//背包操作
         #endregion
         #region//其他操作
         if (Input.GetKey(KeyCode.M))
