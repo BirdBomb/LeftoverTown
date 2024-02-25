@@ -14,7 +14,7 @@ public class PlayerNetController : NetworkBehaviour
     {
         if (!Object.HasInputAuthority)
         {
-            playerCamera.enabled = false;
+            playerCamera.gameObject.SetActive(false);
             transform.position = RealPosition;
         }
         else
@@ -142,7 +142,7 @@ public class PlayerNetController : NetworkBehaviour
         playerController.InputFaceDir(Face, Time.fixedDeltaTime);
         playerController.InputControl(QClickTime, FClickTime, SpaceClickTime);
     }
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_AddItemInHand(NetworkItemConfig itemConfig)
     {
         Debug.Log("玩家" + Object.InputAuthority + "添加物品" + itemConfig.Item_Name + "到持握" );
