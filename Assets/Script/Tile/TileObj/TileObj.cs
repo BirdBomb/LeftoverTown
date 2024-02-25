@@ -62,10 +62,10 @@ public class TileObj : MonoBehaviour
 
     }
     /// <summary>
-    /// ¿¿½ü
+    /// Íæ¼Ò¿¿½ü
     /// </summary>
     /// <returns></returns>
-    public virtual bool Nearby()
+    public virtual bool PlayerNearby(PlayerController player)
     {
         return false;
     }
@@ -73,7 +73,7 @@ public class TileObj : MonoBehaviour
     /// Ô¶Àë
     /// </summary>
     /// <returns></returns>
-    public virtual bool Faraway()
+    public virtual bool PlayerFaraway(PlayerController player)
     {
         return false;
     }

@@ -33,8 +33,10 @@ public class TileObj_Cabinet : TileObj
 
         base.Invoke();
     }
-    public override bool Nearby()
+    public override bool PlayerNearby(PlayerController player)
     {
+        /*靠近的不是我自己*/
+        if (!player.thisPlayerIsMe) { return false; }
         if (!obj_singal)
         {
             obj_singal = UIManager.Instance.ShowUI("UI/UI_Signal", new Vector3(0, 1, 0));
@@ -44,8 +46,10 @@ public class TileObj_Cabinet : TileObj
         }
         return true;
     }
-    public override bool Faraway()
+    public override bool PlayerFaraway(PlayerController player)
     {
+        /*靠近的不是我自己*/
+        if (!player.thisPlayerIsMe) { return false; }
         if (obj_singal)
         {
             UIManager.Instance.HideUI("UI/UI_Signal", obj_singal);

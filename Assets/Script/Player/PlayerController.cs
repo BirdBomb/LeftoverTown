@@ -178,7 +178,7 @@ public class PlayerController : MonoBehaviour
             if (nearbyTiles[i] == null) { continue; }
             if (!tempTiles.Contains(nearbyTiles[i]))
             {
-                nearbyTiles[i].FarawayTile();
+                nearbyTiles[i].FarawayTileByPlayer(this);
                 nearbyTiles.RemoveAt(i);
             }
         }
@@ -186,7 +186,7 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < tempTiles.Count; i++)
         {
             if (tempTiles[i] == null) { continue; }
-            if (tempTiles[i].NearbyTile())
+            if (tempTiles[i].NearbyTileByPlayer(this))
             {
                 if (!nearbyTiles.Contains(tempTiles[i]))
                 {

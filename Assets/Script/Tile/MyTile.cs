@@ -140,11 +140,11 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     /// <summary>
     /// ¿¿½üÍßÆ¬
     /// </summary>
-    public virtual bool NearbyTile()
+    public virtual bool NearbyTileByPlayer(PlayerController who)
     {
         if (bindObj && bindObj.TryGetComponent(out TileObj obj))
         {
-            return obj.Nearby();
+            return obj.PlayerNearby(who);
         }
         return false;
     }
@@ -152,11 +152,11 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     /// Ô¶ÀëÍßÆ¬
     /// </summary>
     /// <returns></returns>
-    public virtual bool FarawayTile()
+    public virtual bool FarawayTileByPlayer(PlayerController who)
     {
         if (bindObj && bindObj.TryGetComponent(out TileObj obj))
         {
-            return obj.Faraway();
+            return obj.PlayerFaraway(who);
         }
         return false;
     }
