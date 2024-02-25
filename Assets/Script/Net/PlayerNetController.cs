@@ -12,15 +12,24 @@ public class PlayerNetController : NetworkBehaviour
     private Camera playerCamera;
     public override void Spawned()
     {
-        if (!Object.HasInputAuthority)
+        if (Object.HasInputAuthority)
         {
-            playerCamera.gameObject.SetActive(false);
-            transform.position = RealPosition;
+            MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInBag>().Subscribe(_ =>
+            {
+                RPC_AddItemInBag(ItemConfigLocalToNet(_.itemConfig), Object.InputAuthority);
+            }).AddTo(this);
+            MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInHand>().Subscribe(_ =>
+            {
+                RPC_AddItemInHand(ItemConfigLocalToNet(_.itemConfig), Object.InputAuthority);
+            }).AddTo(this);
+
+            playerCamera.tag = "MainCamera";
+            playerController.thisPlayerIsMe = true;
         }
         else
         {
-            playerCamera.tag = "MainCamera";
-            playerController.thisPlayerIsMe = true;
+            playerCamera.gameObject.SetActive(false);
+            transform.position = RealPosition;
         }
         if (Object.HasStateAuthority)
         {
@@ -32,14 +41,6 @@ public class PlayerNetController : NetworkBehaviour
         }
         playerController.thisPlayerID = Object.InputAuthority.PlayerId;
 
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInBag>().Subscribe(_ =>
-        {
-            RPC_AddItemInBag(ItemConfigLocalToNet(_.itemConfig),Object.InputAuthority);
-        }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInHand>().Subscribe(_ =>
-        {
-            RPC_AddItemInHand(ItemConfigLocalToNet(_.itemConfig),Object.InputAuthority);
-        }).AddTo(this);
 
         base.Spawned();
     }
