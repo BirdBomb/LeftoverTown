@@ -38,7 +38,7 @@ public class PlayerNetController : NetworkBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInHand>().Subscribe(_ =>
         {
-            RPC_AddItemInHand(ItemConfigLocalToNet(_.itemConfig), Object.InputAuthority);
+            RPC_AddItemInHand(ItemConfigLocalToNet(_.itemConfig),Object.InputAuthority);
         }).AddTo(this);
 
         base.Spawned();
@@ -142,7 +142,7 @@ public class PlayerNetController : NetworkBehaviour
         playerController.InputFaceDir(Face, Time.fixedDeltaTime);
         playerController.InputControl(QClickTime, FClickTime, SpaceClickTime);
     }
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_AddItemInHand(NetworkItemConfig itemConfig,PlayerRef player)
     {
         Debug.Log("监听到玩家" + player);
@@ -152,7 +152,7 @@ public class PlayerNetController : NetworkBehaviour
             playerController.baseBehaviorController.AddItem_Hand(ItemConfigNetToLocal(itemConfig), Object.HasInputAuthority);
         }
     }
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_AddItemInBag(NetworkItemConfig itemConfig, PlayerRef player)
     {
         Debug.Log("监听到玩家" + player);
