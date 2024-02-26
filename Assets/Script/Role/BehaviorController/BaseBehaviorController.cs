@@ -464,6 +464,13 @@ public class BaseBehaviorController : NetworkBehaviour
     #endregion
     /*网络同步行为*/
     #region
+    public void TryToFindPathByRPC(Vector2 to, Vector2 from)
+    {
+        if (Object.HasStateAuthority)
+        {
+            RPC_FindPath(to, from);
+        }
+    }
     /// <summary>
     /// 寻找路径
     /// </summary>

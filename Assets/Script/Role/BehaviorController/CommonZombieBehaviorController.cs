@@ -58,16 +58,19 @@ public class CommonZombieBehaviorController : BaseBehaviorController
     {
         for (int i = 0; i < LookAt.Count; i++)
         {
-            tempPosMyPos = GetMyPos();
-            tempPosTargetPos = LookAt[i].GetMyPos();
-            if (Vector2.Distance(tempPosMyPos, tempPosTargetPos) < LocalScope)
+            if (LookAt[i] != null)
             {
-                RPC_FindPath(tempPosTargetPos, tempPosMyPos);
-            }
-            else
-            {
-                LookAt.RemoveAt(i);
-                i--;
+                tempPosMyPos = GetMyPos();
+                tempPosTargetPos = LookAt[i].GetMyPos();
+                if (Vector2.Distance(tempPosMyPos, tempPosTargetPos) < LocalScope)
+                {
+                    TryToFindPathByRPC(tempPosTargetPos, tempPosMyPos);
+                }
+                else
+                {
+                    LookAt.RemoveAt(i);
+                    i--;
+                }
             }
         }
         base.RunAway();

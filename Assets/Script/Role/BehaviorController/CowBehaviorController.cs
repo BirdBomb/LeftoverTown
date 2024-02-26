@@ -52,16 +52,19 @@ public class CowBehaviorController : BaseBehaviorController
     {
         for(int i = 0; i < LookAt.Count; i++)
         {
-            tempPosMyPos = GetMyPos();
-            tempPosTargetPos = LookAt[i].GetMyPos();
-            if (Vector2.Distance(tempPosMyPos, tempPosTargetPos) < LocalScope)
+            if (LookAt[i] != null)
             {
-                RPC_FindPath(tempPosMyPos + (tempPosMyPos - tempPosTargetPos).normalized * 2, tempPosMyPos);
-            }
-            else
-            {
-                LookAt.RemoveAt(i);
-                i--;
+                tempPosMyPos = GetMyPos();
+                tempPosTargetPos = LookAt[i].GetMyPos();
+                if (Vector2.Distance(tempPosMyPos, tempPosTargetPos) < LocalScope)
+                {
+                    TryToFindPathByRPC(tempPosMyPos + (tempPosMyPos - tempPosTargetPos).normalized * 2, tempPosMyPos);
+                }
+                else
+                {
+                    LookAt.RemoveAt(i);
+                    i--;
+                }
             }
         }
         base.RunAway();
