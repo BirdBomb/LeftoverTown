@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CowBehaviorController : BaseBehaviorController
+public class CommonZombieBehaviorController : BaseBehaviorController
 {
     [Header("领地范围")]
     public float LocalScope = 4;
@@ -16,12 +16,12 @@ public class CowBehaviorController : BaseBehaviorController
     {
         if (tempPath == null)
         {
-            RunAway();
+            RunTo();
         }
         base.FixedUpdate();
     }
     #region//监听
-    public override void ListenRoleMove(BaseBehaviorController who,MyTile where)
+    public override void ListenRoleMove(BaseBehaviorController who, MyTile where)
     {
         /*移动的人不是自己*/
         if (who != this)
@@ -36,27 +36,33 @@ public class CowBehaviorController : BaseBehaviorController
                 }
             }
         }
-        base.ListenRoleMove(who,where);
+        base.ListenRoleMove(who, where);
     }
     #endregion
     #region//行为
     public override void TurnRight()
     {
-        bodyController.transform.localScale = new Vector3(-1, 1, 1);
+        bodyController.Head.localScale = new Vector3(-1, 1, 1);
+        bodyController.Body.localScale = new Vector3(-1, 1, 1);
+        bodyController.Hand.localScale = new Vector3(-1, 1, 1);
+        bodyController.Leg.localScale = new Vector3(-1, 1, 1);
     }
     public override void TurnLeft()
     {
-        bodyController.transform.localScale = new Vector3(1, 1, 1);
+        bodyController.Head.localScale = new Vector3(1, 1, 1);
+        bodyController.Body.localScale = new Vector3(1, 1, 1);
+        bodyController.Hand.localScale = new Vector3(1, 1, 1);
+        bodyController.Leg.localScale = new Vector3(1, 1, 1);
     }
-    public override void RunAway()
+    public override void RunTo()
     {
-        for(int i = 0; i < LookAt.Count; i++)
+        for (int i = 0; i < LookAt.Count; i++)
         {
             tempPosMyPos = GetMyPos();
             tempPosTargetPos = LookAt[i].GetMyPos();
             if (Vector2.Distance(tempPosMyPos, tempPosTargetPos) < LocalScope)
             {
-                RPC_FindPath(tempPosMyPos + (tempPosMyPos - tempPosTargetPos).normalized * 2, tempPosMyPos);
+                RPC_FindPath(tempPosTargetPos, tempPosMyPos);
             }
             else
             {
@@ -67,9 +73,4 @@ public class CowBehaviorController : BaseBehaviorController
         base.RunAway();
     }
     #endregion
-}
-[SerializeField]
-public struct CowData
-{
-   
 }

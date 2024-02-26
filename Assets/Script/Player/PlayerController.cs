@@ -78,14 +78,6 @@ public class PlayerController : MonoBehaviour
     /// <param name="speedUp">º”ÀŸ</param>
     public void InputMoveDir(Vector2 dir,float deltaTime, bool speedUp)
     {
-        if (dir.x > 0)
-        {
-            baseBehaviorController.TurnRight();
-        }
-        if (dir.x < 0)
-        {
-            baseBehaviorController.TurnLeft();
-        }
         baseBehaviorController.InputMoveVector(dir, deltaTime);
         baseBehaviorController.SpeedUp(speedUp);
         baseBehaviorController.MoveByVector(deltaTime);

@@ -7,10 +7,12 @@ using UniRx;
 using Unity.VisualScripting;
 using Vector3 = UnityEngine.Vector3;
 using static UnityEditor.Progress;
+using Fusion;
+using static PlayerNetController;
 /// <summary>
 /// 行为控制器
 /// </summary>
-public class BaseBehaviorController : MonoBehaviour
+public class BaseBehaviorController : NetworkBehaviour
 {
     [Header("身体控制器")]
     public BaseBodyController bodyController;
@@ -31,37 +33,43 @@ public class BaseBehaviorController : MonoBehaviour
             ListenRoleMove(_.moveRole,_.moveTile);
         }).AddTo(this);
     }
+    public virtual void FixedUpdate()
+    {
+        if (tempPath != null)
+        {
+            MoveByPath(Time.fixedDeltaTime);
+        }
+    }
     /*移动*/
     #region
     [Header("身体根节点")]
     public Transform Root;
+    /// <summary>
+    /// 移动方向
+    /// </summary>
+    private Vector2 tempVector;
+    /// <summary>
+    /// 当前位置
+    /// </summary>
     private MyTile curTile;
+    /// <summary>
+    /// 之前位置
+    /// </summary>
     private MyTile lastTile;
-    public virtual void TurnLeft()
-    {
-        bodyController.Leg.localScale = new Vector3(-1, 1, 1);
-    }
-    public virtual void FaceLeft()
-    {
-        bodyController.Head.localScale = new Vector3(-1, 1, 1);
-        bodyController.Body.localScale = new Vector3(-1, 1, 1);
-        bodyController.Hand.localScale = new Vector3(-1, 1, 1);
-    }
-    public virtual void TurnRight()
-    {
-        bodyController.Leg.localScale = new Vector3(1, 1, 1);
-    }
-    public virtual void FaceRight()
-    {
-        bodyController.Head.localScale = new Vector3(1, 1, 1);
-        bodyController.Body.localScale = new Vector3(1, 1, 1);
-        bodyController.Hand.localScale = new Vector3(1, 1, 1);
-    }
-    public virtual void SpeedUp(bool up)
-    {
-        speedUp_State = up;
-    }
-    public virtual void InputMoveVector(UnityEngine.Vector2 vector2,float dt)
+    /// <summary>
+    /// 加速状态
+    /// </summary>
+    private bool speedUp_State;
+    /// <summary>
+    /// 加速增幅
+    /// </summary>
+    private float speedUp_Val = 2f;
+    [HideInInspector, Header("临时路径")]
+    public List<MyTile> tempPathList = new List<MyTile>();
+    [HideInInspector, Header("下一个路径点")]
+    public MyTile tempPath = null;
+
+    public virtual void InputMoveVector(UnityEngine.Vector2 vector2, float dt)
     {
         tempVector += vector2;
     }
@@ -77,40 +85,34 @@ public class BaseBehaviorController : MonoBehaviour
             FaceLeft();
         }
     }
+
+    /// <summary>
+    /// 加速
+    /// </summary>
+    /// <param name="up"></param>
+    public virtual void SpeedUp(bool up)
+    {
+        speedUp_State = up;
+    }
+    /// <summary>
+    /// 更新路径
+    /// </summary>
+    public virtual void UpdatePath(List<MyTile> path)
+    {
+        tempPathList.Clear();
+        for(int i = 1; i < path.Count; i++)
+        {
+            tempPathList.Add(path[i]);
+            if (i == 1) { tempPath = tempPathList[0]; }
+        }
+    }
     /// <summary>
     /// 按照方向移动
     /// </summary>
-    /// <param name="vector2"></param>
     /// <param name="dt"></param>
-    private Vector2 tempVector;
-    private bool speedUp_State;
-    private float speedUp_Val = 2f;
     public virtual void MoveByVector(float dt)
     {
-        tempVector = tempVector.normalized;
-        if (speedUp_State) { tempVector *= speedUp_Val; }
-        transform.position =
-        transform.position + new UnityEngine.Vector3(tempVector.x * Data.Data_Speed * dt, tempVector.y * Data.Data_Speed * dt, 0);
-
-        if (Vector2.Distance(Vector2.zero,tempVector) > 0.2f)
-        {
-            float val = Data.Data_Speed;
-            if (speedUp_State) { val *= speedUp_Val; }
-            bodyController.PlayBodyAction(BodyAction.Move, val, null);
-            bodyController.PlayHeadAction(HeadAction.Move, val, null);
-            bodyController.PlayLegAction(LegAction.Step, val);
-            bodyController.PlayHandAction(HandAction.Step, val, null);
-        }
-        else
-        {
-            float val = Data.Data_Speed;
-            if (speedUp_State) { val *= speedUp_Val; }
-            bodyController.PlayBodyAction(BodyAction.Idle, val, null);
-            bodyController.PlayHeadAction(HeadAction.Idle, val, null);
-            bodyController.PlayLegAction(LegAction.Idle, val);
-            bodyController.PlayHandAction(HandAction.Idle, val, null);
-        }
-
+        Move(tempVector, Data.Data_Speed, dt);
         curTile = GetMyTile();
         if (!curTile) { return; }
         if (lastTile == null) { lastTile = curTile; }
@@ -124,6 +126,126 @@ public class BaseBehaviorController : MonoBehaviour
             });
         }
         tempVector = Vector3.zero;
+    }
+    /// <summary>
+    /// 按照路径移动
+    /// </summary>
+    public virtual void MoveByPath(float dt)
+    {
+        /*检查是否达到了路径点*/
+        if (Vector2.Distance(tempPath.pos,transform.position) <= 0.1f)
+        {
+            Move(Vector2.zero, Data.Data_Speed, dt);
+            tempPath = null;
+            if (tempPathList.Count > 0)
+            {
+                tempPathList.RemoveAt(0);
+                if(tempPathList.Count > 0)
+                {
+                    tempPath = tempPathList[0];
+                }
+            }
+
+            curTile = GetMyTile();
+            if (!curTile) { return; }
+            if (lastTile == null) { lastTile = curTile; }
+            if (lastTile.pos != curTile.pos)
+            {
+                lastTile = curTile;
+                MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
+                {
+                    moveRole = this,
+                    moveTile = curTile
+                });
+            }
+            return;
+        }
+        else
+        {
+            Vector2 temp = Vector2.zero;
+            if (transform.position.x > tempPath.x)
+            {
+                if((transform.position.x - tempPath.x) > 0.05f)
+                {
+                    temp += new Vector2(-1, 0);
+                }
+            }
+            else
+            {
+                if ((transform.position.x - tempPath.x) < -0.05f)
+                {
+                    temp += new Vector2(1, 0);
+                }
+            }
+            if(transform.position.y > tempPath.y)
+            {
+                if ((transform.position.y - tempPath.y) > 0.05f)
+                {
+                    temp += new Vector2(0, -1);
+                }
+            }
+            else
+            {
+                if ((transform.position.y - tempPath.y) < -0.05f)
+                {
+                    temp += new Vector2(0, 1);
+                }
+            }
+            Move(temp, Data.Data_Speed, dt);
+            if (Vector2.Distance(tempPath.pos, transform.position) <= 0.1f)
+            {
+                Move(Vector2.zero, Data.Data_Speed, dt);
+                curTile = GetMyTile();
+                if (!curTile) { return; }
+                if (lastTile == null) { lastTile = curTile; }
+                if (lastTile.pos != curTile.pos)
+                {
+                    lastTile = curTile;
+                    MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
+                    {
+                        moveRole = this,
+                        moveTile = curTile
+                    });
+                }
+            }
+        }
+    }
+    /// <summary>
+    /// 移动
+    /// </summary>
+    /// <param name="dir"></param>
+    /// <param name="speed"></param>
+    /// <param name="dt"></param>
+    private void Move(Vector2 dir,float speed,float dt)
+    {
+        dir = dir.normalized;
+        if (speedUp_State) { speed *= speedUp_Val; }
+
+        transform.position =
+            transform.position + new UnityEngine.Vector3(dir.x * speed * dt, dir.y * speed * dt, 0);
+
+        if (Vector2.Distance(Vector2.zero, dir) > 0.2f)
+        {
+            bodyController.PlayBodyAction(BodyAction.Move, speed, null);
+            bodyController.PlayHeadAction(HeadAction.Move, speed, null);
+            bodyController.PlayLegAction(LegAction.Step, speed);
+            bodyController.PlayHandAction(HandAction.Step, speed, null);
+        }
+        else
+        {
+            bodyController.PlayBodyAction(BodyAction.Idle, speed, null);
+            bodyController.PlayHeadAction(HeadAction.Idle, speed, null);
+            bodyController.PlayLegAction(LegAction.Idle, speed);
+            bodyController.PlayHandAction(HandAction.Idle, speed, null);
+        }
+        if (dir.x > 0)
+        {
+            TurnRight();
+        }
+        if (dir.x < 0)
+        {
+            TurnLeft();
+        }
     }
     /// <summary>
     /// 剩余步数
@@ -198,20 +320,6 @@ public class BaseBehaviorController : MonoBehaviour
         int X = (int)(transform.position.x);
         int Y = (int)(transform.position.y);
         return new Vector2(X,Y);
-    }
-    public void FindPath(Vector2 to,Vector2 from,int Step = -1)
-    {
-        if (myLoad != null)
-        {
-            myLoad.Clear();
-        }
-        myLoad = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
-        UpdatePath(Step);
-        void UpdatePath(int Step)
-        {
-            tempStep = Step;
-            MoveByPath(myLoad);
-        }
     }
     #endregion
     /*监听*/
@@ -323,6 +431,53 @@ public class BaseBehaviorController : MonoBehaviour
     public void SubItem_Bag(ItemConfig config)
     {
         Data.Holding_BagList.Remove(config);
+    }
+    public virtual void RunAway()
+    {
+
+    }
+    public virtual void RunTo()
+    {
+
+    }
+    public virtual void TurnLeft()
+    {
+        bodyController.Leg.localScale = new Vector3(-1, 1, 1);
+    }
+    public virtual void FaceLeft()
+    {
+        bodyController.Head.localScale = new Vector3(-1, 1, 1);
+        bodyController.Body.localScale = new Vector3(-1, 1, 1);
+        bodyController.Hand.localScale = new Vector3(-1, 1, 1);
+    }
+    public virtual void TurnRight()
+    {
+        bodyController.Leg.localScale = new Vector3(1, 1, 1);
+    }
+    public virtual void FaceRight()
+    {
+        bodyController.Head.localScale = new Vector3(1, 1, 1);
+        bodyController.Body.localScale = new Vector3(1, 1, 1);
+        bodyController.Hand.localScale = new Vector3(1, 1, 1);
+    }
+
+    #endregion
+    /*网络同步行为*/
+    #region
+    /// <summary>
+    /// 寻找路径
+    /// </summary>
+    /// <param name="to"></param>
+    /// <param name="from"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public void RPC_FindPath(Vector2 to, Vector2 from)
+    {
+        if (myLoad != null)
+        {
+            myLoad.Clear();
+        }
+        myLoad = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
+        UpdatePath(myLoad);
     }
     #endregion
 }

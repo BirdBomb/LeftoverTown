@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using System;
 using UniRx;
 using static UnityEditor.Progress;
+using UnityEditor.Rendering;
 
 public class NavManager : MonoBehaviour
 {
@@ -110,12 +111,17 @@ public class NavManager : MonoBehaviour
     {
         List<MyTile> list = new List<MyTile>();
 
-        MyTile up = null, down = null, right = null, left = null;
+        MyTile up = null, down = null, right = null, left = null,
+            rightUp = null, leftUp = null, rightDown = null, leftDown = null;
 
-        up    = (MyTile)tilemap.GetTile(new Vector3Int(from.x, from.y + 1, 0));
-        down  = (MyTile)tilemap.GetTile(new Vector3Int(from.x, from.y - 1, 0));
+        up = (MyTile)tilemap.GetTile(new Vector3Int(from.x, from.y + 1, 0));
+        down = (MyTile)tilemap.GetTile(new Vector3Int(from.x, from.y - 1, 0));
         right = (MyTile)tilemap.GetTile(new Vector3Int(from.x + 1, from.y, 0));
         left  = (MyTile)tilemap.GetTile(new Vector3Int(from.x - 1, from.y, 0));
+        rightUp = (MyTile)tilemap.GetTile(new Vector3Int(from.x + 1, from.y + 1, 0));
+        leftUp = (MyTile)tilemap.GetTile(new Vector3Int(from.x - 1, from.y + 1, 0));
+        rightDown = (MyTile)tilemap.GetTile(new Vector3Int(from.x + 1, from.y - 1, 0));
+        leftDown = (MyTile)tilemap.GetTile(new Vector3Int(from.x - 1, from.y - 1, 0));
 
         if (up != null)
         {
@@ -133,6 +139,23 @@ public class NavManager : MonoBehaviour
         {
             list.Add(left);
         }
+        if (rightUp != null)
+        {
+            list.Add(rightUp);
+        }
+        if (leftUp != null)
+        {
+            list.Add(leftUp);
+        }
+        if (rightDown != null)
+        {
+            list.Add(rightDown);
+        }
+        if (leftDown != null)
+        {
+            list.Add(leftDown);
+        }
+
         return list;
     }
     /// <summary>
