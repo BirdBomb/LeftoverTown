@@ -36,6 +36,14 @@ public class BaseBehaviorController : NetworkBehaviour
             MoveByPath(Time.fixedDeltaTime);
         }
     }
+    public override void FixedUpdateNetwork()
+    {
+        if (!Object.HasStateAuthority)
+        {
+            ClientMove();
+        }
+        base.FixedUpdateNetwork();
+    }
     /*初始*/
     #region
     /// <summary>
@@ -54,6 +62,9 @@ public class BaseBehaviorController : NetworkBehaviour
     #region
     [Header("身体根节点")]
     public Transform Root;
+    [Header("位置同步组件")]
+    public NetworkTransform NetTransform;
+
     [HideInInspector, Header("移动方向")]
     public Vector2 tempVector;
     [HideInInspector, Header("当前位置")]
@@ -112,19 +123,20 @@ public class BaseBehaviorController : NetworkBehaviour
     /// <param name="dt"></param>
     public virtual void MoveByVector(float dt)
     {
-        Move(tempVector, Data.Data_Speed, dt);
-        curTile = GetMyTile();
-        if (!curTile) { return; }
-        if (lastTile == null) { lastTile = curTile; }
-        if (lastTile.pos != curTile.pos)
+        if (Object.HasStateAuthority)
         {
-            lastTile = curTile;
-            MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
-            {
-                moveRole = this,
-                moveTile = curTile
-            });
+            StateMove(tempVector, Data.Data_Speed, dt);
         }
+        if (tempVector != Vector2.zero)
+        {
+            PlayMove(Data.Data_Speed);
+            PlayTurn(tempVector);
+        }
+        else
+        {
+            PlayStop(Data.Data_Speed);
+        }
+        CheckMyPos();        
         tempVector = Vector3.zero;
     }
     /// <summary>
@@ -132,10 +144,10 @@ public class BaseBehaviorController : NetworkBehaviour
     /// </summary>
     public virtual void MoveByPath(float dt)
     {
-        /*检查是否达到了路径点*/
+        /*到达路径点*/
         if (Vector2.Distance(tempPath.pos,transform.position) <= 0.1f)
         {
-            Move(Vector2.zero, Data.Data_Speed, dt);
+            PlayStop(Data.Data_Speed);
             tempPath = null;
             if (tempPathList.Count > 0)
             {
@@ -145,19 +157,7 @@ public class BaseBehaviorController : NetworkBehaviour
                     tempPath = tempPathList[0];
                 }
             }
-
-            curTile = GetMyTile();
-            if (!curTile) { return; }
-            if (lastTile == null) { lastTile = curTile; }
-            if (lastTile.pos != curTile.pos)
-            {
-                lastTile = curTile;
-                MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
-                {
-                    moveRole = this,
-                    moveTile = curTile
-                });
-            }
+            CheckMyPos();
             return;
         }
         else
@@ -191,53 +191,54 @@ public class BaseBehaviorController : NetworkBehaviour
                     temp += new Vector2(0, 1);
                 }
             }
-            Move(temp, Data.Data_Speed, dt);
+            if (Object.HasStateAuthority)
+            {
+                StateMove(temp, Data.Data_Speed, dt);
+            }
+            PlayTurn(temp);
+            PlayMove(Data.Data_Speed);
             if (Vector2.Distance(tempPath.pos, transform.position) <= 0.1f)
             {
-                Move(Vector2.zero, Data.Data_Speed, dt);
-                curTile = GetMyTile();
-                if (!curTile) { return; }
-                if (lastTile == null) { lastTile = curTile; }
-                if (lastTile.pos != curTile.pos)
-                {
-                    lastTile = curTile;
-                    MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
-                    {
-                        moveRole = this,
-                        moveTile = curTile
-                    });
-                }
+                PlayStop(Data.Data_Speed);
+                CheckMyPos();
             }
         }
     }
+    private Vector3 newPositon;
     /// <summary>
     /// 移动
+    /// </summary>
+    private void StateMove(Vector2 dir, float speed, float dt)
+    {
+        dir = dir.normalized;
+        if (speedUp_State) { speed *= speedUp_Val; }
+        statePos = transform.position;
+        transform.position =
+            transform.position + new UnityEngine.Vector3(dir.x * speed * dt, dir.y * speed * dt, 0);
+    }
+    private void ClientMove()
+    {
+        transform.position = statePos;
+    }
+    /// <summary>
+    /// 移动动画
     /// </summary>
     /// <param name="dir"></param>
     /// <param name="speed"></param>
     /// <param name="dt"></param>
-    public void Move(Vector2 dir,float speed,float dt)
+    public void PlayMove(float speed)
     {
-        dir = dir.normalized;
-        if (speedUp_State) { speed *= speedUp_Val; }
-
-        transform.position =
-            transform.position + new UnityEngine.Vector3(dir.x * speed * dt, dir.y * speed * dt, 0);
-
-        if (Vector2.Distance(Vector2.zero, dir) > 0.2f)
-        {
-            bodyController.PlayBodyAction(BodyAction.Move, speed, null);
-            bodyController.PlayHeadAction(HeadAction.Move, speed, null);
-            bodyController.PlayLegAction(LegAction.Step, speed);
-            bodyController.PlayHandAction(HandAction.Step, speed, null);
-        }
-        else
-        {
-            bodyController.PlayBodyAction(BodyAction.Idle, speed, null);
-            bodyController.PlayHeadAction(HeadAction.Idle, speed, null);
-            bodyController.PlayLegAction(LegAction.Idle, speed);
-            bodyController.PlayHandAction(HandAction.Idle, speed, null);
-        }
+        bodyController.PlayBodyAction(BodyAction.Move, speed, null);
+        bodyController.PlayHeadAction(HeadAction.Move, speed, null);
+        bodyController.PlayLegAction(LegAction.Step, speed);
+        bodyController.PlayHandAction(HandAction.Step, speed, null);
+    }
+    /// <summary>
+    /// 转向动画
+    /// </summary>
+    /// <param name="dir"></param>
+    public void PlayTurn(Vector2 dir)
+    {
         if (dir.x > 0)
         {
             TurnRight();
@@ -248,40 +249,30 @@ public class BaseBehaviorController : NetworkBehaviour
         }
     }
     /// <summary>
-    /// 剩余步数
+    /// 停止动画
     /// </summary>
-    private int tempStep = 0;
-    /// <summary>
-    /// 按照路径移动
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="callBack"></param>
-    public virtual void MoveByPath(List<MyTile> path)
+    public void PlayStop(float speed)
     {
-        if ( path != null && path.Count != 0)
+        bodyController.PlayBodyAction(BodyAction.Idle, speed, null);
+        bodyController.PlayHeadAction(HeadAction.Idle, speed, null);
+        bodyController.PlayLegAction(LegAction.Idle, speed);
+        bodyController.PlayHandAction(HandAction.Idle, speed, null);
+    }
+    /// <summary>
+    /// 检查我的位置
+    /// </summary>
+    private void CheckMyPos()
+    {
+        curTile = GetMyTile();
+        if (!curTile) { return; }
+        if (lastTile == null) { lastTile = curTile; }
+        if (lastTile.pos != curTile.pos)
         {
-            transform.DOKill();
-            MyTile next = path[0];
-            path.Remove(next);
-            transform.DOMove(new(next.pos.x, next.pos.y, 0),1f / Data.Data_Speed).SetEase(Ease.Linear).OnComplete(() =>
+            lastTile = curTile;
+            MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
             {
-                if (tempStep > 0)
-                {
-                    tempStep--;
-                    if (tempStep == 0) { return; }
-                }
-                curTile = GetMyTile();
-                if (lastTile != curTile)
-                {
-                    lastTile = curTile;
-                }
-
-                MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
-                {
-                    moveRole = this,
-                    moveTile = curTile
-                });
-                MoveByPath(path);
+                moveRole = this,
+                moveTile = curTile
             });
         }
     }
@@ -464,6 +455,9 @@ public class BaseBehaviorController : NetworkBehaviour
     #endregion
     /*网络同步行为*/
     #region
+    [Networked]
+    public Vector2 statePos { get; set; } 
+
     public void TryToFindPathByRPC(Vector2 to, Vector2 from)
     {
         if (Object.HasStateAuthority)

@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour
     /// <param name="rightClick"></param>
     /// <param name="leftPress"></param>
     /// <param name="rightPress"></param>
-    public void InputMouse(int leftClickTime,int rightClickTime,bool leftPress,bool rightPress, float time, bool hasInputAuthority)
+    public void PlayerInputMouse(int leftClickTime,int rightClickTime,bool leftPress,bool rightPress, float time,bool hasStateAuthority, bool hasInputAuthority)
     {
         if (lastLeftClickTime != leftClickTime) 
         {
@@ -76,7 +76,7 @@ public class PlayerController : MonoBehaviour
     /// <param name="dir">方向</param>
     /// <param name="deltaTime">间隔</param>
     /// <param name="speedUp">加速</param>
-    public void InputMoveDir(Vector2 dir,float deltaTime, bool speedUp)
+    public void PlayerInputMove(Vector2 dir,float deltaTime, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
     {
         baseBehaviorController.InputMoveVector(dir, deltaTime);
         baseBehaviorController.SpeedUp(speedUp);
@@ -86,7 +86,7 @@ public class PlayerController : MonoBehaviour
     /// 朝向输入
     /// </summary>
     /// <param name="dir">方向</param>
-    public void InputFaceDir(Vector2 dir, float time)
+    public void PlayerInputFace(Vector2 dir, float time, bool hasStateAuthority, bool hasInputAuthority)
     {
         baseBehaviorController.InputFaceVector(dir);
         baseBehaviorController.holdingByHand.MousePosition(dir, time);
@@ -97,7 +97,7 @@ public class PlayerController : MonoBehaviour
     /// <param name="clickQ">Q</param>
     /// <param name="clickF">F</param>
     /// <param name="clickSpace">Space</param>
-    public void InputControl(int clickQ,int clickF,int clickSpace)
+    public void PlayerInputControl(int clickQ,int clickF,int clickSpace, bool hasStateAuthority, bool hasInputAuthority)
     {
         if (thisPlayerIsMe)
         {

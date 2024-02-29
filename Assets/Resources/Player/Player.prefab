@@ -993,6 +993,7 @@ MonoBehaviour:
     Holding_BagList: []
   isPlayer: 0
   Root: {fileID: 6059930380166377277}
+  NetTransform: {fileID: 0}
   tempVector: {x: 0, y: 0}
   curTile: {fileID: 0}
   lastTile: {fileID: 0}
@@ -1153,7 +1154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SortKey: 2565435981
   ObjectInterest: 1
-  Flags: 262145
+  Flags: 131073
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 2047839900543263997}

@@ -535,6 +535,7 @@ MonoBehaviour:
     Holding_BagList: []
   isPlayer: 0
   Root: {fileID: 2492496545062607959}
+  NetTransform: {fileID: 0}
   tempVector: {x: 0, y: 0}
   curTile: {fileID: 0}
   lastTile: {fileID: 0}
@@ -544,6 +545,7 @@ MonoBehaviour:
   tempPath: {fileID: 0}
   myLoad: []
   navManager: {fileID: 0}
+  _statePos: {x: 0, y: 0}
   LocalScope: 4
   LookAt: []
 --- !u!61 &787345987002348457
@@ -617,7 +619,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SortKey: 3894727092
   ObjectInterest: 1
-  Flags: 1
+  Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 6857744186581966678}

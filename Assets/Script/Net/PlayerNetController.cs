@@ -51,6 +51,8 @@ public class PlayerNetController : NetworkBehaviour
     {
         if (Object.HasStateAuthority && GetInput(out NetworkInputData data))
         {
+
+
             moveDir_temp = Vector2.zero;
             if (data.ClickLeftMouse > 0)
             {
@@ -138,10 +140,10 @@ public class PlayerNetController : NetworkBehaviour
     public Vector3 RealPosition { get; set; }
     public void FixedUpdate()
     {
-        playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Time.fixedDeltaTime,Object.HasInputAuthority);
-        playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
-        playerController.InputFaceDir(Face, Time.fixedDeltaTime);
-        playerController.InputControl(QClickTime, FClickTime, SpaceClickTime);
+        playerController.PlayerInputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Time.fixedDeltaTime,Object.HasStateAuthority,Object.HasInputAuthority);
+        playerController.PlayerInputMove(MoveDir, Time.fixedDeltaTime, MoveSpeedUp, Object.HasStateAuthority, Object.HasInputAuthority);
+        playerController.PlayerInputFace(Face, Time.fixedDeltaTime, Object.HasStateAuthority, Object.HasInputAuthority);
+        playerController.PlayerInputControl(QClickTime, FClickTime, SpaceClickTime, Object.HasStateAuthority, Object.HasInputAuthority);
     }
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_AddItemInHand(NetworkItemConfig itemConfig,PlayerRef player)
