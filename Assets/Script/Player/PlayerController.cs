@@ -53,22 +53,22 @@ public class PlayerController : MonoBehaviour
     /// <param name="rightClick"></param>
     /// <param name="leftPress"></param>
     /// <param name="rightPress"></param>
-    public void InputMouse(int leftClickTime,int rightClickTime,bool leftPress,bool rightPress, float time)
+    public void InputMouse(int leftClickTime,int rightClickTime,bool leftPress,bool rightPress, float time, bool hasInputAuthority)
     {
         if (lastLeftClickTime != leftClickTime) 
         {
             lastLeftClickTime = leftClickTime;
-            baseBehaviorController.holdingByHand.ClickLeftClick(time); 
+            baseBehaviorController.holdingByHand.ClickLeftClick(time, hasInputAuthority); 
         }
         if (lastRightClickTime != rightClickTime) 
         {
             lastRightClickTime = rightClickTime;
-            baseBehaviorController.holdingByHand.ClickRightClick(time); 
+            baseBehaviorController.holdingByHand.ClickRightClick(time, hasInputAuthority); 
         }
-        if (leftPress) { baseBehaviorController.holdingByHand.PressLeftClick(time); }
-        else { baseBehaviorController.holdingByHand.ReleaseLeftClick(time); }
-        if (rightPress) { baseBehaviorController.holdingByHand.PressRightClick(time); }
-        else { baseBehaviorController.holdingByHand.ReleaseRightClick(time); }
+        if (leftPress) { baseBehaviorController.holdingByHand.PressLeftClick(time, hasInputAuthority); }
+        else { baseBehaviorController.holdingByHand.ReleaseLeftClick(time, hasInputAuthority); }
+        if (rightPress) { baseBehaviorController.holdingByHand.PressRightClick(time, hasInputAuthority); }
+        else { baseBehaviorController.holdingByHand.ReleaseRightClick(time, hasInputAuthority); }
     }
     /// <summary>
     /// Œª“∆ ‰»Î

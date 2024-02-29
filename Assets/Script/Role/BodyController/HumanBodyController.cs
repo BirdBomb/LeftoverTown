@@ -37,6 +37,7 @@ public class HumanBodyController : BaseBodyController
     }
     public override void PlayHeadAction(HeadAction headAction, float speed, Action<string> action)
     {
+        AnimaEventListen_Head.BindEvent(action);
         if (headAction == HeadAction.Move)
         {
             Animator_Head.SetBool("Step", true);
@@ -50,9 +51,19 @@ public class HumanBodyController : BaseBodyController
             Animator_Head.SetBool("Idle", true);
             Animator_Head.speed = speed;
         }
-        if( headAction == HeadAction.LowerHead)
+        if (headAction == HeadAction.Bite)
+        {
+            Animator_Head.SetTrigger("Bite");
+            Animator_Head.speed = speed;
+        }
+        if (headAction == HeadAction.LowerHead)
         {
             Animator_Head.SetTrigger("LowerHead");
+            Animator_Head.speed = speed;
+        }
+        if (headAction == HeadAction.TakeDamage)
+        {
+            Animator_Head.SetTrigger("TakeDamage");
             Animator_Head.speed = speed;
         }
         base.PlayHeadAction(headAction, speed, action);

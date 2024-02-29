@@ -18,11 +18,11 @@ public class UI_GameSenceUI : MonoBehaviour
     public Text Text_Water;
     private void Start()
     {
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_UI_AddItemInHand>().Subscribe(_ =>
+        MessageBroker.Default.Receive<UIEvent.UIEvent_AddItemInHand>().Subscribe(_ =>
         {
             UpdateHandSlot(_.itemConfig);
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_UI_UpdateItemInBag>().Subscribe(_ =>
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
         {
             _bagItemList.Clear();
             for(int i = 0;i < _.itemConfigs.Count; i++)

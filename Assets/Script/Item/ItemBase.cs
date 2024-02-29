@@ -26,42 +26,42 @@ public class ItemBase
     /// <summary>
     /// ÓÒ¼üµã»÷
     /// </summary>
-    public virtual void ClickRightClick(float time)
+    public virtual void ClickRightClick(float time, bool hasInputAuthority = false)
     {
 
     }
     /// <summary>
     /// ÓÒ¼ü°´Ñ¹
     /// </summary>
-    public virtual void PressRightClick(float time)
+    public virtual void PressRightClick(float time, bool hasInputAuthority = false)
     {
 
     }
     /// <summary>
     /// ÓÒ¼üÊÍ·Å
     /// </summary>
-    public virtual void ReleaseRightClick(float time)
+    public virtual void ReleaseRightClick(float time, bool hasInputAuthority = false)
     {
 
     }
     /// <summary>
     /// ×ó¼üµã»÷
     /// </summary>
-    public virtual void ClickLeftClick(float time)
+    public virtual void ClickLeftClick(float time, bool hasInputAuthority = false)
     {
 
     }
     /// <summary>
     /// ×ó¼ü°´Ñ¹
     /// </summary>
-    public virtual void PressLeftClick(float time)
+    public virtual void PressLeftClick(float time, bool hasInputAuthority = false)
     {
 
     }
     /// <summary>
     /// ×ó¼üÊÍ·Å
     /// </summary>
-    public virtual void ReleaseLeftClick(float time)
+    public virtual void ReleaseLeftClick(float time, bool hasInputAuthority = false)
     {
 
     }

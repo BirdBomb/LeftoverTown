@@ -1,5 +1,7 @@
+using Fusion;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 public class CommonZombieBehaviorController : BaseBehaviorController
@@ -12,6 +14,11 @@ public class CommonZombieBehaviorController : BaseBehaviorController
     private Vector2 tempPosMyPos;
     private Vector2 tempPosTargetPos;
 
+    public override void Init()
+    {
+        InvokeRepeating("TryToBite", 2, 2);
+        base.Init();
+    }
     public override void FixedUpdate()
     {
         if (tempPath == null)
@@ -76,4 +83,58 @@ public class CommonZombieBehaviorController : BaseBehaviorController
         base.RunAway();
     }
     #endregion
+    /*网络同步行为*/
+    #region
+    public void TryToBite()
+    {
+        if (Object.HasStateAuthority)
+        {
+            for (int i = 0; i < LookAt.Count; i++)
+            {
+                if (LookAt[i] != null && Vector2.Distance(transform.position, LookAt[i].transform.position) < 1.5f)
+                {
+                    RPC_Bite();
+                    break;
+                }
+            }
+        }
+    }
+    /// <summary>
+    /// 寻找路径
+    /// </summary>
+    /// <param name="to"></param>
+    /// <param name="from"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public void RPC_Bite()
+    {
+        if (Object.HasStateAuthority)
+        {
+            bodyController.PlayHeadAction(HeadAction.Bite, 1, (string name) => 
+            {
+                if(name == "HeadBite")
+                {
+                    var cols = Physics2D.OverlapCircleAll(transform.position, 2);
+                    if (cols != null)
+                    {
+                        foreach (var col in cols)
+                        {
+                            if(col.TryGetComponent(out BaseBehaviorController actor))
+                            {
+                                if (actor != this)
+                                {
+                                    actor.TryToTakeDamage(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        else
+        {
+            bodyController.PlayHeadAction(HeadAction.Bite, 1, null);
+        }
+    }
+    #endregion
+
 }

@@ -27,11 +27,7 @@ public class BaseBehaviorController : NetworkBehaviour
     public bool isPlayer = false;
     private void Start()
     {
-        navManager = GameObject.Find("Furniture").GetComponent<NavManager>();
-        MessageBroker.Default.Receive<GameEvent.GameEvent_SomeoneMove>().Subscribe(_ =>
-        {
-            ListenRoleMove(_.moveRole,_.moveTile);
-        }).AddTo(this);
+        Init();
     }
     public virtual void FixedUpdate()
     {
@@ -40,30 +36,34 @@ public class BaseBehaviorController : NetworkBehaviour
             MoveByPath(Time.fixedDeltaTime);
         }
     }
+    /*初始*/
+    #region
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    public virtual void Init()
+    {
+        navManager = GameObject.Find("Furniture").GetComponent<NavManager>();
+        MessageBroker.Default.Receive<GameEvent.GameEvent_SomeoneMove>().Subscribe(_ =>
+        {
+            ListenRoleMove(_.moveRole, _.moveTile);
+        }).AddTo(this);
+    }
+    #endregion
     /*移动*/
     #region
     [Header("身体根节点")]
     public Transform Root;
-    /// <summary>
-    /// 移动方向
-    /// </summary>
-    private Vector2 tempVector;
-    /// <summary>
-    /// 当前位置
-    /// </summary>
-    private MyTile curTile;
-    /// <summary>
-    /// 之前位置
-    /// </summary>
-    private MyTile lastTile;
-    /// <summary>
-    /// 加速状态
-    /// </summary>
-    private bool speedUp_State;
-    /// <summary>
-    /// 加速增幅
-    /// </summary>
-    private float speedUp_Val = 2f;
+    [HideInInspector, Header("移动方向")]
+    public Vector2 tempVector;
+    [HideInInspector, Header("当前位置")]
+    public MyTile curTile;
+    [HideInInspector, Header("之前位置")]
+    public MyTile lastTile;
+    [HideInInspector, Header("加速状态")]
+    public bool speedUp_State;
+    [HideInInspector, Header("加速增幅")]
+    public float speedUp_Val = 2f;
     [HideInInspector, Header("临时路径")]
     public List<MyTile> tempPathList = new List<MyTile>();
     [HideInInspector, Header("下一个路径点")]
@@ -216,7 +216,7 @@ public class BaseBehaviorController : NetworkBehaviour
     /// <param name="dir"></param>
     /// <param name="speed"></param>
     /// <param name="dt"></param>
-    private void Move(Vector2 dir,float speed,float dt)
+    public void Move(Vector2 dir,float speed,float dt)
     {
         dir = dir.normalized;
         if (speedUp_State) { speed *= speedUp_Val; }
@@ -365,7 +365,7 @@ public class BaseBehaviorController : NetworkBehaviour
         /*更新UI*/
         if (showInUI)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_UI_AddItemInHand()
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_AddItemInHand()
             {
                 itemConfig = config
             });
@@ -422,7 +422,7 @@ public class BaseBehaviorController : NetworkBehaviour
         /*更新UI*/
         if (showInUI)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_UI_UpdateItemInBag()
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInBag()
             {
                 itemConfigs = Data.Holding_BagList
             });
@@ -485,6 +485,31 @@ public class BaseBehaviorController : NetworkBehaviour
         }
         myLoad = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
         UpdatePath(myLoad);
+    }
+    public void TryToTakeDamage(int damage)
+    {
+        RPC_TakeDamage(damage);
+    }
+    /// <summary>
+    /// 受到伤害
+    /// </summary>
+    /// <param name="damage"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_TakeDamage(int damage)
+    {
+        GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position+new Vector2(0,1));
+        obj_num.GetComponent<UI_DamageNum>().Play(damage, new Color32(255, 50, 50, 255));
+
+        if (Data.Data_Hp >= damage)
+        {
+            Data.Data_Hp -= damage;
+            bodyController.PlayHeadAction(HeadAction.TakeDamage,1,null);
+        }
+        else
+        {
+            Data.Data_Hp -= damage;
+            bodyController.PlayHeadAction(HeadAction.TakeDamage, 1, null);
+        }
     }
     #endregion
 }

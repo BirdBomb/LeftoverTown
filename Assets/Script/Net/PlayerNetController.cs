@@ -138,7 +138,7 @@ public class PlayerNetController : NetworkBehaviour
     public Vector3 RealPosition { get; set; }
     public void FixedUpdate()
     {
-        playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Time.fixedDeltaTime);
+        playerController.InputMouse(LeftClickTime, RightClickTime, LeftPress, RightPress, Time.fixedDeltaTime,Object.HasInputAuthority);
         playerController.InputMoveDir(MoveDir, Time.fixedDeltaTime, MoveSpeedUp);
         playerController.InputFaceDir(Face, Time.fixedDeltaTime);
         playerController.InputControl(QClickTime, FClickTime, SpaceClickTime);

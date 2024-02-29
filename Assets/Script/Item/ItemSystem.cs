@@ -19,11 +19,11 @@ public class Item_0 : ItemBase
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_0");
         base.BeHolding(owner, hand);
     }
-    public override void ClickRightClick(float time)
+    public override void ClickRightClick(float time, bool hasInputAuthority = false)
     {
         base.ClickRightClick(time);
     }
-    public override void ClickLeftClick(float time)
+    public override void ClickLeftClick(float time, bool hasInputAuthority = false)
     {
         if (owner)
         {
@@ -45,11 +45,11 @@ public class Item_1001 : ItemBase
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_1001");
         base.BeHolding(owner, hand);
     }
-    public override void ClickRightClick(float time)
+    public override void ClickRightClick(float time, bool hasInputAuthority = false)
     {
         base.ClickRightClick(time);
     }
-    public override void ClickLeftClick(float time)
+    public override void ClickLeftClick(float time, bool hasInputAuthority = false)
     {
         if (owner)
         {
@@ -89,19 +89,26 @@ public class Item_2001 : ItemBase
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_2001");
         base.BeHolding(owner, hand);
     }
-    public override void ClickLeftClick(float time)
+    public override void ClickLeftClick(float time, bool hasInputAuthority = false)
     {
         if (owner)
         {
             if(rightPressTimer >= readyTime)
             {
                 alreadyAttack = true;
-                owner.bodyController.PlayHandAction(HandAction.Slash_Vertical_Play, 0.2f, Slash_Vertical);
+                if (hasInputAuthority)
+                {
+                    owner.bodyController.PlayHandAction(HandAction.Slash_Vertical_Play, 0.2f, Slash_Vertical);
+                }
+                else
+                {
+                    owner.bodyController.PlayHandAction(HandAction.Slash_Vertical_Play, 0.2f, null);
+                }
             }
         }
         base.ClickLeftClick(time);
     }
-    public override void PressRightClick(float time)
+    public override void PressRightClick(float time, bool hasInputAuthority = false)
     {
         if (owner && !alreadyAttack)
         {
@@ -118,7 +125,7 @@ public class Item_2001 : ItemBase
         }
         base.PressRightClick(time);
     }
-    public override void ReleaseRightClick(float time)
+    public override void ReleaseRightClick(float time, bool hasInputAuthority = false)
     {
         if (owner)
         {
@@ -142,14 +149,20 @@ public class Item_2001 : ItemBase
     {
         if (name == "Slash_Vertical")
         {
-            owner.skillSector.Checkout_SIsector(7, out Transform[] target);
+            owner.skillSector.Checkout_SIsector(out Transform[] targetTile);
             owner.skillSector.Update_SIsector(rightPosition, 0, 0);
-            for (int i = 0; i < target.Length; i++)
+            for (int i = 0; i < targetTile.Length; i++)
             {
-                Debug.Log(target);
-                if (target[i].TryGetComponent(out TileObj furniture))
+                if (targetTile[i].TryGetComponent(out TileObj furniture))
                 {
                     furniture.Damaged(attack);
+                }
+                if (targetTile[i].TryGetComponent(out BaseBehaviorController actor))
+                {
+                    if(actor != owner)
+                    {
+                        actor.TryToTakeDamage(attack);
+                    }
                 }
             }
         }
@@ -168,7 +181,7 @@ public class Item_2002 : ItemBase
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_2002");
         base.BeHolding(owner, hand);
     }
-    public override void ClickLeftClick(float time)
+    public override void ClickLeftClick(float time, bool hasInputAuthority = false)
     {
         if (owner)
         {

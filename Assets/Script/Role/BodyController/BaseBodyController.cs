@@ -68,7 +68,9 @@ public enum HeadAction
 {
     Idle,
     Move,
-    LowerHead
+    Bite,
+    LowerHead,
+    TakeDamage,
 }
 public enum HandAction
 {

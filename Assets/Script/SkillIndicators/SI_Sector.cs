@@ -55,24 +55,23 @@ public class SI_Sector : MonoBehaviour
     }
     #endregion
     #region//¼ì²âÖ¸Ê¾Æ÷ÎïÌå
-    public void Checkout_SIsector(LayerMask targetLayer, out Transform[] targets)
+    public void Checkout_SIsector(out Transform[] targets)
     {
-        CanFindTargets(targetLayer, out targets);
+        CanFindTargets(out targets);
     }
-    private bool CanFindTarget(LayerMask targetLayer, out Transform target)
+    private bool CanFindTarget(out Transform target)
     {
-        var ret = CanFindTargets(targetLayer, out Transform[] targets);
+        var ret = CanFindTargets(out Transform[] targets);
         target = ret ? targets[0] : null;
         return ret;
     }
-    private bool CanFindTargets(LayerMask targetLayer, out Transform[] targets)
+    private bool CanFindTargets( out Transform[] targets)
     {
         var ret = false;
         var targetList = new List<Transform>();
-        var cols = Physics2D.OverlapCircleAll(CenterPos, _radius, targetLayer);
+        var cols = Physics2D.OverlapCircleAll(CenterPos, _radius);
         Debug.Log("¼ì²â°ë¾¶" + _radius);
         Debug.Log("¼ì²â½Ç¶È" + _angles);
-        Debug.Log("¼ì²â²ã¼¶" + targetLayer);
         if (cols != null)
         {
             foreach (var col in cols)

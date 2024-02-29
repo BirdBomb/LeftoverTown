@@ -19,7 +19,7 @@ public class TileObj_Cabinet : TileObj
     {
         if (!obj_cabinet)
         {
-            obj_cabinet = UIManager.Instance.ShowUI("UI/UI_Grid_0", new Vector3(0, 2, 0));
+            obj_cabinet = UIManager.Instance.ShowUI("UI/UI_Grid_0",Camera.main.transform.position + new Vector3(0, 2, 0));
             obj_cabinet.transform.localScale = Vector3.zero;
             obj_cabinet.transform.DOScale(Vector3.one, 0.1f).SetEase(Ease.OutBack);
             obj_cabinet.GetComponent<UI_Grid>().InitGrid(info, this);
@@ -39,7 +39,7 @@ public class TileObj_Cabinet : TileObj
         if (!player.thisPlayerIsMe) { return false; }
         if (!obj_singal)
         {
-            obj_singal = UIManager.Instance.ShowUI("UI/UI_Signal", new Vector3(0, 1, 0));
+            obj_singal = UIManager.Instance.ShowUI("UI/UI_Signal", Camera.main.transform.position + new Vector3(0, 1, 0));
             obj_singal.transform.localScale = Vector3.zero;
             obj_singal.transform.DOScale(Vector3.one, 0.1f).SetEase(Ease.OutBack);
             transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
