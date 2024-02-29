@@ -35,13 +35,13 @@ public class BaseBehaviorController : NetworkBehaviour
         {
             MoveByPath(Time.fixedDeltaTime);
         }
-    }
-    public override void FixedUpdateNetwork()
-    {
         if (!Object.HasStateAuthority)
         {
             ClientMove();
         }
+    }
+    public override void FixedUpdateNetwork()
+    {
         base.FixedUpdateNetwork();
     }
     /*≥ı º*/
