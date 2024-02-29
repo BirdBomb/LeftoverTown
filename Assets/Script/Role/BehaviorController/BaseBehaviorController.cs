@@ -218,6 +218,7 @@ public class BaseBehaviorController : NetworkBehaviour
     }
     private void ClientMove()
     {
+        Debug.Log(statePos);
         transform.position = statePos;
     }
     /// <summary>
