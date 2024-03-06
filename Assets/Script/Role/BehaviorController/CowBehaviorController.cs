@@ -7,7 +7,7 @@ public class CowBehaviorController : BaseBehaviorController
     [Header("领地范围")]
     public float LocalScope = 4;
     [Header("警惕目标")]
-    public List<BaseBehaviorController> LookAt = new List<BaseBehaviorController>();
+    public List<BaseBehaviorController> LookAtList = new List<BaseBehaviorController>();
 
     private Vector2 tempPosMyPos;
     private Vector2 tempPosTargetPos;
@@ -26,13 +26,13 @@ public class CowBehaviorController : BaseBehaviorController
         /*移动的人不是自己*/
         if (who != this)
         {
-            if (Data.Temp_Alert > 100 && !LookAt.Contains(who))
+            if (Data.Temp_Alert > 100 && !LookAtList.Contains(who))
             {
                 tempPosMyPos = GetMyPos();
                 tempPosTargetPos = where.pos;
                 if (Vector2.Distance(tempPosMyPos, tempPosTargetPos) < LocalScope)
                 {
-                    LookAt.Add(who);
+                    LookAtList.Add(who);
                 }
             }
         }
@@ -50,19 +50,19 @@ public class CowBehaviorController : BaseBehaviorController
     }
     public override void RunAway()
     {
-        for(int i = 0; i < LookAt.Count; i++)
+        for(int i = 0; i < LookAtList.Count; i++)
         {
-            if (LookAt[i] != null)
+            if (LookAtList[i] != null)
             {
                 tempPosMyPos = GetMyPos();
-                tempPosTargetPos = LookAt[i].GetMyPos();
+                tempPosTargetPos = LookAtList[i].GetMyPos();
                 if (Vector2.Distance(tempPosMyPos, tempPosTargetPos) < LocalScope)
                 {
                     TryToFindPathByRPC(tempPosMyPos + (tempPosMyPos - tempPosTargetPos).normalized * 2, tempPosMyPos);
                 }
                 else
                 {
-                    LookAt.RemoveAt(i);
+                    LookAtList.RemoveAt(i);
                     i--;
                 }
             }

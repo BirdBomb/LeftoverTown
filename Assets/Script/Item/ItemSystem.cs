@@ -191,3 +191,30 @@ public class Item_2002 : ItemBase
     }
 
 }
+/// <summary>
+/// ОЫИѕИв
+/// </summary>
+[Serializable]
+public class Item_3001 : ItemBase
+{
+    public override void BeHolding(BaseBehaviorController owner, Transform hand)
+    {
+        this.owner = owner;
+        hand.GetComponent<SpriteRenderer>().sprite
+            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_3001");
+        base.BeHolding(owner, hand);
+    }
+    public override void ClickRightClick(float time, bool hasInputAuthority = false)
+    {
+        base.ClickRightClick(time);
+    }
+    public override void ClickLeftClick(float time, bool hasInputAuthority = false)
+    {
+        if (owner)
+        {
+            owner.bodyController.PlayHandAction(HandAction.Slash_Horizontal, 0.2f, null);
+        }
+        base.ClickLeftClick(time);
+    }
+}
+

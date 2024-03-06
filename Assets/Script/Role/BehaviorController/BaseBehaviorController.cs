@@ -9,6 +9,7 @@ using Vector3 = UnityEngine.Vector3;
 using static UnityEditor.Progress;
 using Fusion;
 using static PlayerNetController;
+using Random = UnityEngine.Random;
 /// <summary>
 /// 行为控制器
 /// </summary>
@@ -16,6 +17,8 @@ public class BaseBehaviorController : NetworkBehaviour
 {
     [Header("身体控制器")]
     public BaseBodyController bodyController;
+    [Header("人物UI")]
+    public ActorUI actorUI;
     [Header("技能指示器")]
     public SI_Sector skillSector;
     [Header("手部持有物")]
@@ -31,11 +34,15 @@ public class BaseBehaviorController : NetworkBehaviour
     }
     public virtual void FixedUpdate()
     {
+        if (Data.Data_Dead)
+        {
+            return;
+        }
         if (tempPath != null)
         {
             MoveByPath(Time.fixedDeltaTime);
         }
-        if (!Object.HasStateAuthority)
+        if (Object && !Object.HasStateAuthority)
         {
             ClientMove();
         }
@@ -113,6 +120,7 @@ public class BaseBehaviorController : NetworkBehaviour
         tempPathList.Clear();
         for(int i = 1; i < path.Count; i++)
         {
+            Debug.Log(path[i].pos);
             tempPathList.Add(path[i]);
             if (i == 1) { tempPath = tempPathList[0]; }
         }
@@ -206,9 +214,9 @@ public class BaseBehaviorController : NetworkBehaviour
     }
     private Vector3 newPositon;
     /// <summary>
-    /// 移动
+    /// 移动(服务器)
     /// </summary>
-    private void StateMove(Vector2 dir, float speed, float dt)
+    public void StateMove(Vector2 dir, float speed, float dt)
     {
         dir = dir.normalized;
         if (speedUp_State) { speed *= speedUp_Val; }
@@ -216,9 +224,11 @@ public class BaseBehaviorController : NetworkBehaviour
         transform.position =
             transform.position + new UnityEngine.Vector3(dir.x * speed * dt, dir.y * speed * dt, 0);
     }
-    private void ClientMove()
+    /// <summary>
+    /// 移动(客户端)
+    /// </summary>
+    public void ClientMove()
     {
-        Debug.Log(statePos);
         transform.position = statePos;
     }
     /// <summary>
@@ -231,7 +241,7 @@ public class BaseBehaviorController : NetworkBehaviour
     {
         bodyController.PlayBodyAction(BodyAction.Move, speed, null);
         bodyController.PlayHeadAction(HeadAction.Move, speed, null);
-        bodyController.PlayLegAction(LegAction.Step, speed);
+        bodyController.PlayLegAction(LegAction.Step, speed,null);
         bodyController.PlayHandAction(HandAction.Step, speed, null);
     }
     /// <summary>
@@ -256,13 +266,13 @@ public class BaseBehaviorController : NetworkBehaviour
     {
         bodyController.PlayBodyAction(BodyAction.Idle, speed, null);
         bodyController.PlayHeadAction(HeadAction.Idle, speed, null);
-        bodyController.PlayLegAction(LegAction.Idle, speed);
+        bodyController.PlayLegAction(LegAction.Idle, speed,null);
         bodyController.PlayHandAction(HandAction.Idle, speed, null);
     }
     /// <summary>
     /// 检查我的位置
     /// </summary>
-    private void CheckMyPos()
+    public void CheckMyPos()
     {
         curTile = GetMyTile();
         if (!curTile) { return; }
@@ -309,22 +319,25 @@ public class BaseBehaviorController : NetworkBehaviour
     }
     public Vector2 GetMyPos()
     {
-        int X = (int)(transform.position.x);
-        int Y = (int)(transform.position.y);
-        return new Vector2(X,Y);
+        //int X = Mathf.RoundToInt(transform.position.x);
+        //int Y = Mathf.RoundToInt(transform.position.y);
+        //Debug.Log(transform.position);
+        //return new Vector2(X, Y);
+        Vector3Int vector3Int = navManager.grid.WorldToCell(transform.position);
+        return new Vector2(vector3Int.x, vector3Int.y);
     }
     #endregion
     /*监听*/
     #region
     /// <summary>
-    /// 时间更新
+    /// 监听到时间更新
     /// </summary>
     public virtual void ListenTimeUpdate()
     {
 
     }
     /// <summary>
-    /// 位置更新
+    /// 监听到位置更新
     /// </summary>
     /// <param name="who"></param>
     /// <param name="where"></param>
@@ -424,6 +437,10 @@ public class BaseBehaviorController : NetworkBehaviour
     {
         Data.Holding_BagList.Remove(config);
     }
+    public virtual void LookAt(BaseBehaviorController who)
+    {
+
+    }
     public virtual void RunAway()
     {
 
@@ -452,6 +469,58 @@ public class BaseBehaviorController : NetworkBehaviour
         bodyController.Body.localScale = new Vector3(1, 1, 1);
         bodyController.Hand.localScale = new Vector3(1, 1, 1);
     }
+    public virtual void Dead()
+    {
+        Loot();
+        Runner.Despawn(Object);
+    }
+    public virtual void Loot()
+    {
+        for (int i = 0; i < Data.LootCount; i++)
+        {
+            int id = GetNextLootID();
+            if (id != 0)
+            {
+                GameObject obj = Resources.Load<GameObject>("ItemObj/ItemObj");
+                GameObject item = Instantiate(obj);
+                item.transform.position = transform.position;
+                item.GetComponent<ItemObj>().Init(ItemConfigData.GetItemConfig(id));
+                item.GetComponent<ItemObj>().PlayDropAnim(transform.position);
+            }
+        }
+        for (int i = 0; i < Data.Holding_BagList.Count; i++)
+        {
+            GameObject obj = Resources.Load<GameObject>("ItemObj/ItemObj");
+            GameObject item = Instantiate(obj);
+            item.transform.position = transform.position;
+            item.GetComponent<ItemObj>().Init(Data.Holding_BagList[i]);
+            item.GetComponent<ItemObj>().PlayDropAnim(transform.position);
+        }
+    }
+    /// <summary>
+    /// 根据权重获得一个掉落物id
+    /// </summary>
+    /// <returns></returns>
+    private int GetNextLootID()
+    {
+        int weight_Main = 0;
+        int weight_temp = 0;
+        int random = 0;
+        for (int j = 0; j < Data.Loot_List.Count; j++)
+        {
+            weight_Main += Data.Loot_List[j].Weight;
+        }
+        random = Random.Range(0, weight_Main);
+        for (int j = 0; j < Data.Loot_List.Count; j++)
+        {
+            weight_temp += Data.Loot_List[j].Weight;
+            if (weight_temp > random)
+            {
+                return Data.Loot_List[j].ID;
+            }
+        }
+        return 0;
+    }
 
     #endregion
     /*网络同步行为*/
@@ -479,6 +548,7 @@ public class BaseBehaviorController : NetworkBehaviour
             myLoad.Clear();
         }
         myLoad = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
+
         UpdatePath(myLoad);
     }
     public void TryToTakeDamage(int damage)
@@ -495,16 +565,29 @@ public class BaseBehaviorController : NetworkBehaviour
         GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position+new Vector2(0,1));
         obj_num.GetComponent<UI_DamageNum>().Play(damage, new Color32(255, 50, 50, 255));
 
-        if (Data.Data_Hp >= damage)
+        if (Data.Data_Hp > damage)
         {
             Data.Data_Hp -= damage;
+            actorUI.UpdateHPBar((float)Data.Data_Hp / (float)Data.Data_HpMax);
             bodyController.PlayHeadAction(HeadAction.TakeDamage,1,null);
         }
         else
         {
-            Data.Data_Hp -= damage;
-            bodyController.PlayHeadAction(HeadAction.TakeDamage, 1, null);
+            Data.Data_Hp = 0;
+            Data.Data_Dead = true;
+            actorUI.UpdateHPBar((float)Data.Data_Hp / (float)Data.Data_HpMax);
+            bodyController.PlayHeadAction(HeadAction.Dead, 1, (str) => 
+            {
+                if (str == "Dead")
+                {
+                    Dead();
+                }
+            });
+            bodyController.PlayBodyAction(BodyAction.Dead, 1, null);
+            bodyController.PlayHandAction(HandAction.Dead, 1, null);
+            bodyController.PlayLegAction(LegAction.Dead, 1, null);
         }
     }
+
     #endregion
 }

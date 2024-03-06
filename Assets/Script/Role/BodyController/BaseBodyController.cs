@@ -54,7 +54,7 @@ public class BaseBodyController : MonoBehaviour
     /// </summary>
     /// <param name="legAction"></param>
     /// <param name="speed"></param>
-    public virtual void PlayLegAction(LegAction legAction,float speed)
+    public virtual void PlayLegAction(LegAction legAction,float speed,Action<string> action)
     {
 
     }
@@ -63,14 +63,18 @@ public enum BodyAction
 {
     Idle,
     Move,
+    Charge,
+    Dead
 }
 public enum HeadAction
 {
     Idle,
     Move,
     Bite,
+    Charge,
     LowerHead,
     TakeDamage,
+    Dead
 }
 public enum HandAction
 {
@@ -116,9 +120,16 @@ public enum HandAction
     /// ²½·¥
     /// </summary>
     Step,
+    /// <summary>
+    /// ³å´Ì
+    /// </summary>
+    Charge,
+    Dead
 }
 public enum LegAction
 {
     Idle,//¾²Ö¹
     Step,//²½·¥
+    Charge,//³å´Ì
+    Dead
 }

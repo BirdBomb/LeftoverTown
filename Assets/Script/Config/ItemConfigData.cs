@@ -12,7 +12,7 @@ public class ItemConfigData : MonoBehaviour
     /*
      * 1000 - 1999 材料
      * 2000 - 2999 工具
-     * 
+     * 3000 - 3999 食材
      */
     public readonly static List<ItemConfig> itemConfigs = new List<ItemConfig>()
     {
@@ -20,6 +20,7 @@ public class ItemConfigData : MonoBehaviour
         new ItemConfig(){ Item_ID = 1001,Item_Name = "原木",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 9,Item_Type = ItemType.Materials,Average_Weight = 1,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 2001,Item_Name = "木斧头",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 2002,Item_Name = "铁斧头",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 3001,Item_Name = "污染肉",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 9,Item_Type = ItemType.Ingredient,Average_Weight = 1,Average_Value = 1 },
     };
 }
 [Serializable]

@@ -8,6 +8,8 @@ public struct RoleData
 {
     [Header("速度")]
     public float Data_Speed;
+    [Header("死亡")]
+    public bool Data_Dead;
     [Header("生命值")]
     public int Data_Hp;
     [Header("最大生命值")]
@@ -23,6 +25,11 @@ public struct RoleData
     public ItemConfig Holding_ByHand;
     [Header("背包持有")]
     public List<ItemConfig> Holding_BagList;
+    [Header("掉落列表")]
+    public List<LootInfo> Loot_List;
+    [SerializeField, Header("掉落数量")]
+    public int LootCount;
+
 
 }
 public enum RoleType
