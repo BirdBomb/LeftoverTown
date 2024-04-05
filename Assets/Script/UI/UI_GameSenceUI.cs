@@ -18,23 +18,37 @@ public class UI_GameSenceUI : MonoBehaviour
     public Text Text_Water;
     private void Start()
     {
-        MessageBroker.Default.Receive<UIEvent.UIEvent_AddItemInHand>().Subscribe(_ =>
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInHand>().Subscribe(_ =>
         {
             UpdateHandSlot(_.itemConfig);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
         {
             _bagItemList.Clear();
-            for(int i = 0;i < _.itemConfigs.Count; i++)
+            for (int i = 0; i < _.itemConfigs.Count; i++)
             {
                 _bagItemList.Add(_.itemConfigs[i]);
             }
             BagUpdateItem();
         }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateData>().Subscribe(_ =>
+        {
+            Text_Hp.text = _.HP.ToString();
+            Text_Food.text = _.Food.ToString();
+            Text_Water.text = _.Water.ToString();
+        }).AddTo(this);
     }
     private void UpdateHandSlot(ItemConfig item)
     {
-        Image_HandSlot.sprite= Resources.Load<SpriteAtlas>("Atlas/ItemIcon").GetSprite("Item_"+ item.Item_ID.ToString());
+        if(item.Item_ID == -1)
+        {
+            Image_HandSlot.enabled = false;
+        }
+        else
+        {
+            Image_HandSlot.enabled = true;
+            Image_HandSlot.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemIcon").GetSprite("Item_" + item.Item_ID.ToString());
+        }
     }
     #region//±³°ü
     [SerializeField,Header("±³°ü²ÛÎ»")]

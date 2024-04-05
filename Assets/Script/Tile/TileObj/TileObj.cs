@@ -20,7 +20,7 @@ public class TileObj : MonoBehaviour
     public List<LootInfo> LootList = new List<LootInfo>();
     [SerializeField, Header("掉落数量")]
     public int LootCount;
-    [HideInInspector, Header("地块信息")]
+    [SerializeField, Header("地块信息")]
     public string info;
     #region//基本逻辑
     /// <summary>
@@ -37,6 +37,7 @@ public class TileObj : MonoBehaviour
     /// <param name="json"></param>
     public virtual void Load(string json)
     {
+        Debug.Log(json);
         info = json;
     }
     /// <summary>
@@ -157,7 +158,7 @@ public class TileObj : MonoBehaviour
     /// </summary>
     /// <param name="who"></param>
     /// <param name="where"></param>
-    public virtual void ListenRoleMove(BaseBehaviorController who, MyTile where)
+    public virtual void ListenRoleMove(ActorManager who, MyTile where)
     {
 
     }

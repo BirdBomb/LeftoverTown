@@ -9,7 +9,7 @@ public class GameEvent
     /// </summary>
     public class GameEvent_SomeoneMove
     {
-        public BaseBehaviorController moveRole;
+        public ActorManager moveActor;
         public MyTile moveTile;
     }
 }

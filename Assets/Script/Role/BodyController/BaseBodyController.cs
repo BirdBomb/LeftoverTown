@@ -23,7 +23,10 @@ public class BaseBodyController : MonoBehaviour
     [SerializeField, Header("左手节点")]
     public Transform Hand_Left;
 
-
+    [SerializeField, Header("右手物品")]
+    public Transform Hand_RightItem;
+    [SerializeField, Header("左手物品")]
+    public Transform Hand_LeftItem;
     /// <summary>
     /// 播放身体动画
     /// </summary>
@@ -70,6 +73,7 @@ public enum HeadAction
 {
     Idle,
     Move,
+    Eat,
     Bite,
     Charge,
     LowerHead,
@@ -78,8 +82,14 @@ public enum HeadAction
 }
 public enum HandAction
 {
-    Slash_Horizontal,//水平劈砍
-    Slash_Horizontal_Ready,//水平劈砍
+    /// <summary>
+    /// 水平劈砍
+    /// </summary>
+    Slash_Horizontal,
+    /// <summary>
+    /// 水平劈砍准备
+    /// </summary>
+    Slash_Horizontal_Ready,
     /// <summary>
     /// 竖直劈砍
     /// </summary>
@@ -96,6 +106,19 @@ public enum HandAction
     /// 竖直劈砍释放
     /// </summary>
     Slash_Vertical_Release,
+    /// <summary>
+    /// 拉弓准备
+    /// </summary>
+    Bow_Ready,
+    /// <summary>
+    /// 拉弓释放
+    /// </summary>
+    Bow_Play,
+    /// <summary>
+    /// 拉弓释放
+    /// </summary>
+    Bow_Release,
+
     /// <summary>
     /// 戳刺
     /// </summary>
@@ -124,6 +147,13 @@ public enum HandAction
     /// 冲刺
     /// </summary>
     Charge,
+    /// <summary>
+    /// 吃
+    /// </summary>
+    Eat,
+    /// <summary>
+    /// 死亡
+    /// </summary>
     Dead
 }
 public enum LegAction

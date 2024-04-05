@@ -157,11 +157,11 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
         }
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            data.goFaster = true;
+            data.PressShift = true;
         }
         else
         {
-            data.goFaster = false;
+            data.PressShift = false;
         }
         #endregion
         input.Set(data);
@@ -256,5 +256,5 @@ public struct NetworkInputData:INetworkInput
     public bool goDown;
     public bool goLeft;
     public bool goRight;
-    public bool goFaster;
+    public bool PressShift;
 }

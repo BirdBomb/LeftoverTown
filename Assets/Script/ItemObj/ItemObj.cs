@@ -10,8 +10,10 @@ public class ItemObj : MonoBehaviour
 {
     [Header("物品图标")]
     public SpriteRenderer icon;
-    [HideInInspector,Header("物品信息")]
+    [HideInInspector, Header("物品信息")]
     public ItemConfig config;
+    [HideInInspector, Header("物品信息")]
+    public NetworkItemConfig netConfig;
     #region//基本逻辑
     /// <summary>
     /// 初始化
@@ -22,7 +24,7 @@ public class ItemObj : MonoBehaviour
         icon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemConfig.Item_ID);
         config = itemConfig;
     }
-    public virtual void PickUp(BaseBehaviorController owner)
+    public virtual void PickUp(ActorManager owner)
     {
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_AddItemInBag
         {

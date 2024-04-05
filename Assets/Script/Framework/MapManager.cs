@@ -30,7 +30,10 @@ public class MapManager : MonoBehaviour
         {
             ChangeTile(_.tilePos, _.tileName);
         }).AddTo(this);
-        LoadMap();
+        MessageBroker.Default.Receive<MapEvent.MapEvent_DamageTile>().Subscribe(_ =>
+        {
+            DemageTile(_.tilePos, _.damageValue);
+        }).AddTo(this);
     }
     private void InitMap()
     {
@@ -45,7 +48,6 @@ public class MapManager : MonoBehaviour
     }
     private GameObject GetTileObj(string Name)
     {
-        Debug.Log(Name);
         if (TileObjPool.ContainsKey(Name))
         {
             return TileObjPool[Name];
@@ -58,6 +60,7 @@ public class MapManager : MonoBehaviour
                 if(tileObj != null)
                 {
                     TileObjPool.Add(Name, tileObj);
+                    Debug.Log(Name);
                 }
                 return tileObj;
             }
@@ -101,6 +104,17 @@ public class MapManager : MonoBehaviour
             tileBase.LoadTile(tileInfo);
         }
     }
+    public void LoadTile(Vector3Int tilePos, string tileName)
+    {
+        /*创建实例*/
+        MyTile tileBase = ScriptableObject.CreateInstance<MyTile>();
+        /*实例赋值*/
+        tileBase.InstantiateTile(GetTileObj(tileName), GetTileScript(tileName));
+        /*瓦片初始化*/
+        tileBase.InitTile(tilePos.x, tilePos.y, grid.CellToWorld(tilePos));
+        /*将瓦片置于正确位置*/
+        tilemap.SetTile(tilePos, tileBase);
+    }
     /// <summary>
     /// 保存瓦片
     /// </summary>
@@ -115,8 +129,9 @@ public class MapManager : MonoBehaviour
         }
         else
         {
-            tile.SaveTile(out string info);
-            tileJson = tile.name + "/*T*/" + info;
+            tileJson = tile.name;
+            //tile.SaveTile(out string info);
+            //tileJson = tile.name + "/*T*/" + info;
         }
     }
     public void ChangeTile(Vector3Int tilePos, string tileName)
@@ -134,12 +149,17 @@ public class MapManager : MonoBehaviour
         /*将瓦片置于正确位置*/
         tilemap.SetTile(tilePos, tileBase);
     }
+    public void DemageTile(Vector3Int tilePos, int damage)
+    {
+        MyTile tile = tilemap.GetTile<MyTile>(tilePos);
+        tile.bindObj.GetComponent<TileObj>().Damaged(damage);
+    }
     public void SaveMap()
     {
-        GameDataManager.Instance.SaveMapData("Test", this);
+        GameDataManager.Instance.SaveMapData("TestSaveData", this);
     }
-    public void LoadMap()
+    public void LoadMap(string MapName)
     {
-        GameDataManager.Instance.LoadMapData("Test", this);
+        GameDataManager.Instance.LoadMapData(MapName, this);
     }
 }

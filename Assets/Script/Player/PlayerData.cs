@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 [System.Serializable]
-public class MyTileGrid 
+public class PlayerData 
 {
     [SerializeField]
-    public Dictionary<string, string> tiles = new Dictionary<string, string>();
+    public Vector3Int Pos;
 }

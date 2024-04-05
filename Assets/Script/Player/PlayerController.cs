@@ -9,8 +9,10 @@ using Input = UnityEngine.Input;
 /// </summary>
 public class PlayerController : MonoBehaviour
 {
-    [Header("行为控制器")]
-    public BaseBehaviorController baseBehaviorController;
+    //[Header("行为控制器")]
+    //public BaseBehaviorController baseBehaviorController;
+    [Header("人物")]
+    public ActorManager actorManager;
     [Header("物理")]
     public Rigidbody2D myRigidbody;
     [Header("物体层级")]
@@ -33,12 +35,12 @@ public class PlayerController : MonoBehaviour
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_SomeoneMove>().Subscribe(_ =>
         {
-            if (_.moveRole == baseBehaviorController)
+            if (_.moveActor == actorManager)
             {
-                CheckAround();
+                UpdateNearByTile();
             }
         }).AddTo(this);
-        baseBehaviorController.isPlayer = true;
+        actorManager.isPlayer = true;
     }
     #region//玩家输入
     private int lastLeftClickTime = 0;
@@ -53,22 +55,22 @@ public class PlayerController : MonoBehaviour
     /// <param name="rightClick"></param>
     /// <param name="leftPress"></param>
     /// <param name="rightPress"></param>
-    public void PlayerInputMouse(int leftClickTime,int rightClickTime,bool leftPress,bool rightPress, float time,bool hasStateAuthority, bool hasInputAuthority)
+    public void All_PlayerInputMouse(float dt, int leftClickTime,int rightClickTime,bool leftPress,bool rightPress, bool hasStateAuthority, bool hasInputAuthority)
     {
         if (lastLeftClickTime != leftClickTime) 
         {
             lastLeftClickTime = leftClickTime;
-            baseBehaviorController.holdingByHand.ClickLeftClick(time, hasInputAuthority); 
+            actorManager.holdingByHand.ClickLeftClick(dt, hasInputAuthority); 
         }
         if (lastRightClickTime != rightClickTime) 
         {
             lastRightClickTime = rightClickTime;
-            baseBehaviorController.holdingByHand.ClickRightClick(time, hasInputAuthority); 
+            actorManager.holdingByHand.ClickRightClick(dt, hasInputAuthority); 
         }
-        if (leftPress) { baseBehaviorController.holdingByHand.PressLeftClick(time, hasInputAuthority); }
-        else { baseBehaviorController.holdingByHand.ReleaseLeftClick(time, hasInputAuthority); }
-        if (rightPress) { baseBehaviorController.holdingByHand.PressRightClick(time, hasInputAuthority); }
-        else { baseBehaviorController.holdingByHand.ReleaseRightClick(time, hasInputAuthority); }
+        if (leftPress) { actorManager.holdingByHand.PressLeftClick(dt, hasInputAuthority); }
+        else { actorManager.holdingByHand.ReleaseLeftClick(dt, hasInputAuthority); }
+        if (rightPress) { actorManager.holdingByHand.PressRightClick(dt, hasInputAuthority); }
+        else { actorManager.holdingByHand.ReleaseRightClick(dt, hasInputAuthority); }
     }
     /// <summary>
     /// 位移输入
@@ -76,20 +78,29 @@ public class PlayerController : MonoBehaviour
     /// <param name="dir">方向</param>
     /// <param name="deltaTime">间隔</param>
     /// <param name="speedUp">加速</param>
-    public void PlayerInputMove(Vector2 dir,float deltaTime, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
+    public void All_PlayerInputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
     {
-        baseBehaviorController.InputMoveVector(dir, deltaTime);
-        baseBehaviorController.SpeedUp(speedUp);
-        baseBehaviorController.MoveByVector(deltaTime);
+        dir = dir.normalized;
+        float speed;
+        if (speedUp) 
+        {
+            speed = actorManager.actorConfig.Config_Speed * 2;
+        }
+        else
+        {
+            speed = actorManager.actorConfig.Config_Speed;
+        }
+        Vector3 newPos = transform.position + new UnityEngine.Vector3(dir.x * speed * deltaTime, dir.y * speed * deltaTime, 0);
+        actorManager.NetController.UpdateNetworkTransform(newPos);
     }
     /// <summary>
     /// 朝向输入
     /// </summary>
     /// <param name="dir">方向</param>
-    public void PlayerInputFace(Vector2 dir, float time, bool hasStateAuthority, bool hasInputAuthority)
+    public void All_PlayerInputFace(float dt, Vector2 dir, bool hasStateAuthority, bool hasInputAuthority)
     {
-        baseBehaviorController.InputFaceVector(dir);
-        baseBehaviorController.holdingByHand.MousePosition(dir, time);
+        actorManager.FaceTo(dir);
+        actorManager.holdingByHand.MousePosition(dir, dt);
     }
     /// <summary>
     /// 操作输入
@@ -97,36 +108,39 @@ public class PlayerController : MonoBehaviour
     /// <param name="clickQ">Q</param>
     /// <param name="clickF">F</param>
     /// <param name="clickSpace">Space</param>
-    public void PlayerInputControl(int clickQ,int clickF,int clickSpace, bool hasStateAuthority, bool hasInputAuthority)
+    public void All_PlayerInputControl(int clickQ,int clickF,int clickSpace, bool hasStateAuthority, bool hasInputAuthority)
     {
-        if (thisPlayerIsMe)
+        if (hasInputAuthority)
         {
             if (lastQClickTime != clickQ)
             {
                 lastQClickTime = clickQ;
-                if (baseBehaviorController.Data.Holding_BagList.Count > 0)
+                if (actorManager.NetController.Data_ItemInBag.Count > 0)
                 {
                     holdingIndex++;
-                    if (holdingIndex >= baseBehaviorController.Data.Holding_BagList.Count)
+                    if (holdingIndex >= actorManager.NetController.Data_ItemInBag.Count)
                     {
                         holdingIndex = 0;
                     }
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_AddItemInHand
                     {
-                        itemConfig = baseBehaviorController.Data.Holding_BagList[holdingIndex]
-                    });
+                        networkItemConfig = actorManager.NetController.Data_ItemInBag[holdingIndex]
+                    }) ;
                 }
             }
         }
         if (lastFClickTime != clickF)
         {
             lastFClickTime = clickF;
-            if (thisPlayerIsMe)
+            for (int i = 0; i < nearbyTiles.Count; i++)
             {
-                for (int i = 0; i < nearbyTiles.Count; i++)
+                MessageBroker.Default.Publish(new MapEvent.MapEvent_InvokeTile
                 {
-                    nearbyTiles[i].InvokeTile();
-                }
+                    tilePos = new Vector3Int(nearbyTiles[i].x, nearbyTiles[i].y, 0),
+                    hasInput = hasInputAuthority,
+                    hasState = hasStateAuthority,
+                });
+                nearbyTiles[i].InvokeTile();
             }
         }
         if (lastSpaceClickTime != clickSpace)
@@ -137,33 +151,20 @@ public class PlayerController : MonoBehaviour
             {
                 if (item[0].gameObject.TryGetComponent(out ItemObj obj))
                 {
-                    baseBehaviorController.PickUpItem_Bag(obj);
+                    actorManager.NetController.Data_ItemInBag.Add(obj.netConfig);
                 }
             }
         }
-        #region//背包操作
-        #endregion
-        #region//其他操作
-        if (Input.GetKey(KeyCode.M))
-        {
-            MessageBroker.Default.Publish(new MapEvent.MapEvent_SaveMap
-            {
-
-            });
-        }
-        #endregion
     }
 
     #endregion
+    #region//玩家周围地块更新
     public List<MyTile> nearbyTiles = new List<MyTile>();
     private List<MyTile> tempTiles = new List<MyTile>();
-    /// <summary>
-    /// 检查附近地块
-    /// </summary>
-    private void CheckAround()
+    private void UpdateNearByTile()
     {
         /*周围地块*/
-        tempTiles = baseBehaviorController.GetNearbyTile();
+        tempTiles = actorManager.GetNearbyTile();
         /*剔除上次检测的地块*/
         for (int i = 0; i < nearbyTiles.Count; i++)
         {
@@ -187,4 +188,5 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    #endregion
 }

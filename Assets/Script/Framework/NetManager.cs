@@ -3,13 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UniRx;
 
-public class NetManager : MonoBehaviour
+public class NetManager : SingleTon<NetManager>,ISingleTon
 {
     private NetworkRunner networkRunner;
+    public void Init()
+    {
+
+    }
+
     private void Start()
     {
-        JoinRoomTest("Lsx_Test");
+        MessageBroker.Default.Receive<NetEvent.NetEvent_JoinGame>().Subscribe(_ =>
+        {
+            JoinRoomTest(_.RoomName);
+        });
     }
     public async void JoinRoomTest(string roomName)
     {
@@ -31,4 +40,5 @@ public class NetManager : MonoBehaviour
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
     }
+
 }

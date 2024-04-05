@@ -20,6 +20,7 @@ public class ItemConfigData : MonoBehaviour
         new ItemConfig(){ Item_ID = 1001,Item_Name = "Ô­Ä¾",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 9,Item_Type = ItemType.Materials,Average_Weight = 1,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 2001,Item_Name = "Ä¾¸«Í·",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 2002,Item_Name = "Ìú¸«Í·",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2003,Item_Name = "Ä¾¹­",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 3001,Item_Name = "ÎÛÈ¾Èâ",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 9,Item_Type = ItemType.Ingredient,Average_Weight = 1,Average_Value = 1 },
     };
 }

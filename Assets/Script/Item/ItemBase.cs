@@ -7,61 +7,68 @@ using Vector3 = UnityEngine.Vector3;
 
 public class ItemBase
 {
-    private ItemConfig itemConfig;
-    public BaseBehaviorController owner;
+    public NetworkItemConfig networkItem;
+    public ActorManager owner;
 
-    public virtual void Init(ItemConfig config)
+    public virtual void Init(NetworkItemConfig config)
     {
-        itemConfig = config;
+        networkItem = config;
     }
     /// <summary>
     /// ³ÖÎÕ
     /// </summary>
     /// <param name="owner"></param>
-    /// <param name="hand"></param>
-    public virtual void BeHolding(BaseBehaviorController owner,Transform hand)
+    /// <param name="item"></param>
+    public virtual void BeHolding(ActorManager owner,Transform item)
+    {
+
+    }
+    /// <summary>
+    /// Ê³ÓÃ
+    /// </summary>
+    public virtual void BeEating(ActorManager who)
     {
 
     }
     /// <summary>
     /// ÓÒ¼üµã»÷
     /// </summary>
-    public virtual void ClickRightClick(float time, bool hasInputAuthority = false)
+    public virtual void ClickRightClick(float time, bool hasInputAuthority)
     {
 
     }
     /// <summary>
     /// ÓÒ¼ü°´Ñ¹
     /// </summary>
-    public virtual void PressRightClick(float time, bool hasInputAuthority = false)
+    public virtual void PressRightClick(float time, bool hasInputAuthority)
     {
 
     }
     /// <summary>
     /// ÓÒ¼üÊÍ·Å
     /// </summary>
-    public virtual void ReleaseRightClick(float time, bool hasInputAuthority = false)
+    public virtual void ReleaseRightClick(float time, bool hasInputAuthority)
     {
 
     }
     /// <summary>
     /// ×ó¼üµã»÷
     /// </summary>
-    public virtual void ClickLeftClick(float time, bool hasInputAuthority = false)
+    public virtual void ClickLeftClick(float time, bool hasInputAuthority)
     {
 
     }
     /// <summary>
     /// ×ó¼ü°´Ñ¹
     /// </summary>
-    public virtual void PressLeftClick(float time, bool hasInputAuthority = false)
+    public virtual void PressLeftClick(float time, bool hasInputAuthority)
     {
 
     }
     /// <summary>
     /// ×ó¼üÊÍ·Å
     /// </summary>
-    public virtual void ReleaseLeftClick(float time, bool hasInputAuthority = false)
+    public virtual void ReleaseLeftClick(float time, bool hasInputAuthority)
     {
 
     }

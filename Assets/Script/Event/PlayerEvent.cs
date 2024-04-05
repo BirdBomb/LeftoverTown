@@ -8,10 +8,20 @@ public class PlayerEvent
     {
         public int playerID;
         public ItemConfig itemConfig;
+        public NetworkItemConfig networkItemConfig;
     }
     public class PlayerEvent_AddItemInBag
     {
         public int playerID;
         public ItemConfig itemConfig;
+        public NetworkItemConfig networkItemConfig;
+    }
+    public class PlayerEvent_SubItemFromBag
+    {
+
+    }
+    public class PlayerEvent_SubItemFromHand
+    {
+
     }
 }

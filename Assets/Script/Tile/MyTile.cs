@@ -77,7 +77,6 @@ public class MyTile : UnityEngine.Tilemaps.Tile
 
         if (tileObj)
         {
-            Debug.Log(tileObj.name);
             bindObj = GameObject.Instantiate(tileObj);
         }
     }

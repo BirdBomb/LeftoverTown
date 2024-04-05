@@ -15,9 +15,13 @@ public struct RoleData
     [Header("最大生命值")]
     public int Data_HpMax;
     [Header("饥饿值")]
-    public int Data_Hunger;
+    public int Data_Food;
     [Header("最大饥饿值")]
-    public int Data_HungerMax;
+    public int Data_FoodMax;
+    [Header("饥渴值")]
+    public int Data_Water;
+    [Header("最大饥渴值")]
+    public int Data_WaterMax;
 
     [Header("警惕值")]
     public int Temp_Alert;
@@ -29,7 +33,6 @@ public struct RoleData
     public List<LootInfo> Loot_List;
     [SerializeField, Header("掉落数量")]
     public int LootCount;
-
 
 }
 public enum RoleType

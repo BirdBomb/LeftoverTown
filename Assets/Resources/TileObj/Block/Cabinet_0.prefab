@@ -112,7 +112,7 @@ MonoBehaviour:
   - {x: 0.5, y: 0.5, z: 0}
   m_ShapePathHash: 1059138293
   m_Mesh: {fileID: 0}
-  m_InstanceId: 33856
+  m_InstanceId: 85910
   m_LocalBounds:
     m_Center: {x: 0, y: 0.7, z: 0}
     m_Extent: {x: 0.5, y: 0.19999999, z: 0}
@@ -129,7 +129,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindTile: {fileID: 11400000, guid: 27690bbc00607ca4289396691a8cee8c, type: 2}
-  Hp: 0
+  CurHp: 0
   MaxHp: 0
   Armor: 0
-  info: "{\"Item_ID\":2001,\"Item_Name\":\"\u6728\u65A7\u5934\",\"Item_Desc\":\"\",\"Item_Count\":0,\"Item_Type\":3,\"Average_Weight\":1.0,\"Average_Value\":1.0,\"Item_Info\":\"\"}/*I*/{\"Item_ID\":2002,\"Item_Name\":\"\u94C1\u65A7\u5934\",\"Item_Desc\":\"\",\"Item_Count\":0,\"Item_Type\":3,\"Average_Weight\":1.0,\"Average_Value\":1.0,\"Item_Info\":\"\"}"
+  LootList: []
+  LootCount: 0
+  info: 

@@ -23,9 +23,10 @@ public class SI_Sector : MonoBehaviour
     [SerializeField]
     private Color _viewColor = Color.red;
 
+    private float _scaleVal;
     private void Start()
     {
-       
+        _scaleVal = 1f / transform.localScale.x;
     }
     private void Update()
     {
@@ -49,62 +50,55 @@ public class SI_Sector : MonoBehaviour
     {
         _dir = dir;
         _angles = angle;
-        _radius = radiu;
+        _radius = radiu * _scaleVal;
         if(_radius > 1) { _radius = 1; }
         RefreshView();
     }
     #endregion
     #region//检测指示器物体
-    public void Checkout_SIsector(out Transform[] targets)
+    public void Checkout_SIsector(Vector2 dir, float radiu, float angle, out Transform[] targets)
     {
-        CanFindTargets(out targets);
+        CheckAround(dir, radiu, angle, 4, out targets);
     }
-    private bool CanFindTarget(out Transform target)
+    /// <summary>
+    /// 扇形检查
+    /// </summary>
+    /// <param name="dir">方向</param>
+    /// <param name="radiu">半径</param>
+    /// <param name="angle">角度</param>
+    /// <param name="acc">精度</param>
+    /// <param name="targets">返回值</param>
+    private void CheckAround(Vector2 dir, float radiu, float angle, float acc, out Transform[] targets)
     {
-        var ret = CanFindTargets(out Transform[] targets);
-        target = ret ? targets[0] : null;
-        return ret;
-    }
-    private bool CanFindTargets( out Transform[] targets)
-    {
-        var ret = false;
         var targetList = new List<Transform>();
-        var cols = Physics2D.OverlapCircleAll(CenterPos, _radius);
-        Debug.Log("检测半径" + _radius);
-        Debug.Log("检测角度" + _angles);
-        if (cols != null)
+        float subAngle = ((angle * 0.5f) / acc);
+        for(int i = 0; i <= acc; i++)
         {
-            foreach (var col in cols)
+            Vector2 tempDirL = Quaternion.Euler(0, 0, -1f * subAngle * i) * (dir);
+            RaycastHit2D[] hitsL = Physics2D.RaycastAll(CenterPos, tempDirL, radiu);
+            for (int j = 0; j < hitsL.Length; j++)
             {
-                Vector2 pos = col.transform.position;
-                Debug.Log(col.transform.name);
-                if (IsInArea(pos))
+                if (!targetList.Contains(hitsL[j].transform))
                 {
-                    targetList.Add(col.transform);
+                    targetList.Add(hitsL[j].transform);
                 }
             }
         }
-
-        ret = targetList.Count > 0;
-        targets = targetList.ToArray();
-
-        return ret;
-    }
-    public bool IsInArea(Vector2 pos)
-    {
-        var ret = false;
-        if (Vector2.Distance(CenterPos, pos) < _radius)
+        for(int i = 0; i < acc; i++)
         {
-            var halfAngle = _angles / 2;
-            var dir = (pos - CenterPos).normalized;
-            var curAngle = Vector2.Angle(Dir, dir);
-            if (curAngle < halfAngle || curAngle > 360 - halfAngle)
+            Vector2 tempDirR = Quaternion.Euler(0, 0, 1f * subAngle * (i + 1f)) * (dir);
+            RaycastHit2D[] hitsR = Physics2D.RaycastAll(CenterPos, tempDirR, radiu);
+            for (int j = 0; j < hitsR.Length; j++)
             {
-                ret = true;
+                if (!targetList.Contains(hitsR[j].transform))
+                {
+                    targetList.Add(hitsR[j].transform);
+                }
             }
         }
-        return ret;
+        targets = targetList.ToArray();
     }
+
 
     #endregion
     #region//图像显示
@@ -152,7 +146,6 @@ public class SI_Sector : MonoBehaviour
                     texture2D.SetPixel(x, y, emptyColor);
                 }
             }
-
             texture2D.Apply();
             _renderer.enabled = true;
             _renderer.sprite = Sprite.Create(texture2D, new Rect(0, 0, size, size), Vector2.one * 0.5f);

@@ -10,6 +10,8 @@ using static UnityEditor.Progress;
 using Fusion;
 using static PlayerNetController;
 using Random = UnityEngine.Random;
+using static Fusion.Allocator;
+using UnityEngine.U2D;
 /// <summary>
 /// 行为控制器
 /// </summary>
@@ -34,37 +36,15 @@ public class BaseBehaviorController : NetworkBehaviour
     }
     public virtual void FixedUpdate()
     {
-        if (Data.Data_Dead)
+        if (Object.HasStateAuthority)
         {
-            return;
-        }
-        if (tempPath != null)
-        {
-            MoveByPath(Time.fixedDeltaTime);
-        }
-        if (Object && !Object.HasStateAuthority)
-        {
-            ClientMove();
+            State_Update();
         }
     }
-    public override void FixedUpdateNetwork()
-    {
-        base.FixedUpdateNetwork();
-    }
-    /*初始*/
-    #region
-    /// <summary>
-    /// 初始化
-    /// </summary>
     public virtual void Init()
     {
         navManager = GameObject.Find("Furniture").GetComponent<NavManager>();
-        MessageBroker.Default.Receive<GameEvent.GameEvent_SomeoneMove>().Subscribe(_ =>
-        {
-            ListenRoleMove(_.moveRole, _.moveTile);
-        }).AddTo(this);
     }
-    #endregion
     /*移动*/
     #region
     [Header("身体根节点")]
@@ -87,10 +67,6 @@ public class BaseBehaviorController : NetworkBehaviour
     [HideInInspector, Header("下一个路径点")]
     public MyTile tempPath = null;
 
-    public virtual void InputMoveVector(UnityEngine.Vector2 vector2, float dt)
-    {
-        tempVector += vector2;
-    }
     public virtual void InputFaceVector(Vector3 face)
     {
         faceTo = face;
@@ -102,134 +78,6 @@ public class BaseBehaviorController : NetworkBehaviour
         {
             FaceLeft();
         }
-    }
-
-    /// <summary>
-    /// 加速
-    /// </summary>
-    /// <param name="up"></param>
-    public virtual void SpeedUp(bool up)
-    {
-        speedUp_State = up;
-    }
-    /// <summary>
-    /// 更新路径
-    /// </summary>
-    public virtual void UpdatePath(List<MyTile> path)
-    {
-        tempPathList.Clear();
-        for(int i = 1; i < path.Count; i++)
-        {
-            Debug.Log(path[i].pos);
-            tempPathList.Add(path[i]);
-            if (i == 1) { tempPath = tempPathList[0]; }
-        }
-    }
-    /// <summary>
-    /// 按照方向移动
-    /// </summary>
-    /// <param name="dt"></param>
-    public virtual void MoveByVector(float dt)
-    {
-        if (Object.HasStateAuthority)
-        {
-            StateMove(tempVector, Data.Data_Speed, dt);
-        }
-        if (tempVector != Vector2.zero)
-        {
-            PlayMove(Data.Data_Speed);
-            PlayTurn(tempVector);
-        }
-        else
-        {
-            PlayStop(Data.Data_Speed);
-        }
-        CheckMyPos();        
-        tempVector = Vector3.zero;
-    }
-    /// <summary>
-    /// 按照路径移动
-    /// </summary>
-    public virtual void MoveByPath(float dt)
-    {
-        /*到达路径点*/
-        if (Vector2.Distance(tempPath.pos,transform.position) <= 0.1f)
-        {
-            PlayStop(Data.Data_Speed);
-            tempPath = null;
-            if (tempPathList.Count > 0)
-            {
-                tempPathList.RemoveAt(0);
-                if(tempPathList.Count > 0)
-                {
-                    tempPath = tempPathList[0];
-                }
-            }
-            CheckMyPos();
-            return;
-        }
-        else
-        {
-            Vector2 temp = Vector2.zero;
-            if (transform.position.x > tempPath.x)
-            {
-                if((transform.position.x - tempPath.x) > 0.05f)
-                {
-                    temp += new Vector2(-1, 0);
-                }
-            }
-            else
-            {
-                if ((transform.position.x - tempPath.x) < -0.05f)
-                {
-                    temp += new Vector2(1, 0);
-                }
-            }
-            if(transform.position.y > tempPath.y)
-            {
-                if ((transform.position.y - tempPath.y) > 0.05f)
-                {
-                    temp += new Vector2(0, -1);
-                }
-            }
-            else
-            {
-                if ((transform.position.y - tempPath.y) < -0.05f)
-                {
-                    temp += new Vector2(0, 1);
-                }
-            }
-            if (Object.HasStateAuthority)
-            {
-                StateMove(temp, Data.Data_Speed, dt);
-            }
-            PlayTurn(temp);
-            PlayMove(Data.Data_Speed);
-            if (Vector2.Distance(tempPath.pos, transform.position) <= 0.1f)
-            {
-                PlayStop(Data.Data_Speed);
-                CheckMyPos();
-            }
-        }
-    }
-    private Vector3 newPositon;
-    /// <summary>
-    /// 移动(服务器)
-    /// </summary>
-    public void StateMove(Vector2 dir, float speed, float dt)
-    {
-        dir = dir.normalized;
-        if (speedUp_State) { speed *= speedUp_Val; }
-        statePos = transform.position;
-        transform.position =
-            transform.position + new UnityEngine.Vector3(dir.x * speed * dt, dir.y * speed * dt, 0);
-    }
-    /// <summary>
-    /// 移动(客户端)
-    /// </summary>
-    public void ClientMove()
-    {
-        transform.position = statePos;
     }
     /// <summary>
     /// 移动动画
@@ -269,29 +117,9 @@ public class BaseBehaviorController : NetworkBehaviour
         bodyController.PlayLegAction(LegAction.Idle, speed,null);
         bodyController.PlayHandAction(HandAction.Idle, speed, null);
     }
-    /// <summary>
-    /// 检查我的位置
-    /// </summary>
-    public void CheckMyPos()
-    {
-        curTile = GetMyTile();
-        if (!curTile) { return; }
-        if (lastTile == null) { lastTile = curTile; }
-        if (lastTile.pos != curTile.pos)
-        {
-            lastTile = curTile;
-            MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
-            {
-                moveRole = this,
-                moveTile = curTile
-            });
-        }
-    }
     #endregion
     /*寻路*/
     #region
-    public List<MyTile> myLoad = new List<MyTile>();
-    public NavManager navManager;
     public MyTile GetMyTile()
     {
         if (navManager != null)
@@ -319,10 +147,6 @@ public class BaseBehaviorController : NetworkBehaviour
     }
     public Vector2 GetMyPos()
     {
-        //int X = Mathf.RoundToInt(transform.position.x);
-        //int Y = Mathf.RoundToInt(transform.position.y);
-        //Debug.Log(transform.position);
-        //return new Vector2(X, Y);
         Vector3Int vector3Int = navManager.grid.WorldToCell(transform.position);
         return new Vector2(vector3Int.x, vector3Int.y);
     }
@@ -334,62 +158,390 @@ public class BaseBehaviorController : NetworkBehaviour
     /// </summary>
     public virtual void ListenTimeUpdate()
     {
-
-    }
-    /// <summary>
-    /// 监听到位置更新
-    /// </summary>
-    /// <param name="who"></param>
-    /// <param name="where"></param>
-    public virtual void ListenRoleMove(BaseBehaviorController who,MyTile where)
-    {
-        
     }
     #endregion
-    /*行为*/
+
+
+
+
+    /*网络同步数据*/
     #region
-    public void PickUpItem_Bag(ItemObj itemObj)
+
+    [Networked]
+    public int Net_Hp { get; set; }
+    [Networked]
+    public int Net_Food { get; set; }
+    [Networked]
+    public int Net_Water { get; set; }
+    [Networked]
+    public NetworkItemConfig Net_ItemInHand { get; set; }
+    [Networked]
+    public NetworkLinkedList<NetworkItemConfig> Net_ItemInBag { get; }
+    [Networked]
+    public NetworkLinkedList<int> Net_Buffs { get; }
+    #endregion
+
+    /*RPC方法*/
+    #region
+    public void RPC_TryToAddItemInBag(ItemConfig config)
     {
-        bodyController.PlayHeadAction( HeadAction.LowerHead, 1, null);
-        bodyController.PlayHandAction( HandAction.PickUp,1,
-            (string x) => 
-            {
-                Debug.Log("OK"+x);
-                if (x == "PickUp")
-                {
-                    itemObj.PickUp(this);
-                }
-            });
+        RPC_AddItemInBag(ItemConfigLocalToNet(config), Object.InputAuthority);
     }
-    public void AddItem_Hand(ItemConfig config,bool showInUI)
+    public void RPC_TryToAddItemInHand(ItemConfig config)
     {
-        Type type = Type.GetType("Item_" + config.Item_ID.ToString());
-        holdingByHand = (ItemBase)Activator.CreateInstance(type);
-        holdingByHand.Init(config);
-        holdingByHand.BeHolding(this, bodyController.Hand_Right);
-        /*更新UI*/
-        if (showInUI)
+        RPC_AddItemInHand(ItemConfigLocalToNet(config), Object.InputAuthority);
+    }
+    public void RPC_TryToRemoveItemFromBag(ItemConfig config)
+    {
+        RPC_RemoveItemFromBag(ItemConfigLocalToNet(config), Object.InputAuthority);
+    }
+    public void RPC_TryToChangeHP(int val)
+    {
+        RPC_ChangeHP(val);
+    }
+    public void RPC_TryToChangeFood(int val)
+    {
+        RPC_ChangeFood(val);
+    }
+
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_AddItemInBag(NetworkItemConfig itemConfig, PlayerRef player)
+    {
+        Debug.Log("监听到玩家" + player);
+        if (player == Object.InputAuthority && isPlayer)
         {
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_AddItemInHand()
+            All_AddItem_Bag(ItemConfigNetToLocal(itemConfig), true);
+        }
+        else
+        {
+            All_AddItem_Bag(ItemConfigNetToLocal(itemConfig), false);
+        }
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_AddItemInHand(NetworkItemConfig config, PlayerRef player)
+    {
+        Debug.Log("监听到玩家" + player);
+        if (player == Object.InputAuthority && isPlayer)
+        {
+            All_AddItem_Hand(ItemConfigNetToLocal(config), true);
+        }
+        else
+        {
+            All_AddItem_Hand(ItemConfigNetToLocal(config), false);
+        }
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_RemoveItemFromBag(NetworkItemConfig itemConfig, PlayerRef player)
+    {
+        if (player == Object.InputAuthority && isPlayer)
+        {
+            All_SubItem_Bag(ItemConfigNetToLocal(itemConfig), true);
+        }
+        else
+        {
+            All_SubItem_Bag(ItemConfigNetToLocal(itemConfig), false);
+        }
+        Debug.Log("监听到玩家" + player);
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_ChangeHP(int val)
+    {
+        if (val < 0)
+        {
+            GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position + new Vector2(0, 1));
+            obj_num.GetComponent<UI_DamageNum>().Play(val, new Color32(255, 50, 50, 255));
+
+            if (Net_Hp + val > 0)
             {
-                itemConfig = config
+                Net_Hp += val;
+                actorUI.UpdateHPBar((float)Data.Data_Hp / (float)Data.Data_HpMax);
+                bodyController.PlayHeadAction(HeadAction.TakeDamage, 1, null);
+            }
+            else
+            {
+                Data.Data_Hp = 0;
+                Data.Data_Dead = true;
+                actorUI.UpdateHPBar((float)Data.Data_Hp / (float)Data.Data_HpMax);
+                bodyController.PlayHeadAction(HeadAction.Dead, 1, (str) =>
+                {
+                    if (str == "Dead")
+                    {
+                        Dead();
+                    }
+                });
+                bodyController.PlayBodyAction(BodyAction.Dead, 1, null);
+                bodyController.PlayHandAction(HandAction.Dead, 1, null);
+                bodyController.PlayLegAction(LegAction.Dead, 1, null);
+            }
+        }
+        if (isPlayer && Object.HasInputAuthority)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateData()
+            {
+                HP = Data.Data_Hp,
+                Food = Data.Data_Food,
+                Water = Data.Data_Water,
             });
         }
     }
-    public void UseItem_Hand(ItemConfig config)
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_ChangeFood(int val)
     {
-        
+        if (val > 0)
+        {
+            Data.Data_Food += val;
+            if (Data.Data_Food > Data.Data_FoodMax)
+            {
+                Data.Data_Food = Data.Data_FoodMax;
+            }
+        }
+        else
+        {
+            Data.Data_Food -= val;
+        }
+        if (isPlayer && Object.HasInputAuthority)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateData()
+            {
+                HP = Data.Data_Hp,
+                Food = Data.Data_Food,
+                Water = Data.Data_Water,
+            });
+        }
     }
-    public void SubItem_Hand(ItemConfig config)
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_AddBuff(int val)
+    {
+        Type type = Type.GetType("Buff_" + val.ToString());
+        ItemBase food = (ItemBase)Activator.CreateInstance(type);
+    }
+
+    private ItemConfig ItemConfigNetToLocal(NetworkItemConfig config)
+    {
+        ItemConfig itemConfig = new ItemConfig();
+        itemConfig.Item_ID = config.Item_ID;
+        itemConfig.Item_Name = config.Item_Name.Value;
+        itemConfig.Item_Desc = config.Item_Desc.Value;
+        itemConfig.Item_CurCount = config.Item_CurCount;
+        itemConfig.Item_MaxCount = config.Item_MaxCount;
+        itemConfig.Item_Type = config.Item_Type;
+        itemConfig.Average_Weight = config.Average_Weight;
+        itemConfig.Average_Value = config.Average_Value;
+        itemConfig.Item_Info = config.Item_Info.Value;
+        return itemConfig;
+    }
+    private NetworkItemConfig ItemConfigLocalToNet(ItemConfig config)
+    {
+        NetworkItemConfig itemConfig = new NetworkItemConfig();
+        itemConfig.Item_ID = config.Item_ID;
+        itemConfig.Item_Name = config.Item_Name;
+        itemConfig.Item_Desc = config.Item_Desc;
+        itemConfig.Item_CurCount = config.Item_CurCount;
+        itemConfig.Item_MaxCount = config.Item_MaxCount;
+        itemConfig.Item_Type = config.Item_Type;
+        itemConfig.Average_Weight = config.Average_Weight;
+        itemConfig.Average_Value = config.Average_Value;
+        itemConfig.Item_Info = config.Item_Info;
+        return itemConfig;
+    }
+    #endregion
+
+    /*服务器方法*/
+    #region
+    public NavManager navManager;
+    public List<MyTile> _State_MyLoad = new List<MyTile>();
+    public MyTile _State_NextTile;
+
+    /// <summary>
+    /// 服务器更新
+    /// </summary>
+    public virtual void State_Update()
+    {
+        if (Object.HasStateAuthority)
+        {
+            if (_State_NextTile)
+            {
+                State_MovePath(Time.fixedDeltaTime);
+            }
+        }
+    }
+    /// <summary>
+    /// 服务器方法,根据地块坐标更改位置
+    /// </summary>
+    /// <param name="pos"></param>
+    public void State_SetMyTile(Vector3Int pos)
+    {
+        if (navManager != null)
+        {
+            State_Teleport(navManager.grid.CellToWorld(pos));
+        }
+        else
+        {
+            navManager = GameObject.Find("Furniture").GetComponent<NavManager>();
+            State_Teleport(navManager.grid.CellToWorld(pos));
+        }
+    }
+    /// <summary>
+    /// 服务器方法,根据坐标更改位置
+    /// </summary>
+    /// <param name="pos"></param>
+    public void State_Teleport(Vector3 pos)
+    {
+        if (NetTransform && Object.HasStateAuthority)
+        {
+            NetTransform.Teleport(pos);
+        }
+    }
+    /// <summary>
+    /// 服务器方法,计算路径
+    /// </summary>
+    public void State_CalculatePath(Vector2 from, Vector2 to)
+    {
+        if (Object.HasStateAuthority)
+        {
+            if (_State_MyLoad != null)
+            {
+                _State_MyLoad.Clear();
+            }
+            _State_MyLoad = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
+            State_ChangePath(_State_MyLoad);
+        }
+    }
+    /// <summary>
+    /// 服务器方法,更新路径
+    /// </summary>
+    /// <param name="path"></param>
+    public void State_ChangePath(List<MyTile> path)
+    {
+        if (Object.HasStateAuthority)
+        {
+            tempPathList.Clear();
+            for (int i = 1; i < path.Count; i++)
+            {
+                tempPathList.Add(path[i]);
+                if (i == 1) { tempPath = tempPathList[0]; }
+            }
+        }
+    }
+    /// <summary>
+    /// 服务器方法,执行路径
+    /// </summary>
+    /// <param name="dt"></param>
+    public void State_MovePath(float dt)
+    {
+        /*到达路径点*/
+        if (Vector2.Distance(_State_NextTile.pos, transform.position) <= 0.1f)
+        {
+            _State_NextTile = null;
+            if (_State_MyLoad.Count > 0)
+            {
+                _State_MyLoad.RemoveAt(0);
+                if (_State_MyLoad.Count > 0)
+                {
+                    _State_NextTile = _State_MyLoad[0];
+                }
+            }
+            State_CheckMyPos();
+            return;
+        }
+        else
+        {
+            Vector2 temp = Vector2.zero;
+            if (transform.position.x > _State_NextTile.x)
+            {
+                if ((transform.position.x - _State_NextTile.x) > 0.05f)
+                {
+                    temp += new Vector2(-1, 0);
+                }
+            }
+            else
+            {
+                if ((transform.position.x - _State_NextTile.x) < -0.05f)
+                {
+                    temp += new Vector2(1, 0);
+                }
+            }
+            if (transform.position.y > _State_NextTile.y)
+            {
+                if ((transform.position.y - _State_NextTile.y) > 0.05f)
+                {
+                    temp += new Vector2(0, -1);
+                }
+            }
+            else
+            {
+                if ((transform.position.y - _State_NextTile.y) < -0.05f)
+                {
+                    temp += new Vector2(0, 1);
+                }
+            }
+            temp = temp.normalized;
+            State_Teleport(transform.position + new UnityEngine.Vector3(temp.x * dt, temp.y * dt, 0));
+
+            if (Vector2.Distance(_State_NextTile.pos, transform.position) <= 0.1f)
+            {
+                State_CheckMyPos();
+            }
+        }
+    }
+    /// <summary>
+    /// 服务器方法,检查我的位置
+    /// </summary>
+    public void State_CheckMyPos()
+    {
+        curTile = GetMyTile();
+        if (!curTile) { return; }
+        if (lastTile == null) { lastTile = curTile; }
+        if (lastTile.pos != curTile.pos)
+        {
+            lastTile = curTile;
+        }
+    }
+    #endregion
+    /*通用方法*/
+    #region
+    public void All_AddItem_Hand(ItemConfig config, bool showInUI)
+    {
+        Data.Holding_ByHand = config;
+        Type type = Type.GetType("Item_" + config.Item_ID.ToString());
+        holdingByHand = (ItemBase)Activator.CreateInstance(type);
+        //holdingByHand.Init(config);
+        //holdingByHand.BeHolding(this, bodyController.Hand_RightItem);
+        /*更新UI*/
+        if (showInUI)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInHand()
+            {
+                itemConfig = Data.Holding_ByHand
+            });
+        }
+    }
+    public void All_UseItem_Hand(ItemConfig config)
     {
 
     }
-    public void AddItem_Bag(ItemConfig config,bool showInUI)
+    public void All_SubItem_Hand(bool showInUI)
+    {
+        ItemConfig item = new ItemConfig();
+        item.Item_ID = -1;
+        Data.Holding_ByHand = item;
+
+        bodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite = null;
+        /*更新UI*/
+        if (showInUI)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInHand()
+            {
+                itemConfig = Data.Holding_ByHand
+            });
+        }
+    }
+    public void All_AddItem_Bag(ItemConfig config, bool showInUI)
     {
         /*传入物体数量不能为零*/
-        if(config.Item_CurCount <= 0) { config.Item_CurCount = 1; }
+        if (config.Item_CurCount <= 0) { config.Item_CurCount = 1; }
         /*遍历背包*/
-        for(int i = 0; i < Data.Holding_BagList.Count; i++)
+        for (int i = 0; i < Data.Holding_BagList.Count; i++)
         {
             /*检查背包里有同种物体*/
             if (Data.Holding_BagList[i].Item_ID == config.Item_ID)
@@ -409,7 +561,7 @@ public class BaseBehaviorController : NetworkBehaviour
                     else
                     {
                         tempItem.Item_CurCount += config.Item_CurCount;
-                        config.Item_CurCount = 0; 
+                        config.Item_CurCount = 0;
                         Data.Holding_BagList[i] = tempItem;
                     }
                 }
@@ -420,7 +572,7 @@ public class BaseBehaviorController : NetworkBehaviour
             }
         }
         /*遍历一遍之后还有剩余*/
-        if(config.Item_CurCount > 0)
+        if (config.Item_CurCount > 0)
         {
             Data.Holding_BagList.Add(config);
         }
@@ -433,13 +585,35 @@ public class BaseBehaviorController : NetworkBehaviour
             });
         }
     }
-    public void SubItem_Bag(ItemConfig config)
+    public void All_SubItem_Bag(ItemConfig config, bool showInUI)
     {
-        Data.Holding_BagList.Remove(config);
-    }
-    public virtual void LookAt(BaseBehaviorController who)
-    {
-
+        for (int i = 0; i < Data.Holding_BagList.Count; i++)
+        {
+            if (Data.Holding_BagList[i].Item_ID == config.Item_ID)
+            {
+                ItemConfig tempItem = Data.Holding_BagList[i];
+                if (tempItem.Item_CurCount > config.Item_CurCount)
+                {
+                    tempItem.Item_CurCount -= config.Item_CurCount;
+                    Data.Holding_BagList[i] = tempItem;
+                }
+                else
+                {
+                    Data.Holding_BagList.RemoveAt(i);
+                    if (Data.Holding_ByHand.Item_ID == tempItem.Item_ID)
+                    {
+                        All_SubItem_Hand(showInUI);
+                    }
+                }
+            }
+        }
+        if (showInUI)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInBag()
+            {
+                itemConfigs = Data.Holding_BagList
+            });
+        }
     }
     public virtual void RunAway()
     {
@@ -521,73 +695,21 @@ public class BaseBehaviorController : NetworkBehaviour
         }
         return 0;
     }
+    public void ChangeHP()
+    {
 
+    }
     #endregion
-    /*网络同步行为*/
-    #region
-    [Networked]
-    public Vector2 statePos { get; set; } 
-
-    public void TryToFindPathByRPC(Vector2 to, Vector2 from)
-    {
-        if (Object.HasStateAuthority)
-        {
-            RPC_FindPath(to, from);
-        }
-    }
-    /// <summary>
-    /// 寻找路径
-    /// </summary>
-    /// <param name="to"></param>
-    /// <param name="from"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    public void RPC_FindPath(Vector2 to, Vector2 from)
-    {
-        if (myLoad != null)
-        {
-            myLoad.Clear();
-        }
-        myLoad = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
-
-        UpdatePath(myLoad);
-    }
-    public void TryToTakeDamage(int damage)
-    {
-        RPC_TakeDamage(damage);
-    }
-    /// <summary>
-    /// 受到伤害
-    /// </summary>
-    /// <param name="damage"></param>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_TakeDamage(int damage)
-    {
-        GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position+new Vector2(0,1));
-        obj_num.GetComponent<UI_DamageNum>().Play(damage, new Color32(255, 50, 50, 255));
-
-        if (Data.Data_Hp > damage)
-        {
-            Data.Data_Hp -= damage;
-            actorUI.UpdateHPBar((float)Data.Data_Hp / (float)Data.Data_HpMax);
-            bodyController.PlayHeadAction(HeadAction.TakeDamage,1,null);
-        }
-        else
-        {
-            Data.Data_Hp = 0;
-            Data.Data_Dead = true;
-            actorUI.UpdateHPBar((float)Data.Data_Hp / (float)Data.Data_HpMax);
-            bodyController.PlayHeadAction(HeadAction.Dead, 1, (str) => 
-            {
-                if (str == "Dead")
-                {
-                    Dead();
-                }
-            });
-            bodyController.PlayBodyAction(BodyAction.Dead, 1, null);
-            bodyController.PlayHandAction(HandAction.Dead, 1, null);
-            bodyController.PlayLegAction(LegAction.Dead, 1, null);
-        }
-    }
-
-    #endregion
+}
+public struct NetworkItemConfig : INetworkStruct
+{
+    public int Item_ID;
+    public NetworkString<_16> Item_Name;
+    public NetworkString<_16> Item_Desc;
+    public int Item_CurCount;
+    public int Item_MaxCount;
+    public ItemType Item_Type;
+    public float Average_Weight;
+    public float Average_Value;
+    public NetworkString<_256> Item_Info;
 }

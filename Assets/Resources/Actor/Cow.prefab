@@ -59,6 +59,8 @@ MonoBehaviour:
   Leg: {fileID: 0}
   Hand_Right: {fileID: 0}
   Hand_Left: {fileID: 0}
+  Hand_RightItem: {fileID: 0}
+  Hand_LeftItem: {fileID: 0}
 --- !u!114 &8087677703321448149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,42 +73,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bf63fbd9b0326943b14bc94c7bba32c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bodyController: {fileID: 3765932473150523369}
-  actorUI: {fileID: 1419808548470325277}
-  skillSector: {fileID: 0}
-  Data:
-    Data_Speed: 1
-    Data_Hp: 100
-    Data_HpMax: 100
-    Data_Hunger: 0
-    Data_HungerMax: 0
-    Temp_Alert: 1000
-    Holding_ByHand:
-      Item_ID: 0
-      Item_Name: 
-      Item_Desc: 
-      Item_CurCount: 0
-      Item_MaxCount: 0
-      Item_Type: 0
-      Average_Weight: 0
-      Average_Value: 0
-      Item_Info: 
-    Holding_BagList: []
-  isPlayer: 0
-  Root: {fileID: 6305386443740106584}
-  NetTransform: {fileID: 0}
-  tempVector: {x: 0, y: 0}
-  curTile: {fileID: 0}
-  lastTile: {fileID: 0}
-  speedUp_State: 0
-  speedUp_Val: 2
-  tempPathList: []
-  tempPath: {fileID: 0}
-  myLoad: []
-  navManager: {fileID: 0}
-  _statePos: {x: 0, y: 0}
-  LocalScope: 3
-  LookAtList: []
 --- !u!61 &8827712441029477511
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -168,8 +134,7 @@ MonoBehaviour:
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
-  NetworkedBehaviours:
-  - {fileID: 8087677703321448149}
+  NetworkedBehaviours: []
 --- !u!210 &2983913003401362893
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -429,17 +394,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
---- !u!114 &1419808548470325277 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8139152322388875063, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
-  m_PrefabInstance: {fileID: 7151786234223515434}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a7a636a89c11114d8f65c7e68ca2240, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &3281432802719595823 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5677282177641982469, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}

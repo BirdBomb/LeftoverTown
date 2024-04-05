@@ -20,7 +20,6 @@ public class HumanBodyController : BaseBodyController
     public override void PlayBodyAction(BodyAction bodyAction, float speed, Action<string> action)
     {
         AnimaEventListen_Body.BindEvent(action);
-
         if (bodyAction == BodyAction.Dead)
         {
             Animator_Body.SetTrigger("Dead");
@@ -32,6 +31,7 @@ public class HumanBodyController : BaseBodyController
         {
             Animator_Body.SetTrigger("Charge");
             Animator_Body.speed = speed;
+            return;
         }
 
         if (bodyAction == BodyAction.Move)
@@ -39,13 +39,14 @@ public class HumanBodyController : BaseBodyController
             Animator_Body.SetBool("Step", true);
             Animator_Body.SetBool("Idle", false);
             Animator_Body.speed = speed;
-
+            return;
         }
         if (bodyAction == BodyAction.Idle)
         {
             Animator_Body.SetBool("Idle", true);
             Animator_Body.SetBool("Step", false);
             Animator_Body.speed = speed;
+            return;
         }
 
         base.PlayBodyAction(bodyAction, speed, null);
@@ -97,6 +98,12 @@ public class HumanBodyController : BaseBodyController
             Animator_Head.speed = speed;
             return;
         }
+        if (headAction == HeadAction.Eat)
+        {
+            Animator_Head.SetTrigger("Eat");
+            Animator_Head.speed = speed;
+            return;
+        }
         base.PlayHeadAction(headAction, speed, action);
     }
     public override void PlayHandAction(HandAction handAction, float speed, Action<string> action)
@@ -110,7 +117,13 @@ public class HumanBodyController : BaseBodyController
         }
         if (handAction == HandAction.PickUp)
         {
-            Animator_Hand.SetTrigger("Hand_PickUp");
+            Animator_Hand.SetTrigger("PickUp");
+            Animator_Hand.speed = speed;
+            return;
+        }
+        if (handAction == HandAction.Eat)
+        {
+            Animator_Hand.SetTrigger("Eat");
             Animator_Hand.speed = speed;
             return;
         }
@@ -152,6 +165,27 @@ public class HumanBodyController : BaseBodyController
             Animator_Hand.speed = speed;
             return;
         }
+        if (handAction == HandAction.Bow_Ready)
+        {
+            Animator_Hand.SetTrigger("Bow_Ready");
+            Animator_Hand.SetBool("Bow_Release", false);
+            Animator_Hand.ResetTrigger("Bow_Play");
+            Animator_Hand.speed = speed;
+            return;
+        }
+        if (handAction == HandAction.Bow_Play)
+        {
+            Animator_Hand.SetTrigger("Bow_Play");
+            Animator_Hand.speed = speed;
+            return;
+        }
+        if (handAction == HandAction.Bow_Release)
+        {
+            Animator_Hand.SetBool("Bow_Release", true);
+            Animator_Hand.speed = speed;
+            return;
+        }
+
         if (handAction == HandAction.Step)
         {
             Animator_Hand.SetBool("Step", true);
