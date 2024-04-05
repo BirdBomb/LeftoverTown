@@ -190,9 +190,11 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
             // Create a unique position for the player
             Vector3 spawnPosition = new Vector3((player.RawEncoded % runner.Config.Simulation.PlayerCount) * 3, 1, 0);
             NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
+            Debug.Log("³É¹¦ÁËÂð" + runner.SetIsSimulated(networkPlayerObject, true));
             // Keep track of the player avatars for easy access
             _spawnedCharacters.Add(player, networkPlayerObject);
         }
+
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
