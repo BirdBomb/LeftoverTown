@@ -23,6 +23,7 @@ public class ActorNetManager : NetworkBehaviour
     }
     public override void FixedUpdateNetwork()
     {
+        Debug.Log("ÕıÔÚÄ£Äâ");
         LocalManager.FixedUpdateNetwork(Runner.DeltaTime);
         base.FixedUpdateNetwork();
     }
