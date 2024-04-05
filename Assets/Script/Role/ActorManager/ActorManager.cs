@@ -86,6 +86,7 @@ public class ActorManager : MonoBehaviour
 
     public virtual void UpdateAnima(float dt)
     {
+        Debug.Log("Follow" + dt);
         curPos_X = transform.position.x;
         curPos_Y = transform.position.y;
         float distance = Vector2.Distance(new Vector2(curPos_X, curPos_Y), new Vector2(lastPos_X, lastPos_Y));
@@ -178,6 +179,8 @@ public class ActorManager : MonoBehaviour
 
     public virtual void PlayMove(float speed)
     {
+        Debug.Log("Follow" + speed);
+
         bodyController.PlayBodyAction(BodyAction.Move, speed, null);
         bodyController.PlayHeadAction(HeadAction.Move, speed, null);
         bodyController.PlayLegAction(LegAction.Step, speed, null);
