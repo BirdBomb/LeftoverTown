@@ -9,8 +9,6 @@ using Input = UnityEngine.Input;
 /// </summary>
 public class PlayerController : MonoBehaviour
 {
-    //[Header("行为控制器")]
-    //public BaseBehaviorController baseBehaviorController;
     [Header("人物")]
     public ActorManager actorManager;
     [Header("物理")]
@@ -40,8 +38,9 @@ public class PlayerController : MonoBehaviour
                 UpdateNearByTile();
             }
         }).AddTo(this);
-        actorManager.isPlayer = true;
+        actorManager.InitByPlayer();
     }
+
     #region//玩家输入
     private int lastLeftClickTime = 0;
     private int lastRightClickTime = 0;

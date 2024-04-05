@@ -914,7 +914,7 @@ GameObject:
   - component: {fileID: 4609965642842415961}
   - component: {fileID: 2537916146760977371}
   - component: {fileID: 2382471986505964745}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1156,7 +1156,8 @@ MonoBehaviour:
   skillSector: {fileID: 3913933913045209471}
   actorUI: {fileID: 7495404599927739563}
   navManager: {fileID: 0}
-  isPlayer: 0
+  tempPath: []
+  targetTile: {fileID: 0}
 --- !u!114 &2382471986505964745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1170,6 +1171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NetTransform: {fileID: 7259909701035603807}
+  LocalManager: {fileID: 2537916146760977371}
   _Data_Hp: 10
   _Data_MaxHp: 10
   _Data_Buffs: 

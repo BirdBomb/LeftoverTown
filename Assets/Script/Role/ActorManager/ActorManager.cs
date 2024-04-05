@@ -42,29 +42,39 @@ public class ActorManager : MonoBehaviour
     public ItemBase holdingByHand = new ItemBase();
     [HideInInspector]
     public NavManager navManager;
-    [HideInInspector]
-    public bool isPlayer = false;
-    private void Start()
+
+    protected bool isPlayer = false;
+    protected bool isState = false;
+    public virtual void FixedUpdateNetwork(float dt)
     {
-        Init();
+        UpdateAnima(dt);
+        UpdatePath(dt);
     }
-    private void FixedUpdate()
+    public virtual void CustomUpdate()
     {
-        CalculationAnima(Time.fixedDeltaTime);
+        CheckMyTile();
     }
-    private void Init()
+    public void InitByNetManager(bool hasStateAuthority)
     {
+        isState = hasStateAuthority;
+        InvokeRepeating("CustomUpdate", 1f, 0.5f);
         navManager = GameObject.Find("Furniture").GetComponent<NavManager>();
         MessageBroker.Default.Receive<GameEvent.GameEvent_SomeoneMove>().Subscribe(_ =>
         {
             ListenRoleMove(_.moveActor, _.moveTile);
         }).AddTo(this);
     }
+    public void InitByPlayer()
+    {
+        isPlayer = true;
+    }
     /*监听*/
-    private void ListenRoleMove(ActorManager who, MyTile where)
+    #region
+    public virtual void ListenRoleMove(ActorManager who, MyTile where)
     {
 
     }
+    #endregion
     /*动画*/
     #region
     private float curPos_X;
@@ -74,7 +84,7 @@ public class ActorManager : MonoBehaviour
     private bool turnRight = false;
     private bool turnLeft = false;
 
-    public virtual void CalculationAnima(float dt)
+    public virtual void UpdateAnima(float dt)
     {
         curPos_X = transform.position.x;
         curPos_Y = transform.position.y;
@@ -217,13 +227,20 @@ public class ActorManager : MonoBehaviour
         if (lastTile == null) { lastTile = curTile; }
         if (lastTile.pos != curTile.pos)
         {
-            lastTile = curTile;
-            MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
-            {
-                moveActor = this,
-                moveTile = curTile
-            });
+            InNewTile();
         }
+    }
+    /// <summary>
+    /// 到达新地块
+    /// </summary>
+    public virtual void InNewTile()
+    {
+        lastTile = curTile;
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
+        {
+            moveActor = this,
+            moveTile = curTile
+        });
     }
     #endregion
     /*物品*/
@@ -261,7 +278,86 @@ public class ActorManager : MonoBehaviour
     /*寻路*/
     #region
     public List<MyTile> tempPath = new List<MyTile>();
-    public MyTile targetTile;
+    public MyTile targetTile = null;
+    public void UpdatePath(float dt)
+    {
+        if (targetTile)
+        {
+            /*到达路径点，检查*/
+            if (Vector2.Distance(targetTile.pos, transform.position) <= 0.1f)
+            {
+                targetTile = null;
+                /*如果路径还未结束*/
+                if (tempPath.Count > 0)
+                {
+                    tempPath.RemoveAt(0);
+                    if (tempPath.Count > 0)
+                    {
+                        targetTile = tempPath[0];
+                    }
+                }
+                CheckMyTile();
+                return;
+            }
+            /*到达路径点，前往路径点*/
+            else
+            {
+                Vector2 temp = Vector2.zero;
+                if (transform.position.x > targetTile.pos.x)
+                {
+                    if ((transform.position.x - targetTile.pos.x) > 0.05f)
+                    {
+                        temp += new Vector2(-1, 0);
+                    }
+                }
+                else
+                {
+                    if ((transform.position.x - targetTile.pos.x) < -0.05f)
+                    {
+                        temp += new Vector2(1, 0);
+                    }
+                }
+                if (transform.position.y > targetTile.pos.y)
+                {
+                    if ((transform.position.y - targetTile.pos.y) > 0.05f)
+                    {
+                        temp += new Vector2(0, -1);
+                    }
+                }
+                else
+                {
+                    if ((transform.position.y - targetTile.pos.y) < -0.05f)
+                    {
+                        temp += new Vector2(0, 1);
+                    }
+                }
+                temp = temp.normalized;
+
+                netController.UpdateNetworkTransform(transform.position + new UnityEngine.Vector3(temp.x * dt * actorConfig.Config_Speed, temp.y * dt * actorConfig.Config_Speed, 0));
+            }
+        }
+    }
+    public virtual void SetTargetTile(Vector2 targetPos)
+    {
+        tempPath = navManager.FindPath(navManager.FindTileByPos(targetPos), GetMyTile());
+        if (tempPath != null)
+        {
+            /*按照路径移动时会直接跳过第一个路径点，防止横跳*/
+            if (tempPath.Count > 1)
+            {
+                tempPath.RemoveAt(0);
+            }
+            targetTile = tempPath[0];
+            if (targetTile.pos.x >= transform.position.x)
+            {
+                FaceRight();
+            }
+            else
+            {
+                FaceLeft();
+            }
+        }
+    }
     public virtual void CalculatePath(Vector2 from, Vector2 to)
     {
         if (tempPath != null)
@@ -269,73 +365,6 @@ public class ActorManager : MonoBehaviour
             tempPath.Clear();
         }
         tempPath = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
-    }
-    public void GoingOnPath(float dt)
-    {
-        /*到达路径点*/
-        if (Vector2.Distance(targetTile.pos, transform.position) <= 0.1f)
-        {
-            targetTile = null;
-            if (tempPath.Count > 0)
-            {
-                tempPath.RemoveAt(0);
-                if (tempPath.Count > 0)
-                {
-                    targetTile = tempPath[0];
-                }
-            }
-            CheckMyPos();
-            return;
-        }
-        else
-        {
-            Vector2 temp = Vector2.zero;
-            if (transform.position.x > targetTile.x)
-            {
-                if ((transform.position.x - targetTile.x) > 0.05f)
-                {
-                    temp += new Vector2(-1, 0);
-                }
-            }
-            else
-            {
-                if ((transform.position.x - targetTile.x) < -0.05f)
-                {
-                    temp += new Vector2(1, 0);
-                }
-            }
-            if (transform.position.y > targetTile.y)
-            {
-                if ((transform.position.y - targetTile.y) > 0.05f)
-                {
-                    temp += new Vector2(0, -1);
-                }
-            }
-            else
-            {
-                if ((transform.position.y - targetTile.y) < -0.05f)
-                {
-                    temp += new Vector2(0, 1);
-                }
-            }
-            temp = temp.normalized;
-            netController.UpdateNetworkTransform(transform.position + new UnityEngine.Vector3(temp.x * dt, temp.y * dt, 0));
-
-            if (Vector2.Distance(targetTile.pos, transform.position) <= 0.1f)
-            {
-                CheckMyPos();
-            }
-        }
-    }
-    public void CheckMyPos()
-    {
-        curTile = GetMyTile();
-        if (!curTile) { return; }
-        if (lastTile == null) { lastTile = curTile; }
-        if (lastTile.pos != curTile.pos)
-        {
-            lastTile = curTile;
-        }
     }
     #endregion
 }

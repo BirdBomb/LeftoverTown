@@ -11,6 +11,19 @@ public class ActorNetManager : NetworkBehaviour
 {
     [Header("位置同步组件")]
     public NetworkTransform NetTransform;
+    [Header("本地角色组件")]
+    public ActorManager LocalManager;
+
+    public override void Spawned()
+    {
+        LocalManager.InitByNetManager(Object.HasStateAuthority);
+        base.Spawned();
+    }
+    public override void FixedUpdateNetwork()
+    {
+        LocalManager.FixedUpdateNetwork(Runner.DeltaTime);
+        base.FixedUpdateNetwork();
+    }
     /// <summary>
     /// 更新网络位置
     /// </summary>

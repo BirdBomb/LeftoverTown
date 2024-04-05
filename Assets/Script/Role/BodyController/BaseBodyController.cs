@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class BaseBodyController : MonoBehaviour
 {
+    [HideInInspector]
     public float speed;
     [SerializeField, Header("¸ù½Úµã")]
     public Transform Root;

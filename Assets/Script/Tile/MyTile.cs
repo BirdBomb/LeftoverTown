@@ -87,7 +87,7 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     {
         this.x = x;
         this.y = y;
-        this.pos = pos;
+        this.pos = pos + new Vector2(0.5f, 0.5f);
         if (bindObj)
         {
             bindObj.transform.position = pos + new Vector2(0.5f,0.5f);
