@@ -4,6 +4,7 @@ using UnityEngine;
 using Fusion;
 using static UnityEditor.PlayerSettings;
 using UniRx;
+using static Unity.Collections.Unicode;
 /// <summary>
 /// 角色网络管理器
 /// </summary>
@@ -17,6 +18,7 @@ public class ActorNetManager : NetworkBehaviour
     public override void Spawned()
     {
         LocalManager.InitByNetManager(Object.HasStateAuthority);
+        Debug.Log("成功了吗" + Runner.SetIsSimulated(Object, true));
         base.Spawned();
     }
     public override void FixedUpdateNetwork()
