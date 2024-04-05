@@ -23,9 +23,15 @@ public class ActorNetManager : NetworkBehaviour
     }
     public override void FixedUpdateNetwork()
     {
+        //Debug.Log("正在模拟");
+        //LocalManager.FixedUpdateNetwork(Runner.DeltaTime);
+        base.FixedUpdateNetwork();
+    }
+    public override void Render()
+    {
         Debug.Log("正在模拟");
         LocalManager.FixedUpdateNetwork(Runner.DeltaTime);
-        base.FixedUpdateNetwork();
+        base.Render();
     }
     /// <summary>
     /// 更新网络位置
