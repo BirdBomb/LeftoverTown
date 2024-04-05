@@ -21,15 +21,6 @@ public class ActorNetManager : NetworkBehaviour
         Debug.Log("成功了吗" + Runner.SetIsSimulated(Object, true));
         base.Spawned();
     }
-    public override void FixedUpdateNetwork()
-    {
-        Debug.Log("正在模拟");
-        if (Object.HasStateAuthority || Object.HasInputAuthority)
-        {
-            LocalManager.FixedUpdateNetwork(Runner.DeltaTime);
-        }
-        base.FixedUpdateNetwork();
-    }
     /// <summary>
     /// 更新网络位置
     /// </summary>
