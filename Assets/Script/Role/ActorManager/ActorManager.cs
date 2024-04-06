@@ -88,6 +88,8 @@ public class ActorManager : MonoBehaviour
     private bool turnRight = false;
     private bool turnLeft = false;
 
+    private float waitTimer = 0f;
+    private const float waitTime = 0.1f;
     public virtual void UpdateAnima(float dt)
     {
         Debug.Log("Follow" + dt);
@@ -97,19 +99,24 @@ public class ActorManager : MonoBehaviour
         float speed = distance / dt;
         if (speed > 0.1f)
         {
+            waitTimer = waitTime;
             PlayMove(1);
+            if (curPos_X > lastPos_X)
+            {
+                if (!turnRight) { TurnRight(); }
+            }
+            else
+            {
+                if (!turnLeft) { TurnLeft(); }
+            }
         }
         else
         {
-            PlayStop(1);
-        }
-        if (curPos_X > lastPos_X)
-        {
-            if (!turnRight) { TurnRight(); }
-        }
-        else
-        {
-            if (!turnLeft) { TurnLeft(); }
+            waitTimer -= dt;
+            if (waitTimer < 0)
+            {
+                PlayStop(1);
+            }
         }
         lastPos_X = curPos_X;
         lastPos_Y = curPos_Y;

@@ -21,6 +21,11 @@ public class ActorNetManager : NetworkBehaviour
         Debug.Log("成功了吗" + Runner.SetIsSimulated(Object, true));
         base.Spawned();
     }
+    public override void FixedUpdateNetwork()
+    {
+        LocalManager.FixedUpdateNetwork(Runner.DeltaTime);
+        base.FixedUpdateNetwork();
+    }
     /// <summary>
     /// 更新网络位置
     /// </summary>
