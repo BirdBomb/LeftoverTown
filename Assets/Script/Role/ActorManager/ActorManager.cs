@@ -97,6 +97,7 @@ public class ActorManager : MonoBehaviour
         curPos_Y = transform.position.y;
         float distance = Vector2.Distance(new Vector2(curPos_X, curPos_Y), new Vector2(lastPos_X, lastPos_Y));
         float speed = distance / dt;
+        Debug.Log(speed);
         if (speed > 0.1f)
         {
             waitTimer = waitTime;
