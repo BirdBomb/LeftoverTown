@@ -45,10 +45,6 @@ public class ActorManager : MonoBehaviour
 
     protected bool isPlayer = false;
     protected bool isState = false;
-    public void FixedUpdate()
-    {
-        FixedUpdateNetwork(Time.fixedDeltaTime);
-    }
     public virtual void FixedUpdateNetwork(float dt)
     {
         UpdateAnima(dt);
