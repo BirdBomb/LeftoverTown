@@ -47,11 +47,11 @@ public class ActorManager : MonoBehaviour
     protected bool isState = false;
     public virtual void FixedUpdateNetwork(float dt)
     {
-        UpdateAnima(dt);
         UpdatePath(dt);
     }
     public virtual void CustomUpdate()
     {
+        UpdateAnima(0.5f);
         CheckMyTile();
     }
     public void InitByNetManager(bool hasStateAuthority)
