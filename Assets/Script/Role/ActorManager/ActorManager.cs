@@ -12,14 +12,14 @@ public class ActorManager : MonoBehaviour
     public ActorConfig actorConfig;
     [SerializeField, Header("网络控制器")]
     private ActorNetManager netController;
-    public ActorNetManager NetController 
+    public ActorNetManager NetController
     {
         get { return netController; }
         set { netController = value; }
     }
     [SerializeField, Header("身体控制器")]
     private BaseBodyController bodyController;
-    public BaseBodyController BodyController 
+    public BaseBodyController BodyController
     {
         get { return bodyController; }
         set { bodyController = value; }
@@ -45,19 +45,20 @@ public class ActorManager : MonoBehaviour
 
     protected bool isPlayer = false;
     protected bool isState = false;
+    public const float customUpdateTime = 0.5f;
     public virtual void FixedUpdateNetwork(float dt)
     {
         UpdatePath(dt);
     }
     public virtual void CustomUpdate()
     {
-        UpdateAnima(0.5f);
+        UpdateAnima(customUpdateTime);
         CheckMyTile();
     }
     public void InitByNetManager(bool hasStateAuthority)
     {
         isState = hasStateAuthority;
-        InvokeRepeating("CustomUpdate", 1f, 0.5f);
+        InvokeRepeating("CustomUpdate", 1f, customUpdateTime);
         navManager = GameObject.Find("Furniture").GetComponent<NavManager>();
         MessageBroker.Default.Receive<GameEvent.GameEvent_SomeoneMove>().Subscribe(_ =>
         {
@@ -83,42 +84,46 @@ public class ActorManager : MonoBehaviour
     private float lastPos_Y;
     private bool turnRight = false;
     private bool turnLeft = false;
-
-    private float waitTimer = 0f;
-    private const float waitTime = 0.1f;
+    /*检查动画播放状态*/
     public virtual void UpdateAnima(float dt)
     {
-        Debug.Log("Follow" + dt);
         curPos_X = transform.position.x;
         curPos_Y = transform.position.y;
         float distance = Vector2.Distance(new Vector2(curPos_X, curPos_Y), new Vector2(lastPos_X, lastPos_Y));
         float speed = distance / dt;
-        Debug.Log(speed);
         if (speed > 0.1f)
         {
-            waitTimer = waitTime;
-            PlayMove(1);
+            PlayMove(speed);
             if (curPos_X > lastPos_X)
             {
-                if (!turnRight) { TurnRight(); }
+                if (!turnRight)
+                {
+                    if (!isPlayer)
+                    {
+                        FaceRight();
+                    }
+                    TurnRight();
+                }
             }
             else
             {
-                if (!turnLeft) { TurnLeft(); }
+                if (!turnLeft)
+                {
+                    if (!isPlayer)
+                    {
+                        FaceLeft();
+                    }
+                    TurnLeft();
+                }
             }
         }
         else
         {
-            waitTimer -= dt;
-            if (waitTimer < 0)
-            {
-                PlayStop(1);
-            }
+            PlayStop(1);
         }
         lastPos_X = curPos_X;
         lastPos_Y = curPos_Y;
     }
-
     /// <summary>
     /// 面向某处
     /// </summary>
@@ -187,8 +192,6 @@ public class ActorManager : MonoBehaviour
 
     public virtual void PlayMove(float speed)
     {
-        Debug.Log("Follow" + speed);
-
         bodyController.PlayBodyAction(BodyAction.Move, speed, null);
         bodyController.PlayHeadAction(HeadAction.Move, speed, null);
         bodyController.PlayLegAction(LegAction.Step, speed, null);
@@ -359,14 +362,6 @@ public class ActorManager : MonoBehaviour
                 tempPath.RemoveAt(0);
             }
             targetTile = tempPath[0];
-            if (targetTile.pos.x >= transform.position.x)
-            {
-                FaceRight();
-            }
-            else
-            {
-                FaceLeft();
-            }
         }
     }
     public virtual void CalculatePath(Vector2 from, Vector2 to)
@@ -378,6 +373,12 @@ public class ActorManager : MonoBehaviour
         tempPath = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
     }
     #endregion
+
+    /*RPC*/
+    public virtual void RPC_Skill(int parameter, Fusion.NetworkId id)
+    {
+
+    }
 }
 [Serializable]
 public struct ActorConfig

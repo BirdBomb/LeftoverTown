@@ -74,9 +74,9 @@ public class ActorNetManager : NetworkBehaviour
     #endregion
     #region//RPC
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    public void RPC_Skill(int parameter)
+    public void RPC_Skill(int parameter, NetworkId networkId)
     {
-
+        LocalManager.RPC_Skill(parameter, networkId);
     }
     #endregion
     private ItemConfig ItemConfigNetToLocal(NetworkItemConfig config)

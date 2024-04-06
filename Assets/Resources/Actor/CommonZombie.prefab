@@ -622,6 +622,8 @@ MonoBehaviour:
   tempPath: []
   targetTile: {fileID: 0}
   VisionDistance: 20
+  AttackDistance: 2
+  AttackCD: 2
   targetActor: {fileID: 0}
 --- !u!114 &4989742002647667949
 MonoBehaviour:
