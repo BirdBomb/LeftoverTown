@@ -36,10 +36,10 @@ MonoBehaviour:
   m_ColliderType: 2
   passType: 0
   interactiveType: 0
-  passOffset: 0
-  x: 15
-  y: 0
-  pos: {x: 15, y: 0}
+  passOffset: 99
+  posInWorld: {x: 0, y: 0}
+  posInCell: {x: 0, y: 0, z: 0}
+  bindObj: {fileID: 0}
   _temp_DistanceMain: 0
   _temp_DistanceToFrom: 0
   _temp_DistanceToTarget: 0

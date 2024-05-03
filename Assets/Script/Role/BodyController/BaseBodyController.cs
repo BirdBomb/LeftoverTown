@@ -28,21 +28,66 @@ public class BaseBodyController : MonoBehaviour
     public Transform Hand_RightItem;
     [SerializeField, Header("左手物品")]
     public Transform Hand_LeftItem;
-    /// <summary>
-    /// 播放身体动画
-    /// </summary>
-    public virtual void PlayBodyAction(BodyAction bodyAction, float speed, Action<string> action)
-    {
 
-    }
-    /// <summary>
-    /// 播放头部动画
-    /// </summary>
-    /// <param name="headAction"></param>
-    public virtual void PlayHeadAction(HeadAction headAction, float speed, Action<string> action)
-    {
+    public Animator Animator_Head;
+    public AnimaEventListen AnimaEventListen_Head;
+    public Animator Animator_Body;
+    public AnimaEventListen AnimaEventListen_Body;
+    public Animator Animator_Hand;
+    public AnimaEventListen AnimaEventListen_Hand;
+    public Animator Animator_Leg;
+    public AnimaEventListen AnimaEventListen_Leg;
 
+    public virtual void SetHeadTrigger(string name, float speed, Action<string> action)
+    {
+        Animator_Head.SetTrigger(name);
+        Animator_Head.speed=speed;
+        AnimaEventListen_Head.BindEvent(action);
     }
+    public virtual void SetHeadBool(string name, bool p, float speed, Action<string> action)
+    {
+        Animator_Head.SetBool(name, p);
+        Animator_Head.speed = speed;
+        AnimaEventListen_Head.BindEvent(action);
+    }
+    public virtual void SetBodyTrigger(string name, float speed, Action<string> action)
+    {
+        Animator_Body.SetTrigger(name);
+        Animator_Body.speed = speed;
+        AnimaEventListen_Body.BindEvent(action);
+    }
+    public virtual void SetBodyBool(string name, bool p, float speed, Action<string> action)
+    {
+        Animator_Body.SetBool(name, p);
+        Animator_Body.speed = speed;
+        AnimaEventListen_Body.BindEvent(action);
+    }
+
+    public virtual void SetHandTrigger(string name, float speed, Action<string> action)
+    {
+        Animator_Hand.SetTrigger(name);
+        Animator_Hand.speed = speed;
+        AnimaEventListen_Hand.BindEvent(action);
+    }
+    public virtual void SetHandBool(string name, bool p, float speed, Action<string> action)
+    {
+        Animator_Hand.SetBool(name, p);
+        Animator_Hand.speed = speed;
+        AnimaEventListen_Hand.BindEvent(action);
+    }
+    public virtual void SetLegTrigger(string name, float speed, Action<string> action)
+    {
+        Animator_Leg.SetTrigger(name);
+        Animator_Leg.speed = speed;
+        AnimaEventListen_Leg.BindEvent(action);
+    }
+    public virtual void SetLegBool(string name, bool p, float speed, Action<string> action)
+    {
+        Animator_Leg.SetBool(name, p);
+        Animator_Leg.speed = speed;
+        AnimaEventListen_Leg.BindEvent(action);
+    }
+
     /// <summary>
     /// 播放手部动画
     /// </summary>
@@ -53,15 +98,7 @@ public class BaseBodyController : MonoBehaviour
     {
 
     }
-    /// <summary>
-    /// 播放腿部动画
-    /// </summary>
-    /// <param name="legAction"></param>
-    /// <param name="speed"></param>
-    public virtual void PlayLegAction(LegAction legAction,float speed,Action<string> action)
-    {
 
-    }
 }
 public enum BodyAction
 {
@@ -137,6 +174,10 @@ public enum HandAction
     /// </summary>
     PickUp,
     /// <summary>
+    /// 举起
+    /// </summary>
+    PutUp,
+    /// <summary>
     /// 呼吸
     /// </summary>
     Idle,
@@ -163,4 +204,11 @@ public enum LegAction
     Step,//步伐
     Charge,//冲刺
     Dead
+}
+public enum BodyPart
+{
+    Head,
+    Body,
+    Hand,
+    Leg,
 }

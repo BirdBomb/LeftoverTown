@@ -5,22 +5,19 @@ using DG.Tweening;
 
 public class TileObj_Tree : TileObj
 {
-    public override void Damaged(int val)
+    public override void TryToUpdateHp(int newHp)
     {
-        if (CurHp > 0)
+        if (newHp <= CurHp)
         {
-            CurHp -= val;
-            if (CurHp <= 0)
-            {
-                PlayBreakAnim();
-                Invoke("Break", 0.3f);
-            }
-            else
-            {
-                PlayDamagedAnim();
-            }
+            PlayDamagedAnim();
         }
-        base.Damaged(val);
+        base.TryToUpdateHp(newHp);
+    }
+    public override void TryBreak()
+    {
+        PlayBreakAnim();
+        Invoke("Break", 0.3f);
+        base.TryBreak();
     }
     public override void Break()
     {

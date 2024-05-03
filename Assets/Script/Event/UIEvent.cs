@@ -10,15 +10,15 @@ public static class UIEvent
     public class UIEvent_UpdateItemInHand
     {
         public int playerID;
-        public ItemConfig itemConfig;
-        public NetworkItemConfig networkItemConfig;
+        public ItemData itemData;
     }
     /// <summary>
     /// UI-更新背包物体
     /// </summary>
     public class UIEvent_UpdateItemInBag
     {
-        public List<ItemConfig> itemConfigs;
+        public List<ItemConfig> itemConfigs = new List<ItemConfig>();
+        public List<ItemData> itemDatas = new List<ItemData>();
     }
     /// <summary>
     /// UI-更新个人属性
@@ -32,4 +32,19 @@ public static class UIEvent
         public int Water;
         public int MaxWater;
     }
+    /// <summary>
+    /// UI-打开一个外部Grid
+    /// </summary>
+    public class UIEvent_OpenGridUI
+    {
+        public UI_Grid_Cabinet bindUI;
+    }
+    /// <summary>
+    /// UI-关闭一个外部Grid
+    /// </summary>
+    public class UIEvent_CloseGridUI
+    {
+        public UI_Grid_Cabinet bindUI;
+    }
+
 }

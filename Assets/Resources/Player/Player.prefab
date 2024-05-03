@@ -715,7 +715,7 @@ Transform:
   m_GameObject: {fileID: 3893875658688742580}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.25, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -752,8 +752,8 @@ Transform:
   m_GameObject: {fileID: 4242701474688478512}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.5, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 6059930380166377277}
@@ -774,7 +774,7 @@ MonoBehaviour:
   _centerTrans: {fileID: 5695865527865844019}
   _dirTrans: {fileID: 5695865527865844019}
   _angles: 60
-  _radius: 2
+  _radius: 5
   _viewColor: {r: 0, g: 0.69796944, b: 1, a: 0.23529412}
 --- !u!212 &2327462949371162043
 SpriteRenderer:
@@ -816,7 +816,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 0
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -974,7 +974,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.25}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1134,7 +1134,6 @@ MonoBehaviour:
   _Net_Space_ClickTime: 0
   _Net_LeftPress: 0
   _Net_RightPress: 0
-  _Net_MoveDir: {x: 0, y: 0}
   _Net_PressShift: 0
   _Net_Face: {x: 0, y: 0, z: 0}
 --- !u!114 &2537916146760977371
@@ -1151,6 +1150,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorConfig:
     Config_Speed: 1
+    Config_LootCount: 2
+    Config_LootList:
+    - ID: 3001
+      Weight: 5
   netController: {fileID: 2382471986505964745}
   bodyController: {fileID: 64678154565952413}
   skillSector: {fileID: 3913933913045209471}
@@ -1696,7 +1699,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5677282177641982469, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5677282177641982469, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_LocalPosition.z

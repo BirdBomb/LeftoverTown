@@ -30,7 +30,7 @@ public class NavManager : MonoBehaviour
             Debug.Log("无法前往目标点");
             return new List<MyTile> { from, from };
         }
-        if (to.pos == from.pos)
+        if (to.posInWorld == from.posInWorld)
         {
             Debug.Log("原地前进");
             return new List<MyTile> { from, from };
@@ -114,14 +114,14 @@ public class NavManager : MonoBehaviour
         MyTile up = null, down = null, right = null, left = null,
             rightUp = null, leftUp = null, rightDown = null, leftDown = null;
 
-        up = (MyTile)tilemap.GetTile(new Vector3Int(from.x, from.y + 1, 0));
-        down = (MyTile)tilemap.GetTile(new Vector3Int(from.x, from.y - 1, 0));
-        right = (MyTile)tilemap.GetTile(new Vector3Int(from.x + 1, from.y, 0));
-        left  = (MyTile)tilemap.GetTile(new Vector3Int(from.x - 1, from.y, 0));
-        rightUp = (MyTile)tilemap.GetTile(new Vector3Int(from.x + 1, from.y + 1, 0));
-        leftUp = (MyTile)tilemap.GetTile(new Vector3Int(from.x - 1, from.y + 1, 0));
-        rightDown = (MyTile)tilemap.GetTile(new Vector3Int(from.x + 1, from.y - 1, 0));
-        leftDown = (MyTile)tilemap.GetTile(new Vector3Int(from.x - 1, from.y - 1, 0));
+        up = (MyTile)tilemap.GetTile(from.posInCell + Vector3Int.up);
+        down = (MyTile)tilemap.GetTile(from.posInCell + Vector3Int.down);
+        right = (MyTile)tilemap.GetTile(from.posInCell + Vector3Int.right);
+        left  = (MyTile)tilemap.GetTile(from.posInCell + Vector3Int.left);
+        rightUp = (MyTile)tilemap.GetTile(from.posInCell + Vector3Int.right + Vector3Int.up);
+        leftUp = (MyTile)tilemap.GetTile(from.posInCell + Vector3Int.left + Vector3Int.up);
+        rightDown = (MyTile)tilemap.GetTile(from.posInCell + Vector3Int.right + Vector3Int.down);
+        leftDown = (MyTile)tilemap.GetTile(from.posInCell + Vector3Int.left + Vector3Int.down);
 
         if (up != null)
         {
@@ -181,7 +181,7 @@ public class NavManager : MonoBehaviour
     /// <returns></returns>
     private float CalcG(MyTile surround,MyTile from)
     {
-        return from._temp_DistanceToFrom /*+ from.passOffset*/ + Vector3.Distance(new Vector3(surround.x, surround.y, 0),new Vector3(from.x, from.y, 0));
+        return from._temp_DistanceToFrom /*+ from.passOffset*/ + Vector3.Distance(surround.posInCell, from.posInCell);
     }
     /// <summary>
     /// 计算该点到终点F
@@ -191,7 +191,7 @@ public class NavManager : MonoBehaviour
     /// <returns></returns>
     private void CalcF(MyTile now,MyTile end)
     {
-        float h = MathF.Abs(end.x - now.x) + MathF.Abs(end.y - now.x);
+        float h = MathF.Abs(end.posInWorld.x - now.posInWorld.x) + MathF.Abs(end.posInWorld.y - now.posInWorld.y);
         float g = 0;
         if (now._temp_fatherTile == null)
         {
@@ -199,7 +199,7 @@ public class NavManager : MonoBehaviour
         }
         else
         {
-            g = Vector2.Distance(now.pos, now._temp_fatherTile.pos) + now._temp_DistanceToFrom;
+            g = Vector2.Distance(now.posInWorld, now._temp_fatherTile.posInWorld) + now._temp_DistanceToFrom;
         }
         float f = g + h + now.passOffset;
         now._temp_DistanceMain = f;
@@ -221,11 +221,5 @@ public class NavManager : MonoBehaviour
             temp = temp._temp_fatherTile;
         }
         return path;
-    }
-
-
-    public void ChangeTile()
-    {
-        //tilemap
     }
 }

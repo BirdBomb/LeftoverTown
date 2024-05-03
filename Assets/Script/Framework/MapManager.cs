@@ -19,33 +19,6 @@ public class MapManager : MonoBehaviour
 
     private Dictionary<string, GameObject> TileObjPool = new Dictionary<string, GameObject>();
 
-
-    private void Start()
-    {
-        MessageBroker.Default.Receive<MapEvent.MapEvent_SaveMap>().Subscribe(_ =>
-        {
-            SaveMap();
-        }).AddTo(this);
-        MessageBroker.Default.Receive<MapEvent.MapEvent_ChangeTile>().Subscribe(_ =>
-        {
-            ChangeTile(_.tilePos, _.tileName);
-        }).AddTo(this);
-        MessageBroker.Default.Receive<MapEvent.MapEvent_DamageTile>().Subscribe(_ =>
-        {
-            DemageTile(_.tilePos, _.damageValue);
-        }).AddTo(this);
-    }
-    private void InitMap()
-    {
-        BoundsInt bounds = tilemap.cellBounds;
-        for (int x = bounds.xMin; x < bounds.xMax; x++)
-        {
-            for (int y = bounds.yMin; y < bounds.yMax; y++)
-            {
-                LoadTile(new Vector3Int(x, y, 0),"Default","");
-            }
-        }
-    }
     private GameObject GetTileObj(string Name)
     {
         if (TileObjPool.ContainsKey(Name))
@@ -83,83 +56,37 @@ public class MapManager : MonoBehaviour
         }
     }
     /// <summary>
-    /// 加载瓦片
+    /// 生成瓦片
     /// </summary>
-    /// <param name="tilePos">瓦片位置</param>
-    /// <param name="tileName">瓦片名称</param>
-    /// <param name="tileInfo">瓦片信息</param>
-    public void LoadTile(Vector3Int tilePos,string tileName, string tileInfo)
-    {
-        /*创建实例*/
-        MyTile tileBase = ScriptableObject.CreateInstance<MyTile>();
-        /*实例赋值*/
-        tileBase.InstantiateTile(GetTileObj(tileName),GetTileScript(tileName));
-        /*瓦片初始化*/
-        tileBase.InitTile(tilePos.x, tilePos.y, grid.CellToWorld(tilePos));
-        /*将瓦片置于正确位置*/
-        tilemap.SetTile(tilePos, tileBase);
-        if (tileInfo != null)
-        {
-            /*瓦片信息不为空时，加载瓦片信息*/
-            tileBase.LoadTile(tileInfo);
-        }
-    }
-    public void LoadTile(Vector3Int tilePos, string tileName)
+    /// <param name="tilePos"></param>
+    /// <param name="tileName"></param>
+    public void CreateTile(Vector3Int tilePos, string tileName)
     {
         /*创建实例*/
         MyTile tileBase = ScriptableObject.CreateInstance<MyTile>();
         /*实例赋值*/
         tileBase.InstantiateTile(GetTileObj(tileName), GetTileScript(tileName));
         /*瓦片初始化*/
-        tileBase.InitTile(tilePos.x, tilePos.y, grid.CellToWorld(tilePos));
+        tileBase.InitTile(grid.CellToWorld(tilePos), tilePos);
         /*将瓦片置于正确位置*/
         tilemap.SetTile(tilePos, tileBase);
     }
     /// <summary>
-    /// 保存瓦片
+    /// 获得瓦片
     /// </summary>
-    /// <param name="pos"></param>
-    /// <param name="tileJson"></param>
-    public void SaveTile(Vector3Int pos,out string tileJson)
-    {
-        MyTile tile = tilemap.GetTile<MyTile>(pos);
-        if( tile == null )
-        {
-            tileJson = "Default,";
-        }
-        else
-        {
-            tileJson = tile.name;
-            //tile.SaveTile(out string info);
-            //tileJson = tile.name + "/*T*/" + info;
-        }
-    }
-    public void ChangeTile(Vector3Int tilePos, string tileName)
-    {
-        if (tilemap.GetTile<MyTile>(tilePos)!= null)
-        {
-            Destroy(tilemap.GetTile<MyTile>(tilePos).bindObj);
-        }
-        /*创建实例*/
-        MyTile tileBase = ScriptableObject.CreateInstance<MyTile>();
-        /*实例赋值*/
-        tileBase.InstantiateTile(GetTileObj(tileName), GetTileScript(tileName));
-        /*瓦片初始化*/
-        tileBase.InitTile(tilePos.x, tilePos.y, grid.CellToWorld(tilePos));
-        /*将瓦片置于正确位置*/
-        tilemap.SetTile(tilePos, tileBase);
-    }
-    public void DemageTile(Vector3Int tilePos, int damage)
+    /// <param name="tilePos"></param>
+    /// <param name="tileObj"></param>
+    public void GetTileObj(Vector3Int tilePos,out TileObj tileObj)
     {
         MyTile tile = tilemap.GetTile<MyTile>(tilePos);
-        tile.bindObj.GetComponent<TileObj>().Damaged(damage);
+        Debug.Log(tilePos);
+        tileObj = tile.bindObj.GetComponent<TileObj>();
     }
-    public void SaveMap()
+    /// <summary>
+    /// 修改瓦片
+    /// </summary>
+    public void ChangeTileObj(Vector3Int tilePos)
     {
-        GameDataManager.Instance.SaveMapData("TestSaveData", this);
-    }
-    public void LoadMap(string MapName)
-    {
-        GameDataManager.Instance.LoadMapData(MapName, this);
+
     }
 }

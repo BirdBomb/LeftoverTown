@@ -5,6 +5,8 @@ using Fusion;
 using static UnityEditor.PlayerSettings;
 using UniRx;
 using static Unity.Collections.Unicode;
+using static UnityEditor.Progress;
+using System;
 /// <summary>
 /// 角色网络管理器
 /// </summary>
@@ -18,7 +20,8 @@ public class ActorNetManager : NetworkBehaviour
     public override void Spawned()
     {
         LocalManager.InitByNetManager(Object.HasStateAuthority);
-        Debug.Log("成功了吗" + Runner.SetIsSimulated(Object, true));
+        OnItemInBagChange();
+        OnItemInHandChange();
         base.Spawned();
     }
     public override void FixedUpdateNetwork()
@@ -34,7 +37,7 @@ public class ActorNetManager : NetworkBehaviour
     {
         if (NetTransform && Object.HasStateAuthority)
         {
-            NetTransform.Teleport(pos);
+            transform.position = pos;
         }
     }
     #region//Networked
@@ -44,15 +47,23 @@ public class ActorNetManager : NetworkBehaviour
     [Networked, OnChangedRender(nameof(OnMaxHpChange))]
     public int Data_MaxHp{ get; set; }
     [Networked, OnChangedRender(nameof(OnItemInHandChange))]
-    public NetworkItemConfig Data_ItemInHand { get; set; }
-    [Networked, OnChangedRender(nameof(OnItemInBagChange))]
-    public NetworkLinkedList<NetworkItemConfig> Data_ItemInBag { get; }
+    public ItemData Data_ItemInHand { get; set; }
+    [Networked,Capacity(20), OnChangedRender(nameof(OnItemInBagChange))]
+    public NetworkLinkedList<ItemData> Data_ItemInBag { get; }
+
     [Networked, OnChangedRender(nameof(OnBuffsChange))]
     public NetworkLinkedList<int> Data_Buffs { get; }
 
     public void OnHpChange()
     {
-
+        if (LocalManager.actorState != ActorState.Dead)
+        {
+            LocalManager.ActorUI.UpdateHPBar((float)Data_Hp / (float)Data_MaxHp);
+            if (Data_Hp <= 0)
+            {
+                LocalManager.PlayDead(1);
+            }
+        }
     }
     public void OnMaxHpChange()
     {
@@ -60,11 +71,22 @@ public class ActorNetManager : NetworkBehaviour
     }
     public void OnItemInHandChange()
     {
-
+        LocalManager.AddItem_Hand(Data_ItemInHand);
     }
     public void OnItemInBagChange()
     {
-
+        if (Object.HasInputAuthority)
+        {
+            List<ItemData> temp = new List<ItemData>();
+            for (int i = 0; i < Data_ItemInBag.Count; i++)
+            {
+                temp.Add(Data_ItemInBag[i]);
+            }
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInBag()
+            {
+                itemDatas = temp
+            });
+        }
     }
     public void OnBuffsChange()
     {
@@ -76,36 +98,99 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     public void RPC_Skill(int parameter, NetworkId networkId)
     {
-        LocalManager.RPC_Skill(parameter, networkId);
+        LocalManager.FromRPC_Skill(parameter, networkId);
     }
+    /// <summary>
+    /// 生命值改变
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="networkId"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_HpChange(int parameter, NetworkId networkId)
+    {
+        LocalManager.Listen_HpChange(parameter, networkId);
+        if (Object.HasStateAuthority)
+        {
+            Data_Hp += parameter;
+        }
+    }
+    /// <summary>
+    /// RPC:添加物体到背包
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_AddItemInBag(ItemData itemData)
+    {
+        if (Object.HasStateAuthority)
+        {
+            Data_ItemInBag.Add(itemData);
+        }
+    }
+    /// <summary>
+    /// RPC:添加物体到背包
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_RemoveItemFromBag(ItemData itemData)
+    {
+        if (Object.HasStateAuthority)
+        {
+            Data_ItemInBag.Remove(itemData);
+        }
+    }
+
+
+    /// <summary>
+    /// RPC:本地端拾起一个物品
+    /// </summary>
+    /// <param name="id"></param>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_Local_PickItem(NetworkId id)
+    {
+        if (Object.HasStateAuthority)
+        {
+            LocalManager.PlayPickUp(1, (string name) =>
+            {
+                if(name == "PickUp")
+                {
+                    NetworkObject networkPlayerObject = Runner.FindObject(id);
+                    networkPlayerObject.GetComponent<ItemNetObj>().PickUp(out ItemData data);
+                    Runner.Despawn(networkPlayerObject);
+                    RPC_AddItemInBag(data);
+                }
+            });
+        }
+        else
+        {
+            LocalManager.PlayPickUp(1,null);
+        }
+    }
+    /// <summary>
+    /// RPC:本地端持握一个物品
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_Local_HoldItem(ItemData itemData)
+    {
+        if (Object.HasStateAuthority)
+        {
+            Data_ItemInHand = itemData;
+        }
+    }
+    /// <summary>
+    /// RPC:本地端失去一个物品
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_Local_LoseItem(ItemData itemData)
+    {
+        if (Object.HasStateAuthority)
+        {
+            RPC_RemoveItemFromBag(itemData);
+        }
+    }
+
+
     #endregion
-    private ItemConfig ItemConfigNetToLocal(NetworkItemConfig config)
-    {
-        ItemConfig itemConfig = new ItemConfig();
-        itemConfig.Item_ID = config.Item_ID;
-        itemConfig.Item_Name = config.Item_Name.Value;
-        itemConfig.Item_Desc = config.Item_Desc.Value;
-        itemConfig.Item_CurCount = config.Item_CurCount;
-        itemConfig.Item_MaxCount = config.Item_MaxCount;
-        itemConfig.Item_Type = config.Item_Type;
-        itemConfig.Average_Weight = config.Average_Weight;
-        itemConfig.Average_Value = config.Average_Value;
-        itemConfig.Item_Info = config.Item_Info.Value;
-        return itemConfig;
-    }
-    private NetworkItemConfig ItemConfigLocalToNet(ItemConfig config)
-    {
-        NetworkItemConfig itemConfig = new NetworkItemConfig();
-        itemConfig.Item_ID = config.Item_ID;
-        itemConfig.Item_Name = config.Item_Name;
-        itemConfig.Item_Desc = config.Item_Desc;
-        itemConfig.Item_CurCount = config.Item_CurCount;
-        itemConfig.Item_MaxCount = config.Item_MaxCount;
-        itemConfig.Item_Type = config.Item_Type;
-        itemConfig.Average_Weight = config.Average_Weight;
-        itemConfig.Average_Value = config.Average_Value;
-        itemConfig.Item_Info = config.Item_Info;
-        return itemConfig;
-    }
 
 }

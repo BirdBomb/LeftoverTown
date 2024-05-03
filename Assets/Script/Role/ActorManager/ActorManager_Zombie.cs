@@ -8,12 +8,14 @@ public class ActorManager_Zombie : ActorManager
 {
     [SerializeField, Header("视野范围")]
     private float VisionDistance;
+    [SerializeField, Header("基础攻击")]
+    private int AttackDamage;
     [SerializeField, Header("攻击范围")]
     private float AttackDistance;
     [SerializeField, Header("攻击间隔")]
     private float AttackCD;
     private float AttackTimer;
-    [SerializeField, Header("当前目标")]
+    [Header("当前目标")]
     private ActorManager targetActor;
     public override void ListenRoleMove(ActorManager who, MyTile where)
     {
@@ -58,7 +60,7 @@ public class ActorManager_Zombie : ActorManager
         {
             if (Vector2.Distance(targetActor.transform.position, transform.position) < 1.5f * VisionDistance)
             {
-                SetTargetTile(targetActor.GetMyTile().pos);
+                FindWayToTarget(targetActor.GetMyTile().posInWorld);
             }
             else
             {
@@ -74,7 +76,7 @@ public class ActorManager_Zombie : ActorManager
             if (Vector2.Distance(targetActor.transform.position, transform.position) < AttackDistance)
             {
                 AttackTimer = AttackCD;
-                NetController.RPC_Skill(5, targetActor.NetController.Object.Id);
+                NetController.RPC_Skill(1, targetActor.NetController.Object.Id);
             }
         }
         else
@@ -85,30 +87,32 @@ public class ActorManager_Zombie : ActorManager
     #endregion
     /*客户端方法*/
     #region
-    public override void RPC_Skill(int parameter, Fusion.NetworkId id)
+    public override void FromRPC_Skill(int parameter, Fusion.NetworkId id)
     {
-        BodyController.PlayHeadAction(HeadAction.Bite, 1, (str) => 
+        if (parameter == 1)
         {
-            if(str == "HeadBite")
+            BodyController.SetHeadTrigger("Bite", 1, (str) =>
             {
-                //var cols = Physics2D.OverlapCircleAll(transform.position, 2);
-                //if (cols != null)
-                //{
-                //    foreach (var col in cols)
-                //    {
-                //        if (col.TryGetComponent(out BaseBehaviorController actor))
-                //        {
-                //            if (actor != this)
-                //            {
-                //                actor.TryToTakeDamage(2);
-                //            }
-                //        }
-                //    }
-                //}
-
-            }
-        });
-        base.RPC_Skill(parameter, id);
+                if (isState)
+                {
+                    var cols = Physics2D.OverlapCircleAll(transform.position, 2);
+                    if (cols != null)
+                    {
+                        foreach (var col in cols)
+                        {
+                            if (col.TryGetComponent(out ActorManager actor))
+                            {
+                                if (actor != this)
+                                {
+                                    actor.TakeDamage(AttackDamage, NetController.Object.Id);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        base.FromRPC_Skill(parameter, id);
     }
 
     #endregion

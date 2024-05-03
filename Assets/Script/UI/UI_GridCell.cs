@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using UnityEngine.UIElements;
 using static UnityEditor.Progress;
 using Button = UnityEngine.UI.Button;
+using Debug = UnityEngine.Debug;
 using Image = UnityEngine.UI.Image;
 
 public class UI_GridCell : MonoBehaviour
@@ -20,15 +21,20 @@ public class UI_GridCell : MonoBehaviour
     public Button btn_Main;
 
     private ItemConfig _itemConfig;
+    private ItemData _itemData;
     private int _itemID;
     private int _itemCurCount;
     private int _itemMaxCount;
     private string _itemInfo; 
-    private UI_Grid _parentGrid;
+    private UI_Grid_Cabinet _parentGrid;
 
-    private Action _clickLeft;
-    private Action _clickRight;
+    private Action<ItemData> _clickLeft;
+    private Action<ItemData> _clickRight;
 
+    private void Start()
+    {
+        btn_Main.onClick.AddListener(() => { Debug.Log("yes"); });
+    }
     /// <summary>
     /// 重置物品格子
     /// </summary>
@@ -42,17 +48,20 @@ public class UI_GridCell : MonoBehaviour
     /// <summary>
     /// 初始化物品格子
     /// </summary>
-    /// <param name="itemConfig">物品信息</param>
+    /// <param name="data">物品信息</param>
     /// <param name="clickLeft">左击事件</param>
     /// <param name="clickRight">右击事件</param>
-    public void InitGridCell(ItemConfig itemConfig,Action clickLeft,Action clickRight)
+    public void InitGridCell(ItemData data, Action<ItemData> clickLeft, Action<ItemData> clickRight)
     {
-        _itemConfig = itemConfig;
+        UnityEngine.Debug.Log("OK"+data.Item_ID);
 
-        _itemID = itemConfig.Item_ID;
-        _itemCurCount = itemConfig.Item_CurCount;
-        _itemMaxCount = itemConfig.Item_MaxCount;
-        _itemInfo = itemConfig.Item_Info;
+        _itemData = data;
+        _itemConfig = ItemConfigData.GetItemConfig(data.Item_ID);
+
+        _itemID = _itemConfig.Item_ID;
+        _itemCurCount = _itemConfig.Item_CurCount;
+        _itemMaxCount = _itemConfig.Item_MaxCount;
+        _itemInfo = _itemConfig.Item_Info;
 
         _clickLeft = clickLeft;
         _clickRight = clickRight;
@@ -60,6 +69,7 @@ public class UI_GridCell : MonoBehaviour
         DrawCell();
         BindAction();
     }
+
     private void DrawCell()
     {
         image_Icon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemIcon").GetSprite("Item_" + _itemID.ToString());
@@ -81,7 +91,7 @@ public class UI_GridCell : MonoBehaviour
     {
         if(_clickLeft != null)
         {
-            _clickLeft.Invoke();
+            _clickLeft.Invoke(_itemData);
         }
         UnityEngine.Debug.Log("Click_L");
     }
@@ -89,7 +99,7 @@ public class UI_GridCell : MonoBehaviour
     {
         if (_clickRight != null)
         {
-            _clickRight.Invoke();
+            _clickRight.Invoke(_itemData);
         }
         UnityEngine.Debug.Log("Click_R");
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Windows;
+using static UnityEditor.Progress;
 using Input = UnityEngine.Input;
 /// <summary>
 /// 玩家控制器
@@ -31,53 +32,150 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
-        MessageBroker.Default.Receive<GameEvent.GameEvent_SomeoneMove>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneMove>().Subscribe(_ =>
         {
-            if (_.moveActor == actorManager)
+            if (_.moveActor == actorManager && thisPlayerIsMe)
             {
                 UpdateNearByTile();
             }
         }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                actorManager.NetController.RPC_Local_LoseItem(_.item);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemInBag>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                actorManager.NetController.RPC_AddItemInBag(_.item);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryDropItem>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SpawnItem()
+                {
+                    itemData = _.item,
+                    pos = transform.position - new Vector3(0, 0.1f, 0)
+                });
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TrySpawnActor>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SpawnActor()
+                {
+                    name = _.name,
+                    pos = transform.position
+                });
+            }
+        }).AddTo(this);
         actorManager.InitByPlayer();
+        itemLayer = LayerMask.GetMask("ItemObj");
     }
-
+    private void Update()
+    {
+        if (thisPlayerIsMe)
+        {
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                if (actorManager.NetController.Data_ItemInBag.Count > 0)
+                {
+                    holdingIndex++;
+                    if (holdingIndex >= actorManager.NetController.Data_ItemInBag.Count)
+                    {
+                        holdingIndex = 0;
+                    }
+                    actorManager.NetController.RPC_Local_HoldItem(actorManager.NetController.Data_ItemInBag[holdingIndex]);
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                var item = Physics2D.OverlapCircleAll(transform.position, 0.5f, itemLayer);
+                if (item.Length <= 0) { return; }
+                if (item[0].gameObject.transform.parent.TryGetComponent(out ItemNetObj obj)) 
+                {
+                    actorManager.NetController.RPC_Local_PickItem(obj.Object.Id);
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                for (int i = 0; i < nearbyTiles.Count; i++)
+                {
+                    nearbyTiles[i].InvokeTile();
+                }
+            }
+        }
+    }
     #region//玩家输入
+    /// <summary>
+    /// 左键点击次数
+    /// </summary>
     private int lastLeftClickTime = 0;
+    /// <summary>
+    /// 左键按下
+    /// </summary>
+    private bool lastLeftPress = false;
+    /// <summary>
+    /// 右键点击次数
+    /// </summary>
     private int lastRightClickTime = 0;
-    private int lastQClickTime = 0;
-    private int lastFClickTime = 0;
-    private int lastSpaceClickTime = 0;
+    /// <summary>
+    /// 右键按下
+    /// </summary>
+    private bool lastRightPress = false;
+
     /// <summary>
     /// 鼠标输入
     /// </summary>
-    /// <param name="leftClick"></param>
-    /// <param name="rightClick"></param>
-    /// <param name="leftPress"></param>
-    /// <param name="rightPress"></param>
+    /// <param name="leftClickTime">左键点击次数</param>
+    /// <param name="rightClickTime">右键点击次数</param>
+    /// <param name="leftPress">左键长按</param>
+    /// <param name="rightPress">右键长按</param>
     public void All_PlayerInputMouse(float dt, int leftClickTime,int rightClickTime,bool leftPress,bool rightPress, bool hasStateAuthority, bool hasInputAuthority)
     {
         if (lastLeftClickTime != leftClickTime) 
         {
             lastLeftClickTime = leftClickTime;
-            actorManager.holdingByHand.ClickLeftClick(dt, hasInputAuthority); 
+            actorManager.holdingByHand.ClickLeftClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
         }
         if (lastRightClickTime != rightClickTime) 
         {
             lastRightClickTime = rightClickTime;
-            actorManager.holdingByHand.ClickRightClick(dt, hasInputAuthority); 
+            actorManager.holdingByHand.ClickRightClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
         }
-        if (leftPress) { actorManager.holdingByHand.PressLeftClick(dt, hasInputAuthority); }
-        else { actorManager.holdingByHand.ReleaseLeftClick(dt, hasInputAuthority); }
-        if (rightPress) { actorManager.holdingByHand.PressRightClick(dt, hasInputAuthority); }
-        else { actorManager.holdingByHand.ReleaseRightClick(dt, hasInputAuthority); }
+        if (leftPress) 
+        {
+            lastLeftPress = leftPress;
+            actorManager.holdingByHand.PressLeftClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
+        }
+        else if(lastLeftPress)
+        {
+            lastLeftPress = leftPress;
+            actorManager.holdingByHand.ReleaseLeftClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
+        }
+        if (rightPress) 
+        {
+            lastRightPress = rightPress;
+            actorManager.holdingByHand.PressRightClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
+        }
+        else if (lastRightPress)
+        {
+            lastRightPress = rightPress;
+            actorManager.holdingByHand.ReleaseRightClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
+        }
     }
     /// <summary>
     /// 位移输入
     /// </summary>
     /// <param name="dir">方向</param>
-    /// <param name="deltaTime">间隔</param>
     /// <param name="speedUp">加速</param>
-    public void All_PlayerInputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
+    public void State_PlayerInputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
     {
         dir = dir.normalized;
         float speed;
@@ -99,67 +197,16 @@ public class PlayerController : MonoBehaviour
     public void All_PlayerInputFace(float dt, Vector2 dir, bool hasStateAuthority, bool hasInputAuthority)
     {
         actorManager.FaceTo(dir);
-        actorManager.holdingByHand.MousePosition(dir, dt);
-    }
-    /// <summary>
-    /// 操作输入
-    /// </summary>
-    /// <param name="clickQ">Q</param>
-    /// <param name="clickF">F</param>
-    /// <param name="clickSpace">Space</param>
-    public void All_PlayerInputControl(int clickQ,int clickF,int clickSpace, bool hasStateAuthority, bool hasInputAuthority)
-    {
-        if (hasInputAuthority)
-        {
-            if (lastQClickTime != clickQ)
-            {
-                lastQClickTime = clickQ;
-                if (actorManager.NetController.Data_ItemInBag.Count > 0)
-                {
-                    holdingIndex++;
-                    if (holdingIndex >= actorManager.NetController.Data_ItemInBag.Count)
-                    {
-                        holdingIndex = 0;
-                    }
-                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_AddItemInHand
-                    {
-                        networkItemConfig = actorManager.NetController.Data_ItemInBag[holdingIndex]
-                    }) ;
-                }
-            }
-        }
-        if (lastFClickTime != clickF)
-        {
-            lastFClickTime = clickF;
-            for (int i = 0; i < nearbyTiles.Count; i++)
-            {
-                MessageBroker.Default.Publish(new MapEvent.MapEvent_InvokeTile
-                {
-                    tilePos = new Vector3Int(nearbyTiles[i].x, nearbyTiles[i].y, 0),
-                    hasInput = hasInputAuthority,
-                    hasState = hasStateAuthority,
-                });
-                nearbyTiles[i].InvokeTile();
-            }
-        }
-        if (lastSpaceClickTime != clickSpace)
-        {
-            lastSpaceClickTime = clickSpace;
-            var item = Physics2D.OverlapCircleAll(transform.position, 0.5f, itemLayer);
-            if (item.Length > 0)
-            {
-                if (item[0].gameObject.TryGetComponent(out ItemObj obj))
-                {
-                    actorManager.NetController.Data_ItemInBag.Add(obj.netConfig);
-                }
-            }
-        }
+        actorManager.holdingByHand.FaceTo(dir, dt);
     }
 
     #endregion
-    #region//玩家周围地块更新
+    #region
     public List<MyTile> nearbyTiles = new List<MyTile>();
     private List<MyTile> tempTiles = new List<MyTile>();
+    /// <summary>
+    /// 跟新附近的地块
+    /// </summary>
     private void UpdateNearByTile()
     {
         /*周围地块*/

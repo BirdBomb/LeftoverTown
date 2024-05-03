@@ -5,9 +5,43 @@ using UniRx;
 public class GameEvent 
 {
     /// <summary>
-    /// 某人移动
+    /// 本地端:召唤生物
     /// </summary>
-    public class GameEvent_SomeoneMove
+    public class GameEvent_Local_SpawnActor
+    {
+        public string name;
+        public Vector3 pos;
+    }
+    /// <summary>
+    /// 服务端:召唤生物
+    /// </summary>
+    public class GameEvent_State_SpawnActor
+    {
+        public string name;
+        public Vector3 pos;
+    }
+
+    /// <summary>
+    /// 本地端:生成物体
+    /// </summary>
+    public class GameEvent_Local_SpawnItem
+    {
+        public ItemData itemData;
+        public Vector3 pos;
+    }
+    /// <summary>
+    /// 服务端:生成物体
+    /// </summary>
+    public class GameEvent_State_SpawnItem
+    {
+        public ItemData itemData;
+        public Vector3 pos;
+    }
+
+    /// <summary>
+    /// 本地端:某人移动
+    /// </summary>
+    public class GameEvent_Local_SomeoneMove
     {
         public ActorManager moveActor;
         public MyTile moveTile;

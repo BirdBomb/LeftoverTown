@@ -5,8 +5,4 @@ using UnityEngine;
 
 public class CowBodyController : BaseBodyController
 {
-    public override void PlayBodyAction(BodyAction bodyAction, float speed, Action<string> action)
-    {
-        base.PlayBodyAction(bodyAction, speed, action);
-    }
 }

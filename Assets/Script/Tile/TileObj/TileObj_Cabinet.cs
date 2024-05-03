@@ -9,7 +9,9 @@ using Vector3 = UnityEngine.Vector3;
 
 public class TileObj_Cabinet : TileObj
 {
+    [SerializeField,Header("Singal")]
     private GameObject obj_singal;
+    [SerializeField, Header("Cabinet")]
     private GameObject obj_cabinet;
 
     public void Start()
@@ -17,49 +19,37 @@ public class TileObj_Cabinet : TileObj
     }
     public override void Invoke()
     {
-        if (!obj_cabinet)
-        {
-            obj_cabinet = UIManager.Instance.ShowUI("UI/UI_Grid_0",Camera.main.transform.position + new Vector3(0, 2, 0));
-            obj_cabinet.transform.localScale = Vector3.zero;
-            obj_cabinet.transform.DOScale(Vector3.one, 0.1f).SetEase(Ease.OutBack);
-            obj_cabinet.GetComponent<UI_Grid>().InitGrid(info, this);
-            transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
-        }
-        if (obj_singal)
-        {
-            UIManager.Instance.HideUI("UI/UI_Signal", obj_singal);
-            obj_singal = null;
-        }
+        obj_cabinet.SetActive(true);
+        obj_cabinet.GetComponent<UI_Grid_Cabinet>().Open(this);
+        obj_cabinet.GetComponent<UI_Grid_Cabinet>().UpdateInfoFromTile(info);
+        obj_singal.SetActive(false);
 
         base.Invoke();
     }
+    public override void TryToUpdateInfo(string info)
+    {
+        obj_cabinet.GetComponent<UI_Grid_Cabinet>().UpdateInfoFromTile(info);
+        base.TryToUpdateInfo(info);
+    }
     public override bool PlayerNearby(PlayerController player)
     {
-        /*靠近的不是我自己*/
-        if (!player.thisPlayerIsMe) { return false; }
-        if (!obj_singal)
+        /*靠近是我自己*/
+        if (player.thisPlayerIsMe) 
         {
-            obj_singal = UIManager.Instance.ShowUI("UI/UI_Signal", Camera.main.transform.position + new Vector3(0, 1, 0));
-            obj_singal.transform.localScale = Vector3.zero;
-            obj_singal.transform.DOScale(Vector3.one, 0.1f).SetEase(Ease.OutBack);
+            obj_singal.SetActive(true);
             transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+
+            return true; 
         }
-        return true;
+        return false;
     }
     public override bool PlayerFaraway(PlayerController player)
     {
         /*靠近的不是我自己*/
         if (!player.thisPlayerIsMe) { return false; }
-        if (obj_singal)
-        {
-            UIManager.Instance.HideUI("UI/UI_Signal", obj_singal);
-            obj_singal = null;
-        }
-        if (obj_cabinet)
-        {
-            UIManager.Instance.HideUI("UI/UI_Grid_0", obj_cabinet);
-            obj_cabinet = null;
-        }
+        obj_singal.SetActive(false);
+        obj_cabinet.SetActive(false);
+        obj_cabinet.GetComponent<UI_Grid_Cabinet>().Close(this);
         return true;
     }
 }

@@ -1,8 +1,10 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using static Unity.Collections.Unicode;
 /// <summary>
 /// 角色管理器
 /// </summary>
@@ -33,6 +35,8 @@ public class ActorManager : MonoBehaviour
     }
     [SerializeField, Header("UI管理器")]
     private ActorUI actorUI;
+    [Header("你现在什么情况?")]
+    public ActorState actorState;
     public ActorUI ActorUI
     {
         get { return actorUI; }
@@ -45,7 +49,8 @@ public class ActorManager : MonoBehaviour
 
     protected bool isPlayer = false;
     protected bool isState = false;
-    public const float customUpdateTime = 0.5f;
+    public const float customUpdateTime = 0.1f;
+
     public virtual void FixedUpdateNetwork(float dt)
     {
         UpdatePath(dt);
@@ -60,7 +65,7 @@ public class ActorManager : MonoBehaviour
         isState = hasStateAuthority;
         InvokeRepeating("CustomUpdate", 1f, customUpdateTime);
         navManager = GameObject.Find("Furniture").GetComponent<NavManager>();
-        MessageBroker.Default.Receive<GameEvent.GameEvent_SomeoneMove>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneMove>().Subscribe(_ =>
         {
             ListenRoleMove(_.moveActor, _.moveTile);
         }).AddTo(this);
@@ -192,17 +197,53 @@ public class ActorManager : MonoBehaviour
 
     public virtual void PlayMove(float speed)
     {
-        bodyController.PlayBodyAction(BodyAction.Move, speed, null);
-        bodyController.PlayHeadAction(HeadAction.Move, speed, null);
-        bodyController.PlayLegAction(LegAction.Step, speed, null);
-        bodyController.PlayHandAction(HandAction.Step, speed, null);
+        bodyController.SetHeadBool("Step", true, 1, null);
+        bodyController.SetHeadBool("Idle", false, 1, null);
+
+        bodyController.SetBodyBool("Step", true, 1, null);
+        bodyController.SetBodyBool("Idle", false, 1, null);
+
+        bodyController.SetHandBool("Step", true, 1, null);
+        bodyController.SetHandBool("Idle", false, 1, null);
+
+        bodyController.SetLegBool("Step", true, 1, null);
+        bodyController.SetLegBool("Idle", false, 1, null);
     }
     public virtual void PlayStop(float speed)
     {
-        bodyController.PlayBodyAction(BodyAction.Idle, speed, null);
-        bodyController.PlayHeadAction(HeadAction.Idle, speed, null);
-        bodyController.PlayLegAction(LegAction.Idle, speed, null);
-        bodyController.PlayHandAction(HandAction.Idle, speed, null);
+        bodyController.SetHeadBool("Step", false, 1, null);
+        bodyController.SetHeadBool("Idle", true, 1, null);
+
+        bodyController.SetBodyBool("Step", false, 1, null);
+        bodyController.SetBodyBool("Idle", true, 1, null);
+
+        bodyController.SetHandBool("Step", false, 1, null);
+        bodyController.SetHandBool("Idle", true, 1, null);
+
+        bodyController.SetLegBool("Step", false, 1, null);
+        bodyController.SetLegBool("Idle", true, 1, null);
+    }
+    public virtual void PlayDead(float speed)
+    {
+        bodyController.SetHeadTrigger("Dead", 1, (str) =>
+        {
+            if (str == "Dead")
+            {
+                Dead();
+            }
+        });
+        bodyController.SetBodyTrigger("Dead", 1, null);
+        bodyController.SetHandTrigger("Dead", 1, null);
+        bodyController.SetLegTrigger("Dead", 1, null);
+    }
+    public virtual void PlayTakeDamage(float speed)
+    {
+        bodyController.SetHeadTrigger("TakeDamage", 1, null);
+    }
+    public virtual void PlayPickUp(float speed, Action<string> action)
+    {
+        bodyController.SetHeadTrigger("LowerHead", 1, null);
+        bodyController.SetHandTrigger("PickUp", 1, action);
     }
     #endregion
     /*位置*/
@@ -227,11 +268,11 @@ public class ActorManager : MonoBehaviour
         tempTiles.Clear();
         MyTile tile = GetMyTile();
 
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(new Vector3Int(tile.x, tile.y, 0)));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(new Vector3Int(tile.x + 1, tile.y, 0)));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(new Vector3Int(tile.x - 1, tile.y, 0)));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(new Vector3Int(tile.x, tile.y + 1, 0)));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(new Vector3Int(tile.x, tile.y - 1, 0)));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell + Vector3Int.right));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell + Vector3Int.left));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell + Vector3Int.up));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell + Vector3Int.down));
         return tempTiles;
     }
     public void CheckMyTile()
@@ -239,7 +280,7 @@ public class ActorManager : MonoBehaviour
         curTile = GetMyTile();
         if (!curTile) { return; }
         if (lastTile == null) { lastTile = curTile; }
-        if (lastTile.pos != curTile.pos)
+        if (lastTile.posInWorld != curTile.posInWorld)
         {
             InNewTile();
         }
@@ -250,7 +291,7 @@ public class ActorManager : MonoBehaviour
     public virtual void InNewTile()
     {
         lastTile = curTile;
-        MessageBroker.Default.Publish(new GameEvent.GameEvent_SomeoneMove
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneMove
         {
             moveActor = this,
             moveTile = curTile
@@ -259,33 +300,84 @@ public class ActorManager : MonoBehaviour
     #endregion
     /*物品*/
     #region
-    public void AddItem_Hand(NetworkItemConfig config, bool showInUI)
+    /// <summary>
+    /// 拿到手上
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="showInUI"></param>
+    public void AddItem_Hand(ItemData data)
     {
-        Type type = Type.GetType("Item_" + config.Item_ID.ToString());
-        holdingByHand = (ItemBase)Activator.CreateInstance(type);
-        holdingByHand.Init(config);
-        holdingByHand.BeHolding(this, BodyController.Hand_RightItem);
-        /*更新UI*/
-        if (showInUI)
+        if (data.Item_ID != 0) 
         {
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInHand()
+            Debug.Log(data.Item_ID);
+            Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+            holdingByHand = (ItemBase)Activator.CreateInstance(type);
+            holdingByHand.Init(data);
+            holdingByHand.BeHolding(this, BodyController.Hand_RightItem);
+            /*更新UI*/
+            if (isPlayer && netController.Object.HasInputAuthority)
             {
-                networkItemConfig = config
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInHand()
+                {
+                    itemData = data
+                });
+            }
+        }
+    }
+    /// <summary>
+    /// 掉落
+    /// </summary>
+    public virtual void Loot()
+    {
+        for (int i = 0; i < actorConfig.Config_LootCount; i++)
+        {
+            int id = GetLootID();
+            if (id != 0)
+            {
+                ItemData item = new ItemData();
+                item.Item_ID = id;
+                item.Item_Seed = System.DateTime.Now.Second + i + id;
+
+                MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
+                {
+                    itemData = item,
+                    pos = transform.position - new Vector3(0, 0.1f, 0)
+                });
+            }
+        }
+        for (int i = 0; i < netController.Data_ItemInBag.Count; i++)
+        {
+            ItemData item = netController.Data_ItemInBag[i];
+            MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
+            {
+                itemData = item,
+                pos = transform.position - new Vector3(0, 0.1f, 0)
             });
         }
     }
-    public void PickUpItem_Bag(ItemObj itemObj)
+    /// <summary>
+    /// 根据权重获得一个掉落物id
+    /// </summary>
+    /// <returns></returns>
+    private int GetLootID()
     {
-        BodyController.PlayHeadAction(HeadAction.LowerHead, 1, null);
-        BodyController.PlayHandAction(HandAction.PickUp, 1,
-            (string x) =>
+        int weight_Main = 0;
+        int weight_temp = 0;
+        int random = 0;
+        for (int j = 0; j < actorConfig.Config_LootList.Count; j++)
+        {
+            weight_Main += actorConfig.Config_LootList[j].Weight;
+        }
+        random = UnityEngine.Random.Range(0, weight_Main);
+        for (int j = 0; j < actorConfig.Config_LootList.Count; j++)
+        {
+            weight_temp += actorConfig.Config_LootList[j].Weight;
+            if (weight_temp > random)
             {
-                Debug.Log("OK" + x);
-                if (x == "PickUp")
-                {
-                    itemObj.PickUp(this);
-                }
-            });
+                return actorConfig.Config_LootList[j].ID;
+            }
+        }
+        return 0;
     }
 
     #endregion
@@ -298,7 +390,7 @@ public class ActorManager : MonoBehaviour
         if (targetTile)
         {
             /*到达路径点，检查*/
-            if (Vector2.Distance(targetTile.pos, transform.position) <= 0.1f)
+            if (Vector2.Distance(targetTile.posInWorld, transform.position) <= 0.1f)
             {
                 targetTile = null;
                 /*如果路径还未结束*/
@@ -317,41 +409,44 @@ public class ActorManager : MonoBehaviour
             else
             {
                 Vector2 temp = Vector2.zero;
-                if (transform.position.x > targetTile.pos.x)
+                if (transform.position.x > targetTile.posInWorld.x)
                 {
-                    if ((transform.position.x - targetTile.pos.x) > 0.05f)
+                    if ((transform.position.x - targetTile.posInWorld.x) > 0.05f)
                     {
                         temp += new Vector2(-1, 0);
                     }
                 }
                 else
                 {
-                    if ((transform.position.x - targetTile.pos.x) < -0.05f)
+                    if ((transform.position.x - targetTile.posInWorld.x) < -0.05f)
                     {
                         temp += new Vector2(1, 0);
                     }
                 }
-                if (transform.position.y > targetTile.pos.y)
+                if (transform.position.y > targetTile.posInWorld.y)
                 {
-                    if ((transform.position.y - targetTile.pos.y) > 0.05f)
+                    if ((transform.position.y - targetTile.posInWorld.y) > 0.05f)
                     {
                         temp += new Vector2(0, -1);
                     }
                 }
                 else
                 {
-                    if ((transform.position.y - targetTile.pos.y) < -0.05f)
+                    if ((transform.position.y - targetTile.posInWorld.y) < -0.05f)
                     {
                         temp += new Vector2(0, 1);
                     }
                 }
                 temp = temp.normalized;
-
                 netController.UpdateNetworkTransform(transform.position + new UnityEngine.Vector3(temp.x * dt * actorConfig.Config_Speed, temp.y * dt * actorConfig.Config_Speed, 0));
             }
         }
     }
-    public virtual void SetTargetTile(Vector2 targetPos)
+    /// <summary>
+    /// 找到一条路径
+    /// </summary>
+    /// <param name="targetPos"></param>
+    public virtual void FindWayToTarget(Vector2 targetPos)
     {
         tempPath = navManager.FindPath(navManager.FindTileByPos(targetPos), GetMyTile());
         if (tempPath != null)
@@ -373,15 +468,61 @@ public class ActorManager : MonoBehaviour
         tempPath = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
     }
     #endregion
+    /*基本属性变化*/
+    #region
+    /// <summary>
+    /// 受伤
+    /// </summary>
+    /// <param name="val"></param>
+    /// <param name="id"></param>
+    public void TakeDamage(int val,Fusion.NetworkId id)
+    {
+        if (actorState != ActorState.Dead)
+        {
+            netController.RPC_HpChange(-val, id);
+        }
+    }
+    /// <summary>
+    /// 死亡
+    /// </summary>
+    public void Dead()
+    {
+        actorState = ActorState.Dead;
+        if (isState)
+        {
+            Loot();
+            if (!isPlayer)
+            {
+                netController.Runner.Despawn(netController.Object);
+            }
+        }
+    }
 
+    #endregion
     /*RPC*/
-    public virtual void RPC_Skill(int parameter, Fusion.NetworkId id)
+    public virtual void FromRPC_Skill(int parameter, Fusion.NetworkId id)
     {
 
+    }
+    public virtual void Listen_HpChange(int parameter, Fusion.NetworkId id)
+    {
+        if (parameter < 0)
+        {
+            GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position + new Vector2(0, 1));
+            obj_num.GetComponent<UI_DamageNum>().Play(parameter, new Color32(255, 50, 50, 255));
+            PlayTakeDamage(1);
+        }
     }
 }
 [Serializable]
 public struct ActorConfig
 {
     public float Config_Speed;
+    public int Config_LootCount;
+    public List<LootInfo> Config_LootList;
+}
+public enum ActorState
+{
+    Default,
+    Dead
 }

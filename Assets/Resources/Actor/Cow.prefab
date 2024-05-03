@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6305386443740106584}
   - component: {fileID: 3765932473150523369}
-  - component: {fileID: 8087677703321448149}
   - component: {fileID: 8827712441029477511}
   - component: {fileID: 4278228079668405437}
   - component: {fileID: 2983913003401362893}
@@ -61,18 +60,6 @@ MonoBehaviour:
   Hand_Left: {fileID: 0}
   Hand_RightItem: {fileID: 0}
   Hand_LeftItem: {fileID: 0}
---- !u!114 &8087677703321448149
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 847298273615968561}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2bf63fbd9b0326943b14bc94c7bba32c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &8827712441029477511
 BoxCollider2D:
   m_ObjectHideFlags: 0

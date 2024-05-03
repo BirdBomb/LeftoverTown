@@ -4,24 +4,34 @@ using UnityEngine;
 
 public class PlayerEvent 
 {
-    public class PlayerEvent_AddItemInHand
+    /// <summary>
+    /// 本地玩家:尝试从背包移除物体
+    /// </summary>
+    public class PlayerEvent_Local_TryRemoveItemFromBag
     {
-        public int playerID;
-        public ItemConfig itemConfig;
-        public NetworkItemConfig networkItemConfig;
+        public ItemData item;
     }
-    public class PlayerEvent_AddItemInBag
+    /// <summary>
+    /// 本地玩家:尝试给背包添加物体
+    /// </summary>
+    public class PlayerEvent_Local_TryAddItemInBag
     {
-        public int playerID;
-        public ItemConfig itemConfig;
-        public NetworkItemConfig networkItemConfig;
+        public ItemData item;
     }
-    public class PlayerEvent_SubItemFromBag
-    {
 
-    }
-    public class PlayerEvent_SubItemFromHand
+    /// <summary>
+    /// 本地玩家:掉落一个物体
+    /// </summary>
+    public class PlayerEvent_Local_TryDropItem
     {
-
+        public ItemData item;
     }
+    /// <summary>
+    /// 本地玩家:召唤一个生物
+    /// </summary>
+    public class PlayerEvent_Local_TrySpawnActor
+    {
+        public string name;
+    }
+
 }

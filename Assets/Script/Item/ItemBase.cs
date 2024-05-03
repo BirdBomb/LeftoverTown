@@ -1,3 +1,4 @@
+using Fusion;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,12 +8,11 @@ using Vector3 = UnityEngine.Vector3;
 
 public class ItemBase
 {
-    public NetworkItemConfig networkItem;
+    public ItemData data;
     public ActorManager owner;
-
-    public virtual void Init(NetworkItemConfig config)
+    public virtual void Init(ItemData config)
     {
-        networkItem = config;
+        data = config;
     }
     /// <summary>
     /// ³ÖÎÕ
@@ -33,50 +33,56 @@ public class ItemBase
     /// <summary>
     /// ÓÒ¼üµã»÷
     /// </summary>
-    public virtual void ClickRightClick(float time, bool hasInputAuthority)
+    public virtual void ClickRightClick(float dt, bool state, bool input, bool showSI)
     {
 
     }
     /// <summary>
     /// ÓÒ¼ü°´Ñ¹
     /// </summary>
-    public virtual void PressRightClick(float time, bool hasInputAuthority)
+    public virtual void PressRightClick(float dt, bool state, bool input, bool showSI)
     {
 
     }
     /// <summary>
     /// ÓÒ¼üÊÍ·Å
     /// </summary>
-    public virtual void ReleaseRightClick(float time, bool hasInputAuthority)
+    public virtual void ReleaseRightClick(float dt, bool state, bool input, bool showSI)
     {
 
     }
     /// <summary>
     /// ×ó¼üµã»÷
     /// </summary>
-    public virtual void ClickLeftClick(float time, bool hasInputAuthority)
+    public virtual void ClickLeftClick(float dt, bool state, bool input, bool showSI)
     {
 
     }
     /// <summary>
     /// ×ó¼ü°´Ñ¹
     /// </summary>
-    public virtual void PressLeftClick(float time, bool hasInputAuthority)
+    public virtual void PressLeftClick(float dt, bool state, bool input, bool showSI)
     {
 
     }
     /// <summary>
     /// ×ó¼üÊÍ·Å
     /// </summary>
-    public virtual void ReleaseLeftClick(float time, bool hasInputAuthority)
+    public virtual void ReleaseLeftClick(float dt, bool state, bool input, bool showSI)
     {
 
     }
     /// <summary>
     /// Êó±êÎ»ÖÃ
     /// </summary>
-    public virtual void MousePosition(Vector3 mouse, float time)
+    public virtual void FaceTo(Vector3 mouse, float time)
     {
 
     }
+}
+[Serializable]
+public struct ItemData : INetworkStruct
+{
+    public int Item_ID;
+    public int Item_Seed;
 }

@@ -18,15 +18,6 @@ public class PlayerNetController : NetworkBehaviour
     {
         if (Object.HasInputAuthority)
         {
-            MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInBag>().Subscribe(_ =>
-            {
-                playerController.actorManager.NetController.Data_ItemInBag.Add(_.networkItemConfig);
-            }).AddTo(this);
-            MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_AddItemInHand>().Subscribe(_ =>
-            {
-                playerController.actorManager.NetController.Data_ItemInHand = _.networkItemConfig;
-            }).AddTo(this);
-
             playerCamera.tag = "MainCamera";
             playerController.thisPlayerIsMe = true;
         }
@@ -54,10 +45,15 @@ public class PlayerNetController : NetworkBehaviour
         PlayerData playerData = GameDataManager.Instance.LoadPlayerData();
         if(playerData != null)
         {
-            Debug.Log("玩家信息获取成功,把信息同步给所有客户端");
-            RPC_InitData(playerData.Pos);
-            Debug.Log("玩家信息获取成功,根据玩家坐标生成周围地图");
-            MessageBroker.Default.Publish(new MapEvent.MapEvent_RequestMapData()
+            Debug.Log("--玩家信息获取成功,初始化玩家背包");
+            for (int i = 0; i < playerData.Bag.Count; i++)
+            {
+                playerController.actorManager.NetController.RPC_AddItemInBag(playerData.Bag[i]);
+            }
+            Debug.Log("--玩家信息获取成功,初始化玩家数据");
+            RPC_InitData(playerData.Pos, playerData.Hp, playerData.MaxHp);
+            Debug.Log("--玩家信息获取成功,根据玩家坐标生成周围地图");
+            MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_RequestMapData()
             {
                 pos = playerData.Pos,
                 player = Object.InputAuthority
@@ -69,13 +65,7 @@ public class PlayerNetController : NetworkBehaviour
     private bool right_press = false;
     public override void FixedUpdateNetwork()
     {
-        /*所有客户端根据网路数据模拟玩家输入*/
-        #region
-        playerController.All_PlayerInputMouse(Runner.DeltaTime, Net_Left_ClickTime, Net_Right_ClickTime, Net_LeftPress, Net_RightPress, Object.HasStateAuthority, Object.HasInputAuthority);
-        playerController.All_PlayerInputMove(Runner.DeltaTime, Net_MoveDir, Net_PressShift, Object.HasStateAuthority, Object.HasInputAuthority);
-        playerController.All_PlayerInputFace(Runner.DeltaTime, Net_Face, Object.HasStateAuthority, Object.HasInputAuthority);
-        playerController.All_PlayerInputControl(Net_Q_ClickTime, Net_F_ClickTime, Net_Space_ClickTime, Object.HasStateAuthority, Object.HasInputAuthority);
-        #endregion
+        if (playerController.actorManager.actorState == ActorState.Dead) return;
         /*服务器获取输入端输入并同步给所有客户端*/
         if (Object.HasStateAuthority && GetInput(out NetworkInputData data))
         {
@@ -87,18 +77,6 @@ public class PlayerNetController : NetworkBehaviour
             if (data.ClickRightMouse > 0)
             {
                 Net_Right_ClickTime += data.ClickRightMouse;
-            }
-            if (data.ClickQ > 0)
-            {
-                Net_Q_ClickTime += data.ClickQ;
-            }
-            if (data.ClickF > 0)
-            {
-                Net_F_ClickTime += data.ClickF;
-            }
-            if (data.ClickSpace > 0)
-            {
-                Net_Space_ClickTime += data.ClickSpace;
             }
             if (data.PressLeftMouse)
             {
@@ -133,38 +111,49 @@ public class PlayerNetController : NetworkBehaviour
             {
                 moveDir_temp += new Vector2(0, -1);
             }
-            Net_MoveDir = moveDir_temp;
             Net_PressShift = data.PressShift;
             Net_Face = data.facePostion;
         }
         base.FixedUpdateNetwork();
+    }
+    public override void Render()
+    {
+        if (playerController.actorManager.actorState == ActorState.Dead) return;
+        /*服务器*/
+        #region
+        if (Object.HasStateAuthority)
+        {
+            playerController.State_PlayerInputMove(Runner.DeltaTime, moveDir_temp, Net_PressShift, Object.HasStateAuthority, Object.HasInputAuthority);
+        }
+        #endregion
+        /*客户端*/
+        #region
+        playerController.All_PlayerInputFace(Runner.DeltaTime, Net_Face, Object.HasStateAuthority, Object.HasInputAuthority);
+        playerController.All_PlayerInputMouse(Runner.DeltaTime, Net_Left_ClickTime, Net_Right_ClickTime, Net_LeftPress, Net_RightPress, Object.HasStateAuthority, Object.HasInputAuthority);
+        #endregion
+        base.Render();
     }
     [Networked]
     public int Net_Left_ClickTime { get; set; } = 0;
     [Networked]
     public int Net_Right_ClickTime { get; set; } = 0;
     [Networked]
-    public int Net_Q_ClickTime { get; set; } = 0;
-    [Networked]
-    public int Net_F_ClickTime { get; set; } = 0;
-    [Networked]
-    public int Net_Space_ClickTime { get; set; } = 0;
-    [Networked]
     public bool Net_LeftPress { get; set; } = false;
     [Networked]
     public bool Net_RightPress { get; set; } = false;
-    [Networked]
-    public Vector2 Net_MoveDir { get; set; } = Vector2.zero;
     [Networked]
     public bool Net_PressShift { get; set; } = false;
     [Networked]
     public Vector3 Net_Face { get; set; } = Vector3.zero;
 
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_InitData(Vector3Int pos)
+    public void RPC_InitData(Vector3Int pos, int hp, int maxHp)
     {
         /*初始化位置*/
         playerController.actorManager.NetController.UpdateNetworkTransform(pos);
+        playerController.actorManager.NetController.Data_Hp = 50;
+        playerController.actorManager.NetController.Data_MaxHp = 50;
     }
+
 }
 

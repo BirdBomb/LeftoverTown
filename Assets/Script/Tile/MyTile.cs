@@ -20,12 +20,15 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     [Header("瓦片阻力")]
     public float passOffset;
 
+    //[HideInInspector]
+    //public int x;
+    //[HideInInspector]
+    //public int y;
     [HideInInspector]
-    public int x;
+    public Vector2 posInWorld;
     [HideInInspector]
-    public int y;
-    [HideInInspector]
-    public Vector2 pos;
+    public Vector3Int posInCell;
+
     [HideInInspector]
     public GameObject bindObj;
     #region//寻路相关
@@ -83,14 +86,18 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     /// <summary>
     /// 初始瓦片
     /// </summary>
-    public virtual void InitTile(int x,int y,Vector2 pos)
+    public virtual void InitTile(Vector2 pos,Vector3Int vector3)
     {
-        this.x = x;
-        this.y = y;
-        this.pos = pos + new Vector2(0.5f, 0.5f);
+        this.posInWorld = pos + new Vector2(0.5f, 0.5f);
+        this.posInCell = vector3;
+        Debug.Log(posInCell);
         if (bindObj)
         {
             bindObj.transform.position = pos + new Vector2(0.5f,0.5f);
+            if (bindObj.TryGetComponent(out TileObj tile))
+            {
+                tile.Init(this);
+            }
         }
     }
     /// <summary>

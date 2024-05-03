@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Fusion;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -12,8 +13,6 @@ public class ItemObj : MonoBehaviour
     public SpriteRenderer icon;
     [HideInInspector, Header("物品信息")]
     public ItemConfig config;
-    [HideInInspector, Header("物品信息")]
-    public NetworkItemConfig netConfig;
     #region//基本逻辑
     /// <summary>
     /// 初始化
@@ -24,18 +23,6 @@ public class ItemObj : MonoBehaviour
         icon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemConfig.Item_ID);
         config = itemConfig;
     }
-    public virtual void PickUp(ActorManager owner)
-    {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_AddItemInBag
-        {
-            itemConfig = config
-        });
-        DestroyItem();
-    }
-    public virtual void DestroyItem()
-    {
-        Destroy(gameObject);
-    }
     #endregion//播放动画
     /// <summary>
     /// 掉落动画
@@ -45,4 +32,6 @@ public class ItemObj : MonoBehaviour
         Vector2 offset = Random.insideUnitSphere;
         transform.DOJump(dropFrom + new Vector3(offset.x,offset.y,0), 1, 1, 0.5f);
     }
+
+
 }

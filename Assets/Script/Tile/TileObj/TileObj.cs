@@ -4,6 +4,8 @@ using UnityEngine;
 using UniRx;
 using System;
 using Random = UnityEngine.Random;
+using Fusion;
+using static Unity.Collections.Unicode;
 /// <summary>
 /// 场景物品基类
 /// </summary>
@@ -48,13 +50,7 @@ public class TileObj : MonoBehaviour
     {
         json = info;
     }
-    /// <summary>
-    /// 更新
-    /// </summary>
-    public virtual void UpdateInfo(string json)
-    {
-        info = json;
-    }
+
     /// <summary>
     /// 交互
     /// </summary>
@@ -62,6 +58,46 @@ public class TileObj : MonoBehaviour
     {
 
     }
+    /// <summary>
+    /// 尝试改变生命值
+    /// </summary>
+    /// <param name="newHp"></param>
+    public virtual void TryToChangeHp(int val)
+    {
+        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_TakeDamage()
+        {
+            tileObj = this,
+            damage = val
+        });
+    }
+    /// <summary>
+    /// 尝试更新生命值
+    /// </summary>
+    /// <param name="newHp"></param>
+    public virtual void TryToUpdateHp(int newHp)
+    {
+        CurHp = newHp;
+    }
+
+    /// <summary>
+    /// 尝试改变地块信息
+    /// </summary>
+    public virtual void TryToChangeInfo(string info)
+    {
+        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_UpdateInfo
+        {
+            tileObj = this,
+            tileInfo = info
+        });
+    }
+    /// <summary>
+    /// 尝试更新地块信息
+    /// </summary>
+    public virtual void TryToUpdateInfo(string info)
+    {
+        this.info = info;
+    }
+
     /// <summary>
     /// 玩家靠近
     /// </summary>
@@ -71,7 +107,7 @@ public class TileObj : MonoBehaviour
         return false;
     }
     /// <summary>
-    /// 远离
+    /// 玩家远离
     /// </summary>
     /// <returns></returns>
     public virtual bool PlayerFaraway(PlayerController player)
@@ -79,10 +115,9 @@ public class TileObj : MonoBehaviour
         return false;
     }
     /// <summary>
-    /// 损坏
+    /// 尝试销毁
     /// </summary>
-    /// <param name="val"></param>
-    public virtual void Damaged(int val)
+    public virtual void TryBreak()
     {
 
     }
@@ -91,7 +126,7 @@ public class TileObj : MonoBehaviour
     /// </summary>
     public virtual void Break()
     {
-
+        Destroy(gameObject);
     }
     /// <summary>
     /// 掉落
@@ -103,11 +138,15 @@ public class TileObj : MonoBehaviour
             int id = GetNextLootID();
             if (id != 0)
             {
-                GameObject obj = Resources.Load<GameObject>("ItemObj/ItemObj");
-                GameObject item = Instantiate(obj);
-                item.transform.position = transform.position;
-                item.GetComponent<ItemObj>().Init(ItemConfigData.GetItemConfig(id));
-                item.GetComponent<ItemObj>().PlayDropAnim(transform.position);
+                ItemData item = new ItemData();
+                item.Item_ID = id;
+                item.Item_Seed = System.DateTime.Now.Second + i + id;
+
+                MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
+                {
+                    itemData = item,
+                    pos = transform.position - new Vector3(0, 0.1f, 0)
+                });
             }
         }
     }
@@ -140,11 +179,6 @@ public class TileObj : MonoBehaviour
     /// </summary>
     public virtual void Remove()
     {
-        MessageBroker.Default.Publish(new MapEvent.MapEvent_ChangeTile() 
-        {
-            tilePos = new Vector3Int( bindTile.x, bindTile.y, 0),
-            tileName = "Default"
-        });
     }
     /// <summary>
     /// 时间更新

@@ -16,40 +16,19 @@ public class MapNetManager : NetworkBehaviour
     private bool mapDataAlready = false;
     void Start()
     {
-        MessageBroker.Default.Receive<MapEvent.MapEvent_DamageTile_Upload>().Subscribe(_ =>
-        {
-            TryDamageTile(_.tilePos, _.damageValue);
-        }).AddTo(this);
-        MessageBroker.Default.Receive<MapEvent.MapEvent_RequestMapData>().Subscribe(_ =>
+        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_RequestMapData>().Subscribe(_ =>
         {
             TryRequestMapData(_.pos, _.player);
         }).AddTo(this);
-    }
-    #region//地块操作
-    private void TryDamageTile(Vector3Int pos, int damage)
-    {
-        RPC_DamageTile(pos, damage);
-    }
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_DamageTile(Vector3Int pos, int damage)
-    {
-        MessageBroker.Default.Publish(new MapEvent.MapEvent_DamageTile()
+        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_TakeDamage>().Subscribe(_ =>
         {
-            tilePos = pos,
-            damageValue = damage
-        });
+            RPC_LocalInput_TileTakeDamage(_.tileObj.bindTile.posInCell, _.damage, Runner.LocalPlayer);
+        }).AddTo(this);
+        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_UpdateInfo>().Subscribe(_ =>
+        {
+            RPC_LocalInput_TileUpdateInfo(_.tileObj.bindTile.posInCell, _.tileInfo);
+        }).AddTo(this);
     }
-
-    private void TryChangeTile(Vector2 pos)
-    {
-
-    }
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_ChangeTile(Vector2 pos)
-    {
-
-    }
-    #endregion
     #region//请求与返回地图数据
     private void TryRequestMapData(Vector3Int pos,PlayerRef player)
     {
@@ -138,10 +117,78 @@ public class MapNetManager : NetworkBehaviour
         {
             for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
             {
-                mapManager.LoadTile(new Vector3Int(center.x + x, center.y + y, 0), tileList[index]);
+                mapManager.CreateTile(new Vector3Int(center.x + x, center.y + y, 0), tileList[index]);
                 index++;
             }
         }
     }
     #endregion
+
+    /// <summary>
+    /// 客户端输入对地块的攻击
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="damage"></param>
+    /// <param name="player"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    private void RPC_LocalInput_TileTakeDamage(Vector3Int pos, int damage, PlayerRef player)
+    {
+        if (Object.HasStateAuthority)
+        {
+            mapManager.GetTileObj(pos, out TileObj obj);
+            int Hp = obj.CurHp - damage;
+            RPC_StateCall_TileUpdateHp(pos, Hp, player);
+            if (Hp <= 0)
+            {
+                RPC_StateCall_TileBreak(pos);
+            }
+        }
+    }
+    /// <summary>
+    /// 客户端输入对地块的更新
+    /// </summary>
+    /// <param name="pos"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    private void RPC_LocalInput_TileUpdateInfo(Vector3Int pos, string info)
+    {
+        if (Object.HasStateAuthority)
+        {
+            RPC_StateCall_TileUpdateInfo(pos, info);
+        }
+    }
+
+
+    /// <summary>
+    /// 服务器更新地块生命值
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="hp"></param>
+    /// <param name="player"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_TileUpdateHp(Vector3Int pos, int hp, PlayerRef player)
+    {
+        mapManager.GetTileObj(pos, out TileObj obj);
+        obj.TryToUpdateHp(hp);
+    }
+    /// <summary>
+    /// 服务器摧毁地块
+    /// </summary>
+    /// <param name="pos"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_TileBreak(Vector3Int pos)
+    {
+        mapManager.GetTileObj(pos, out TileObj obj);
+        obj.TryBreak();
+        mapManager.CreateTile(pos, "Default");
+    }
+    /// <summary>
+    /// 服务器更新地块信息
+    /// </summary>
+    /// <param name="pos"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_TileUpdateInfo(Vector3Int pos, string info)
+    {
+        mapManager.GetTileObj(pos, out TileObj obj);
+        obj.TryToUpdateInfo(info);
+    }
 }

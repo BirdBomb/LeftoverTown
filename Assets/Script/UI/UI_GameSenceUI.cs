@@ -16,20 +16,23 @@ public class UI_GameSenceUI : MonoBehaviour
     public Text Text_Food;
     [Header("缺水值")]
     public Text Text_Water;
+    [Header("绑定UI")]
+    public UI_Grid_Cabinet Bind_Grid = null;
     private void Start()
     {
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInHand>().Subscribe(_ =>
         {
-            UpdateHandSlot(_.itemConfig);
+            UpdateHandSlot(_.itemData);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
         {
-            _bagItemList.Clear();
-            for (int i = 0; i < _.itemConfigs.Count; i++)
+            _bagItemDataList.Clear();
+            for (int i = 0; i < _.itemDatas.Count; i++)
             {
-                _bagItemList.Add(_.itemConfigs[i]);
+                _bagItemDataList.Add(_.itemDatas[i]);
             }
             BagUpdateItem();
+
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateData>().Subscribe(_ =>
         {
@@ -37,40 +40,27 @@ public class UI_GameSenceUI : MonoBehaviour
             Text_Food.text = _.Food.ToString();
             Text_Water.text = _.Water.ToString();
         }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_OpenGridUI>().Subscribe(_ =>
+        {
+            Bind_Grid = _.bindUI;
+        }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_CloseGridUI>().Subscribe(_ =>
+        {
+            if (Bind_Grid == _.bindUI)
+            {
+                Bind_Grid = null;
+            }
+        }).AddTo(this);
     }
-    private void UpdateHandSlot(ItemConfig item)
+    private void UpdateHandSlot(ItemData item)
     {
-        if(item.Item_ID == -1)
-        {
-            Image_HandSlot.enabled = false;
-        }
-        else
-        {
-            Image_HandSlot.enabled = true;
-            Image_HandSlot.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemIcon").GetSprite("Item_" + item.Item_ID.ToString());
-        }
+        Image_HandSlot.enabled = true;
+        Image_HandSlot.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemIcon").GetSprite("Item_" + item.Item_ID.ToString());
     }
     #region//背包
     [SerializeField,Header("背包槽位")]
     private List<UI_GridCell> _bagCellList = new List<UI_GridCell>();
-    private List<ItemConfig> _bagItemList = new List<ItemConfig>();
-    /// <summary>
-    /// 背包添加物体
-    /// </summary>
-    /// <param name="itemConfig"></param>
-    private void BagAddItem(ItemConfig itemConfig)
-    {
-        _bagItemList.Add(itemConfig);
-        BagUpdateItem();
-    }
-    /// <summary>
-    /// 背包移除物体
-    /// </summary>
-    private void BagSubItem(ItemConfig itemConfig)
-    {
-        _bagItemList.Remove(itemConfig);
-        BagUpdateItem();
-    }
+    private List<ItemData> _bagItemDataList = new List<ItemData>();
     /// <summary>
     /// 更新背包物体
     /// </summary>
@@ -84,11 +74,11 @@ public class UI_GameSenceUI : MonoBehaviour
         {
             ResetCell(_bagCellList[i]);
         }
-        for (int i = 0; i < _bagItemList.Count; i++)
+        for (int i = 0; i < _bagItemDataList.Count; i++)
         {
             if (_bagCellList.Count > i)
             {
-                DrawCell(_bagCellList[i], _bagItemList[i]);
+                DrawCell(_bagCellList[i], _bagItemDataList[i]);
             }
         }
     }
@@ -96,10 +86,43 @@ public class UI_GameSenceUI : MonoBehaviour
     {
         cell.ResetGridCell();
     }
-    private void DrawCell(UI_GridCell cell, ItemConfig config)
+    /// <summary>
+    /// 绘制一个格子
+    /// </summary>
+    /// <param name="cell"></param>
+    /// <param name="data"></param>
+    private void DrawCell(UI_GridCell cell, ItemData data)
     {
-        cell.InitGridCell(config, () => { }, () => { });
+        cell.InitGridCell(data, ClickCellLeft, ClickCellRight);
     }
-
+    /// <summary>
+    /// 背包物体点击
+    /// </summary>
+    /// <param name="itemData"></param>
+    public void ClickCellLeft(ItemData itemData)
+    {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag()
+        {
+            item = itemData
+        });
+        if (Bind_Grid != null)
+        {
+            /*打开了其他格子时，放入*/
+            Bind_Grid.PutIn(itemData);
+        }
+        else
+        {
+            /*没开了其他格子时，丢弃*/
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+            {
+                item = itemData
+            });
+        }
+        Debug.Log("Left");
+    }
+    public void ClickCellRight(ItemData itemData)
+    {
+        Debug.Log("Right");
+    }
     #endregion
 }
