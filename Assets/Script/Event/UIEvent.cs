@@ -37,14 +37,13 @@ public static class UIEvent
     /// </summary>
     public class UIEvent_OpenGridUI
     {
-        public UI_Grid_Cabinet bindUI;
+        public UI_Grid bindUI;
     }
     /// <summary>
     /// UI-关闭一个外部Grid
     /// </summary>
     public class UIEvent_CloseGridUI
     {
-        public UI_Grid_Cabinet bindUI;
+        public UI_Grid bindUI;
     }
-
 }

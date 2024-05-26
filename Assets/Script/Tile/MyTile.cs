@@ -2,11 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using TreeEditor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.WSA;
 using static UnityEngine.Tilemaps.Tile;
 
 [System.Serializable]
@@ -90,7 +88,6 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     {
         this.posInWorld = pos + new Vector2(0.5f, 0.5f);
         this.posInCell = vector3;
-        Debug.Log(posInCell);
         if (bindObj)
         {
             bindObj.transform.position = pos + new Vector2(0.5f,0.5f);

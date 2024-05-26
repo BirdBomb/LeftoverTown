@@ -140,6 +140,7 @@ public class TileObj : MonoBehaviour
             {
                 ItemData item = new ItemData();
                 item.Item_ID = id;
+                item.Item_Count = 1;
                 item.Item_Seed = System.DateTime.Now.Second + i + id;
 
                 MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()

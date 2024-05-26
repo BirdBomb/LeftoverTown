@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Windows;
-using static UnityEditor.Progress;
 using Input = UnityEngine.Input;
 /// <summary>
 /// Íæ¼Ò¿ØÖÆÆ÷
@@ -41,16 +40,27 @@ public class PlayerController : MonoBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag>().Subscribe(_ =>
         {
-            if (thisPlayerIsMe)
+            if (thisPlayerIsMe && actorManager.NetController.Object.HasInputAuthority)
             {
-                actorManager.NetController.RPC_Local_LoseItem(_.item);
+                actorManager.NetController.RPC_LocalInput_LoseItem(_.item);
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemInBag>().Subscribe(_ =>
         {
             if (thisPlayerIsMe)
             {
-                actorManager.NetController.RPC_AddItemInBag(_.item);
+                actorManager.NetController.CalculateBag(_.item, out ItemData itemResidue);
+                actorManager.NetController.RPC_LocalInput_AddItemInBag(_.item);
+                _.itemResidueBack.Invoke(itemResidue);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemInBag>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                actorManager.NetController.CalculateBag(_.newItem, out ItemData itemResidue);
+                actorManager.NetController.RPC_LocalInput_ChangeItem(_.oldItem, _.newItem);
+                _.itemResidueBack.Invoke(itemResidue);
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryDropItem>().Subscribe(_ =>
@@ -91,7 +101,7 @@ public class PlayerController : MonoBehaviour
                     {
                         holdingIndex = 0;
                     }
-                    actorManager.NetController.RPC_Local_HoldItem(actorManager.NetController.Data_ItemInBag[holdingIndex]);
+                    actorManager.NetController.RPC_LocalInput_HoldItem(actorManager.NetController.Data_ItemInBag[holdingIndex]);
                 }
             }
             if (Input.GetKeyDown(KeyCode.Space))
@@ -100,7 +110,7 @@ public class PlayerController : MonoBehaviour
                 if (item.Length <= 0) { return; }
                 if (item[0].gameObject.transform.parent.TryGetComponent(out ItemNetObj obj)) 
                 {
-                    actorManager.NetController.RPC_Local_PickItem(obj.Object.Id);
+                    actorManager.NetController.RPC_LocalInput_PickItem(obj.Object.Id);
                 }
             }
             if (Input.GetKeyDown(KeyCode.F))
@@ -108,6 +118,25 @@ public class PlayerController : MonoBehaviour
                 for (int i = 0; i < nearbyTiles.Count; i++)
                 {
                     nearbyTiles[i].InvokeTile();
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.B))
+            {
+                if (actorManager.GetMyTile().name == "Default")
+                {
+                    MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeTile()
+                    {
+                        tileName = "Base",
+                        tilePos = actorManager.GetMyTile().posInCell
+                    });
+                }
+                else if (actorManager.GetMyTile().name == "Base")
+                {
+                    MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeTile()
+                    {
+                        tileName = "Default",
+                        tilePos = actorManager.GetMyTile().posInCell
+                    });
                 }
             }
         }
@@ -197,7 +226,10 @@ public class PlayerController : MonoBehaviour
     public void All_PlayerInputFace(float dt, Vector2 dir, bool hasStateAuthority, bool hasInputAuthority)
     {
         actorManager.FaceTo(dir);
-        actorManager.holdingByHand.FaceTo(dir, dt);
+        if (actorManager.holdingByHand != null)
+        {
+            actorManager.holdingByHand.FaceTo(dir, dt);
+        }
     }
 
     #endregion

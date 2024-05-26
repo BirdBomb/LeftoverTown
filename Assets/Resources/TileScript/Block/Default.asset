@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Default
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: 21300000, guid: 487a04412a572f6458a343b636ade4f7, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1
     e01: 0
@@ -37,9 +37,9 @@ MonoBehaviour:
   passType: 0
   interactiveType: 0
   passOffset: 0
-  x: 46
-  y: 30
-  pos: {x: 46, y: 30}
+  posInWorld: {x: 0, y: 0}
+  posInCell: {x: 0, y: 0, z: 0}
+  bindObj: {fileID: 0}
   _temp_DistanceMain: 0
   _temp_DistanceToFrom: 0
   _temp_DistanceToTarget: 0

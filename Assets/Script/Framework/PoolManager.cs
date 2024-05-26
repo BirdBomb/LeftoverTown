@@ -19,7 +19,7 @@ public class PoolManager : SingleTon<PoolManager>, ISingleTon
                 createFunc:() => Instantiate(Resources.Load<GameObject>(key)),
                 actionOnGet: obj => obj.SetActive(true),
                 actionOnRelease: obj => obj.SetActive(false),
-                actionOnDestroy: Destroy,
+                actionOnDestroy: obj => { },
                 collectionCheck: false,
                 defaultCapacity: defaultCapacity,
                 maxSize: maxSize

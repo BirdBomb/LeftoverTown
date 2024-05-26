@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,16 @@ public class PlayerEvent
     public class PlayerEvent_Local_TryAddItemInBag
     {
         public ItemData item;
+        public Action<ItemData> itemResidueBack;
+    }
+    /// <summary>
+    /// 本地玩家:尝试给背包修改物体
+    /// </summary>
+    public class PlayerEvent_Local_TryChangeItemInBag
+    {
+        public ItemData oldItem;
+        public ItemData newItem;
+        public Action<ItemData> itemResidueBack;
     }
 
     /// <summary>

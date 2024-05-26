@@ -6,6 +6,8 @@ using UnityEngine.U2D;
 using DG.Tweening;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
+using System.Globalization;
+using System;
 
 public class ItemNetObj : NetworkBehaviour
 {
@@ -13,42 +15,38 @@ public class ItemNetObj : NetworkBehaviour
     public SpriteRenderer icon;
     [Header("物品根部")]
     public SortingGroup root;
-
-    [HideInInspector, Header("物品配置")]
-    public ItemConfig config;
-    [Networked, OnChangedRender(nameof(ResetItem))]
+    [Networked, OnChangedRender(nameof(UpdateItem))]
     public ItemData data { get; set; } = new ItemData();
-
+    private ItemBase _bindItem;
     public override void Spawned()
     {
         base.Spawned();
         if (data.Item_ID != new ItemData().Item_ID)
         {
-            ResetItem();
+            UpdateItem();
         }
     }
-    public virtual void ResetItem()
+    public virtual void UpdateItem()
     {
-        icon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_ID);
-        PlayDropAnim();
-    }
-    private void PlayDropAnim()
-    {
-        root.enabled = true;
-        icon.transform.DOKill();
-        icon.transform.localScale = Vector3.zero;
-        UnityEngine.Random.InitState(data.Item_Seed);
-        Vector3 point = UnityEngine.Random.insideUnitCircle.normalized * UnityEngine.Random.Range(0.2f, 0.5f);
-        icon.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack);
-        icon.transform.DOLocalJump(point, 1, 1, 0.5f).OnComplete(() => 
+        if (_bindItem == null)
         {
-            root.enabled = false;
-            icon.transform.DOPunchScale(new Vector3(0.2f, -0.2f, 0), 0.1f).SetEase(Ease.OutBack);
-        }).SetEase(Ease.InOutQuad);
+            Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+            _bindItem = (ItemBase)Activator.CreateInstance(type);
+        }
+        else
+        {
+            if (_bindItem.data.Item_ID != data.Item_ID)
+            {
+                Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+                _bindItem = (ItemBase)Activator.CreateInstance(type);
+            }
+        }
+        _bindItem.UpdateData(data);
+        _bindItem.DrawItemObj(this);
+        _bindItem.PlayDropAnim(this);
     }
     public virtual void PickUp(out ItemData itemData)
     {
         itemData = data;
     }
-
 }

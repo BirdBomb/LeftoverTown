@@ -17,13 +17,20 @@ public class ItemConfigData : MonoBehaviour
      */
     public readonly static List<ItemConfig> itemConfigs = new List<ItemConfig>()
     {
-        new ItemConfig(){ Item_ID = 0,Item_Name = "无",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 9,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 1001,Item_Name = "原木",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 9,Item_Type = ItemType.Materials,Average_Weight = 1,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 2001,Item_Name = "木斧头",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 2002,Item_Name = "铁斧头",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 2003,Item_Name = "木弓",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 3001,Item_Name = "污染肉",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 9,Item_Type = ItemType.Ingredient,Average_Weight = 1,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 9001,Item_Name = "召唤契约",Item_Desc = "",Item_CurCount = 1,Item_MaxCount = 9,Item_Type = ItemType.Weapon,Average_Weight = 1,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 0,Item_Name = "无",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 1001,Item_Name = "原木",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Materials,Average_Value = 1 },
+        //new ItemConfig(){ Item_ID = 1002,Item_Name = "原木板",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Materials,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2001,Item_Name = "木斧头",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2002,Item_Name = "铁斧头",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2003,Item_Name = "木弓",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2004,Item_Name = "火把",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 3000,Item_Name = "水",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Ingredient,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 3001,Item_Name = "污染肉",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Ingredient,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 4001,Item_Name = "木碗",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 4002,Item_Name = "玻璃瓶",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 4003,Item_Name = "陶瓷瓶",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 9001,Item_Name = "召唤契约",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 9002,Item_Name = "木箭",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Weapon,Average_Value = 1 },
     };
 }
 [Serializable]
@@ -35,18 +42,12 @@ public struct ItemConfig
     public string Item_Name;
     [SerializeField]/*描述*/
     public string Item_Desc;
-    [SerializeField]/*当前数量*/
-    public int Item_CurCount;
     [SerializeField]/*最大数量*/
     public int Item_MaxCount;
     [SerializeField]/*类别*/
     public ItemType Item_Type;
-    [SerializeField]/*重量*/
-    public float Average_Weight;
     [SerializeField]/*价值*/
     public float Average_Value;
-    [SerializeField]/*信息*/
-    public string Item_Info;
 }
 [Serializable]
 public enum ItemType 
@@ -67,4 +68,13 @@ public enum ItemType
     /// 武器
     /// </summary>
     Weapon,
+    /// <summary>
+    /// 工具
+    /// </summary>
+    Tool,
+    /// <summary>
+    /// 容器
+    /// </summary>
+    Container,
+
 }

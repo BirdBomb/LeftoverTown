@@ -2,12 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Tilemaps;
 using UnityEngine;
-using UnityEngine.WSA;
-using Unity.VisualScripting;
 using System;
 using UniRx;
-using static UnityEditor.Progress;
-using UnityEditor.Rendering;
 
 public class NavManager : MonoBehaviour
 {

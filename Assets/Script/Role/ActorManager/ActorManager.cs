@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Tilemaps;
+using UnityEngine.U2D;
 using static Unity.Collections.Unicode;
 /// <summary>
 /// 角色管理器
@@ -235,6 +237,7 @@ public class ActorManager : MonoBehaviour
         bodyController.SetBodyTrigger("Dead", 1, null);
         bodyController.SetHandTrigger("Dead", 1, null);
         bodyController.SetLegTrigger("Dead", 1, null);
+        bodyController.locking = true;
     }
     public virtual void PlayTakeDamage(float speed)
     {
@@ -267,7 +270,6 @@ public class ActorManager : MonoBehaviour
     {
         tempTiles.Clear();
         MyTile tile = GetMyTile();
-
         tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell));
         tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell + Vector3Int.right));
         tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell + Vector3Int.left));
@@ -307,22 +309,54 @@ public class ActorManager : MonoBehaviour
     /// <param name="showInUI"></param>
     public void AddItem_Hand(ItemData data)
     {
+        Debug.Log("拿到了手上" + data.Item_ID + "/" + data.Item_Val + "/" + data.Item_Count);
+        ResetItem_Hand();
+        /*更新UI*/
+        if (isPlayer && netController.Object.HasInputAuthority)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInHand()
+            {
+                itemData = data
+            });
+        }
         if (data.Item_ID != 0) 
         {
-            Debug.Log(data.Item_ID);
             Type type = Type.GetType("Item_" + data.Item_ID.ToString());
             holdingByHand = (ItemBase)Activator.CreateInstance(type);
-            holdingByHand.Init(data);
-            holdingByHand.BeHolding(this, BodyController.Hand_RightItem);
-            /*更新UI*/
-            if (isPlayer && netController.Object.HasInputAuthority)
+            holdingByHand.UpdateData(data);
+            holdingByHand.BeHolding(this, BodyController);
+        }
+    }
+    public void ResetItem_Hand()
+    {
+        holdingByHand = new ItemBase();
+        if (bodyController.Hand_LeftItem.childCount > 0)
+        {
+            for (int i = 0; i < bodyController.Hand_LeftItem.childCount; i++)
             {
-                MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInHand()
-                {
-                    itemData = data
-                });
+                Destroy(bodyController.Hand_LeftItem.GetChild(i).gameObject);
             }
         }
+        if (bodyController.Hand_RightItem.childCount > 0)
+        {
+            for (int i = 0; i < bodyController.Hand_RightItem.childCount; i++)
+            {
+                Destroy(bodyController.Hand_RightItem.GetChild(i).gameObject);
+            }
+        }
+        bodyController.Hand_LeftItem.localScale = Vector3.one;
+        bodyController.Hand_RightItem.localScale = Vector3.one;
+        bodyController.Hand_LeftItem.localPosition = Vector3.zero;
+        bodyController.Hand_LeftItem.localRotation = Quaternion.identity;
+        bodyController.Hand_RightItem.localPosition = Vector3.zero;
+        bodyController.Hand_RightItem.localRotation = Quaternion.identity;
+        bodyController.Hand_LeftItem.GetComponent<SpriteRenderer>().sprite
+            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
+        bodyController.Hand_LeftItem.GetComponent<SpriteRenderer>().sortingOrder = 1;
+
+        bodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
+        bodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sortingOrder = 4;
     }
     /// <summary>
     /// 掉落
@@ -336,6 +370,7 @@ public class ActorManager : MonoBehaviour
             {
                 ItemData item = new ItemData();
                 item.Item_ID = id;
+                item.Item_Count = 1;
                 item.Item_Seed = System.DateTime.Now.Second + i + id;
 
                 MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
@@ -482,12 +517,19 @@ public class ActorManager : MonoBehaviour
             netController.RPC_HpChange(-val, id);
         }
     }
+    public void TryToDead()
+    {
+        if (actorState != ActorState.Dead)
+        {
+            actorState = ActorState.Dead;
+            PlayDead(1);
+        }
+    }
     /// <summary>
     /// 死亡
     /// </summary>
     public void Dead()
     {
-        actorState = ActorState.Dead;
         if (isState)
         {
             Loot();

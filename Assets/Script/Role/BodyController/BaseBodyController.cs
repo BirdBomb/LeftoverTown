@@ -9,6 +9,8 @@ public class BaseBodyController : MonoBehaviour
 {
     [HideInInspector]
     public float speed;
+    [HideInInspector]
+    public bool locking = false;
     [SerializeField, Header("根节点")]
     public Transform Root;
     [SerializeField, Header("头部节点")]
@@ -40,52 +42,76 @@ public class BaseBodyController : MonoBehaviour
 
     public virtual void SetHeadTrigger(string name, float speed, Action<string> action)
     {
-        Animator_Head.SetTrigger(name);
-        Animator_Head.speed=speed;
-        AnimaEventListen_Head.BindEvent(action);
+        if (!locking)
+        {
+            Animator_Head.SetTrigger(name);
+            Animator_Head.speed = speed;
+            AnimaEventListen_Head.BindEvent(action);
+        }
     }
     public virtual void SetHeadBool(string name, bool p, float speed, Action<string> action)
     {
-        Animator_Head.SetBool(name, p);
-        Animator_Head.speed = speed;
-        AnimaEventListen_Head.BindEvent(action);
+        if (!locking)
+        {
+            Animator_Head.SetBool(name, p);
+            Animator_Head.speed = speed;
+            AnimaEventListen_Head.BindEvent(action);
+        }
     }
     public virtual void SetBodyTrigger(string name, float speed, Action<string> action)
     {
-        Animator_Body.SetTrigger(name);
-        Animator_Body.speed = speed;
-        AnimaEventListen_Body.BindEvent(action);
+        if (!locking)
+        {
+            Animator_Body.SetTrigger(name);
+            Animator_Body.speed = speed;
+            AnimaEventListen_Body.BindEvent(action);
+        }
     }
     public virtual void SetBodyBool(string name, bool p, float speed, Action<string> action)
     {
-        Animator_Body.SetBool(name, p);
-        Animator_Body.speed = speed;
-        AnimaEventListen_Body.BindEvent(action);
+        if (!locking)
+        {
+            Animator_Body.SetBool(name, p);
+            Animator_Body.speed = speed;
+            AnimaEventListen_Body.BindEvent(action);
+        }
     }
 
     public virtual void SetHandTrigger(string name, float speed, Action<string> action)
     {
-        Animator_Hand.SetTrigger(name);
-        Animator_Hand.speed = speed;
-        AnimaEventListen_Hand.BindEvent(action);
+        if (!locking)
+        {
+            Animator_Hand.SetTrigger(name);
+            Animator_Hand.speed = speed;
+            AnimaEventListen_Hand.BindEvent(action);
+        }
     }
     public virtual void SetHandBool(string name, bool p, float speed, Action<string> action)
     {
-        Animator_Hand.SetBool(name, p);
-        Animator_Hand.speed = speed;
-        AnimaEventListen_Hand.BindEvent(action);
+        if (!locking)
+        {
+            Animator_Hand.SetBool(name, p);
+            Animator_Hand.speed = speed;
+            AnimaEventListen_Hand.BindEvent(action);
+        }
     }
     public virtual void SetLegTrigger(string name, float speed, Action<string> action)
     {
-        Animator_Leg.SetTrigger(name);
-        Animator_Leg.speed = speed;
-        AnimaEventListen_Leg.BindEvent(action);
+        if (!locking)
+        {
+            Animator_Leg.SetTrigger(name);
+            Animator_Leg.speed = speed;
+            AnimaEventListen_Leg.BindEvent(action);
+        }
     }
     public virtual void SetLegBool(string name, bool p, float speed, Action<string> action)
     {
-        Animator_Leg.SetBool(name, p);
-        Animator_Leg.speed = speed;
-        AnimaEventListen_Leg.BindEvent(action);
+        if (!locking)
+        {
+            Animator_Leg.SetBool(name, p);
+            Animator_Leg.speed = speed;
+            AnimaEventListen_Leg.BindEvent(action);
+        }
     }
 
     /// <summary>

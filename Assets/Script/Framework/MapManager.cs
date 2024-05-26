@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using TreeEditor;
 using UniRx;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -33,7 +32,6 @@ public class MapManager : MonoBehaviour
                 if(tileObj != null)
                 {
                     TileObjPool.Add(Name, tileObj);
-                    Debug.Log(Name);
                 }
                 return tileObj;
             }
@@ -78,9 +76,15 @@ public class MapManager : MonoBehaviour
     /// <param name="tileObj"></param>
     public void GetTileObj(Vector3Int tilePos,out TileObj tileObj)
     {
+        tileObj = null;
         MyTile tile = tilemap.GetTile<MyTile>(tilePos);
-        Debug.Log(tilePos);
-        tileObj = tile.bindObj.GetComponent<TileObj>();
+        if (tile.bindObj)
+        {
+            if(tile.bindObj.TryGetComponent(out TileObj obj))
+            {
+                tileObj = obj;
+            }
+        }
     }
     /// <summary>
     /// ÐÞ¸ÄÍßÆ¬

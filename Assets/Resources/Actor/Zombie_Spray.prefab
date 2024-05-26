@@ -566,6 +566,7 @@ MonoBehaviour:
   _Data_ItemInHand:
     Item_ID: 0
     Item_Seed: 0
+    Item_Count: 0
   _Data_ItemInBag: []
   _Data_Buffs: 
 --- !u!114 &1156326853458639187
@@ -582,8 +583,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorConfig:
     Config_Speed: 1
-    Config_LootCount: 0
-    Config_LootList: []
+    Config_LootCount: 2
+    Config_LootList:
+    - ID: 3001
+      Weight: 100
+    - ID: 3001
+      Weight: 100
   netController: {fileID: 5995745838076438225}
   bodyController: {fileID: 8654616369244252524}
   skillSector: {fileID: 0}

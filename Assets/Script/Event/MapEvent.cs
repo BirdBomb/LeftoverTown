@@ -19,4 +19,9 @@ public class MapEvent : MonoBehaviour
         public TileObj tileObj;
         public string tileInfo;
     }
+    public class MapEvent_LocalTile_ChangeTile
+    {
+        public Vector3Int tilePos;
+        public string tileName;
+    }
 }

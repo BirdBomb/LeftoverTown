@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using UniRx;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using static UnityEditor.PlayerSettings;
 using System.Threading.Tasks;
 using System;
 
@@ -28,6 +26,10 @@ public class MapNetManager : NetworkBehaviour
         {
             RPC_LocalInput_TileUpdateInfo(_.tileObj.bindTile.posInCell, _.tileInfo);
         }).AddTo(this);
+        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_ChangeTile>().Subscribe(_ =>
+        {
+            RPC_LocalInput_TileChange(_.tilePos, _.tileName);
+        }).AddTo(this);
     }
     #region//请求与返回地图数据
     private void TryRequestMapData(Vector3Int pos,PlayerRef player)
@@ -35,6 +37,11 @@ public class MapNetManager : NetworkBehaviour
         Debug.Log("尝试请求服务器地图信息/位置坐标" + pos);
         RPC_RequestMapData(pos, player);
     }
+    /// <summary>
+    /// 客户端请求地图数据
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="player"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
     private async void RPC_RequestMapData(Vector3Int pos, PlayerRef player)
     {
@@ -108,10 +115,18 @@ public class MapNetManager : NetworkBehaviour
         }
         RPC_SendMapData(player, tempArray, center, width, height);
     }
+    /// <summary>
+    /// 服务端发送地图数据
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="tileList"></param>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     private void RPC_SendMapData([RpcTarget] PlayerRef target, string[] tileList, Vector3Int center, int width, int height)
     {
-        Debug.Log("获取服务器地图数据:中心" + center + "尺寸" + width + "/" + height);
+        //Debug.Log("获取服务器地图数据:中心" + center + "尺寸" + width + "/" + height);
         int index = 0;
         for (int x = -(width - 1) / 2; x <= (width - 1) / 2; x++)
         {
@@ -140,7 +155,7 @@ public class MapNetManager : NetworkBehaviour
             RPC_StateCall_TileUpdateHp(pos, Hp, player);
             if (Hp <= 0)
             {
-                RPC_StateCall_TileBreak(pos);
+                RPC_StateCall_TileChange(pos, "Default");
             }
         }
     }
@@ -156,10 +171,21 @@ public class MapNetManager : NetworkBehaviour
             RPC_StateCall_TileUpdateInfo(pos, info);
         }
     }
+    /// <summary>
+    /// 客户端输入对地块的改变
+    /// </summary>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    private void RPC_LocalInput_TileChange(Vector3Int pos, string name)
+    {
+        if (Object.HasStateAuthority)
+        {
+            RPC_StateCall_TileChange(pos, name);
+        }
 
+    }
 
     /// <summary>
-    /// 服务器更新地块生命值
+    /// 服务器通知更新地块生命值
     /// </summary>
     /// <param name="pos"></param>
     /// <param name="hp"></param>
@@ -171,18 +197,21 @@ public class MapNetManager : NetworkBehaviour
         obj.TryToUpdateHp(hp);
     }
     /// <summary>
-    /// 服务器摧毁地块
+    /// 服务器通知改变地块
     /// </summary>
     /// <param name="pos"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_TileBreak(Vector3Int pos)
+    private void RPC_StateCall_TileChange(Vector3Int pos, string name)
     {
         mapManager.GetTileObj(pos, out TileObj obj);
-        obj.TryBreak();
-        mapManager.CreateTile(pos, "Default");
+        if (obj != null)
+        {
+            obj.TryBreak();
+        }
+        mapManager.CreateTile(pos, name);
     }
     /// <summary>
-    /// 服务器更新地块信息
+    /// 服务器通知更新地块信息
     /// </summary>
     /// <param name="pos"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]

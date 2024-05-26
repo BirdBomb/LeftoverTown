@@ -1,58 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+[RequireComponent(typeof(LineRenderer))]
 public class SI_Sector : MonoBehaviour
 {
-    [SerializeField, Header("图像")]
-    private SpriteRenderer _renderer;
-
+    [SerializeField, Header("线渲染器")]
+    LineRenderer _line;
     [SerializeField, Header("中心")]
     private Transform _centerTrans;
     public Vector2 CenterPos { set { _centerPos = value; } get { return _centerTrans.position; } }
     private Vector2 _centerPos;
     [SerializeField, Header("方向")]
     private Transform _dirTrans;
-    public Vector2 Dir { set { _dir = value; } get { return _dir; } }
-    private Vector2 _dir;
-    [SerializeField, Range(1, 359), Header("角度")]
-    private float _angles;
-    [SerializeField, Range(0.1f, 15), Header("半径")]
-    private float _radius;
 
-    [SerializeField]
-    private Color _viewColor = Color.red;
-
-    private float _scaleVal;
     private void Start()
     {
-        _scaleVal = 1f / transform.localScale.x;
+        _line = gameObject.GetComponent<LineRenderer>();
+        _line.positionCount = 20;
+        _line.useWorldSpace = false;//不使用世界坐标
     }
-    private void Update()
-    {
-        
-    }
-
-
-    public void Init()
-    {
-        
-    }
-    public void MyDestroy()
-    {
-
-    }
-
-
-
     #region//更新指示器数据
     public void Update_SIsector(Vector2 dir,float radiu,float angle)
     {
-        _dir = dir;
-        _angles = angle;
-        _radius = radiu * _scaleVal;
-        if(_radius > 1) { _radius = 1; }
-        RefreshView();
+        CreatePoints(radiu, angle, dir);
     }
     #endregion
     #region//检测指示器物体
@@ -102,57 +72,33 @@ public class SI_Sector : MonoBehaviour
 
     #endregion
     #region//图像显示
-    [ContextMenu("刷新扇形面积的展示")]
-    private void RefreshView()
+    void CreatePoints(float radius, float angle, Vector3 dir)//创建圆
     {
-        CreateSprite(_radius, _angles, _viewColor);
-    }
-    public void CreateSprite(float radius, float angle, Color color)
-    {
-        if (radius > 0)
-        {
-            /*扇形尺寸*/
-            var size = (int)(radius * 2 * 100);
-            /*实际半径*/
-            var actualRadius = size / 2;
-            /*半角*/
-            var halfAngle = angle / 2;
-            Texture2D texture2D = new Texture2D(size, size);
-            Vector2 centerPixel = Vector2.one * size / 2;
-
-            // 绘制
-            var emptyColor = Color.clear;
-            Vector2 tempPixel;
-            float tempAngle;
-            float tempDisSqr;
-            for (int x = 0; x < size; x++)
-            {
-                for (int y = 0; y < size; y++)
-                {
-                    tempPixel.x = x - centerPixel.x;
-                    tempPixel.y = y - centerPixel.y;
-
-                    tempDisSqr = tempPixel.sqrMagnitude;
-                    if (tempDisSqr <= actualRadius * actualRadius)
-                    {
-                        tempAngle = Vector2.Angle(Dir, tempPixel);
-                        if (tempAngle < halfAngle || tempAngle > 360 - halfAngle)
-                        {
-                            //设置像素色值
-                            texture2D.SetPixel(x, y, color);
-                            continue;
-                        }
-                    }
-                    texture2D.SetPixel(x, y, emptyColor);
-                }
-            }
-            texture2D.Apply();
-            _renderer.enabled = true;
-            _renderer.sprite = Sprite.Create(texture2D, new Rect(0, 0, size, size), Vector2.one * 0.5f);
-        }
+        if (angle < 1) { _line.enabled = false; return; }
         else
         {
-            _renderer.enabled = false;
+            _line.enabled = true;
+        }
+        /*描点总数*/
+        int pointCoint = (int)(angle * 0.1f + 5);
+
+        angle += 1;
+        float startAngle;
+        if (dir.x >= 0) { startAngle = Vector2.Angle(dir, Vector2.up); }
+        else { startAngle = Vector2.Angle(dir, Vector2.down) + 180; }
+
+        startAngle += angle * 0.5f;
+
+        float angleUp = 0;
+
+        _line.positionCount = pointCoint;
+        for (int i = 0; i < pointCoint; i++)
+        {
+            Vector3 tempUp = new Vector3();
+            tempUp.x = Mathf.Sin(Mathf.Deg2Rad * (startAngle + angleUp)) * radius;
+            tempUp.y = Mathf.Cos(Mathf.Deg2Rad * (startAngle + angleUp)) * radius;
+            angleUp -= (angle / pointCoint);
+            _line.SetPosition(i, tempUp);
         }
     }
     #endregion

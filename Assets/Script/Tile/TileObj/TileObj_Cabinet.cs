@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using UniRx;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 using Vector3 = UnityEngine.Vector3;
 
 public class TileObj_Cabinet : TileObj
@@ -14,9 +13,6 @@ public class TileObj_Cabinet : TileObj
     [SerializeField, Header("Cabinet")]
     private GameObject obj_cabinet;
 
-    public void Start()
-    {
-    }
     public override void Invoke()
     {
         obj_cabinet.SetActive(true);
@@ -36,7 +32,11 @@ public class TileObj_Cabinet : TileObj
         /*靠近是我自己*/
         if (player.thisPlayerIsMe) 
         {
+            Debug.Log("Open");
             obj_singal.SetActive(true);
+
+            transform.DOKill();
+            transform.localScale = Vector3.one;
             transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
 
             return true; 

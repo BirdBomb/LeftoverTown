@@ -23,7 +23,7 @@ public class BulletBase : MonoBehaviour
     [SerializeField, Header("Ä¿±êÂ·¾¶")]
     public LayerMask target;
 
-    public void InitBullet(Vector3 dir, float speed, Fusion.NetworkId id)
+    public virtual void InitBullet(Vector3 dir, float speed, Fusion.NetworkId id)
     {
         curPos = transform.position;
         lastPos = transform.position;
@@ -46,8 +46,13 @@ public class BulletBase : MonoBehaviour
     public void FixedUpdate()
     {
         Fly(Time.fixedDeltaTime);
+        Check(Time.fixedDeltaTime);
     }
     public virtual void Fly(float dt)
     {
+    }
+    public virtual void Check(float dt)
+    {
+
     }
 }
