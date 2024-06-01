@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Fusion;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -199,29 +200,37 @@ public class ActorManager : MonoBehaviour
 
     public virtual void PlayMove(float speed)
     {
+        bodyController.SetHeadFloat("MoveSpeed", speed);
         bodyController.SetHeadBool("Step", true, 1, null);
         bodyController.SetHeadBool("Idle", false, 1, null);
 
+        bodyController.SetBodyFloat("MoveSpeed", speed);
         bodyController.SetBodyBool("Step", true, 1, null);
         bodyController.SetBodyBool("Idle", false, 1, null);
 
+        bodyController.SetHandFloat("MoveSpeed", speed);
         bodyController.SetHandBool("Step", true, 1, null);
         bodyController.SetHandBool("Idle", false, 1, null);
 
+        bodyController.SetLegFloat("MoveSpeed", speed);
         bodyController.SetLegBool("Step", true, 1, null);
         bodyController.SetLegBool("Idle", false, 1, null);
     }
     public virtual void PlayStop(float speed)
     {
+        bodyController.SetHeadFloat("MoveSpeed", speed);
         bodyController.SetHeadBool("Step", false, 1, null);
         bodyController.SetHeadBool("Idle", true, 1, null);
 
+        bodyController.SetBodyFloat("MoveSpeed", speed);
         bodyController.SetBodyBool("Step", false, 1, null);
         bodyController.SetBodyBool("Idle", true, 1, null);
 
+        bodyController.SetHandFloat("MoveSpeed", speed);
         bodyController.SetHandBool("Step", false, 1, null);
         bodyController.SetHandBool("Idle", true, 1, null);
 
+        bodyController.SetLegFloat("MoveSpeed", speed);
         bodyController.SetLegBool("Step", false, 1, null);
         bodyController.SetLegBool("Idle", true, 1, null);
     }
@@ -560,6 +569,8 @@ public class ActorManager : MonoBehaviour
 public struct ActorConfig
 {
     public float Config_Speed;
+    public float Config_MaxSpeed;
+    public float Config_Endurance;
     public int Config_LootCount;
     public List<LootInfo> Config_LootList;
 }

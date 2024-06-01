@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8831248695405704590}
   - component: {fileID: 6981264087229303053}
   - component: {fileID: 9174645466258476176}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Signal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 6605942948743303471}
   - component: {fileID: 2592253929297014223}
   - component: {fileID: 2635958993814615252}
+  - component: {fileID: 8320574277142661322}
   m_Layer: 0
   m_Name: Cabinet_0
   m_TagString: Untagged
@@ -149,8 +150,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 680613467
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 9a9ca035250d3ac4f8dc304fdced6d1e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -189,7 +190,7 @@ MonoBehaviour:
   - {x: 0.5, y: 0.5, z: 0}
   m_ShapePathHash: 1059138293
   m_Mesh: {fileID: 0}
-  m_InstanceId: 75676
+  m_InstanceId: 81824
   m_LocalBounds:
     m_Center: {x: 0, y: 0.7, z: 0}
     m_Extent: {x: 0.5, y: 0.19999999, z: 0}
@@ -206,14 +207,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindTile: {fileID: 11400000, guid: 27690bbc00607ca4289396691a8cee8c, type: 2}
-  CurHp: 0
-  MaxHp: 0
+  CurHp: 5
+  MaxHp: 5
   Armor: 0
   LootList: []
   LootCount: 0
   info: 
   obj_singal: {fileID: 480860903653561670}
   obj_cabinet: {fileID: 1760210466741588247}
+--- !u!61 &8320574277142661322
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 895254406530930847}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 5, y: 5}
+    newSize: {x: 1.125, y: 3}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1 &1760210466741588247
 GameObject:
   m_ObjectHideFlags: 0
@@ -324,7 +370,7 @@ GameObject:
   - component: {fileID: 3521440635385236836}
   - component: {fileID: 5497069426257694224}
   - component: {fileID: 8973414367136330315}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}

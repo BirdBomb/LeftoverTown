@@ -52,4 +52,39 @@ public class TileObj_Cabinet : TileObj
         obj_cabinet.GetComponent<UI_Grid_Cabinet>().Close(this);
         return true;
     }
+
+    public override void TryToUpdateHp(int newHp)
+    {
+        if (newHp <= CurHp)
+        {
+            PlayDamagedAnim();
+        }
+        base.TryToUpdateHp(newHp);
+    }
+    public override void TryBreak()
+    {
+        PlayBreakAnim();
+        TryToChangeInfo("");
+        Invoke("Break", 0.3f);
+        base.TryBreak();
+    }
+    public override void Break()
+    {
+        Remove();
+        base.Break();
+    }
+    public override void PlayDamagedAnim()
+    {
+        transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
+        base.PlayDamagedAnim();
+    }
+    public override void PlayBreakAnim()
+    {
+        transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack).OnComplete(() =>
+        {
+            transform.DOScaleX(0, 0.05f);
+        });
+        base.PlayBreakAnim();
+    }
+
 }

@@ -24,6 +24,7 @@ public class TileObj : MonoBehaviour
     public int LootCount;
     [SerializeField, Header("地块信息")]
     public string info;
+    private bool breaking = false;
     #region//基本逻辑
     /// <summary>
     /// 初始化
@@ -126,7 +127,16 @@ public class TileObj : MonoBehaviour
     /// </summary>
     public virtual void Break()
     {
-        Destroy(gameObject);
+        if (!breaking)
+        {
+            breaking = true;
+            MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeTile()
+            {
+                tileName = "Default",
+                tilePos = bindTile.posInCell
+            });
+            Destroy(gameObject);
+        }
     }
     /// <summary>
     /// 掉落

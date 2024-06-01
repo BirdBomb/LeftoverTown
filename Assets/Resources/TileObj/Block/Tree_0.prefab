@@ -73,8 +73,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 680613467
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: cfeb77cded1d1b643b8241e16b4256f5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -121,7 +121,7 @@ MonoBehaviour:
   - {x: -0.21590316, y: -0.520141, z: 0}
   m_ShapePathHash: 1536472321
   m_Mesh: {fileID: 0}
-  m_InstanceId: 42430
+  m_InstanceId: 53178
   m_LocalBounds:
     m_Center: {x: 0.00470376, y: -0.4356712, z: 0}
     m_Extent: {x: 0.57521605, y: 0.20467985, z: 0}
@@ -191,5 +191,5 @@ MonoBehaviour:
     Weight: 100
   - ID: 2003
     Weight: 20
-  LootCount: 4
+  LootCount: 2
   info: 

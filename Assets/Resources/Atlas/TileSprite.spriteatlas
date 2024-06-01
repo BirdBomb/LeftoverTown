@@ -51,29 +51,35 @@ SpriteAtlas:
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
     - 13b9e8008157f3742a572e8db68849d7: 21300000
+    - 0c3d4021057a62f4e9d27e7b693aad88: 21300000
     - 487a04412a572f6458a343b636ade4f7: 21300000
     - 7cab57c1b1c250347ba2319ac4941132: 21300000
     - 913812b4a0c231842af80a2df9657d00: 21300000
     - 9a9ca035250d3ac4f8dc304fdced6d1e: 21300000
+    - a71bb2a5e9705384696da222758c566d: 21300000
     - db0f25797662ee143a872f39f0ec0ec1: 21300000
     - cfeb77cded1d1b643b8241e16b4256f5: 21300000
     - 65fc41def31cf0a4e8d594c031a1c6c7: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 13b9e8008157f3742a572e8db68849d7, type: 3}
+  - {fileID: 21300000, guid: 0c3d4021057a62f4e9d27e7b693aad88, type: 3}
   - {fileID: 21300000, guid: 487a04412a572f6458a343b636ade4f7, type: 3}
   - {fileID: 21300000, guid: 7cab57c1b1c250347ba2319ac4941132, type: 3}
   - {fileID: 21300000, guid: 913812b4a0c231842af80a2df9657d00, type: 3}
   - {fileID: 21300000, guid: 9a9ca035250d3ac4f8dc304fdced6d1e, type: 3}
+  - {fileID: 21300000, guid: a71bb2a5e9705384696da222758c566d, type: 3}
   - {fileID: 21300000, guid: db0f25797662ee143a872f39f0ec0ec1, type: 3}
   - {fileID: 21300000, guid: cfeb77cded1d1b643b8241e16b4256f5, type: 3}
   - {fileID: 21300000, guid: 65fc41def31cf0a4e8d594c031a1c6c7, type: 3}
   m_PackedSpriteNamesToIndex:
   - Grass_2
+  - WoodWindow_0
   - Default
   - Base
   - Grass_1
   - Cabinet_0_0
+  - WoodDoor_0
   - WoodWall_0
   - Tree_0_0
   - Grass_0

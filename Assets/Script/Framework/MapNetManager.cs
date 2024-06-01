@@ -4,19 +4,26 @@ using UnityEngine;
 using Fusion;
 using UniRx;
 using System.Threading.Tasks;
-using System;
 
 public class MapNetManager : NetworkBehaviour
 {
     [SerializeField]
     public MapManager mapManager;
-    public MapData mapData = null;
+    public MapTileTypeData mapTileTypeData = null;
+    public MapTileInfoData mapTileInfoData = null;
     private bool mapDataAlready = false;
     void Start()
     {
         MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_RequestMapData>().Subscribe(_ =>
         {
             TryRequestMapData(_.pos, _.player);
+        }).AddTo(this);
+        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_SaveMapData>().Subscribe(_ =>
+        {
+            if (Object.HasStateAuthority)
+            {
+                SaveMap();
+            }
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_TakeDamage>().Subscribe(_ =>
         {
@@ -64,9 +71,19 @@ public class MapNetManager : NetworkBehaviour
     }
     private async Task LoadMap()
     {
-        mapData = GameDataManager.Instance.LoadMap();
+        GameDataManager.Instance.LoadMap(out MapTileTypeData tileTypeData, out MapTileInfoData tileInfoData);
+        mapTileTypeData = tileTypeData;
+        mapTileInfoData = tileInfoData;
         await Task.Delay(100);
         Debug.Log("服务器地图初始化成功");
+    }
+    private void SaveMap()
+    {
+        if (mapTileTypeData != null && mapTileInfoData != null)
+        {
+            GameDataManager.Instance.SaveMap(mapTileTypeData, mapTileInfoData);
+            Debug.Log("服务器地图保存成功");
+        }
     }
     /// <summary>
     /// 为某人初始化地图
@@ -89,18 +106,19 @@ public class MapNetManager : NetworkBehaviour
             if (i == 6) { tempPos = center + new Vector3Int(-size, size, 0); }
             if (i == 7) { tempPos = center + new Vector3Int(-size, -size, 0); }
             if (i == 8) { tempPos = center + new Vector3Int(size, -size, 0); }
-            TrySendMapData(tempPos, size, size, player);
+            TrySendMapTileTypeData(tempPos, size, size, player);
             await Task.Delay(1000);
+            TrySendMapTileInfoData(tempPos, size, size, player);
         }
     }
     /// <summary>
-    /// 发送区域信息数据
+    /// 发送地块类型数据
     /// </summary>
     /// <param name="center">区域中心</param>
     /// <param name="width">区域宽</param>
     /// <param name="height">区域高</param>
     /// <param name="player">目标客户端</param>
-    private void TrySendMapData(Vector3Int center, int width, int height, PlayerRef player)
+    private void TrySendMapTileTypeData(Vector3Int center, int width, int height, PlayerRef player)
     {
         string[] tempArray = new string[width * height];
         int index = 0;
@@ -108,12 +126,42 @@ public class MapNetManager : NetworkBehaviour
         {
             for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
             {
-                string info = mapData.tiles[(center.x + x).ToString() + "," + (center.y + y).ToString()];
+                string info = mapTileTypeData.tiles[(center.x + x).ToString() + "," + (center.y + y).ToString()];
                 tempArray[index] = info;
                 index++;
             }
         }
-        RPC_SendMapData(player, tempArray, center, width, height);
+        RPC_SendMapTileTypeData(player, tempArray, center, width, height);
+    }
+    /// <summary>
+    /// 发送地块信息数据
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="player"></param>
+    private void TrySendMapTileInfoData(Vector3Int center, int width, int height, PlayerRef player)
+    {
+        string[] tempArray = new string[width * height];
+        int index = 0;
+        for (int x = -(width - 1) / 2; x <= (width - 1) / 2; x++)
+        {
+            for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
+            {
+                if(mapTileInfoData.tiles.ContainsKey((center.x + x).ToString() + "," + (center.y + y).ToString()))
+                {
+                    string info = mapTileInfoData.tiles[(center.x + x).ToString() + "," + (center.y + y).ToString()];
+                    tempArray[index] = info;
+                }
+                else
+                {
+                    string info = "";
+                    tempArray[index] = info;
+                }
+                index++;
+            }
+        }
+        RPC_SendMapTileInfoData(player, tempArray, center, width, height);
     }
     /// <summary>
     /// 服务端发送地图数据
@@ -124,7 +172,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="width"></param>
     /// <param name="height"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_SendMapData([RpcTarget] PlayerRef target, string[] tileList, Vector3Int center, int width, int height)
+    private void RPC_SendMapTileTypeData([RpcTarget] PlayerRef target, string[] tileList, Vector3Int center, int width, int height)
     {
         //Debug.Log("获取服务器地图数据:中心" + center + "尺寸" + width + "/" + height);
         int index = 0;
@@ -136,6 +184,28 @@ public class MapNetManager : NetworkBehaviour
                 index++;
             }
         }
+    }
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_SendMapTileInfoData([RpcTarget] PlayerRef target, string[] tileList, Vector3Int center, int width, int height)
+    {
+        //Debug.Log("获取服务器地图数据:中心" + center + "尺寸" + width + "/" + height);
+        int index = 0;
+        for (int x = -(width - 1) / 2; x <= (width - 1) / 2; x++)
+        {
+            for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
+            {
+                if (tileList[index].Length > 0)
+                {
+                    mapManager.GetTileObj(new Vector3Int(center.x + x, center.y + y, 0), out TileObj obj);
+                    if (obj != null)
+                    {
+                        obj.TryToUpdateInfo(tileList[index]);
+                    }
+                }
+                index++;
+            }
+        }
+
     }
     #endregion
 
@@ -169,6 +239,8 @@ public class MapNetManager : NetworkBehaviour
         if (Object.HasStateAuthority)
         {
             RPC_StateCall_TileUpdateInfo(pos, info);
+            mapTileInfoData.tiles[(pos.x).ToString() + "," + (pos.y).ToString()] = info;
+            Debug.Log(info);
         }
     }
     /// <summary>
@@ -180,8 +252,9 @@ public class MapNetManager : NetworkBehaviour
         if (Object.HasStateAuthority)
         {
             RPC_StateCall_TileChange(pos, name);
+            mapTileTypeData.tiles[(pos.x).ToString() + "," + (pos.y).ToString()] = name;
+            Debug.Log(name);
         }
-
     }
 
     /// <summary>

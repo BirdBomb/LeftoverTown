@@ -41,6 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: OnGround
+    uniqueID: 680613467
+    locked: 0
   - name: SpriteUI
     uniqueID: 558069011
     locked: 0

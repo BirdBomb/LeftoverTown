@@ -158,7 +158,8 @@ public class PlayerController : MonoBehaviour
     /// 右键按下
     /// </summary>
     private bool lastRightPress = false;
-
+    private float shiftPressTimer = 0;
+    private float shiftReleaseTimer = 0;
     /// <summary>
     /// 鼠标输入
     /// </summary>
@@ -207,14 +208,37 @@ public class PlayerController : MonoBehaviour
     public void State_PlayerInputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
     {
         dir = dir.normalized;
-        float speed;
-        if (speedUp) 
+        float speed = actorManager.actorConfig.Config_Speed;
+        if (speedUp)
         {
-            speed = actorManager.actorConfig.Config_Speed * 2;
+            shiftReleaseTimer = 0;
+            actorManager.NetController.Data_EnRelease = 0;
+            if (shiftPressTimer < actorManager.NetController.NetData.Endurance * 0.001f)
+            {
+                shiftPressTimer += deltaTime;
+                actorManager.NetController.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetController.NetData.Endurance));
+                if (shiftPressTimer > 1)
+                {
+                    speed = Mathf.Lerp(actorManager.actorConfig.Config_Speed, actorManager.actorConfig.Config_MaxSpeed, 1);
+                }
+                else
+                {
+                    speed = Mathf.Lerp(actorManager.actorConfig.Config_Speed, actorManager.actorConfig.Config_MaxSpeed, shiftPressTimer);
+                }
+            }
         }
         else
         {
-            speed = actorManager.actorConfig.Config_Speed;
+            if (shiftPressTimer != 0)
+            {
+                shiftReleaseTimer += deltaTime;
+                actorManager.NetController.Data_EnRelease = (int)((shiftReleaseTimer * 1000) / (0.001f * actorManager.NetController.NetData.Endurance));
+                if (shiftReleaseTimer > actorManager.NetController.NetData.Endurance * 0.001f)
+                {
+                    shiftPressTimer = 0;
+                    actorManager.NetController.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetController.NetData.Endurance));
+                }
+            }
         }
         Vector3 newPos = transform.position + new UnityEngine.Vector3(dir.x * speed * deltaTime, dir.y * speed * deltaTime, 0);
         actorManager.NetController.UpdateNetworkTransform(newPos);

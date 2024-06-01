@@ -60,7 +60,7 @@ public class Item_1001 : ItemBase
         {
             owner.SkillSector.Checkout_SIsector
                 (rightPosition, maxDistance, maxRange, out Transform[] targetTile);
-            owner.SkillSector.Update_SIsector(rightPosition, 0, 0);
+            owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0);
             for (int i = 0; i < targetTile.Length; i++)
             {
                 if (targetTile[i].TryGetComponent(out ActorManager actor))
@@ -143,7 +143,7 @@ public class Item_2001 : ItemBase
             }
             if (showSI)
             {
-                owner.SkillSector.Update_SIsector(rightPosition, Mathf.Lerp(0, maxDistance, rightPressTimer / readyTime), maxRange);
+                owner.SkillSector.Update_SIsector(rightPosition, Mathf.Lerp(0, maxDistance, rightPressTimer / readyTime), maxRange, 1);
             }
         }
         base.PressRightClick(dt, state, input, showSI);
@@ -161,7 +161,7 @@ public class Item_2001 : ItemBase
             }
             if (showSI)
             {
-                owner.SkillSector.Update_SIsector(rightPosition, 0, 0);
+                owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 1);
             }
         }
         base.ReleaseRightClick(dt, state, input, showSI);
@@ -177,7 +177,7 @@ public class Item_2001 : ItemBase
         {
             owner.SkillSector.Checkout_SIsector
                 (rightPosition, Mathf.Lerp(0, maxDistance, rightPressTimer / readyTime), maxRange, out Transform[] targetTile);
-            owner.SkillSector.Update_SIsector(rightPosition, 0, 0);
+            owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 1);
             for (int i = 0; i < targetTile.Length; i++)
             {
                 if (targetTile[i].TryGetComponent(out ActorManager actor))
@@ -260,7 +260,7 @@ public class Item_2002 : ItemBase
             }
             if (showSI)
             {
-                owner.SkillSector.Update_SIsector(rightPosition, Mathf.Lerp(0, maxDistance, rightPressTimer / readyTime), maxRange);
+                owner.SkillSector.Update_SIsector(rightPosition, Mathf.Lerp(0, maxDistance, rightPressTimer / readyTime), maxRange, 1);
             }
         }
         base.PressRightClick(dt, state, input, showSI);
@@ -278,7 +278,7 @@ public class Item_2002 : ItemBase
             }
             if (showSI)
             {
-                owner.SkillSector.Update_SIsector(rightPosition, 0, 0);
+                owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0);
             }
         }
         base.ReleaseRightClick(dt, state, input, showSI);
@@ -294,7 +294,7 @@ public class Item_2002 : ItemBase
         {
             owner.SkillSector.Checkout_SIsector
                 (rightPosition, Mathf.Lerp(0, maxDistance, rightPressTimer / readyTime), maxRange, out Transform[] targetTile);
-            owner.SkillSector.Update_SIsector(rightPosition, 0, 0);
+            owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0);
             for (int i = 0; i < targetTile.Length; i++)
             {
                 if (targetTile[i].TryGetComponent(out ActorManager actor))
@@ -313,7 +313,7 @@ public class Item_2002 : ItemBase
     }
 }
 /// <summary>
-/// 木弓
+/// 粗制木弓
 /// </summary>
 [Serializable]
 public class Item_2003 : ItemBase
@@ -336,13 +336,17 @@ public class Item_2003 : ItemBase
     /// </summary>
     private bool alreadyShot = false;
     /// <summary>
+    /// 瞄准距离
+    /// </summary>
+    private const float aimDistance = 1;
+    /// <summary>
     /// 最大角度
     /// </summary>
     private const float maxAngleRange = 120;
     /// <summary>
     /// 最小角度
     /// </summary>
-    private const float minAngleRange = 20;
+    private const float minAngleRange = 45;
     /// <summary>
     /// 拉弓速度
     /// </summary>
@@ -361,6 +365,7 @@ public class Item_2003 : ItemBase
         this.owner = owner;
         body.Hand_LeftItem.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_ID);
+        body.Hand_LeftItem.localRotation = Quaternion.Euler(0, 0, -45);
         body.Hand_LeftItem.GetComponent<SpriteRenderer>().sortingOrder = 3;
         if (data.Item_Val != 0 && data.Item_Count > 0)
         {
@@ -401,7 +406,7 @@ public class Item_2003 : ItemBase
             cannotPutInItemData.Item_ID = putInItemData.Item_ID;
             cannotPutInItemData.Item_Val = putInItemData.Item_Val;
             /*只能放入木箭*/
-            if (putInItemConfig.Item_ID == 9002)
+            if (putInItemConfig.Item_ID == 9002 || putInItemConfig.Item_ID == 9003)
             {
                 /*当容器为空时，数量重新计算*/
                 if (data.Item_Val == 0)
@@ -453,7 +458,7 @@ public class Item_2003 : ItemBase
                 owner.BodyController.SetHandTrigger("Bow_Play", 1, null);
                 if (showSI)
                 {
-                    owner.SkillSector.Update_SIsector(rightPosition, 0, 0);
+                    owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0); ;
                 }
             }
         }
@@ -476,7 +481,14 @@ public class Item_2003 : ItemBase
             }
             if (showSI)
             {
-                owner.SkillSector.Update_SIsector(rightPosition, 1, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime));
+                if (rightPressTimer > readyTime)
+                {
+                    owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 1);
+                }
+                else
+                {
+                    owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 0.2f);
+                }
             }
         }
         base.PressRightClick(dt, state, input, showSI);
@@ -494,7 +506,7 @@ public class Item_2003 : ItemBase
             }
             if (showSI)
             {
-                owner.SkillSector.Update_SIsector(rightPosition, 0, 0);
+                owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0);
             }
         }
         base.ReleaseRightClick(dt, state, input, showSI);
@@ -506,10 +518,8 @@ public class Item_2003 : ItemBase
     }
     private void Shot(float offset,bool inputState)
     {
-        owner.NetController.Data_Seed++;
-        Random.InitState(data.Item_Seed + owner.NetController.Data_Seed + (int)offset);
-        float randomAngle = Random.Range(-offset * 0.5f, offset * 0.5f);
-
+        owner.NetController.UpdateSeed();
+        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetController.RandomInRange * 0.01f);
         // 将角度转换为Quaternion
         Quaternion randomRotation = Quaternion.Euler(0f, 0f, randomAngle);
         // 将旋转应用到原始向量上
@@ -569,6 +579,253 @@ public class Item_2004 : ItemBase
 
 }
 /// <summary>
+/// 精制木弓
+/// </summary>
+[Serializable]
+public class Item_2005 : ItemBase
+{
+    #region//操作变量
+    /// <summary>
+    /// 右键按压状态
+    /// </summary>
+    private bool rightPressState = false;
+    /// <summary>
+    /// 右键当前位置
+    /// </summary>
+    private Vector3 rightPosition = Vector3.zero;
+    /// <summary>
+    /// 右键按压时长
+    /// </summary>
+    private float rightPressTimer = 0;
+    /// <summary>
+    /// 已经攻击
+    /// </summary>
+    private bool alreadyShot = false;
+    /// <summary>
+    /// 瞄准距离
+    /// </summary>
+    private const float aimDistance = 1.5f;
+    /// <summary>
+    /// 最大角度
+    /// </summary>
+    private const float maxAngleRange = 90;
+    /// <summary>
+    /// 最小角度
+    /// </summary>
+    private const float minAngleRange = 5;
+    /// <summary>
+    /// 拉弓速度
+    /// </summary>
+    private const float readySpeed = 1;
+    /// <summary>
+    /// 拉弓时长
+    /// </summary>
+    private const float readyTime = 2;
+    /// <summary>
+    /// 瞄准时长
+    /// </summary>
+    private const float aimTime = 2;
+    #endregion
+    public override void BeHolding(ActorManager owner, BaseBodyController body)
+    {
+        this.owner = owner;
+        body.Hand_LeftItem.GetComponent<SpriteRenderer>().sprite
+            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_ID);
+        body.Hand_LeftItem.localRotation = Quaternion.Euler(0, 0, -45);
+        body.Hand_LeftItem.GetComponent<SpriteRenderer>().sortingOrder = 3;
+        if (data.Item_Val != 0 && data.Item_Count > 0)
+        {
+            body.Hand_RightItem.localPosition = new Vector3(0.5f, 0, 0);
+            body.Hand_RightItem.localRotation = Quaternion.Euler(0, 0, -45);
+            body.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+                = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_Val);
+        }
+        else
+        {
+            body.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+                = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
+        }
+    }
+    public override void DrawGridCell(UI_GridCell gridCell)
+    {
+        gridCell.image_Icon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + config.Item_ID.ToString());
+        if (data.Item_Val != 0)
+        {
+            gridCell.text_Info.text = data.Item_Count.ToString();
+        }
+        else
+        {
+            gridCell.text_Info.text = "";
+        }
+    }
+    public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
+    {
+        gridCell.grid.Open(itemData, TryInPut);
+        base.LeftClickGridCell(gridCell, itemData);
+    }
+    public ItemData TryInPut(ItemData putInItemData)
+    {
+        if (data.Item_Val == 0 || data.Item_Val == putInItemData.Item_ID)
+        {
+            ItemConfig putInItemConfig = ItemConfigData.GetItemConfig(putInItemData.Item_ID);
+            ItemData cannotPutInItemData = new ItemData();
+            cannotPutInItemData.Item_ID = putInItemData.Item_ID;
+            cannotPutInItemData.Item_Val = putInItemData.Item_Val;
+            /*只能放入木箭*/
+            if (putInItemConfig.Item_ID == 9002 || putInItemConfig.Item_ID == 9003)
+            {
+                /*当容器为空时，数量重新计算*/
+                if (data.Item_Val == 0)
+                {
+                    if (data.Item_Count + putInItemData.Item_Count - 1 > putInItemConfig.Item_MaxCount)
+                    {
+                        cannotPutInItemData.Item_Count = (data.Item_Count + putInItemData.Item_Count - 1 - putInItemConfig.Item_MaxCount);
+                    }
+                    else
+                    {
+                        cannotPutInItemData.Item_Count = 0;
+                    }
+
+                }
+                /*当容器不为空时，数量叠加*/
+                else
+                {
+                    if (data.Item_Count + putInItemData.Item_Count > putInItemConfig.Item_MaxCount)
+                    {
+                        cannotPutInItemData.Item_Count = (data.Item_Count + putInItemData.Item_Count - putInItemConfig.Item_MaxCount);
+                    }
+                    else
+                    {
+                        cannotPutInItemData.Item_Count = 0;
+                    }
+                }
+                return cannotPutInItemData;
+            }
+            else
+            {
+                return putInItemData;
+            }
+        }
+        else
+        {
+            Debug.Log("放入失败");
+            return putInItemData;
+        }
+    }
+    public override void ClickLeftClick(float dt, bool state, bool input, bool showSI)
+    {
+        if (owner)
+        {
+            if (rightPressTimer >= readyTime)
+            {
+                Shot(Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), input);
+                rightPressTimer = 0;
+                alreadyShot = true;
+                owner.BodyController.SetHandTrigger("Bow_Play", 1, null);
+                if (showSI)
+                {
+                    owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0); ;
+                }
+            }
+        }
+        base.ClickLeftClick(dt, state, input, showSI);
+    }
+    public override void PressRightClick(float dt, bool state, bool input, bool showSI)
+    {
+        if (owner && !alreadyShot)
+        {
+            if (!rightPressState)
+            {
+                rightPressState = true;
+                owner.BodyController.SetHandTrigger("Bow_Ready", 1 / readyTime, null);
+                owner.BodyController.SetHandBool("Bow_Release", false, 1 / readyTime, null);
+                owner.BodyController.Animator_Hand.ResetTrigger("Bow_Play");
+            }
+            if (rightPressTimer < readyTime + aimTime)
+            {
+                rightPressTimer += dt * readySpeed;
+            }
+            if (showSI)
+            {
+                if (rightPressTimer > readyTime)
+                {
+                    owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 1);
+                }
+                else
+                {
+                    owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 0.2f);
+                }
+            }
+        }
+        base.PressRightClick(dt, state, input, showSI);
+    }
+    public override void ReleaseRightClick(float dt, bool state, bool input, bool showSI)
+    {
+        if (owner)
+        {
+            rightPressTimer = 0;
+            alreadyShot = false;
+            if (rightPressState)
+            {
+                rightPressState = false;
+                owner.BodyController.SetHandBool("Bow_Release", true, rightPressTimer / readyTime, null);
+            }
+            if (showSI)
+            {
+                owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0);
+            }
+        }
+        base.ReleaseRightClick(dt, state, input, showSI);
+    }
+    public override void FaceTo(Vector3 mouse, float time)
+    {
+        rightPosition = mouse;
+        base.FaceTo(mouse, time);
+    }
+    private void Shot(float offset, bool inputState)
+    {
+        owner.NetController.UpdateSeed();
+        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetController.RandomInRange * 0.01f);
+        // 将角度转换为Quaternion
+        Quaternion randomRotation = Quaternion.Euler(0f, 0f, randomAngle);
+        // 将旋转应用到原始向量上
+        Vector3 offsetVector = randomRotation * (rightPosition.normalized);
+        if (data.Item_Val != 0 && data.Item_Count > 0)
+        {
+            GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + data.Item_Val);
+            obj.transform.position = owner.SkillSector.CenterPos;
+            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetController.Object.Id);
+            if (inputState)
+            {
+                ItemData _oldItem = data;
+                ItemData _newItem = data;
+                _newItem.Item_Count--;
+                if (_newItem.Item_Count == 0)
+                {
+                    _newItem.Item_Val = 0;
+                    _newItem.Item_Count = 1;
+                }
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                {
+                    oldItem = _oldItem,
+                    newItem = _newItem,
+                    itemResidueBack = ((residueItem) =>
+                    {
+                        if (residueItem.Item_Count != 0)//背包溢出
+                        {
+                            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+                            {
+                                item = residueItem
+                            });
+                        }
+                    })
+                });
+            }
+        }
+    }
+}
+
+/// <summary>
 /// 水
 /// </summary>
 [Serializable]
@@ -612,7 +869,7 @@ public class Item_3001 : ItemBase
         {
             owner.SkillSector.Checkout_SIsector
                 (rightPosition, maxDistance, maxRange, out Transform[] targetTile);
-            owner.SkillSector.Update_SIsector(rightPosition, 0, 0);
+            owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0);
             for (int i = 0; i < targetTile.Length; i++)
             {
                 if (targetTile[i].TryGetComponent(out ActorManager actor))
@@ -872,6 +1129,20 @@ public class Item_4003 : ItemBase
     }
 
 }
+/// <summary>
+/// 新镇队员服
+/// </summary>
+public class Item_5001 : ItemBase
+{
+
+}
+/// <summary>
+/// 新镇队员帽
+/// </summary>
+public class Item_5002 : ItemBase
+{
+
+}
 
 /// <summary>
 /// 契约
@@ -913,12 +1184,20 @@ public class Item_9001 : ItemBase
 
 }
 /// <summary>
-/// 木箭
+/// 粗制木箭
 /// </summary>
 public class Item_9002:ItemBase
 {
 
 }
+/// <summary>
+/// 精制木箭
+/// </summary>
+public class Item_9003 : ItemBase
+{
+
+}
+
 ///// <summary>
 ///// 铁斧头
 ///// </summary>

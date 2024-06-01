@@ -25,7 +25,8 @@ public class UI_GameCreaterUI : MonoBehaviour
     {
         if (Input_GameName.text.Length > 0)
         {
-            GameDataManager.Instance.mapFilePath = "MapData/TestSaveData";
+            GameDataManager.Instance.mapTileTypeFilePath = "MapData/SaveData_MapTileType_Test";
+            GameDataManager.Instance.mapTileInfoFilePath = "MapData/SaveData_MapTileInfo_Test";
             GameDataManager.Instance.actorFilePath = "PlayerData/Test";
             MessageBroker.Default.Publish(new NetEvent.NetEvent_JoinGame()
             {
@@ -37,7 +38,8 @@ public class UI_GameCreaterUI : MonoBehaviour
     {
         if (Input_GameName.text.Length > 0)
         {
-            GameDataManager.Instance.mapFilePath = "MapData/TestSaveData";
+            GameDataManager.Instance.mapTileTypeFilePath = "MapData/SaveData_MapTileType_Test";
+            GameDataManager.Instance.mapTileInfoFilePath = "MapData/SaveData_MapTileInfo_Test";
             GameDataManager.Instance.actorFilePath = "PlayerData/Test";
             MessageBroker.Default.Publish(new NetEvent.NetEvent_JoinGame()
             {

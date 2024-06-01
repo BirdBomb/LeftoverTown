@@ -13,6 +13,8 @@ public class ItemConfigData : MonoBehaviour
      * 1000 - 1999 材料
      * 2000 - 2999 工具
      * 3000 - 3999 食材
+     * 4000 - 4999 容器
+     * 5000 - 5999 衣物
      * 9000 - 9999 其他
      */
     public readonly static List<ItemConfig> itemConfigs = new List<ItemConfig>()
@@ -22,15 +24,19 @@ public class ItemConfigData : MonoBehaviour
         //new ItemConfig(){ Item_ID = 1002,Item_Name = "原木板",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 2001,Item_Name = "木斧头",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 2002,Item_Name = "铁斧头",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 2003,Item_Name = "木弓",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2003,Item_Name = "粗制木弓",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 2004,Item_Name = "火把",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2005,Item_Name = "精致木弓",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 3000,Item_Name = "水",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Ingredient,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 3001,Item_Name = "污染肉",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Ingredient,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4001,Item_Name = "木碗",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4002,Item_Name = "玻璃瓶",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4003,Item_Name = "陶瓷瓶",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 5001,Item_Name = "新镇队员衣",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 5002,Item_Name = "新镇队员帽",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 9001,Item_Name = "召唤契约",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Weapon,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 9002,Item_Name = "木箭",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 9002,Item_Name = "粗制木箭",Item_Desc = "",Item_MaxCount = 99,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 9003,Item_Name = "精致木箭",Item_Desc = "",Item_MaxCount = 99,Item_Type = ItemType.Weapon,Average_Value = 1 },
     };
 }
 [Serializable]
@@ -76,5 +82,4 @@ public enum ItemType
     /// 容器
     /// </summary>
     Container,
-
 }

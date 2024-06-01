@@ -58,6 +58,13 @@ public class BaseBodyController : MonoBehaviour
             AnimaEventListen_Head.BindEvent(action);
         }
     }
+    public virtual void SetHeadFloat(string name, float p)
+    {
+        if (!locking)
+        {
+            Animator_Head.SetFloat(name, p);
+        }
+    }
     public virtual void SetBodyTrigger(string name, float speed, Action<string> action)
     {
         if (!locking)
@@ -76,7 +83,13 @@ public class BaseBodyController : MonoBehaviour
             AnimaEventListen_Body.BindEvent(action);
         }
     }
-
+    public virtual void SetBodyFloat(string name, float p)
+    {
+        if (!locking)
+        {
+            Animator_Body.SetFloat(name, p);
+        }
+    }
     public virtual void SetHandTrigger(string name, float speed, Action<string> action)
     {
         if (!locking)
@@ -95,6 +108,14 @@ public class BaseBodyController : MonoBehaviour
             AnimaEventListen_Hand.BindEvent(action);
         }
     }
+    public virtual void SetHandFloat(string name, float p)
+    {
+        if (!locking)
+        {
+            Animator_Hand.SetFloat(name, p);
+        }
+    }
+
     public virtual void SetLegTrigger(string name, float speed, Action<string> action)
     {
         if (!locking)
@@ -113,7 +134,13 @@ public class BaseBodyController : MonoBehaviour
             AnimaEventListen_Leg.BindEvent(action);
         }
     }
-
+    public virtual void SetLegFloat(string name, float p)
+    {
+        if (!locking)
+        {
+            Animator_Leg.SetFloat(name, p);
+        }
+    }
     /// <summary>
     /// 播放手部动画
     /// </summary>

@@ -11,13 +11,20 @@ public class ActorNetManager : NetworkBehaviour
     public NetworkTransform NetTransform;
     [Header("本地角色组件")]
     public ActorManager LocalManager;
-
+    public ActorNetData NetData;
     public override void Spawned()
     {
         LocalManager.InitByNetManager(Object.HasStateAuthority);
+        InitNetData();
         OnItemInBagChange();
         OnItemInHandChange();
         base.Spawned();
+    }
+    private void InitNetData()
+    {
+        NetData.Speed = (int)(LocalManager.actorConfig.Config_Speed * 1000);
+        NetData.MaxSpeed = (int)(LocalManager.actorConfig.Config_Speed * 1000);
+        NetData.Endurance = (int)(LocalManager.actorConfig.Config_Endurance * 1000);
     }
     public override void FixedUpdateNetwork()
     {
@@ -139,17 +146,33 @@ public class ActorNetManager : NetworkBehaviour
             }
         }
     }
-
+    /// <summary>
+    /// 更新随机数
+    /// </summary>
+    public void UpdateSeed()
+    {
+        Data_Seed += 1;
+    }
     #region//Networked
-    [Networked, OnChangedRender(nameof(OnHpChange))]
-    public int Data_Seed { get; set; }
 
+    [Networked, OnChangedRender(nameof(OnSeedChange))]
+    public int Data_Seed { get; set; }
+    public int RandomInRange { get; set; }
     [Networked, OnChangedRender(nameof(OnHpChange))]
     public int Data_Hp { get; set; }
+    [Networked, OnChangedRender(nameof(OnEnChange))]
+    public int Data_En { get; set; }/*1000倍*/
+    [Networked, OnChangedRender(nameof(OnEnReleaseChange))]
+    public int Data_EnRelease { get; set; }/*1000倍*/
     [Networked, OnChangedRender(nameof(OnMaxHpChange))]
     public int Data_MaxHp{ get; set; }
     [Networked, OnChangedRender(nameof(OnItemInHandChange))]
     public ItemData Data_ItemInHand { get; set; }
+    [Networked, OnChangedRender(nameof(OnItemOnHeadChange))]
+    public ItemData Data_ItemOnHead { get; set; }
+    [Networked, OnChangedRender(nameof(OnItemOnBodyChange))]
+    public ItemData Data_ItemOnBody { get; set; }
+
     [Networked,Capacity(20), OnChangedRender(nameof(OnItemInBagChange))]
     public NetworkLinkedList<ItemData> Data_ItemInBag { get; }
 
@@ -168,6 +191,19 @@ public class ActorNetManager : NetworkBehaviour
             LocalManager.ActorUI.UpdateHPBar((float)Data_Hp / (float)Data_MaxHp);
         }
     }
+    public void OnEnChange()
+    {
+        LocalManager.ActorUI.UpdateENBar(1 - Data_En * 0.001f);
+    }
+    public void OnEnReleaseChange()
+    {
+        LocalManager.ActorUI.UpdateENReleaseBar(Data_EnRelease * 0.001f);
+    }
+    public void OnSeedChange()
+    {
+        Random.InitState(Data_Seed);
+        RandomInRange = Random.Range(0, 101);
+    }
     public void OnMaxHpChange()
     {
 
@@ -175,6 +211,14 @@ public class ActorNetManager : NetworkBehaviour
     public void OnItemInHandChange()
     {
         LocalManager.AddItem_Hand(Data_ItemInHand);
+    }
+    public void OnItemOnHeadChange()
+    {
+        
+    }
+    public void OnItemOnBodyChange()
+    {
+        
     }
     public void OnItemInBagChange()
     {
@@ -356,4 +400,10 @@ public class ActorNetManager : NetworkBehaviour
 
     #endregion
 
+}
+public struct ActorNetData : INetworkStruct
+{
+    public int Speed;
+    public int MaxSpeed;
+    public int Endurance;
 }

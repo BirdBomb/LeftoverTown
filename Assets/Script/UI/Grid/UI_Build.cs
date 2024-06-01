@@ -55,7 +55,7 @@ public class UI_Build : UI_Grid
         readyBuildBtn.onClick.AddListener(ClickReadyBuildBtn);
         startBuildBtn.onClick.AddListener(ClickStartBuildBtn);
         targetBuilding = BuildingConfigData.GetItemConfig(1001);
-
+        gameObject.SetActive(false);
     }
     public override void Open(TileObj tileObj)
     {
@@ -407,6 +407,11 @@ public class UI_Build : UI_Grid
     {
         if (config.Building_ID > 0)
         {
+            //Debug.Log(config.Building_SpriteName);
+            //if (buildingAtlas == null) 
+            //{
+            //    buildingAtlas = Resources.Load<SpriteAtlas>("Atlas/TileSprite");
+            //}
             buildSprite.sprite = buildingAtlas.GetSprite(config.Building_SpriteName);
             buildName.text = config.Building_Name;
         }
@@ -417,7 +422,6 @@ public class UI_Build : UI_Grid
     private void UpdateBuildRawList(BuildingConfig config)
     {
         rawConfigList.Clear();
-        Debug.Log(config.Building_ID);
         for (int i = 0; i < config.Building_RawList.Count; i++)
         {
             int temp = rawConfigList.FindIndex((x) => { return x.Item_ID == config.Building_RawList[i]; });

@@ -4,17 +4,24 @@ using UnityEngine;
 
 public class Bullet9002 : BulletBase
 {
+    [SerializeField]
+    private Transform shadow;
+    [SerializeField]
+    private float speedOffset;
+    [SerializeField]
+    private int damageOffset;
     public override void InitBullet(Vector3 dir, float speed, NetworkId id)
     {
         transform.DOKill();
         transform.localScale = Vector3.one;
-        base.InitBullet(dir, speed, id);
+        base.InitBullet(dir, speed + speedOffset, id);
     }
     public override void Fly(float dt)
     {
         SpeedDown(dt);
         transform.position += moveDir * moveSpeed * dt;
-        transform.up = moveDir;
+        transform.right = moveDir;
+        shadow.position = transform.position - Vector3.up * 0.5f; 
         base.Fly(dt);
     }
     public override void Check(float dt)
@@ -34,7 +41,7 @@ public class Bullet9002 : BulletBase
             HideBullet();
             if (hit2D.transform.TryGetComponent(out ActorManager actor))
             {
-                actor.TakeDamage(1, ownerId);
+                actor.TakeDamage(1 + damageOffset, ownerId);
             }
         }
 

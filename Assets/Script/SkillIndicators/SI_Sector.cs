@@ -6,6 +6,7 @@ public class SI_Sector : MonoBehaviour
 {
     [SerializeField, Header("线渲染器")]
     LineRenderer _line;
+    Gradient _gradient;
     [SerializeField, Header("中心")]
     private Transform _centerTrans;
     public Vector2 CenterPos { set { _centerPos = value; } get { return _centerTrans.position; } }
@@ -20,9 +21,18 @@ public class SI_Sector : MonoBehaviour
         _line.useWorldSpace = false;//不使用世界坐标
     }
     #region//更新指示器数据
-    public void Update_SIsector(Vector2 dir,float radiu,float angle)
+    /// <summary>
+    /// 更新指示器数据
+    /// </summary>
+    /// <param name="dir">方向</param>
+    /// <param name="radiu">半径</param>
+    /// <param name="angle">角度</param>
+    /// <param name="alpha">透明度</param>
+    public void Update_SIsector(Vector2 dir,float radiu,float angle,float alpha)
     {
         CreatePoints(radiu, angle, dir);
+        _line.startColor = new Color(1, 1, 1, alpha);
+        _line.endColor = new Color(1, 1, 1, alpha);
     }
     #endregion
     #region//检测指示器物体
