@@ -48,6 +48,10 @@ public class ActorManager : MonoBehaviour
     [HideInInspector]
     public ItemBase holdingByHand = new ItemBase();
     [HideInInspector]
+    public ItemBase wearingOnHead = new ItemBase();
+    [HideInInspector]
+    public ItemBase wearingOnBody = new ItemBase();
+    [HideInInspector]
     public NavManager navManager;
 
     protected bool isPlayer = false;
@@ -353,6 +357,11 @@ public class ActorManager : MonoBehaviour
                 Destroy(bodyController.Hand_RightItem.GetChild(i).gameObject);
             }
         }
+
+        bodyController.Hand_Left.GetComponent<SpriteRenderer>().enabled = true;
+        bodyController.Hand_Right.GetComponent<SpriteRenderer>().enabled = true;
+
+        bodyController.Hand_RightItem.localScale = Vector3.one;
         bodyController.Hand_LeftItem.localScale = Vector3.one;
         bodyController.Hand_RightItem.localScale = Vector3.one;
         bodyController.Hand_LeftItem.localPosition = Vector3.zero;
@@ -367,6 +376,89 @@ public class ActorManager : MonoBehaviour
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
         bodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sortingOrder = 4;
     }
+    /// <summary>
+    /// 戴到头上
+    /// </summary>
+    /// <param name="data"></param>
+    public void WearItem_Head(ItemData data)
+    {
+        Debug.Log("戴到了头上" + data.Item_ID + "/" + data.Item_Val + "/" + data.Item_Count);
+        ResetItem_Head();
+        /*更新UI*/
+        if (isPlayer && netController.Object.HasInputAuthority)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemOnHead()
+            {
+                itemData = data
+            });
+        }
+        if (data.Item_ID != 0)
+        {
+            Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+            wearingOnHead = (ItemBase)Activator.CreateInstance(type);
+            wearingOnHead.UpdateData(data);
+            wearingOnHead.BeWearingOnHead(this, BodyController);
+        }
+    }
+    public void ResetItem_Head()
+    {
+        wearingOnHead = new ItemBase();
+        if (bodyController.Head_Item.childCount > 0)
+        {
+            for (int i = 0; i < bodyController.Head_Item.childCount; i++)
+            {
+                Destroy(bodyController.Head_Item.GetChild(i).gameObject);
+            }
+        }
+        bodyController.Head_Item.localScale = Vector3.one;
+        bodyController.Head_Item.localPosition = new Vector3(0, 0.25f, 0);
+        bodyController.Head_Item.localRotation = Quaternion.identity;
+        bodyController.Head_Item.GetComponent<SpriteRenderer>().sprite
+            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
+        bodyController.Head_Item.GetComponent<SpriteRenderer>().sortingOrder = 3;
+    }
+    /// <summary>
+    /// 穿到身上
+    /// </summary>
+    /// <param name="data"></param>
+    public void WearItem_Body(ItemData data)
+    {
+        Debug.Log("穿到身上" + data.Item_ID + "/" + data.Item_Val + "/" + data.Item_Count);
+        ResetItem_Body();
+        /*更新UI*/
+        if (isPlayer && netController.Object.HasInputAuthority)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemOnBody()
+            {
+                itemData = data
+            });
+        }
+        if (data.Item_ID != 0)
+        {
+            Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+            wearingOnBody = (ItemBase)Activator.CreateInstance(type);
+            wearingOnBody.UpdateData(data);
+            wearingOnBody.BeWearingOnBody(this, BodyController);
+        }
+    }
+    public void ResetItem_Body()
+    {
+        wearingOnHead = new ItemBase();
+        if (bodyController.Body_Item.childCount > 0)
+        {
+            for (int i = 0; i < bodyController.Body_Item.childCount; i++)
+            {
+                Destroy(bodyController.Body_Item.GetChild(i).gameObject);
+            }
+        }
+        bodyController.Body_Item.localScale = Vector3.one;
+        bodyController.Body_Item.localPosition = Vector3.zero;
+        bodyController.Body_Item.localRotation = Quaternion.identity;
+        bodyController.Body_Item.GetComponent<SpriteRenderer>().sprite
+            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
+        bodyController.Body_Item.GetComponent<SpriteRenderer>().sortingOrder = 2;
+    }
+
     /// <summary>
     /// 掉落
     /// </summary>
@@ -519,11 +611,11 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     /// <param name="val"></param>
     /// <param name="id"></param>
-    public void TakeDamage(int val,Fusion.NetworkId id)
+    public void TakeDamage(int val,ActorNetManager from)
     {
-        if (actorState != ActorState.Dead)
+        if (actorState != ActorState.Dead && from.HasInputAuthority)
         {
-            netController.RPC_HpChange(-val, id);
+            netController.RPC_HpChange(-val, from.Object.Id);
         }
     }
     public void TryToDead()

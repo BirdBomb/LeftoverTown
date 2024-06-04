@@ -15,10 +15,6 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D myRigidbody;
     [Header("物体层级")]
     public LayerMask itemLayer;
-    /// <summary>
-    /// 当前持握的物体编号
-    /// </summary>
-    private int holdingIndex = 0;
     [HideInInspector]
     public bool thisPlayerIsMe = false;
     [HideInInspector]
@@ -51,16 +47,100 @@ public class PlayerController : MonoBehaviour
             {
                 actorManager.NetController.CalculateBag(_.item, out ItemData itemResidue);
                 actorManager.NetController.RPC_LocalInput_AddItemInBag(_.item);
-                _.itemResidueBack.Invoke(itemResidue);
+                if (_.itemResidueBack != null)
+                {
+                    _.itemResidueBack.Invoke(itemResidue);
+                }
+                if (itemResidue.Item_Count != 0)//背包溢出
+                {
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+                    {
+                        item = itemResidue
+                    });
+                }
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemInBag>().Subscribe(_ =>
         {
             if (thisPlayerIsMe)
             {
-                actorManager.NetController.CalculateBag(_.newItem, out ItemData itemResidue);
-                actorManager.NetController.RPC_LocalInput_ChangeItem(_.oldItem, _.newItem);
-                _.itemResidueBack.Invoke(itemResidue);
+                if(_.oldItem.Item_ID == actorManager.NetController.Data_ItemInHand.Item_ID&& _.oldItem.Item_Seed == actorManager.NetController.Data_ItemInHand.Item_Seed)
+                {
+                    actorManager.NetController.RPC_LocalInput_ChangeItemInHand(_.oldItem, _.newItem);
+                }
+                else
+                {
+                    actorManager.NetController.CalculateBag(_.newItem, out ItemData itemResidue);
+                    actorManager.NetController.RPC_LocalInput_ChangeItemInBag(_.oldItem, _.newItem);
+                    if (_.itemResidueBack != null)
+                    {
+                        _.itemResidueBack.Invoke(itemResidue);
+                    }
+                    if (itemResidue.Item_Count != 0)//背包溢出
+                    {
+                        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+                        {
+                            item = itemResidue
+                        });
+                    }
+                }
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnHand>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                if (actorManager.NetController.Data_ItemInHand.Item_ID != 0)
+                {
+                    /*手上已经有东西*/
+                    actorManager.NetController.RPC_LocalInput_AddItemInBag(actorManager.NetController.Data_ItemInHand);
+                }
+                actorManager.NetController.RPC_LocalInput_AddItemOnHand(_.item);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnHead>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                if (actorManager.NetController.Data_ItemOnHead.Item_ID != 0)
+                {
+                    /*头上已经有东西*/
+                    actorManager.NetController.RPC_LocalInput_AddItemInBag(actorManager.NetController.Data_ItemOnHead);
+                }
+                actorManager.NetController.RPC_LocalInput_AddItemOnHead(_.item);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnBody>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                if (actorManager.NetController.Data_ItemOnBody.Item_ID != 0)
+                {
+                    /*头上已经有东西*/
+                    actorManager.NetController.RPC_LocalInput_AddItemInBag(actorManager.NetController.Data_ItemOnBody);
+                }
+                actorManager.NetController.RPC_LocalInput_AddItemOnBody(_.item);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryRemoveItemOnHand>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                actorManager.NetController.RPC_LocalInput_RemoveItemOnHand();
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryRemoveItemOnHead>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                actorManager.NetController.RPC_LocalInput_RemoveItemOnHead();
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryRemoveItemOnBody>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                actorManager.NetController.RPC_LocalInput_RemoveItemOnBody();
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryDropItem>().Subscribe(_ =>
@@ -96,12 +176,17 @@ public class PlayerController : MonoBehaviour
             {
                 if (actorManager.NetController.Data_ItemInBag.Count > 0)
                 {
-                    holdingIndex++;
-                    if (holdingIndex >= actorManager.NetController.Data_ItemInBag.Count)
+                    ItemData itemData = actorManager.NetController.Data_ItemInBag[0];
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag()
                     {
-                        holdingIndex = 0;
+                        item = itemData
+                    });
+                    if (actorManager.NetController.Data_ItemInHand.Item_ID != 0)
+                    {
+                        /*手上已经有东西*/
+                        actorManager.NetController.RPC_LocalInput_AddItemInBag(actorManager.NetController.Data_ItemInHand);
                     }
-                    actorManager.NetController.RPC_LocalInput_HoldItem(actorManager.NetController.Data_ItemInBag[holdingIndex]);
+                    actorManager.NetController.RPC_LocalInput_AddItemOnHand(itemData);
                 }
             }
             if (Input.GetKeyDown(KeyCode.Space))

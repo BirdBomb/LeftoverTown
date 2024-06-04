@@ -490,7 +490,7 @@ GameObject:
   - component: {fileID: 9194596716836239696}
   m_Layer: 6
   m_Name: NPC
-  m_TagString: Untagged
+  m_TagString: Actor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -562,6 +562,8 @@ MonoBehaviour:
   Hand_Left: {fileID: 179351126685337921}
   Hand_RightItem: {fileID: 4600643322571010172}
   Hand_LeftItem: {fileID: 2163034111697260581}
+  Head_Item: {fileID: 0}
+  Body_Item: {fileID: 0}
   Animator_Head: {fileID: 2812944113391369514}
   AnimaEventListen_Head: {fileID: 3043538101650264681}
   Animator_Body: {fileID: 8445137904326946619}
@@ -625,6 +627,16 @@ MonoBehaviour:
     Item_Seed: 0
     Item_Count: 0
     Item_Val: 0
+  _Data_ItemOnHead:
+    Item_ID: 0
+    Item_Seed: 0
+    Item_Count: 0
+    Item_Val: 0
+  _Data_ItemOnBody:
+    Item_ID: 0
+    Item_Seed: 0
+    Item_Count: 0
+    Item_Val: 0
   _Data_ItemInBag: []
   _Data_Buffs: 
 --- !u!114 &8093025844341083850
@@ -675,7 +687,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.25}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}

@@ -12,16 +12,10 @@ public class TileObj_Wall : TileObj
         }
         base.TryToUpdateHp(newHp);
     }
-    public override void TryBreak()
+    public override void ListenDestroyMyObj()
     {
         PlayBreakAnim();
-        Invoke("Break", 0.3f);
-        base.TryBreak();
-    }
-    public override void Break()
-    {
-        Remove();
-        base.Break();
+        Invoke("DestroyMyObj", 0.3f);
     }
     public override void PlayDamagedAnim()
     {

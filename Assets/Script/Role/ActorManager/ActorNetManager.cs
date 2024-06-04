@@ -39,7 +39,8 @@ public class ActorNetManager : NetworkBehaviour
     {
         if (NetTransform && Object.HasStateAuthority)
         {
-            transform.position = pos;
+            NetTransform.Teleport(pos);
+            //transform.position = pos;
         }
     }
     /// <summary>
@@ -214,11 +215,11 @@ public class ActorNetManager : NetworkBehaviour
     }
     public void OnItemOnHeadChange()
     {
-        
+        LocalManager.WearItem_Head(Data_ItemOnHead);
     }
     public void OnItemOnBodyChange()
     {
-        
+        LocalManager.WearItem_Body(Data_ItemOnBody);
     }
     public void OnItemInBagChange()
     {
@@ -325,20 +326,6 @@ public class ActorNetManager : NetworkBehaviour
         }
     }
     /// <summary>
-    /// RPC:本地端输入持握一个物品
-    /// </summary>
-    /// <param name="itemData"></param>
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
-    public void RPC_LocalInput_HoldItem(ItemData itemData)
-    {
-        UnityEngine.Debug.Log("Player" + "HoldItem" + itemData.Item_ID);
-
-        if (Object.HasStateAuthority)
-        {
-            Data_ItemInHand = itemData;
-        }
-    }
-    /// <summary>
     /// RPC:本地端输入失去一个物品
     /// </summary>
     /// <param name="itemData"></param>
@@ -348,22 +335,22 @@ public class ActorNetManager : NetworkBehaviour
         if (Object.HasStateAuthority)
         {
             Data_ItemInBag.Remove(itemData);
-            if (Data_ItemInHand.Item_ID == itemData.Item_ID)
-            {
-                UnityEngine.Debug.Log("失去的物体是手上的物体");
-                UnityEngine.Debug.Log(itemData.Item_ID + "/" + itemData.Item_Seed + "/" + itemData.Item_Val + "/" + itemData.Item_Count);
-                UnityEngine.Debug.Log(Data_ItemInHand.Item_ID + "/" + Data_ItemInHand.Item_Seed + "/" + Data_ItemInHand.Item_Val + "/" + Data_ItemInHand.Item_Count);
-                if (Data_ItemInHand.Item_Seed == itemData.Item_Seed)
-                {
-                    if (Data_ItemInHand.Item_Val == itemData.Item_Val)
-                    {
-                        if (Data_ItemInHand.Item_Count == itemData.Item_Count)
-                        {
-                            Data_ItemInHand = new ItemData();
-                        }
-                    }
-                }
-            }
+            //if (Data_ItemInHand.Item_ID == itemData.Item_ID)
+            //{
+            //    UnityEngine.Debug.Log("失去的物体是手上的物体");
+            //    UnityEngine.Debug.Log(itemData.Item_ID + "/" + itemData.Item_Seed + "/" + itemData.Item_Val + "/" + itemData.Item_Count);
+            //    UnityEngine.Debug.Log(Data_ItemInHand.Item_ID + "/" + Data_ItemInHand.Item_Seed + "/" + Data_ItemInHand.Item_Val + "/" + Data_ItemInHand.Item_Count);
+            //    if (Data_ItemInHand.Item_Seed == itemData.Item_Seed)
+            //    {
+            //        if (Data_ItemInHand.Item_Val == itemData.Item_Val)
+            //        {
+            //            if (Data_ItemInHand.Item_Count == itemData.Item_Count)
+            //            {
+            //                Data_ItemInHand = new ItemData();
+            //            }
+            //        }
+            //    }
+            //}
         }
     }
     /// <summary>
@@ -371,7 +358,7 @@ public class ActorNetManager : NetworkBehaviour
     /// </summary>
     /// <param name="itemData"></param>
     [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
-    public void RPC_LocalInput_ChangeItem(ItemData oldItemData, ItemData newItemData)
+    public void RPC_LocalInput_ChangeItemInBag(ItemData oldItemData, ItemData newItemData)
     {
         if (Object.HasStateAuthority)
         {
@@ -380,21 +367,123 @@ public class ActorNetManager : NetworkBehaviour
             {
                 int index = Data_ItemInBag.IndexOf(oldItemData);
                 Data_ItemInBag.Set(index, newItemData);
-                if (Data_ItemInHand.Item_ID == oldItemData.Item_ID)
-                {
-                    if(Data_ItemInHand.Item_Seed == oldItemData.Item_Seed)
-                    {
-                        Data_ItemInHand = newItemData;
-                        Debug.Log("物品修改成功");
-                        Debug.Log("旧" + oldItemData.Item_ID + "/" + oldItemData.Item_Val + "/" + oldItemData.Item_Count);
-                        Debug.Log("新" + newItemData.Item_ID + "/" + newItemData.Item_Val + "/" + newItemData.Item_Count);
-                    }
-                }
+                Debug.Log("物品修改成功");
+                Debug.Log("旧" + oldItemData.Item_ID + "/" + oldItemData.Item_Val + "/" + oldItemData.Item_Count);
+                Debug.Log("新" + newItemData.Item_ID + "/" + newItemData.Item_Val + "/" + newItemData.Item_Count);
+
+                //if (Data_ItemInHand.Item_ID == oldItemData.Item_ID)
+                //{
+                //    if(Data_ItemInHand.Item_Seed == oldItemData.Item_Seed)
+                //    {
+                //        Data_ItemInHand = newItemData;
+                //        Debug.Log("物品修改成功");
+                //        Debug.Log("旧" + oldItemData.Item_ID + "/" + oldItemData.Item_Val + "/" + oldItemData.Item_Count);
+                //        Debug.Log("新" + newItemData.Item_ID + "/" + newItemData.Item_Val + "/" + newItemData.Item_Count);
+                //    }
+                //}
             }
             else
             {
                 Debug.Log("物品修改失败,未找到目标物品:" + oldItemData);
             }
+        }
+    }
+    /// <summary>
+    /// RPC:本地端输入修改一个物品
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_LocalInput_ChangeItemInHand(ItemData oldItemData, ItemData newItemData)
+    {
+        if (Object.HasStateAuthority)
+        {
+            /*查找到需要修改的物品*/
+            if (oldItemData.Item_ID == Data_ItemInHand.Item_ID && oldItemData.Item_Seed == Data_ItemInHand.Item_Seed)
+            {
+                Data_ItemInHand = newItemData;
+                Debug.Log("物品修改成功");
+                Debug.Log("旧" + oldItemData.Item_ID + "/" + oldItemData.Item_Val + "/" + oldItemData.Item_Count);
+                Debug.Log("新" + newItemData.Item_ID + "/" + newItemData.Item_Val + "/" + newItemData.Item_Count);
+            }
+            else
+            {
+                Debug.Log("物品修改失败,未找到目标物品:" + oldItemData);
+            }
+        }
+    }
+
+    /// <summary>
+    /// RPC:本地端输入持握一个物品
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_LocalInput_AddItemOnHand(ItemData itemData)
+    {
+        UnityEngine.Debug.Log("Player" + "HoldItem" + itemData.Item_ID);
+
+        if (Object.HasStateAuthority)
+        {
+            Data_ItemInHand = itemData;
+        }
+    }
+    /// <summary>
+    /// RPC:本地端输入持握一个物品
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_LocalInput_RemoveItemOnHand()
+    {
+        if (Object.HasStateAuthority)
+        {
+            Data_ItemInHand = new ItemData();
+        }
+    }
+    /// <summary>
+    /// 本地端把一个物体戴在头上
+    /// </summary>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_LocalInput_AddItemOnHead(ItemData itemData)
+    {
+        UnityEngine.Debug.Log("Player" + "HeadOn" + itemData.Item_ID);
+
+        if (Object.HasStateAuthority)
+        {
+            Data_ItemOnHead = itemData;
+        }
+    }
+    /// <summary>
+    /// 本地端把一个物体从头上摘下来
+    /// </summary>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_LocalInput_RemoveItemOnHead()
+    {
+        if (Object.HasStateAuthority)
+        {
+            Data_ItemOnHead = new ItemData();
+        }
+    }
+    /// <summary>
+    /// 本地端把一个物体戴在身上
+    /// </summary>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_LocalInput_AddItemOnBody(ItemData itemData)
+    {
+        UnityEngine.Debug.Log("Player" + "BodyOn" + itemData.Item_ID);
+
+        if (Object.HasStateAuthority)
+        {
+            Data_ItemOnBody = itemData;
+        }
+    }
+    /// <summary>
+    /// 本地端把一个物体从身上摘下来
+    /// </summary>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public void RPC_LocalInput_RemoveItemOnBody()
+    {
+        if (Object.HasStateAuthority)
+        {
+            Data_ItemOnBody = new ItemData();
         }
     }
 

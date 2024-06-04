@@ -272,7 +272,11 @@ public class ConsoleItemListSystem : IConsoleItemListSystem
         {
             Type type = Type.GetType("Item_" + itemTargetConfigs[startIndex].Item_ID.ToString());
             ItemData itemData = ((ItemBase)Activator.CreateInstance(type)).GetRandomInitData(itemTargetConfigs[startIndex].Item_ID, 1, 0);
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+            //MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+            //{
+            //    item = itemData
+            //});
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
             {
                 item = itemData
             });

@@ -30,6 +30,11 @@ public class BaseBodyController : MonoBehaviour
     public Transform Hand_RightItem;
     [SerializeField, Header("左手物品")]
     public Transform Hand_LeftItem;
+    [SerializeField, Header("头部物品")]
+    public Transform Head_Item;
+    [SerializeField, Header("身体物品")]
+    public Transform Body_Item;
+
 
     public Animator Animator_Head;
     public AnimaEventListen AnimaEventListen_Head;

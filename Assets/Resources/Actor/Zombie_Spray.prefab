@@ -376,7 +376,7 @@ GameObject:
   - component: {fileID: 6854776739191718578}
   m_Layer: 6
   m_Name: Zombie_Spray
-  m_TagString: Untagged
+  m_TagString: Actor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -431,7 +431,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.25}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -541,6 +541,8 @@ MonoBehaviour:
   Hand_Left: {fileID: 8311788309241874810}
   Hand_RightItem: {fileID: 6814949624147622528}
   Hand_LeftItem: {fileID: 7371253467875751380}
+  Head_Item: {fileID: 0}
+  Body_Item: {fileID: 0}
   Animator_Head: {fileID: 2427826784655619525}
   AnimaEventListen_Head: {fileID: 8430901562002296828}
   Animator_Body: {fileID: 7366572161931207375}
@@ -569,6 +571,16 @@ MonoBehaviour:
   _Data_EnRelease: 0
   _Data_MaxHp: 20
   _Data_ItemInHand:
+    Item_ID: 0
+    Item_Seed: 0
+    Item_Count: 0
+    Item_Val: 0
+  _Data_ItemOnHead:
+    Item_ID: 0
+    Item_Seed: 0
+    Item_Count: 0
+    Item_Val: 0
+  _Data_ItemOnBody:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0

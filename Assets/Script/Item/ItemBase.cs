@@ -95,6 +95,28 @@ public class ItemBase
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_ID);
     }
     /// <summary>
+    /// 穿戴(头部)
+    /// </summary>
+    /// <param name="owner"></param>
+    /// <param name="body"></param>
+    public virtual void BeWearingOnHead(ActorManager owner, BaseBodyController body)
+    {
+        this.owner = owner;
+        body.Head_Item.GetComponent<SpriteRenderer>().sprite
+           = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_ID);
+    }
+    /// <summary>
+    /// 穿戴(身体)
+    /// </summary>
+    /// <param name="owner"></param>
+    /// <param name="body"></param>
+    public virtual void BeWearingOnBody(ActorManager owner, BaseBodyController body)
+    {
+        this.owner = owner;
+        body.Body_Item.GetComponent<SpriteRenderer>().sprite
+           = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_ID);
+    }
+    /// <summary>
     /// 食用
     /// </summary>
     public virtual void BeEating(ActorManager who)

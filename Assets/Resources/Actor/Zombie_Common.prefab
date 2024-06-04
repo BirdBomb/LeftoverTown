@@ -542,7 +542,7 @@ GameObject:
   - component: {fileID: 4989742002647667949}
   m_Layer: 6
   m_Name: Zombie_Common
-  m_TagString: Untagged
+  m_TagString: Actor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -597,7 +597,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.25}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -752,6 +752,8 @@ MonoBehaviour:
   Hand_Left: {fileID: 55407485201339908}
   Hand_RightItem: {fileID: 8563875375428570897}
   Hand_LeftItem: {fileID: 2346170050099575038}
+  Head_Item: {fileID: 0}
+  Body_Item: {fileID: 0}
   Animator_Head: {fileID: 1516233744517968805}
   AnimaEventListen_Head: {fileID: 8010286993815809363}
   Animator_Body: {fileID: 4256172859576642616}
@@ -814,6 +816,16 @@ MonoBehaviour:
   _Data_EnRelease: 0
   _Data_MaxHp: 20
   _Data_ItemInHand:
+    Item_ID: 0
+    Item_Seed: 0
+    Item_Count: 0
+    Item_Val: 0
+  _Data_ItemOnHead:
+    Item_ID: 0
+    Item_Seed: 0
+    Item_Count: 0
+    Item_Val: 0
+  _Data_ItemOnBody:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0

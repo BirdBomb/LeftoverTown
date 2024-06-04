@@ -59,6 +59,7 @@ MonoBehaviour:
   - {fileID: 259316350241868209}
   - {fileID: 2775045953181069553}
   - {fileID: 5811981933752786698}
+  itemDataList: []
 --- !u!222 &2804750177577520065
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -8,23 +8,35 @@ public class Bullet100 : BulletBase
     public override void Fly(float dt)
     {
         transform.position += moveDir * moveSpeed * dt;
-        lastPos = curPos;
-        curPos = transform.position;
-        RaycastHit2D hit2D = Physics2D.Linecast(lastPos, curPos, target);
-        if (hit2D)
-        {
-            HideBullet();
-            PoolManager.Instance.GetObject("Effect/Effect_Bullet100").transform.position = hit2D.point;
-            if(hit2D.transform.TryGetComponent(out ActorManager actor))
-            {
-                actor.TakeDamage(5, ownerId);
-            }
-        }
         base.Fly(dt);
     }
-    public override void HideBullet()
+    public override void Check(float dt)
     {
-        PoolManager.Instance.GetObject("Effect/Effect_Bullet100").transform.position = transform.position;
-        base.HideBullet();
+        lastPos = curPos;
+        curPos = transform.position;
+
+        RaycastHit2D[] hit2D = Physics2D.LinecastAll(lastPos, curPos, target);
+        for (int i = 0; i < hit2D.Length; i++)
+        {
+            if (hit2D[i].collider.CompareTag("Actor"))
+            {
+                if (hit2D[i].transform.TryGetComponent(out ActorManager actor))
+                {
+                    if (actor == _from.LocalManager) { continue; }
+                    else
+                    {
+                        actor.TakeDamage(5, _from);
+                        HideBullet();
+                        PoolManager.Instance.GetObject("Effect/Effect_Bullet100").transform.position = hit2D[i].point;
+                    }
+                }
+            }
+            else
+            {
+                HideBullet();
+                PoolManager.Instance.GetObject("Effect/Effect_Bullet100").transform.position = hit2D[i].point;
+            }
+        }
+        base.Check(dt);
     }
 }

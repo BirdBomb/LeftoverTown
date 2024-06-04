@@ -6,6 +6,9 @@ using UnityEngine.U2D;
 using UniRx;
 using static UnityEngine.UI.GridLayoutGroup;
 using Random = UnityEngine.Random;
+using DG.Tweening;
+using static UnityEngine.GraphicsBuffer;
+using Unity.VisualScripting;
 
 public partial class ItemSystem
 {
@@ -67,7 +70,7 @@ public class Item_1001 : ItemBase
                 {
                     if (actor != owner)
                     {
-                        actor.TakeDamage(attack, owner.NetController.Object.Id);
+                        actor.TakeDamage(attack, owner.NetController);
                     }
                 }
                 if (targetTile[i].TryGetComponent(out TileObj tile))
@@ -184,7 +187,7 @@ public class Item_2001 : ItemBase
                 {
                     if (actor != owner)
                     {
-                        actor.TakeDamage(attack, owner.NetController.Object.Id);
+                        actor.TakeDamage(attack, owner.NetController);
                     }
                 }
                 if (targetTile[i].TryGetComponent(out TileObj tile))
@@ -301,7 +304,7 @@ public class Item_2002 : ItemBase
                 {
                     if (actor != owner)
                     {
-                        actor.TakeDamage(attack, owner.NetController.Object.Id);
+                        actor.TakeDamage(attack, owner.NetController);
                     }
                 }
                 if (targetTile[i].TryGetComponent(out TileObj tile))
@@ -346,7 +349,7 @@ public class Item_2003 : ItemBase
     /// <summary>
     /// 最小角度
     /// </summary>
-    private const float minAngleRange = 45;
+    private const float minAngleRange = 30;
     /// <summary>
     /// 拉弓速度
     /// </summary>
@@ -528,7 +531,7 @@ public class Item_2003 : ItemBase
         {
             GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + data.Item_Val);
             obj.transform.position = owner.SkillSector.CenterPos;
-            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetController.Object.Id);
+            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetController);
             if (inputState)
             {
                 ItemData _oldItem = data;
@@ -543,16 +546,6 @@ public class Item_2003 : ItemBase
                 {
                     oldItem = _oldItem,
                     newItem = _newItem,
-                    itemResidueBack = ((residueItem) =>
-                    {
-                        if (residueItem.Item_Count != 0)//背包溢出
-                        {
-                            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-                            {
-                                item = residueItem
-                            });
-                        }
-                    })
                 });
             }
         }
@@ -567,7 +560,7 @@ public class Item_2004 : ItemBase
     public override void BeHolding(ActorManager owner, BaseBodyController body)
     {
         this.owner = owner;
-        GameObject obj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_9004");
+        GameObject obj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2004");
         obj.transform.SetParent(body.Hand_LeftItem);
         obj.transform.localPosition = Vector3.zero;
         obj.transform.localScale = Vector3.one;
@@ -612,7 +605,7 @@ public class Item_2005 : ItemBase
     /// <summary>
     /// 最小角度
     /// </summary>
-    private const float minAngleRange = 5;
+    private const float minAngleRange = 15;
     /// <summary>
     /// 拉弓速度
     /// </summary>
@@ -620,11 +613,11 @@ public class Item_2005 : ItemBase
     /// <summary>
     /// 拉弓时长
     /// </summary>
-    private const float readyTime = 2;
+    private const float readyTime = 0.5f;
     /// <summary>
     /// 瞄准时长
     /// </summary>
-    private const float aimTime = 2;
+    private const float aimTime = 1;
     #endregion
     public override void BeHolding(ActorManager owner, BaseBodyController body)
     {
@@ -794,7 +787,7 @@ public class Item_2005 : ItemBase
         {
             GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + data.Item_Val);
             obj.transform.position = owner.SkillSector.CenterPos;
-            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetController.Object.Id);
+            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetController);
             if (inputState)
             {
                 ItemData _oldItem = data;
@@ -809,20 +802,150 @@ public class Item_2005 : ItemBase
                 {
                     oldItem = _oldItem,
                     newItem = _newItem,
-                    itemResidueBack = ((residueItem) =>
-                    {
-                        if (residueItem.Item_Count != 0)//背包溢出
-                        {
-                            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-                            {
-                                item = residueItem
-                            });
-                        }
-                    })
                 });
             }
         }
     }
+}
+/// <summary>
+/// 木棍
+/// </summary>
+[Serializable]
+public class Item_2006 : ItemBase
+{
+    float distance = 1.5f;
+    Vector3 dir;
+    GameObject obj;
+    public override void BeHolding(ActorManager owner, BaseBodyController body)
+    {
+        this.owner = owner;
+        obj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2006");
+        obj.transform.SetParent(body.Hand_RightItem);
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localScale = Vector3.one;
+        obj.transform.Find("Hand").GetComponent<SpriteRenderer>().sprite = body.Hand_Left.GetComponent<SpriteRenderer>().sprite;
+        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
+    }
+    public override void FaceTo(Vector3 mouse, float time)
+    {
+        dir = mouse;
+        if (mouse.x >= 0)
+        {
+            owner.BodyController.Hand_RightItem.right = mouse;
+        }
+        if (mouse.x < 0)
+        {
+            owner.BodyController.Hand_RightItem.right = -mouse;
+        }
+        base.FaceTo(mouse, time);
+    }
+    public override void ClickLeftClick(float dt, bool state, bool input, bool showSI)
+    {
+        if (obj.transform.localPosition == Vector3.zero)
+        {
+            obj.transform.DOKill();
+            obj.transform.DOLocalMoveX(0.5f, 0.5f).SetLoops(2, LoopType.Yoyo).OnStepComplete(() =>
+            {
+                RaycastHit2D[] hit2D = Physics2D.LinecastAll(obj.transform.position, obj.transform.position + dir * distance);
+                for (int i = 0; i < hit2D.Length; i++)
+                {
+                    if (hit2D[i].collider.CompareTag("Actor"))
+                    {
+                        if (hit2D[i].transform.TryGetComponent(out ActorManager actor))
+                        {
+                            if (actor == owner) { continue; }
+                            else
+                            {
+                                actor.TakeDamage(1, owner.NetController);
+                            }
+                        }
+                    }
+                    else
+                    {
+                    }
+                }
+            });
+        }
+        base.ClickLeftClick(dt, state, input, showSI);
+    }
+}
+/// <summary>
+/// 长柄刀
+/// </summary>
+[Serializable]
+public class Item_2007 : ItemBase
+{
+    float distance = 1.5f;
+    Vector3 dir;
+    GameObject obj;
+    public override void BeHolding(ActorManager owner, BaseBodyController body)
+    {
+        this.owner = owner;
+        obj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2007");
+        obj.transform.SetParent(body.Hand_RightItem);
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localScale = Vector3.one;
+        obj.transform.Find("Hand").GetComponent<SpriteRenderer>().sprite = body.Hand_Left.GetComponent<SpriteRenderer>().sprite;
+        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
+    }
+    public override void FaceTo(Vector3 mouse, float time)
+    {
+        dir = mouse;
+        if (mouse.x >= 0)
+        {
+            owner.BodyController.Hand_RightItem.right = mouse;
+        }
+        if (mouse.x < 0)
+        {
+            owner.BodyController.Hand_RightItem.right = -mouse;
+        }
+        base.FaceTo(mouse, time);
+    }
+    public override void ClickLeftClick(float dt, bool state, bool input, bool showSI)
+    {
+        if(obj.transform.localPosition == Vector3.zero)
+        {
+            obj.transform.DOKill();
+            obj.transform.DOLocalMoveX(0.5f, 0.2f).SetLoops(2,LoopType.Yoyo).OnStepComplete(() =>
+            {
+                RaycastHit2D[] hit2D = Physics2D.LinecastAll(obj.transform.position, obj.transform.position + dir * distance);
+                for (int i = 0; i < hit2D.Length; i++)
+                {
+                    if (hit2D[i].collider.CompareTag("Actor"))
+                    {
+                        if (hit2D[i].transform.TryGetComponent(out ActorManager actor))
+                        {
+                            if (actor == owner) { continue; }
+                            else
+                            {
+                                actor.TakeDamage(2, owner.NetController);
+                            }
+                        }
+                    }
+                    else
+                    {
+                    }
+                }
+            });
+        }
+        base.ClickLeftClick(dt, state, input, showSI);
+    }
+}
+/// <summary>
+/// 短柄刀
+/// </summary>
+[Serializable]
+public class Item_2008 : ItemBase
+{
+
+}
+/// <summary>
+/// 短筒枪
+/// </summary>
+[Serializable]
+public class Item_2009 : ItemBase
+{
+
 }
 
 /// <summary>
@@ -876,7 +999,7 @@ public class Item_3001 : ItemBase
                 {
                     if (actor != owner)
                     {
-                        actor.TakeDamage(attack, owner.NetController.Object.Id);
+                        actor.TakeDamage(attack, owner.NetController);
                     }
                 }
                 if (targetTile[i].TryGetComponent(out TileObj tile))
@@ -1194,6 +1317,13 @@ public class Item_9002:ItemBase
 /// 精制木箭
 /// </summary>
 public class Item_9003 : ItemBase
+{
+
+}
+/// <summary>
+/// 弹丸
+/// </summary>
+public class Item_9004 : ItemBase
 {
 
 }

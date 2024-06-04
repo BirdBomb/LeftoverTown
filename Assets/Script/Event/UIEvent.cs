@@ -21,6 +21,21 @@ public static class UIEvent
         public List<ItemData> itemDatas = new List<ItemData>();
     }
     /// <summary>
+    /// UI-更新头顶物体
+    /// </summary>
+    public class UIEvent_UpdateItemOnHead
+    {
+        public ItemData itemData;
+    }
+    /// <summary>
+    /// UI-更新头顶物体
+    /// </summary>
+    public class UIEvent_UpdateItemOnBody
+    {
+        public ItemData itemData;
+    }
+
+    /// <summary>
     /// UI-更新个人属性
     /// </summary>
     public class UIEvent_UpdateData

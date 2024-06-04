@@ -110,7 +110,7 @@ public class ActorManager_Zombie_Spray : ActorManager
                             {
                                 if (actor != this)
                                 {
-                                    actor.TakeDamage(AttackDamage, NetController.Object.Id);
+                                    actor.TakeDamage(AttackDamage, NetController);
                                 }
                             }
                         }
@@ -129,7 +129,7 @@ public class ActorManager_Zombie_Spray : ActorManager
                     Vector3 to = NetController.Runner.FindObject(id).transform.position;
 
                     obj.transform.position = from;
-                    obj.GetComponent<BulletBase>().InitBullet((to - from).normalized, 3f, NetController.Object.Id);
+                    obj.GetComponent<BulletBase>().InitBullet((to - from).normalized, 3f, NetController);
                 }
             });
         }

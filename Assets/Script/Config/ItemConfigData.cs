@@ -27,16 +27,21 @@ public class ItemConfigData : MonoBehaviour
         new ItemConfig(){ Item_ID = 2003,Item_Name = "粗制木弓",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 2004,Item_Name = "火把",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 2005,Item_Name = "精致木弓",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2006,Item_Name = "木棍",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2007,Item_Name = "长柄刀",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2008,Item_Name = "短柄刀",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2009,Item_Name = "短筒枪",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 3000,Item_Name = "水",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Ingredient,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 3001,Item_Name = "污染肉",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Ingredient,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4001,Item_Name = "木碗",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4002,Item_Name = "玻璃瓶",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4003,Item_Name = "陶瓷瓶",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 5001,Item_Name = "新镇队员衣",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 5002,Item_Name = "新镇队员帽",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Container,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 5001,Item_Name = "新镇夜巡队队员衣",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Clothes,Average_Value = 1,HowDoILook = "新镇夜巡队队员" },
+        new ItemConfig(){ Item_ID = 5002,Item_Name = "新镇夜巡队队员帽",Item_Desc = "",Item_MaxCount = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,HowDoILook = "新镇夜巡队队员"},
         new ItemConfig(){ Item_ID = 9001,Item_Name = "召唤契约",Item_Desc = "",Item_MaxCount = 9,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 9002,Item_Name = "粗制木箭",Item_Desc = "",Item_MaxCount = 99,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 9003,Item_Name = "精致木箭",Item_Desc = "",Item_MaxCount = 99,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 9004,Item_Name = "弹丸",Item_Desc = "",Item_MaxCount = 99,Item_Type = ItemType.Weapon,Average_Value = 1 },
     };
 }
 [Serializable]
@@ -54,6 +59,8 @@ public struct ItemConfig
     public ItemType Item_Type;
     [SerializeField]/*价值*/
     public float Average_Value;
+    [SerializeField]/*我看上去怎么样*/
+    public string HowDoILook;
 }
 [Serializable]
 public enum ItemType 
@@ -82,4 +89,20 @@ public enum ItemType
     /// 容器
     /// </summary>
     Container,
+    /// <summary>
+    /// 箭
+    /// </summary>
+    Arrow,
+    /// <summary>
+    /// 子弹
+    /// </summary>
+    Bullet,
+    /// <summary>
+    /// 帽子
+    /// </summary>
+    Hat,
+    /// <summary>
+    /// 衣服
+    /// </summary>
+    Clothes,
 }

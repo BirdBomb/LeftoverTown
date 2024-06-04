@@ -205,7 +205,6 @@ public class MapNetManager : NetworkBehaviour
                 index++;
             }
         }
-
     }
     #endregion
 
@@ -279,7 +278,7 @@ public class MapNetManager : NetworkBehaviour
         mapManager.GetTileObj(pos, out TileObj obj);
         if (obj != null)
         {
-            obj.TryBreak();
+            obj.ListenDestroyMyObj();
         }
         mapManager.CreateTile(pos, name);
     }

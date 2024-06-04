@@ -79,7 +79,6 @@ public class TileObj : MonoBehaviour
     {
         CurHp = newHp;
     }
-
     /// <summary>
     /// 尝试改变地块信息
     /// </summary>
@@ -115,28 +114,20 @@ public class TileObj : MonoBehaviour
     {
         return false;
     }
-    /// <summary>
-    /// 尝试销毁
-    /// </summary>
-    public virtual void TryBreak()
-    {
 
+    /// <summary>
+    /// 监听破坏后尝试销毁
+    /// </summary>
+    public virtual void ListenDestroyMyObj()
+    {
+        DestroyMyObj();
     }
     /// <summary>
     /// 销毁
     /// </summary>
-    public virtual void Break()
+    public virtual void DestroyMyObj()
     {
-        if (!breaking)
-        {
-            breaking = true;
-            MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeTile()
-            {
-                tileName = "Default",
-                tilePos = bindTile.posInCell
-            });
-            Destroy(gameObject);
-        }
+        Destroy(gameObject);
     }
     /// <summary>
     /// 掉落
@@ -184,12 +175,6 @@ public class TileObj : MonoBehaviour
             }
         }
         return 0;
-    }
-    /// <summary>
-    /// 移除
-    /// </summary>
-    public virtual void Remove()
-    {
     }
     /// <summary>
     /// 时间更新

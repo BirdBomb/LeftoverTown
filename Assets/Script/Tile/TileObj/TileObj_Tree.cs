@@ -13,17 +13,16 @@ public class TileObj_Tree : TileObj
         }
         base.TryToUpdateHp(newHp);
     }
-    public override void TryBreak()
+
+    public override void ListenDestroyMyObj()
     {
         PlayBreakAnim();
-        Invoke("Break", 0.3f);
-        base.TryBreak();
+        Invoke("DestroyMyObj", 0.3f);
     }
-    public override void Break()
+    public override void DestroyMyObj()
     {
         Loot();
-        Remove();
-        base.Break();
+        base.DestroyMyObj();
     }
     public override void PlayDamagedAnim()
     {

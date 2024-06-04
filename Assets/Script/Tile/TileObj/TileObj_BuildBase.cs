@@ -26,16 +26,6 @@ public class TileObj_BuildBase : TileObj
         obj_build.GetComponent<UI_Build>().UpdateInfoFromTile(info);
         base.TryToUpdateInfo(info);
     }
-    public override void TryBreak()
-    {
-        Break();
-        base.TryBreak();
-    }
-    public override void Break()
-    {
-        Remove();
-        base.Break();
-    }
 
     public override bool PlayerNearby(PlayerController player)
     {

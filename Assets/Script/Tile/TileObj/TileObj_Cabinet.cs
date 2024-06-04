@@ -61,17 +61,11 @@ public class TileObj_Cabinet : TileObj
         }
         base.TryToUpdateHp(newHp);
     }
-    public override void TryBreak()
+
+    public override void ListenDestroyMyObj()
     {
         PlayBreakAnim();
-        TryToChangeInfo("");
-        Invoke("Break", 0.3f);
-        base.TryBreak();
-    }
-    public override void Break()
-    {
-        Remove();
-        base.Break();
+        Invoke("DestroyMyObj", 0.3f);
     }
     public override void PlayDamagedAnim()
     {

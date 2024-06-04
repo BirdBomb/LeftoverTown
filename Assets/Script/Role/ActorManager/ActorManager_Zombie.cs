@@ -104,7 +104,7 @@ public class ActorManager_Zombie : ActorManager
                             {
                                 if (actor != this)
                                 {
-                                    actor.TakeDamage(AttackDamage, NetController.Object.Id);
+                                    actor.TakeDamage(AttackDamage, NetController);
                                 }
                             }
                         }

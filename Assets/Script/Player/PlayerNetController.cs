@@ -114,24 +114,48 @@ public class PlayerNetController : NetworkBehaviour
             Net_PressShift = data.PressShift;
             Net_Face = data.faceDir;
         }
+        PlayerInputByFix(Runner.DeltaTime);
         base.FixedUpdateNetwork();
     }
+    float lastRender;
     public override void Render()
+    {
+        float dt = Runner.LocalRenderTime - lastRender;
+        lastRender = Runner.LocalRenderTime;
+        PlayerInputByRender(dt);
+        base.Render();
+    }
+    public void PlayerInputByRender(float dt)
+    {
+        /*服务器*/
+        #region
+        //if (Object.HasStateAuthority)
+        //{
+        //    playerController.State_PlayerInputMove(dt, moveDir_temp, Net_PressShift, Object.HasStateAuthority, Object.HasInputAuthority);
+        //}
+        #endregion
+        /*客户端*/
+        #region
+        playerController.All_PlayerInputFace(dt, Net_Face, Object.HasStateAuthority, Object.HasInputAuthority);
+        playerController.All_PlayerInputMouse(dt, Net_Left_ClickTime, Net_Right_ClickTime, Net_LeftPress, Net_RightPress, Object.HasStateAuthority, Object.HasInputAuthority);
+        #endregion
+        base.Render();
+    }
+    private void PlayerInputByFix(float dt)
     {
         if (playerController.actorManager.actorState == ActorState.Dead) return;
         /*服务器*/
         #region
         if (Object.HasStateAuthority)
         {
-            playerController.State_PlayerInputMove(Runner.DeltaTime, moveDir_temp, Net_PressShift, Object.HasStateAuthority, Object.HasInputAuthority);
+            playerController.State_PlayerInputMove(dt, moveDir_temp, Net_PressShift, Object.HasStateAuthority, Object.HasInputAuthority);
         }
         #endregion
         /*客户端*/
         #region
-        playerController.All_PlayerInputFace(Runner.DeltaTime, Net_Face, Object.HasStateAuthority, Object.HasInputAuthority);
-        playerController.All_PlayerInputMouse(Runner.DeltaTime, Net_Left_ClickTime, Net_Right_ClickTime, Net_LeftPress, Net_RightPress, Object.HasStateAuthority, Object.HasInputAuthority);
+        //playerController.All_PlayerInputFace(dt, Net_Face, Object.HasStateAuthority, Object.HasInputAuthority);
+        //playerController.All_PlayerInputMouse(dt, Net_Left_ClickTime, Net_Right_ClickTime, Net_LeftPress, Net_RightPress, Object.HasStateAuthority, Object.HasInputAuthority);
         #endregion
-        base.Render();
     }
     [Networked]
     public int Net_Left_ClickTime { get; set; } = 0;

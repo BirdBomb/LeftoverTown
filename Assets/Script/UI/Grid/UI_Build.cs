@@ -94,46 +94,35 @@ public class UI_Build : UI_Grid
             {
                 if (result.gameObject.TryGetComponent(out UI_Grid grid))
                 {
+                    PutOut(itemData);
                     grid.ListenDragOn(this, gridCell, itemData);
                     return;
                 }
             }
         }
+        else
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+            {
+                item = itemData
+            });
+            PutOut(itemData);
+        }
+
     }
     public override void ListenDragOn<T>(T grid, UI_GridCell cell, ItemData itemData)
     {
-        if (grid.GetType() == typeof(UI_GameSenceUI))
+        Calculate(itemData, out ItemData back);
+        if (back.Item_Count != itemData.Item_Count)
         {
-            Calculate(itemData, out ItemData back);
-            if (back.Item_Count == 0)//可以全部放入
+            PutIn(itemData);
+        }
+        if (back.Item_Count != 0)
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
             {
-                PutIn(itemData);
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag()
-                {
-                    item = itemData
-                });
-            }
-            else if (back.Item_Count < itemData.Item_Count)//可以放入部分
-            {
-                PutIn(itemData);
-                ItemData residue = new ItemData();
-                residue.Item_ID = itemData.Item_ID;
-                residue.Item_Seed = itemData.Item_Seed;
-                residue.Item_Count = back.Item_Count;
-
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag()
-                {
-                    item = itemData
-                });
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-                {
-                    item = residue
-                });
-            }
-            else if (back.Item_Count == itemData.Item_Count)//一个都没放入
-            {
-
-            }
+                item = back,
+            });
         }
         base.ListenDragOn<T>(grid, cell, itemData);
     }
@@ -163,7 +152,6 @@ public class UI_Build : UI_Grid
                 }
             }
         }
-
         if (index == -1)
         {
             /*背包里面没有同名物体,查看是否需要*/
@@ -208,30 +196,8 @@ public class UI_Build : UI_Grid
     }
     public override void PutOut(ItemData data)
     {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
-        {
-            item = data,
-            itemResidueBack = ((residueItem) =>
-            {
-                if (residueItem.Item_Count == 0)//可以全部放入
-                {
-                    itemDataList.Remove(data);
-                    ChangeInfoToTile();
-                }
-                else if (residueItem.Item_Count < data.Item_Count)//可以放入部分
-                {
-                    int index = itemDataList.IndexOf(data);
-                    itemDataList[index] = residueItem;
-                    ChangeInfoToTile();
-                }
-                else if (residueItem.Item_Count == data.Item_Count)//一个都没放入
-                {
-
-                }
-
-            })
-        });
-
+        itemDataList.Remove(data);
+        ChangeInfoToTile();
         base.PutOut(data);
     }
     public override void Calculate(ItemData before, out ItemData after)

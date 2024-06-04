@@ -47,12 +47,12 @@ public class UI_Grid_Child : UI_Grid
 
     public void DrawCell()
     {
-        ItemData item = new ItemData();
-        item.Item_ID = oldContainerData.Item_Val;
-        item.Item_Count = oldContainerData.Item_Count;
-        if (item.Item_ID != 0)
+        ItemData itemInContainer = new ItemData();
+        itemInContainer.Item_ID = oldContainerData.Item_Val;
+        itemInContainer.Item_Count = oldContainerData.Item_Count;
+        if (itemInContainer.Item_ID != 0)
         {
-            cell.UpdateGridCell(item);
+            cell.UpdateGridCell(itemInContainer);
             cell.BindDragAction(CellDragBegin, CellDragIn, CellDragEnd);
         }
         else
@@ -71,6 +71,14 @@ public class UI_Grid_Child : UI_Grid
     }
     public override void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
+        newContainerData = oldContainerData;
+        newContainerData.Item_Val = 0;
+        newContainerData.Item_Count = 1;
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        {
+            oldItem = oldContainerData,
+            newItem = newContainerData,
+        });
         pointerEventData.position = Input.mousePosition;
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerEventData, raycastResults);
@@ -85,122 +93,39 @@ public class UI_Grid_Child : UI_Grid
                 }
             }
         }
-        else
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+        {
+            item = itemData
+        });
+    }
+    public override void ListenDragOn<T>(T grid, UI_GridCell cell, ItemData putIn)
+    {
+        Calculate(putIn, out ItemData back);
+        if (back.Item_Count != putIn.Item_Count)
         {
             newContainerData = oldContainerData;
-            newContainerData.Item_Val = 0;
-            newContainerData.Item_Count = 1;
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+            newContainerData.Item_Val = putIn.Item_ID;
+            if (oldContainerData.Item_Val == 0)
             {
-                item = itemData
-            });
+                newContainerData.Item_Count = oldContainerData.Item_Count - 1 + putIn.Item_Count;
+            }
+            else
+            {
+                newContainerData.Item_Count = oldContainerData.Item_Count + putIn.Item_Count;
+            }
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
             {
                 oldItem = oldContainerData,
                 newItem = newContainerData,
-                itemResidueBack = ((residueItem) =>
-                {
-                    if (residueItem.Item_Count != 0)//背包溢出
-                    {
-                        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-                        {
-                            item = residueItem
-                        });
-                    }
-                })
             });
+
         }
-    }
-    public override void ListenDragOn<T>(T grid, UI_GridCell cell, ItemData putIn)
-    {
-        if (grid.GetType() == typeof(UI_GameSenceUI))
+        if (back.Item_Count != 0)
         {
-            Calculate(putIn, out ItemData back);
-            if (back.Item_Count == 0)//可以全部放入
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
             {
-                newContainerData = oldContainerData;
-                newContainerData.Item_Val = putIn.Item_ID;
-                if (oldContainerData.Item_Val == 0)
-                {
-                    newContainerData.Item_Count = oldContainerData.Item_Count - 1 + putIn.Item_Count;
-                }
-                else
-                {
-                    newContainerData.Item_Count = oldContainerData.Item_Count - 1 + putIn.Item_Count;
-                }
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
-                {
-                    oldItem = oldContainerData,
-                    newItem = newContainerData,
-                    itemResidueBack = ((residueItem) =>
-                    {
-                        if (residueItem.Item_Count != 0)//背包溢出
-                        {
-                            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-                            {
-                                item = residueItem
-                            });
-                        }
-                    })
-                });
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag()
-                {
-                    item = putIn
-                });
-            }
-            else if (back.Item_Count < putIn.Item_Count)//可以放入部分
-            {
-                newContainerData = oldContainerData;
-                newContainerData.Item_Val = putIn.Item_ID;
-                if (oldContainerData.Item_Val == 0)
-                {
-                    newContainerData.Item_Count = oldContainerData.Item_Count - 1 + putIn.Item_Count;
-                }
-                else
-                {
-                    newContainerData.Item_Count = oldContainerData.Item_Count - 1 + putIn.Item_Count;
-                }
-
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag()
-                {
-                    item = putIn
-                });
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
-                {
-                    item = back,
-                    itemResidueBack = ((residueItem) =>
-                    {
-                        if (residueItem.Item_Count != 0)//背包溢出
-                        {
-                            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-                            {
-                                item = residueItem
-                            });
-                        }
-                    })
-
-                });
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
-                {
-                    oldItem = oldContainerData,
-                    newItem = newContainerData,
-                    itemResidueBack = ((residueItem) =>
-                    {
-                        if (residueItem.Item_Count != 0)//背包溢出
-                        {
-                            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-                            {
-                                item = residueItem
-                            });
-                        }
-                    })
-
-                });
-            }
-            else if (back.Item_Count == putIn.Item_Count)//一个都没放入
-            {
-
-            }
+                item = back,
+            });
         }
         base.ListenDragOn<T>(grid, cell, putIn);
     }

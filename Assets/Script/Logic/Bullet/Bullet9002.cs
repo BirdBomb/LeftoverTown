@@ -5,47 +5,57 @@ using UnityEngine;
 public class Bullet9002 : BulletBase
 {
     [SerializeField]
-    private Transform shadow;
+    private SpriteRenderer bullet_Up;
+    [SerializeField]
+    private SpriteRenderer bullet_Down;
     [SerializeField]
     private float speedOffset;
     [SerializeField]
     private int damageOffset;
-    public override void InitBullet(Vector3 dir, float speed, NetworkId id)
+    public override void InitBullet(Vector3 dir, float speed, ActorNetManager from)
     {
         transform.DOKill();
         transform.localScale = Vector3.one;
-        base.InitBullet(dir, speed + speedOffset, id);
+
+        bullet_Up.sortingOrder = 4;
+        bullet_Up.gameObject.SetActive(true);
+        bullet_Down.sortingOrder = 3;
+        bullet_Down.gameObject.SetActive(true);
+        base.InitBullet(dir, speed + speedOffset, from);
+
+        transform.right = moveDir;
     }
     public override void Fly(float dt)
     {
         SpeedDown(dt);
         transform.position += moveDir * moveSpeed * dt;
-        transform.right = moveDir;
-        shadow.position = transform.position - Vector3.up * 0.5f; 
         base.Fly(dt);
     }
     public override void Check(float dt)
     {
         lastPos = curPos;
         curPos = transform.position;
-        RaycastHit2D hit2D = Physics2D.Linecast(lastPos, curPos, target);
-        if (hit2D)
+
+        RaycastHit2D[] hit2D = Physics2D.LinecastAll(lastPos, curPos, target);
+        for (int i = 0; i < hit2D.Length; i++)
         {
-            if (hit2D.collider.TryGetComponent(out NetworkObject netObj))
+            if (hit2D[i].collider.CompareTag("Actor"))
             {
-                if (netObj.Id == ownerId)
+                if (hit2D[i].transform.TryGetComponent(out ActorManager actor))
                 {
-                    return;
+                    if (actor == _from.LocalManager) { continue; }
+                    else
+                    {
+                        actor.TakeDamage(1 + damageOffset, _from);
+                        StayIn(hit2D[i].transform);
+                    }
                 }
             }
-            HideBullet();
-            if (hit2D.transform.TryGetComponent(out ActorManager actor))
+            else
             {
-                actor.TakeDamage(1 + damageOffset, ownerId);
+                StayIn(hit2D[i].transform);
             }
         }
-
-
         base.Check(dt);
     }
     public void SpeedDown(float dt)
@@ -59,19 +69,28 @@ public class Bullet9002 : BulletBase
             HideBullet();
         }
     }
-    public override void HideBullet()
+    public void StayIn(Transform parent)
     {
-        moveSpeed = 0;
-
-        transform.DOKill();
-        Vector3 point = UnityEngine.Random.insideUnitCircle.normalized * UnityEngine.Random.Range(0.2f, 0.5f);
-        transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack);
-        transform.DOLocalJump(transform.position + point, 1, 1, 0.5f);
-
-        transform.DOLocalRotate(new Vector3(0, 0, 720), 1, RotateMode.FastBeyond360);
-        transform.DOScale(Vector3.zero, 1).OnComplete(() =>
+        if (parent.TryGetComponent(out SpriteRenderer sprite))
         {
-            base.HideBullet();
-        });
+            bullet_Up.sortingOrder = sprite.sortingOrder + 1;
+        }
+        else
+        {
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                if (parent.GetChild(i).TryGetComponent(out SpriteRenderer spriteRenderer))
+                {
+                    bullet_Up.sortingOrder = spriteRenderer.sortingOrder + 1;
+                    break;
+                }
+            }
+        }
+        transform.SetParent(parent);
+        bullet_Down.gameObject.SetActive(false);
+        _hide = true;
+        moveSpeed = 0;
+        CancelInvoke();
+        Invoke("HideBullet", 20);
     }
 }

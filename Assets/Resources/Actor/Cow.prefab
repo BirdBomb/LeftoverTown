@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2983913003401362893}
   m_Layer: 6
   m_Name: Cow
-  m_TagString: Untagged
+  m_TagString: Actor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -51,6 +51,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0
+  locking: 0
   Root: {fileID: 6305386443740106584}
   Head: {fileID: 4210433216225063526}
   Body: {fileID: 4823964525577803491}
@@ -60,6 +61,16 @@ MonoBehaviour:
   Hand_Left: {fileID: 0}
   Hand_RightItem: {fileID: 0}
   Hand_LeftItem: {fileID: 0}
+  Head_Item: {fileID: 0}
+  Body_Item: {fileID: 0}
+  Animator_Head: {fileID: 0}
+  AnimaEventListen_Head: {fileID: 0}
+  Animator_Body: {fileID: 0}
+  AnimaEventListen_Body: {fileID: 0}
+  Animator_Hand: {fileID: 0}
+  AnimaEventListen_Hand: {fileID: 0}
+  Animator_Leg: {fileID: 0}
+  AnimaEventListen_Leg: {fileID: 0}
 --- !u!61 &8827712441029477511
 BoxCollider2D:
   m_ObjectHideFlags: 0
