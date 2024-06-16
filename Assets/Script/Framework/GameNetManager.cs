@@ -37,7 +37,8 @@ public class GameNetManager : NetworkBehaviour
         if (Object.HasStateAuthority)
         {
             GameObject obj = Resources.Load<GameObject>(name);
-            Runner.Spawn(obj, postion, Quaternion.identity);
+            NetworkObject networkObject = Runner.Spawn(obj, postion, Quaternion.identity);
+            networkObject.AssignInputAuthority(Runner.LocalPlayer);
         }
     }
 

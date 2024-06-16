@@ -28,7 +28,7 @@ public static class UIEvent
         public ItemData itemData;
     }
     /// <summary>
-    /// UI-更新头顶物体
+    /// UI-更新身体物体
     /// </summary>
     public class UIEvent_UpdateItemOnBody
     {
@@ -42,10 +42,6 @@ public static class UIEvent
     {
         public int HP;
         public int MaxHP;
-        public int Food;
-        public int MaxFood;
-        public int Water;
-        public int MaxWater;
     }
     /// <summary>
     /// UI-打开一个外部Grid

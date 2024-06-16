@@ -48,7 +48,7 @@ public class PlayerNetController : NetworkBehaviour
             Debug.Log("--玩家信息获取成功,初始化玩家背包");
             for (int i = 0; i < playerData.Bag.Count; i++)
             {
-                playerController.actorManager.NetController.RPC_LocalInput_AddItemInBag(playerData.Bag[i]);
+                playerController.actorManager.NetManager.RPC_LocalInput_AddItemInBag(playerData.Bag[i]);
             }
             Debug.Log("--玩家信息获取成功,初始化玩家数据");
             RPC_InitData(playerData.Pos, playerData.Hp, playerData.MaxHp);
@@ -174,9 +174,9 @@ public class PlayerNetController : NetworkBehaviour
     public void RPC_InitData(Vector3Int pos, int hp, int maxHp)
     {
         /*初始化位置*/
-        playerController.actorManager.NetController.UpdateNetworkTransform(pos);
-        playerController.actorManager.NetController.Data_Hp = 50;
-        playerController.actorManager.NetController.Data_MaxHp = 50;
+        playerController.actorManager.NetManager.UpdateNetworkTransform(pos);
+        playerController.actorManager.NetManager.Data_Hp = 50;
+        playerController.actorManager.NetManager.Data_MaxHp = 50;
     }
 
 }

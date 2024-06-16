@@ -55,8 +55,7 @@ MonoBehaviour:
   effectPath: 
   target:
     serializedVersion: 2
-    m_Bits: 65
-  shadow: {fileID: 0}
+    m_Bits: 1089
   bullet_Up: {fileID: 6301272907957791235}
   bullet_Down: {fileID: 7262733601969274396}
   speedOffset: 10

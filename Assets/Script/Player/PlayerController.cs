@@ -36,17 +36,17 @@ public class PlayerController : MonoBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag>().Subscribe(_ =>
         {
-            if (thisPlayerIsMe && actorManager.NetController.Object.HasInputAuthority)
+            if (thisPlayerIsMe && actorManager.NetManager.Object.HasInputAuthority)
             {
-                actorManager.NetController.RPC_LocalInput_LoseItem(_.item);
+                actorManager.NetManager.RPC_LocalInput_LoseItem(_.item);
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemInBag>().Subscribe(_ =>
         {
             if (thisPlayerIsMe)
             {
-                actorManager.NetController.CalculateBag(_.item, out ItemData itemResidue);
-                actorManager.NetController.RPC_LocalInput_AddItemInBag(_.item);
+                actorManager.NetManager.CalculateBag(_.item, out ItemData itemResidue);
+                actorManager.NetManager.RPC_LocalInput_AddItemInBag(_.item);
                 if (_.itemResidueBack != null)
                 {
                     _.itemResidueBack.Invoke(itemResidue);
@@ -64,14 +64,14 @@ public class PlayerController : MonoBehaviour
         {
             if (thisPlayerIsMe)
             {
-                if(_.oldItem.Item_ID == actorManager.NetController.Data_ItemInHand.Item_ID&& _.oldItem.Item_Seed == actorManager.NetController.Data_ItemInHand.Item_Seed)
+                if(_.oldItem.Item_ID == actorManager.NetManager.Data_ItemInHand.Item_ID&& _.oldItem.Item_Seed == actorManager.NetManager.Data_ItemInHand.Item_Seed)
                 {
-                    actorManager.NetController.RPC_LocalInput_ChangeItemInHand(_.oldItem, _.newItem);
+                    actorManager.NetManager.RPC_LocalInput_ChangeItemInHand(_.oldItem, _.newItem);
                 }
                 else
                 {
-                    actorManager.NetController.CalculateBag(_.newItem, out ItemData itemResidue);
-                    actorManager.NetController.RPC_LocalInput_ChangeItemInBag(_.oldItem, _.newItem);
+                    actorManager.NetManager.CalculateBag(_.newItem, out ItemData itemResidue);
+                    actorManager.NetManager.RPC_LocalInput_ChangeItemInBag(_.oldItem, _.newItem);
                     if (_.itemResidueBack != null)
                     {
                         _.itemResidueBack.Invoke(itemResidue);
@@ -90,57 +90,57 @@ public class PlayerController : MonoBehaviour
         {
             if (thisPlayerIsMe)
             {
-                if (actorManager.NetController.Data_ItemInHand.Item_ID != 0)
+                if (actorManager.NetManager.Data_ItemInHand.Item_ID != 0)
                 {
                     /*手上已经有东西*/
-                    actorManager.NetController.RPC_LocalInput_AddItemInBag(actorManager.NetController.Data_ItemInHand);
+                    actorManager.NetManager.RPC_LocalInput_AddItemInBag(actorManager.NetManager.Data_ItemInHand);
                 }
-                actorManager.NetController.RPC_LocalInput_AddItemOnHand(_.item);
+                actorManager.NetManager.RPC_LocalInput_AddItemOnHand(_.item);
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnHead>().Subscribe(_ =>
         {
             if (thisPlayerIsMe)
             {
-                if (actorManager.NetController.Data_ItemOnHead.Item_ID != 0)
+                if (actorManager.NetManager.Data_ItemOnHead.Item_ID != 0)
                 {
                     /*头上已经有东西*/
-                    actorManager.NetController.RPC_LocalInput_AddItemInBag(actorManager.NetController.Data_ItemOnHead);
+                    actorManager.NetManager.RPC_LocalInput_AddItemInBag(actorManager.NetManager.Data_ItemOnHead);
                 }
-                actorManager.NetController.RPC_LocalInput_AddItemOnHead(_.item);
+                actorManager.NetManager.RPC_LocalInput_AddItemOnHead(_.item);
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnBody>().Subscribe(_ =>
         {
             if (thisPlayerIsMe)
             {
-                if (actorManager.NetController.Data_ItemOnBody.Item_ID != 0)
+                if (actorManager.NetManager.Data_ItemOnBody.Item_ID != 0)
                 {
                     /*头上已经有东西*/
-                    actorManager.NetController.RPC_LocalInput_AddItemInBag(actorManager.NetController.Data_ItemOnBody);
+                    actorManager.NetManager.RPC_LocalInput_AddItemInBag(actorManager.NetManager.Data_ItemOnBody);
                 }
-                actorManager.NetController.RPC_LocalInput_AddItemOnBody(_.item);
+                actorManager.NetManager.RPC_LocalInput_AddItemOnBody(_.item);
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryRemoveItemOnHand>().Subscribe(_ =>
         {
             if (thisPlayerIsMe)
             {
-                actorManager.NetController.RPC_LocalInput_RemoveItemOnHand();
+                actorManager.NetManager.RPC_LocalInput_RemoveItemOnHand();
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryRemoveItemOnHead>().Subscribe(_ =>
         {
             if (thisPlayerIsMe)
             {
-                actorManager.NetController.RPC_LocalInput_RemoveItemOnHead();
+                actorManager.NetManager.RPC_LocalInput_RemoveItemOnHead();
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryRemoveItemOnBody>().Subscribe(_ =>
         {
             if (thisPlayerIsMe)
             {
-                actorManager.NetController.RPC_LocalInput_RemoveItemOnBody();
+                actorManager.NetManager.RPC_LocalInput_RemoveItemOnBody();
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryDropItem>().Subscribe(_ =>
@@ -165,6 +165,13 @@ public class PlayerController : MonoBehaviour
                 });
             }
         }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_Emoji>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                actorManager.NetManager.RPC_LocalInput_SendEmoji(_.id);
+            }
+        }).AddTo(this);
         actorManager.InitByPlayer();
         itemLayer = LayerMask.GetMask("ItemObj");
     }
@@ -174,19 +181,19 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Tab))
             {
-                if (actorManager.NetController.Data_ItemInBag.Count > 0)
+                if (actorManager.NetManager.Data_ItemInBag.Count > 0)
                 {
-                    ItemData itemData = actorManager.NetController.Data_ItemInBag[0];
+                    ItemData itemData = actorManager.NetManager.Data_ItemInBag[0];
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag()
                     {
                         item = itemData
                     });
-                    if (actorManager.NetController.Data_ItemInHand.Item_ID != 0)
+                    if (actorManager.NetManager.Data_ItemInHand.Item_ID != 0)
                     {
                         /*手上已经有东西*/
-                        actorManager.NetController.RPC_LocalInput_AddItemInBag(actorManager.NetController.Data_ItemInHand);
+                        actorManager.NetManager.RPC_LocalInput_AddItemInBag(actorManager.NetManager.Data_ItemInHand);
                     }
-                    actorManager.NetController.RPC_LocalInput_AddItemOnHand(itemData);
+                    actorManager.NetManager.RPC_LocalInput_AddItemOnHand(itemData);
                 }
             }
             if (Input.GetKeyDown(KeyCode.Space))
@@ -195,7 +202,7 @@ public class PlayerController : MonoBehaviour
                 if (item.Length <= 0) { return; }
                 if (item[0].gameObject.transform.parent.TryGetComponent(out ItemNetObj obj)) 
                 {
-                    actorManager.NetController.RPC_LocalInput_PickItem(obj.Object.Id);
+                    actorManager.NetManager.RPC_LocalInput_PickItem(obj.Object.Id);
                 }
             }
             if (Input.GetKeyDown(KeyCode.F))
@@ -297,11 +304,11 @@ public class PlayerController : MonoBehaviour
         if (speedUp)
         {
             shiftReleaseTimer = 0;
-            actorManager.NetController.Data_EnRelease = 0;
-            if (shiftPressTimer < actorManager.NetController.NetData.Endurance * 0.001f)
+            actorManager.NetManager.Data_EnRelease = 0;
+            if (shiftPressTimer < actorManager.NetManager.NetData.Endurance * 0.001f)
             {
                 shiftPressTimer += deltaTime;
-                actorManager.NetController.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetController.NetData.Endurance));
+                actorManager.NetManager.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetManager.NetData.Endurance));
                 if (shiftPressTimer > 1)
                 {
                     speed = Mathf.Lerp(actorManager.actorConfig.Config_Speed, actorManager.actorConfig.Config_MaxSpeed, 1);
@@ -317,16 +324,16 @@ public class PlayerController : MonoBehaviour
             if (shiftPressTimer != 0)
             {
                 shiftReleaseTimer += deltaTime;
-                actorManager.NetController.Data_EnRelease = (int)((shiftReleaseTimer * 1000) / (0.001f * actorManager.NetController.NetData.Endurance));
-                if (shiftReleaseTimer > actorManager.NetController.NetData.Endurance * 0.001f)
+                actorManager.NetManager.Data_EnRelease = (int)((shiftReleaseTimer * 1000) / (0.001f * actorManager.NetManager.NetData.Endurance));
+                if (shiftReleaseTimer > actorManager.NetManager.NetData.Endurance * 0.001f)
                 {
                     shiftPressTimer = 0;
-                    actorManager.NetController.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetController.NetData.Endurance));
+                    actorManager.NetManager.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetManager.NetData.Endurance));
                 }
             }
         }
         Vector3 newPos = transform.position + new UnityEngine.Vector3(dir.x * speed * deltaTime, dir.y * speed * deltaTime, 0);
-        actorManager.NetController.UpdateNetworkTransform(newPos);
+        actorManager.NetManager.UpdateNetworkTransform(newPos);
     }
     /// <summary>
     /// 朝向输入
@@ -351,7 +358,7 @@ public class PlayerController : MonoBehaviour
     private void UpdateNearByTile()
     {
         /*周围地块*/
-        tempTiles = actorManager.GetNearbyTile();
+        tempTiles = actorManager.GetNearbyTiles();
         /*剔除上次检测的地块*/
         for (int i = 0; i < nearbyTiles.Count; i++)
         {

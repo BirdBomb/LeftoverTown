@@ -49,7 +49,7 @@ public class ActorManager_Zombie : ActorManager
         /*敌人在视野范围内*/
         if (Vector2.Distance(target.transform.position, transform.position) < VisionDistance)
         {
-            Debug.Log("僵尸(" + NetController.Id + "),发现目标(" + target.NetController.Id + ")");
+            Debug.Log("僵尸(" + NetManager.Id + "),发现目标(" + target.NetManager.Id + ")");
             targetActor = target;
             TryToFollowTarget();
         }
@@ -64,7 +64,7 @@ public class ActorManager_Zombie : ActorManager
             }
             else
             {
-                Debug.Log("僵尸(" + NetController.Id + "),目标丢失");
+                Debug.Log("僵尸(" + NetManager.Id + "),目标丢失");
                 targetActor = null;
             }
         }
@@ -76,7 +76,7 @@ public class ActorManager_Zombie : ActorManager
             if (Vector2.Distance(targetActor.transform.position, transform.position) < AttackDistance)
             {
                 AttackTimer = AttackCD;
-                NetController.RPC_Skill(1, targetActor.NetController.Object.Id);
+                NetManager.RPC_State_Skill(1, targetActor.NetManager.Object.Id);
             }
         }
         else
@@ -104,7 +104,7 @@ public class ActorManager_Zombie : ActorManager
                             {
                                 if (actor != this)
                                 {
-                                    actor.TakeDamage(AttackDamage, NetController);
+                                    actor.TakeDamage(AttackDamage, NetManager);
                                 }
                             }
                         }

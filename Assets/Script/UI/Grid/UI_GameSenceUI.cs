@@ -19,6 +19,10 @@ public class UI_GameSenceUI : UI_Grid
     public Text Text_Food;
     [Header("ȱˮֵ")]
     public Text Text_Water;
+
+    private int _hp;
+    private int _food;
+    private int _water;
     private void Start()
     {
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInHand>().Subscribe(_ =>
@@ -28,8 +32,6 @@ public class UI_GameSenceUI : UI_Grid
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateData>().Subscribe(_ =>
         {
             Text_Hp.text = _.HP.ToString();
-            Text_Food.text = _.Food.ToString();
-            Text_Water.text = _.Water.ToString();
         }).AddTo(this);
     }
     private void UpdateHandSlot(ItemData item)

@@ -6,6 +6,7 @@ using UnityEngine.U2D;
 using DG.Tweening;
 using static UnityEngine.Rendering.DebugUI;
 using UnityEngine.Rendering;
+using UniRx;
 
 public class WorldManager : SingleTon<FileManager>, ISingleTon
 {
@@ -45,6 +46,11 @@ public class WorldManager : SingleTon<FileManager>, ISingleTon
     }
     private void UpdateGlobalTime(GlobalTime globalTime)
     {
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_TimeChange()
+        {
+            now = globalTime
+        });
+
         if (globalTime == GlobalTime.Morning)
         {
             DOTween.To(() => temperature, x => temperature = x, -25, 10f).OnUpdate(() =>

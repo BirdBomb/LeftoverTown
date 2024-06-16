@@ -49,7 +49,7 @@ public class ActorManager_Zombie_Spray : ActorManager
         /*敌人在视野范围内*/
         if (Vector2.Distance(target.transform.position, transform.position) < VisionDistance)
         {
-            Debug.Log("僵尸(" + NetController.Id + "),发现目标(" + target.NetController.Id + ")");
+            Debug.Log("僵尸(" + NetManager.Id + "),发现目标(" + target.NetManager.Id + ")");
             targetActor = target;
             TryToFollowTarget();
         }
@@ -64,7 +64,7 @@ public class ActorManager_Zombie_Spray : ActorManager
             }
             else
             {
-                Debug.Log("僵尸(" + NetController.Id + "),目标丢失");
+                Debug.Log("僵尸(" + NetManager.Id + "),目标丢失");
                 targetActor = null;
             }
         }
@@ -77,12 +77,12 @@ public class ActorManager_Zombie_Spray : ActorManager
             if (distance < AttackDistance)
             {
                 AttackTimer = AttackCD;
-                NetController.RPC_Skill(1, targetActor.NetController.Object.Id);
+                NetManager.RPC_State_Skill(1, targetActor.NetManager.Object.Id);
             }
             else if (distance < SkillDistance)
             {
                 AttackTimer = AttackCD * 2;
-                NetController.RPC_Skill(2, targetActor.NetController.Object.Id);
+                NetManager.RPC_State_Skill(2, targetActor.NetManager.Object.Id);
             }
         }
         else
@@ -104,13 +104,15 @@ public class ActorManager_Zombie_Spray : ActorManager
                     var cols = Physics2D.OverlapCircleAll(transform.position, 2);
                     if (cols != null)
                     {
+                        List<ActorManager> temp = new List<ActorManager>();
                         foreach (var col in cols)
                         {
                             if (col.TryGetComponent(out ActorManager actor))
                             {
-                                if (actor != this)
+                                if (actor != this && !temp.Contains(actor))
                                 {
-                                    actor.TakeDamage(AttackDamage, NetController);
+                                    actor.TakeDamage(AttackDamage, NetManager);
+                                    temp.Add(actor);
                                 }
                             }
                         }
@@ -126,15 +128,14 @@ public class ActorManager_Zombie_Spray : ActorManager
                 {
                     GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_100");
                     Vector3 from = BodyController.Head.position;
-                    Vector3 to = NetController.Runner.FindObject(id).transform.position;
+                    Vector3 to = NetManager.Runner.FindObject(id).transform.position;
 
                     obj.transform.position = from;
-                    obj.GetComponent<BulletBase>().InitBullet((to - from).normalized, 3f, NetController);
+                    obj.GetComponent<BulletBase>().InitBullet((to - from).normalized, 3f, NetManager);
                 }
             });
         }
         base.FromRPC_Skill(parameter, id);
     }
-
     #endregion
 }

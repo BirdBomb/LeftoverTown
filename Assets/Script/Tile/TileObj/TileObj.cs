@@ -6,6 +6,7 @@ using System;
 using Random = UnityEngine.Random;
 using Fusion;
 using static Unity.Collections.Unicode;
+using static UnityEditor.Progress;
 /// <summary>
 /// 场景物品基类
 /// </summary>
@@ -136,13 +137,10 @@ public class TileObj : MonoBehaviour
     {
         for (int i = 0; i < LootCount; i++)
         {
-            int id = GetNextLootID();
-            if (id != 0)
+            ItemData item = GetNextLootItem();
+            if (item.Item_ID != 0)
             {
-                ItemData item = new ItemData();
-                item.Item_ID = id;
-                item.Item_Count = 1;
-                item.Item_Seed = System.DateTime.Now.Second + i + id;
+                item.Item_Seed = System.DateTime.Now.Second + item.Item_Seed;
 
                 MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
                 {
@@ -156,7 +154,7 @@ public class TileObj : MonoBehaviour
     /// 根据权重获得一个掉落物id
     /// </summary>
     /// <returns></returns>
-    private int GetNextLootID()
+    private ItemData GetNextLootItem()
     {
         int weight_Main = 0;
         int weight_temp = 0;
@@ -171,10 +169,10 @@ public class TileObj : MonoBehaviour
             weight_temp += LootList[j].Weight;
             if (weight_temp > random)
             {
-                return LootList[j].ID;
+                return LootList[j].Item;
             }
         }
-        return 0;
+        return new ItemData();
     }
     /// <summary>
     /// 时间更新
@@ -214,7 +212,7 @@ public class TileObj : MonoBehaviour
 public struct LootInfo
 {
     [SerializeField,Header("编号")]
-    public int ID;
+    public ItemData Item;
     [SerializeField,Header("权重")]
     public int Weight;
 }

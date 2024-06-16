@@ -609,12 +609,14 @@ MonoBehaviour:
       Weight: 100
     - ID: 3001
       Weight: 100
-  netController: {fileID: 5995745838076438225}
+  netManager: {fileID: 5995745838076438225}
   bodyController: {fileID: 8654616369244252524}
   skillSector: {fileID: 0}
   actorUI: {fileID: 6521488292554385289}
   actorState: 0
   navManager: {fileID: 0}
+  isPlayer: 0
+  isState: 0
   tempPath: []
   targetTile: {fileID: 0}
   VisionDistance: 20

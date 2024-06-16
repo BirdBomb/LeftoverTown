@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using UniRx;
+using UnityEngine.Windows;
 /// <summary>
 /// 角色网络管理器
 /// </summary>
@@ -14,7 +15,14 @@ public class ActorNetManager : NetworkBehaviour
     public ActorNetData NetData;
     public override void Spawned()
     {
-        LocalManager.InitByNetManager(Object.HasStateAuthority);
+        if (!LocalManager.isPlayer)
+        {
+            if (Object.HasStateAuthority)
+            {
+                Object.AssignInputAuthority(Runner.LocalPlayer);
+            }
+        }
+        LocalManager.InitByNetManager(Object.HasStateAuthority, Object.HasInputAuthority);
         InitNetData();
         OnItemInBagChange();
         OnItemInHandChange();
@@ -179,7 +187,6 @@ public class ActorNetManager : NetworkBehaviour
 
     [Networked, OnChangedRender(nameof(OnBuffsChange))]
     public NetworkLinkedList<int> Data_Buffs { get; }
-
     public void OnHpChange()
     {
         if (Data_Hp <= 0)
@@ -190,6 +197,14 @@ public class ActorNetManager : NetworkBehaviour
         else
         {
             LocalManager.ActorUI.UpdateHPBar((float)Data_Hp / (float)Data_MaxHp);
+        }
+        if (LocalManager.isPlayer && Object.HasInputAuthority)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateData()
+            {
+                HP = Data_Hp,
+                MaxHP = Data_MaxHp,
+            });
         }
     }
     public void OnEnChange()
@@ -223,7 +238,7 @@ public class ActorNetManager : NetworkBehaviour
     }
     public void OnItemInBagChange()
     {
-        if (Object.HasInputAuthority)
+        if (LocalManager.isPlayer && Object.HasInputAuthority)
         {
             List<ItemData> temp = new List<ItemData>();
             for (int i = 0; i < Data_ItemInBag.Count; i++)
@@ -244,7 +259,17 @@ public class ActorNetManager : NetworkBehaviour
     #endregion
     #region//RPC
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    public void RPC_Skill(int parameter, NetworkId networkId)
+    public void RPC_State_Attack(bool parameter)
+    {
+        LocalManager.FromRPC_ChangeAttackState(parameter);
+    }
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public void RPC_State_ChangeAttackTarget(NetworkId id)
+    {
+        LocalManager.FromRPC_ChangeAttackTarget(id);
+    }
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public void RPC_State_Skill(int parameter, NetworkId networkId)
     {
         LocalManager.FromRPC_Skill(parameter, networkId);
     }
@@ -485,6 +510,14 @@ public class ActorNetManager : NetworkBehaviour
         {
             Data_ItemOnBody = new ItemData();
         }
+    }
+    /// <summary>
+    /// 本地端发送表情
+    /// </summary>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_LocalInput_SendEmoji(int id)
+    {
+        LocalManager.ActorUI.SendEmoji(EmojiConfigData.GetItemConfig(id));
     }
 
     #endregion

@@ -133,9 +133,14 @@ public class ItemBase
     /// <summary>
     /// 右键按压
     /// </summary>
-    public virtual void PressRightClick(float dt, bool state, bool input, bool showSI)
+    /// <param name="dt"></param>
+    /// <param name="state"></param>
+    /// <param name="input"></param>
+    /// <param name="showSI"></param>
+    /// <returns>达到最大值</returns>
+    public virtual bool PressRightClick(float dt, bool state, bool input, bool showSI)
     {
-
+        return true;
     }
     /// <summary>
     /// 右键释放
@@ -154,9 +159,14 @@ public class ItemBase
     /// <summary>
     /// 左键按压
     /// </summary>
-    public virtual void PressLeftClick(float dt, bool state, bool input, bool showSI)
+    /// <param name="dt"></param>
+    /// <param name="state"></param>
+    /// <param name="input"></param>
+    /// <param name="showSI"></param>
+    /// <returns>达到最大值</returns>
+    public virtual bool PressLeftClick(float dt, bool state, bool input, bool showSI)
     {
-
+        return true;
     }
     /// <summary>
     /// 左键释放

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6114030997716344390}
   - component: {fileID: 7207421581844431240}
   - component: {fileID: 4144484893173947887}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: WoodWall_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -162,7 +162,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9027789523501776627}
   - component: {fileID: 8319144844017156540}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -224,7 +224,7 @@ GameObject:
   m_Component:
   - component: {fileID: 709026345162365822}
   - component: {fileID: 208604832868330407}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}

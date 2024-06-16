@@ -16,8 +16,8 @@ TagManager:
   - Tile_Ground
   - Tile_Furniture
   - ItemObj
-  - 
-  - 
+  - TileObj_Wall
+  - TileObj_Furniture
   - 
   - 
   - 

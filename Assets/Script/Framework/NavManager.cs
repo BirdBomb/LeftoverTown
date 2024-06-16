@@ -121,35 +121,59 @@ public class NavManager : MonoBehaviour
 
         if (up != null)
         {
-            list.Add(up);
+            if (up.passType != TilePassType.PassStop)
+            {
+                list.Add(up);
+            }
         }
         if (down != null)
         {
-            list.Add(down);
+            if (down.passType != TilePassType.PassStop)
+            {
+                list.Add(down);
+            }
         }
         if (right != null)
         {
-            list.Add(right);
+            if (right.passType != TilePassType.PassStop)
+            {
+                list.Add(right);
+            }
         }
         if (left != null)
         {
-            list.Add(left);
+            if(left.passType != TilePassType.PassStop)
+            {
+                list.Add(left);
+            }
         }
-        if (rightUp != null)
+        if (rightUp != null && right != null && up != null)
         {
-            list.Add(rightUp);
+            if (rightUp.passType != TilePassType.PassStop && right.passType != TilePassType.PassStop && up.passType != TilePassType.PassStop)
+            {
+                list.Add(rightUp);
+            }
         }
-        if (leftUp != null)
+        if (leftUp != null && left != null && up != null)
         {
-            list.Add(leftUp);
+            if (leftUp.passType != TilePassType.PassStop && left.passType != TilePassType.PassStop && up.passType != TilePassType.PassStop)
+            {
+                list.Add(leftUp);
+            }
         }
-        if (rightDown != null)
+        if (rightDown != null && right != null && down != null)
         {
-            list.Add(rightDown);
+            if (rightDown.passType != TilePassType.PassStop && right.passType != TilePassType.PassStop && down.passType != TilePassType.PassStop)
+            {
+                list.Add(rightDown);
+            }
         }
-        if (leftDown != null)
+        if (leftDown != null && left != null && down != null)
         {
-            list.Add(leftDown);
+            if (leftDown.passType != TilePassType.PassStop && left.passType != TilePassType.PassStop && down.passType != TilePassType.PassStop)
+            {
+                list.Add(leftDown);
+            }
         }
 
         return list;

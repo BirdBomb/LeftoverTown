@@ -95,5 +95,11 @@ public class PlayerEvent
     {
         public string name;
     }
-
+    /// <summary>
+    /// 本地玩家:发送一个表情
+    /// </summary>
+    public class PlayerEvent_Local_Emoji
+    {
+        public int id;
+    }
 }

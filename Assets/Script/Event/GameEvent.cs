@@ -5,6 +5,13 @@ using UniRx;
 public class GameEvent 
 {
     /// <summary>
+    /// 本地端:时间改变
+    /// </summary>
+    public class GameEvent_Local_TimeChange
+    {
+        public GlobalTime now;
+    }
+    /// <summary>
     /// 本地端:召唤生物
     /// </summary>
     public class GameEvent_Local_SpawnActor
@@ -45,5 +52,27 @@ public class GameEvent
     {
         public ActorManager moveActor;
         public MyTile moveTile;
+    }
+    /// <summary>
+    /// 本地端:某人做某事
+    /// </summary>
+    public class GameEvent_Local_SomeoneDoSomething
+    {
+        public ActorManager actor;
+        public ActorAction actorAction;
+    }
+    public enum ActorAction
+    {
+        Holding,
+        Attack,
+        Dead,
+    }
+    /// <summary>
+    /// 本地端:某人说某话
+    /// </summary>
+    public class GameEvent_Local_SomeoneSendEmoji
+    {
+        public ActorManager actor;
+        public int id;
     }
 }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6114030997716344390}
   - component: {fileID: 7207421581844431240}
   - component: {fileID: 4144484893173947887}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: WoodDoor_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

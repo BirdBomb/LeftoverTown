@@ -70,7 +70,7 @@ public class Item_1001 : ItemBase
                 {
                     if (actor != owner)
                     {
-                        actor.TakeDamage(attack, owner.NetController);
+                        actor.TakeDamage(attack, owner.NetManager);
                     }
                 }
                 if (targetTile[i].TryGetComponent(out TileObj tile))
@@ -100,7 +100,6 @@ public class Item_2001 : ItemBase
     /// </summary>
     private float rightPressTimer = 0;
     private bool alreadyAttack = false;
-    private const float maxDistance = 1;
     private const float maxRange = 120;
     private const float readySpeed = 1;
     private const float readyTime = 0.5f;
@@ -129,7 +128,7 @@ public class Item_2001 : ItemBase
         }
         base.ClickLeftClick(dt, state, input, showSI);
     }
-    public override void PressRightClick(float dt, bool state, bool input, bool showSI)
+    public override bool PressRightClick(float dt, bool state, bool input, bool showSI)
     {
         if (owner && !alreadyAttack)
         {
@@ -143,13 +142,18 @@ public class Item_2001 : ItemBase
             if (rightPressTimer < readyTime)
             {
                 rightPressTimer += dt * readySpeed;
+                if (showSI)
+                {
+                    owner.SkillSector.Update_SIsector(rightPosition, Mathf.Lerp(0, config.Attack_Distance, rightPressTimer / readyTime), maxRange, 1);
+                }
+                return false;
             }
-            if (showSI)
+            else
             {
-                owner.SkillSector.Update_SIsector(rightPosition, Mathf.Lerp(0, maxDistance, rightPressTimer / readyTime), maxRange, 1);
+                return true;
             }
         }
-        base.PressRightClick(dt, state, input, showSI);
+        return true;
     }
     public override void ReleaseRightClick(float dt, bool state, bool input, bool showSI)
     {
@@ -179,7 +183,7 @@ public class Item_2001 : ItemBase
         if (name == "Slash_Vertical")
         {
             owner.SkillSector.Checkout_SIsector
-                (rightPosition, Mathf.Lerp(0, maxDistance, rightPressTimer / readyTime), maxRange, out Transform[] targetTile);
+                (rightPosition, Mathf.Lerp(0, config.Attack_Distance, rightPressTimer / readyTime), maxRange, out Transform[] targetTile);
             owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 1);
             for (int i = 0; i < targetTile.Length; i++)
             {
@@ -187,7 +191,7 @@ public class Item_2001 : ItemBase
                 {
                     if (actor != owner)
                     {
-                        actor.TakeDamage(attack, owner.NetController);
+                        actor.TakeDamage(attack, owner.NetManager);
                     }
                 }
                 if (targetTile[i].TryGetComponent(out TileObj tile))
@@ -217,7 +221,6 @@ public class Item_2002 : ItemBase
     /// </summary>
     private float rightPressTimer = 0;
     private bool alreadyAttack = false;
-    private const float maxDistance = 1;
     private const float maxRange = 120;
     private const float readySpeed = 1;
     private const float readyTime = 0.5f;
@@ -246,7 +249,7 @@ public class Item_2002 : ItemBase
         }
         base.ClickLeftClick(dt, state, input, showSI);
     }
-    public override void PressRightClick(float dt, bool state, bool input, bool showSI)
+    public override bool PressRightClick(float dt, bool state, bool input, bool showSI)
     {
         if (owner && !alreadyAttack)
         {
@@ -260,13 +263,18 @@ public class Item_2002 : ItemBase
             if (rightPressTimer < readyTime)
             {
                 rightPressTimer += dt * readySpeed;
+                if (showSI)
+                {
+                    owner.SkillSector.Update_SIsector(rightPosition, Mathf.Lerp(0, config.Attack_Distance, rightPressTimer / readyTime), maxRange, 1);
+                }
+                return false;
             }
-            if (showSI)
+            else
             {
-                owner.SkillSector.Update_SIsector(rightPosition, Mathf.Lerp(0, maxDistance, rightPressTimer / readyTime), maxRange, 1);
+                return true;
             }
         }
-        base.PressRightClick(dt, state, input, showSI);
+        return true;
     }
     public override void ReleaseRightClick(float dt, bool state, bool input, bool showSI)
     {
@@ -296,7 +304,7 @@ public class Item_2002 : ItemBase
         if (name == "Slash_Vertical")
         {
             owner.SkillSector.Checkout_SIsector
-                (rightPosition, Mathf.Lerp(0, maxDistance, rightPressTimer / readyTime), maxRange, out Transform[] targetTile);
+                (rightPosition, Mathf.Lerp(0, config.Attack_Distance, rightPressTimer / readyTime), maxRange, out Transform[] targetTile);
             owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0);
             for (int i = 0; i < targetTile.Length; i++)
             {
@@ -304,7 +312,7 @@ public class Item_2002 : ItemBase
                 {
                     if (actor != owner)
                     {
-                        actor.TakeDamage(attack, owner.NetController);
+                        actor.TakeDamage(attack, owner.NetManager);
                     }
                 }
                 if (targetTile[i].TryGetComponent(out TileObj tile))
@@ -467,7 +475,7 @@ public class Item_2003 : ItemBase
         }
         base.ClickLeftClick(dt, state, input, showSI);
     }
-    public override void PressRightClick(float dt, bool state, bool input, bool showSI)
+    public override bool PressRightClick(float dt, bool state, bool input, bool showSI)
     {
         if (owner && !alreadyShot)
         {
@@ -481,20 +489,25 @@ public class Item_2003 : ItemBase
             if (rightPressTimer < readyTime + aimTime)
             {
                 rightPressTimer += dt * readySpeed;
+                if (showSI)
+                {
+                    if (rightPressTimer > readyTime)
+                    {
+                        owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 1);
+                    }
+                    else
+                    {
+                        owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 0.2f);
+                    }
+                }
+                return false;
             }
-            if (showSI)
+            else
             {
-                if (rightPressTimer > readyTime)
-                {
-                    owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 1);
-                }
-                else
-                {
-                    owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 0.2f);
-                }
+                return true;
             }
         }
-        base.PressRightClick(dt, state, input, showSI);
+        return true;
     }
     public override void ReleaseRightClick(float dt, bool state, bool input, bool showSI)
     {
@@ -521,8 +534,8 @@ public class Item_2003 : ItemBase
     }
     private void Shot(float offset,bool inputState)
     {
-        owner.NetController.UpdateSeed();
-        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetController.RandomInRange * 0.01f);
+        owner.NetManager.UpdateSeed();
+        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetManager.RandomInRange * 0.01f);
         // 将角度转换为Quaternion
         Quaternion randomRotation = Quaternion.Euler(0f, 0f, randomAngle);
         // 将旋转应用到原始向量上
@@ -531,7 +544,7 @@ public class Item_2003 : ItemBase
         {
             GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + data.Item_Val);
             obj.transform.position = owner.SkillSector.CenterPos;
-            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetController);
+            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetManager);
             if (inputState)
             {
                 ItemData _oldItem = data;
@@ -709,6 +722,7 @@ public class Item_2005 : ItemBase
     {
         if (owner)
         {
+            Debug.Log(rightPressTimer);
             if (rightPressTimer >= readyTime)
             {
                 Shot(Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), input);
@@ -723,7 +737,7 @@ public class Item_2005 : ItemBase
         }
         base.ClickLeftClick(dt, state, input, showSI);
     }
-    public override void PressRightClick(float dt, bool state, bool input, bool showSI)
+    public override bool PressRightClick(float dt, bool state, bool input, bool showSI)
     {
         if (owner && !alreadyShot)
         {
@@ -737,20 +751,25 @@ public class Item_2005 : ItemBase
             if (rightPressTimer < readyTime + aimTime)
             {
                 rightPressTimer += dt * readySpeed;
+                if (showSI)
+                {
+                    if (rightPressTimer > readyTime)
+                    {
+                        owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 1);
+                    }
+                    else
+                    {
+                        owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 0.2f);
+                    }
+                }
+                return false;
             }
-            if (showSI)
+            else
             {
-                if (rightPressTimer > readyTime)
-                {
-                    owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 1);
-                }
-                else
-                {
-                    owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 0.2f);
-                }
+                return true;
             }
         }
-        base.PressRightClick(dt, state, input, showSI);
+        return true;
     }
     public override void ReleaseRightClick(float dt, bool state, bool input, bool showSI)
     {
@@ -777,8 +796,8 @@ public class Item_2005 : ItemBase
     }
     private void Shot(float offset, bool inputState)
     {
-        owner.NetController.UpdateSeed();
-        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetController.RandomInRange * 0.01f);
+        owner.NetManager.UpdateSeed();
+        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetManager.RandomInRange * 0.01f);
         // 将角度转换为Quaternion
         Quaternion randomRotation = Quaternion.Euler(0f, 0f, randomAngle);
         // 将旋转应用到原始向量上
@@ -787,7 +806,7 @@ public class Item_2005 : ItemBase
         {
             GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + data.Item_Val);
             obj.transform.position = owner.SkillSector.CenterPos;
-            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetController);
+            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetManager);
             if (inputState)
             {
                 ItemData _oldItem = data;
@@ -813,7 +832,6 @@ public class Item_2005 : ItemBase
 [Serializable]
 public class Item_2006 : ItemBase
 {
-    float distance = 1.5f;
     Vector3 dir;
     GameObject obj;
     public override void BeHolding(ActorManager owner, BaseBodyController body)
@@ -828,7 +846,7 @@ public class Item_2006 : ItemBase
     }
     public override void FaceTo(Vector3 mouse, float time)
     {
-        dir = mouse;
+        dir = mouse.normalized;
         if (mouse.x >= 0)
         {
             owner.BodyController.Hand_RightItem.right = mouse;
@@ -846,7 +864,7 @@ public class Item_2006 : ItemBase
             obj.transform.DOKill();
             obj.transform.DOLocalMoveX(0.5f, 0.5f).SetLoops(2, LoopType.Yoyo).OnStepComplete(() =>
             {
-                RaycastHit2D[] hit2D = Physics2D.LinecastAll(obj.transform.position, obj.transform.position + dir * distance);
+                RaycastHit2D[] hit2D = Physics2D.LinecastAll(obj.transform.position, obj.transform.position + dir * config.Attack_Distance);
                 for (int i = 0; i < hit2D.Length; i++)
                 {
                     if (hit2D[i].collider.CompareTag("Actor"))
@@ -856,7 +874,7 @@ public class Item_2006 : ItemBase
                             if (actor == owner) { continue; }
                             else
                             {
-                                actor.TakeDamage(1, owner.NetController);
+                                actor.TakeDamage(1, owner.NetManager);
                             }
                         }
                     }
@@ -868,6 +886,7 @@ public class Item_2006 : ItemBase
         }
         base.ClickLeftClick(dt, state, input, showSI);
     }
+
 }
 /// <summary>
 /// 长柄刀
@@ -875,7 +894,6 @@ public class Item_2006 : ItemBase
 [Serializable]
 public class Item_2007 : ItemBase
 {
-    float distance = 1.5f;
     Vector3 dir;
     GameObject obj;
     public override void BeHolding(ActorManager owner, BaseBodyController body)
@@ -890,7 +908,7 @@ public class Item_2007 : ItemBase
     }
     public override void FaceTo(Vector3 mouse, float time)
     {
-        dir = mouse;
+        dir = mouse.normalized;
         if (mouse.x >= 0)
         {
             owner.BodyController.Hand_RightItem.right = mouse;
@@ -908,7 +926,7 @@ public class Item_2007 : ItemBase
             obj.transform.DOKill();
             obj.transform.DOLocalMoveX(0.5f, 0.2f).SetLoops(2,LoopType.Yoyo).OnStepComplete(() =>
             {
-                RaycastHit2D[] hit2D = Physics2D.LinecastAll(obj.transform.position, obj.transform.position + dir * distance);
+                RaycastHit2D[] hit2D = Physics2D.LinecastAll(obj.transform.position, obj.transform.position + dir * config.Attack_Distance);
                 for (int i = 0; i < hit2D.Length; i++)
                 {
                     if (hit2D[i].collider.CompareTag("Actor"))
@@ -918,7 +936,7 @@ public class Item_2007 : ItemBase
                             if (actor == owner) { continue; }
                             else
                             {
-                                actor.TakeDamage(2, owner.NetController);
+                                actor.TakeDamage(2, owner.NetManager);
                             }
                         }
                     }
@@ -999,7 +1017,7 @@ public class Item_3001 : ItemBase
                 {
                     if (actor != owner)
                     {
-                        actor.TakeDamage(attack, owner.NetController);
+                        actor.TakeDamage(attack, owner.NetManager);
                     }
                 }
                 if (targetTile[i].TryGetComponent(out TileObj tile))

@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 
 public class MapNetManager : NetworkBehaviour
 {
-    [SerializeField]
-    public MapManager mapManager;
     public MapTileTypeData mapTileTypeData = null;
     public MapTileInfoData mapTileInfoData = null;
     private bool mapDataAlready = false;
@@ -180,7 +178,7 @@ public class MapNetManager : NetworkBehaviour
         {
             for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
             {
-                mapManager.CreateTile(new Vector3Int(center.x + x, center.y + y, 0), tileList[index]);
+                MapManager.Instance.CreateTile(new Vector3Int(center.x + x, center.y + y, 0), tileList[index]);
                 index++;
             }
         }
@@ -196,7 +194,7 @@ public class MapNetManager : NetworkBehaviour
             {
                 if (tileList[index].Length > 0)
                 {
-                    mapManager.GetTileObj(new Vector3Int(center.x + x, center.y + y, 0), out TileObj obj);
+                    MapManager.Instance.GetTileObj(new Vector3Int(center.x + x, center.y + y, 0), out TileObj obj);
                     if (obj != null)
                     {
                         obj.TryToUpdateInfo(tileList[index]);
@@ -219,7 +217,7 @@ public class MapNetManager : NetworkBehaviour
     {
         if (Object.HasStateAuthority)
         {
-            mapManager.GetTileObj(pos, out TileObj obj);
+            MapManager.Instance.GetTileObj(pos, out TileObj obj);
             int Hp = obj.CurHp - damage;
             RPC_StateCall_TileUpdateHp(pos, Hp, player);
             if (Hp <= 0)
@@ -265,7 +263,7 @@ public class MapNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     private void RPC_StateCall_TileUpdateHp(Vector3Int pos, int hp, PlayerRef player)
     {
-        mapManager.GetTileObj(pos, out TileObj obj);
+        MapManager.Instance.GetTileObj(pos, out TileObj obj);
         obj.TryToUpdateHp(hp);
     }
     /// <summary>
@@ -275,12 +273,12 @@ public class MapNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     private void RPC_StateCall_TileChange(Vector3Int pos, string name)
     {
-        mapManager.GetTileObj(pos, out TileObj obj);
+        MapManager.Instance.GetTileObj(pos, out TileObj obj);
         if (obj != null)
         {
             obj.ListenDestroyMyObj();
         }
-        mapManager.CreateTile(pos, name);
+        MapManager.Instance.CreateTile(pos, name);
     }
     /// <summary>
     /// 服务器通知更新地块信息
@@ -289,7 +287,7 @@ public class MapNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     private void RPC_StateCall_TileUpdateInfo(Vector3Int pos, string info)
     {
-        mapManager.GetTileObj(pos, out TileObj obj);
+        MapManager.Instance.GetTileObj(pos, out TileObj obj);
         obj.TryToUpdateInfo(info);
     }
 }

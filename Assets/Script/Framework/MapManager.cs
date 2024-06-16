@@ -10,7 +10,7 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-public class MapManager : MonoBehaviour
+public class MapManager : SingleTon<MapManager>,ISingleTon
 {
     public Tilemap tilemap;
     public Grid grid;
@@ -74,7 +74,7 @@ public class MapManager : MonoBehaviour
     /// </summary>
     /// <param name="tilePos"></param>
     /// <param name="tileObj"></param>
-    public void GetTileObj(Vector3Int tilePos,out TileObj tileObj)
+    public bool GetTileObj(Vector3Int tilePos,out TileObj tileObj)
     {
         tileObj = null;
         MyTile tile = tilemap.GetTile<MyTile>(tilePos);
@@ -83,8 +83,10 @@ public class MapManager : MonoBehaviour
             if(tile.bindObj.TryGetComponent(out TileObj obj))
             {
                 tileObj = obj;
+                return true;
             }
         }
+        return false;
     }
     /// <summary>
     /// ÐÞ¸ÄÍßÆ¬
@@ -92,5 +94,10 @@ public class MapManager : MonoBehaviour
     public void ChangeTileObj(Vector3Int tilePos)
     {
 
+    }
+
+    public void Init()
+    {
+        
     }
 }
