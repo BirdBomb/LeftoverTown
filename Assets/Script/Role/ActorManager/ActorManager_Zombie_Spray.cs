@@ -60,7 +60,7 @@ public class ActorManager_Zombie_Spray : ActorManager
         {
             if (Vector2.Distance(targetActor.transform.position, transform.position) < 1.5f * VisionDistance)
             {
-                FindWayToTarget(targetActor.GetMyTile().posInWorld);
+                FindWayToTarget(targetActor.GetMyTile()._posInWorld);
             }
             else
             {

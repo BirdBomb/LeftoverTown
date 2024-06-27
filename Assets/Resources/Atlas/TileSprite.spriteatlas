@@ -15,7 +15,7 @@ SpriteAtlas:
       compressionQuality: 50
       maxTextureSize: 2048
       textureCompression: 0
-      filterMode: 0
+      filterMode: 1
       generateMipMaps: 0
       readable: 0
       crunchedCompression: 0
@@ -50,51 +50,81 @@ SpriteAtlas:
     isAtlasV2: 0
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
-    - 13b9e8008157f3742a572e8db68849d7: 21300000
     - 0c3d4021057a62f4e9d27e7b693aad88: 21300000
     - 487a04412a572f6458a343b636ade4f7: 21300000
+    - ceb1bd81d02d42046b62ba8d54d057b8: 21300000
+    - 9c4240a1ce34107468b8d8f37bcb3c3e: 21300000
     - 7cab57c1b1c250347ba2319ac4941132: 21300000
+    - 1d8c7a52c4b1ce24d94de536db26f874: 21300000
     - b1c2c4f273ee8a34b909a957da43776b: 21300000
+    - 52d70af3a604ea042af652ed8ebfee63: 21300000
+    - 52b9f674a5089354a84f0e6e78c30c70: 21300000
     - 913812b4a0c231842af80a2df9657d00: 21300000
     - 9a9ca035250d3ac4f8dc304fdced6d1e: 21300000
     - a71bb2a5e9705384696da222758c566d: 21300000
+    - 0dbef2b5fadfd764f808498751b9dfab: 21300000
+    - 8edb80f60fae52d478e530a68fba3f11: 21300000
+    - 054dac1780c28b94886ce33d9f043aae: 21300000
     - db0f25797662ee143a872f39f0ec0ec1: 21300000
+    - 358e443a4b431e1468483bd76c688cb2: 21300000
     - 80db895b4dfb495489c1a8be7b756e7f: 21300000
-    - bb8f9ecce5292a640b81ed97af75e3ce: 21300000
     - 0c4cd0bd859875b4d9d7449dbe7b2c0b: 21300000
     - cfeb77cded1d1b643b8241e16b4256f5: 21300000
+    - bfc258cdb1a12c4418d845a593e10b2e: 21300000
     - 65fc41def31cf0a4e8d594c031a1c6c7: 21300000
+    - 7fad9b1ff8dc66e478d1dea87b751bc5: 21300000
+    - cb45d8dfb46e0724995b9e5628686304: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: 13b9e8008157f3742a572e8db68849d7, type: 3}
   - {fileID: 21300000, guid: 0c3d4021057a62f4e9d27e7b693aad88, type: 3}
   - {fileID: 21300000, guid: 487a04412a572f6458a343b636ade4f7, type: 3}
+  - {fileID: 21300000, guid: ceb1bd81d02d42046b62ba8d54d057b8, type: 3}
+  - {fileID: 21300000, guid: 9c4240a1ce34107468b8d8f37bcb3c3e, type: 3}
   - {fileID: 21300000, guid: 7cab57c1b1c250347ba2319ac4941132, type: 3}
+  - {fileID: 21300000, guid: 1d8c7a52c4b1ce24d94de536db26f874, type: 3}
   - {fileID: 21300000, guid: b1c2c4f273ee8a34b909a957da43776b, type: 3}
+  - {fileID: 21300000, guid: 52d70af3a604ea042af652ed8ebfee63, type: 3}
+  - {fileID: 21300000, guid: 52b9f674a5089354a84f0e6e78c30c70, type: 3}
   - {fileID: 21300000, guid: 913812b4a0c231842af80a2df9657d00, type: 3}
   - {fileID: 21300000, guid: 9a9ca035250d3ac4f8dc304fdced6d1e, type: 3}
   - {fileID: 21300000, guid: a71bb2a5e9705384696da222758c566d, type: 3}
+  - {fileID: 21300000, guid: 0dbef2b5fadfd764f808498751b9dfab, type: 3}
+  - {fileID: 21300000, guid: 8edb80f60fae52d478e530a68fba3f11, type: 3}
+  - {fileID: 21300000, guid: 054dac1780c28b94886ce33d9f043aae, type: 3}
   - {fileID: 21300000, guid: db0f25797662ee143a872f39f0ec0ec1, type: 3}
+  - {fileID: 21300000, guid: 358e443a4b431e1468483bd76c688cb2, type: 3}
   - {fileID: 21300000, guid: 80db895b4dfb495489c1a8be7b756e7f, type: 3}
-  - {fileID: 21300000, guid: bb8f9ecce5292a640b81ed97af75e3ce, type: 3}
   - {fileID: 21300000, guid: 0c4cd0bd859875b4d9d7449dbe7b2c0b, type: 3}
   - {fileID: 21300000, guid: cfeb77cded1d1b643b8241e16b4256f5, type: 3}
+  - {fileID: 21300000, guid: bfc258cdb1a12c4418d845a593e10b2e, type: 3}
   - {fileID: 21300000, guid: 65fc41def31cf0a4e8d594c031a1c6c7, type: 3}
+  - {fileID: 21300000, guid: 7fad9b1ff8dc66e478d1dea87b751bc5, type: 3}
+  - {fileID: 21300000, guid: cb45d8dfb46e0724995b9e5628686304, type: 3}
   m_PackedSpriteNamesToIndex:
-  - Grass_2
   - WoodWindow_0
   - Default
+  - FloorBuilder
+  - Grass_2
   - Base
+  - WoodFloor_0
   - WoodBad_V
+  - Bonfire_0
+  - WoodFloor_1
   - Grass_1
   - Cabinet_0_0
   - WoodDoor_0
+  - Lamp_0
+  - Billboard
+  - Bone
   - WoodWall_0
+  - Grass
   - WoodBad_H
-  - WoodFloor_0
   - WoodBed_Part
   - Tree_0_0
+  - Grass_3
   - Grass_0
+  - WoodFloor_2
+  - WoodFloor
   m_RenderDataMap: {}
   m_Tag: TileSprite
   m_IsVariant: 0

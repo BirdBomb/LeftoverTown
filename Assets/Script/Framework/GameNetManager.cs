@@ -23,22 +23,26 @@ public class GameNetManager : NetworkBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_State_SpawnActor>().Subscribe(_ =>
         {
-            SpawnActor(_.name, _.pos);
+            SpawnActor(_.name, _.pos, _.callBack);
         }).AddTo(this);
     }
 
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
     public void RPC_Local_SpawnActor(string name, Vector3 postion)
     {
-        SpawnActor(name, postion);
+        SpawnActor(name, postion, null);
     }
-    private void SpawnActor(string name, Vector3 postion)
+    private void SpawnActor(string name, Vector3 postion, System.Action<ActorManager> action)
     {
         if (Object.HasStateAuthority)
         {
             GameObject obj = Resources.Load<GameObject>(name);
             NetworkObject networkObject = Runner.Spawn(obj, postion, Quaternion.identity);
             networkObject.AssignInputAuthority(Runner.LocalPlayer);
+            if (action != null)
+            {
+                action.Invoke(networkObject.GetComponent<ActorManager>());
+            }
         }
     }
 

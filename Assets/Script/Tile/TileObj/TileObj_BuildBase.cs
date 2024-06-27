@@ -15,15 +15,15 @@ public class TileObj_BuildBase : TileObj
     public override void Invoke()
     {
         obj_build.SetActive(true);
-        obj_build.GetComponent<UI_Build>().Open(this);
-        obj_build.GetComponent<UI_Build>().UpdateInfoFromTile(info);
+        obj_build.GetComponent<UI_BuildingBuilder>().Open(this);
+        obj_build.GetComponent<UI_BuildingBuilder>().UpdateInfoFromTile(info);
         obj_singal.SetActive(false);
 
         base.Invoke();
     }
     public override void TryToUpdateInfo(string info)
     {
-        obj_build.GetComponent<UI_Build>().UpdateInfoFromTile(info);
+        obj_build.GetComponent<UI_BuildingBuilder>().UpdateInfoFromTile(info);
         base.TryToUpdateInfo(info);
     }
 

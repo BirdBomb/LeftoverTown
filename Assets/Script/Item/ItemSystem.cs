@@ -504,6 +504,10 @@ public class Item_2003 : ItemBase
             }
             else
             {
+                if (showSI)
+                {
+                    owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 1);
+                }
                 return true;
             }
         }
@@ -526,6 +530,24 @@ public class Item_2003 : ItemBase
             }
         }
         base.ReleaseRightClick(dt, state, input, showSI);
+    }
+    public override void BeRelease(ActorManager who)
+    {
+        if (owner)
+        {
+            rightPressTimer = 0;
+            alreadyShot = false;
+            if (rightPressState)
+            {
+                rightPressState = false;
+                owner.BodyController.SetHandBool("Bow_Release", true, rightPressTimer / readyTime, null);
+            }
+            if (owner.isPlayer)
+            {
+                owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0);
+            }
+        }
+        base.BeRelease(who);
     }
     public override void FaceTo(Vector3 mouse, float time)
     {
@@ -555,11 +577,14 @@ public class Item_2003 : ItemBase
                     _newItem.Item_Val = 0;
                     _newItem.Item_Count = 1;
                 }
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                if (owner.isPlayer)
                 {
-                    oldItem = _oldItem,
-                    newItem = _newItem,
-                });
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                    {
+                        oldItem = _oldItem,
+                        newItem = _newItem,
+                    });
+                }
             }
         }
     }
@@ -722,7 +747,6 @@ public class Item_2005 : ItemBase
     {
         if (owner)
         {
-            Debug.Log(rightPressTimer);
             if (rightPressTimer >= readyTime)
             {
                 Shot(Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), input);
@@ -766,6 +790,10 @@ public class Item_2005 : ItemBase
             }
             else
             {
+                if (showSI)
+                {
+                    owner.SkillSector.Update_SIsector(rightPosition, aimDistance, Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), 1);
+                }
                 return true;
             }
         }
@@ -789,6 +817,25 @@ public class Item_2005 : ItemBase
         }
         base.ReleaseRightClick(dt, state, input, showSI);
     }
+    public override void BeRelease(ActorManager who)
+    {
+        if (owner)
+        {
+            rightPressTimer = 0;
+            alreadyShot = false;
+            if (rightPressState)
+            {
+                rightPressState = false;
+                owner.BodyController.SetHandBool("Bow_Release", true, rightPressTimer / readyTime, null);
+            }
+            if (owner.isPlayer)
+            {
+                owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0);
+            }
+        }
+        base.BeRelease(who);
+    }
+
     public override void FaceTo(Vector3 mouse, float time)
     {
         rightPosition = mouse;
@@ -817,11 +864,14 @@ public class Item_2005 : ItemBase
                     _newItem.Item_Val = 0;
                     _newItem.Item_Count = 1;
                 }
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                if (owner.isPlayer)
                 {
-                    oldItem = _oldItem,
-                    newItem = _newItem,
-                });
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                    {
+                        oldItem = _oldItem,
+                        newItem = _newItem,
+                    });
+                }
             }
         }
     }
@@ -955,7 +1005,18 @@ public class Item_2007 : ItemBase
 [Serializable]
 public class Item_2008 : ItemBase
 {
+    public override void ClickLeftClick(float dt, bool state, bool input, bool showSI)
+    {
+        if (owner)
+        {
+            owner.BodyController.SetHandTrigger("Slash_Horizontal", 1, Slash_Vertical);
+        }
+        base.ClickLeftClick(dt, state, input, showSI);
+    }
+    private void Slash_Vertical(string name)
+    {
 
+    }
 }
 /// <summary>
 /// ¶ÌÍ²Ç¹

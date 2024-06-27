@@ -44,17 +44,10 @@ public static class UIEvent
         public int MaxHP;
     }
     /// <summary>
-    /// UI-打开一个外部Grid
+    /// 显示文字
     /// </summary>
-    public class UIEvent_OpenGridUI
+    public class UIEvent_ShowTextUI
     {
-        public UI_Grid bindUI;
-    }
-    /// <summary>
-    /// UI-关闭一个外部Grid
-    /// </summary>
-    public class UIEvent_CloseGridUI
-    {
-        public UI_Grid bindUI;
+        public string text;
     }
 }

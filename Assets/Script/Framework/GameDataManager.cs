@@ -13,22 +13,24 @@ public class GameDataManager :SingleTon<GameDataManager> ,ISingleTon
     /// 角色文件路径
     /// </summary>
     public string actorFilePath { get; set; }
-    public string mapTileTypeFilePath{ get; set; }
-    public string mapTileInfoFilePath { get; set; }
+    public string mapBuildingTypeFilePath{ get; set; }
+    public string mapBuildingInfoFilePath { get; set; }
+    public string mapFloorTypeFilePath { get; set; }
     public void Init()
     {
         
     }
-    public void LoadMap(out MapTileTypeData mapTileTypeData,out MapTileInfoData mapTileInfoData)
+    public void LoadMap(out MapTileTypeData mapTileTypeData,out MapTileInfoData mapTileInfoData,out MapTileInfoData floorTileTypeData)
     {
-        Debug.Log("开始加载地图(类别)" + mapTileTypeFilePath);
-        Debug.Log("开始加载地图(信息)" + mapTileInfoFilePath);
-        string typeJson = FileManager.Instance.ReadFile(mapTileTypeFilePath);
+        Debug.Log("开始加载建筑(类别)" + mapBuildingTypeFilePath);
+        Debug.Log("开始加载建筑(信息)" + mapBuildingInfoFilePath);
+        Debug.Log("开始加载地板(类别)" + mapFloorTypeFilePath);
+        string typeJson = FileManager.Instance.ReadFile(mapBuildingTypeFilePath);
         if (typeJson == "")
         {
             Debug.Log("未获取到目标文件");
             mapTileTypeData = new MapTileTypeData();
-            FileManager.Instance.WriteFile(mapTileTypeFilePath, JsonConvert.SerializeObject(mapTileTypeData));
+            FileManager.Instance.WriteFile(mapBuildingTypeFilePath, JsonConvert.SerializeObject(mapTileTypeData));
         }
         else
         {
@@ -37,7 +39,7 @@ public class GameDataManager :SingleTon<GameDataManager> ,ISingleTon
             {
                 Debug.Log("地图json文件解析失败" + typeJson);
                 mapTileTypeData = new MapTileTypeData();
-                FileManager.Instance.WriteFile(mapTileTypeFilePath, JsonConvert.SerializeObject(mapTileTypeData));
+                FileManager.Instance.WriteFile(mapBuildingTypeFilePath, JsonConvert.SerializeObject(mapTileTypeData));
             }
             else
             {
@@ -47,12 +49,12 @@ public class GameDataManager :SingleTon<GameDataManager> ,ISingleTon
 
         }
 
-        string infoJson = FileManager.Instance.ReadFile(mapTileInfoFilePath);
+        string infoJson = FileManager.Instance.ReadFile(mapBuildingInfoFilePath);
         if (infoJson == "")
         {
             Debug.Log("未获取到目标文件");
             mapTileInfoData = new MapTileInfoData();
-            FileManager.Instance.WriteFile(mapTileInfoFilePath, JsonConvert.SerializeObject(mapTileInfoData));
+            FileManager.Instance.WriteFile(mapBuildingInfoFilePath, JsonConvert.SerializeObject(mapTileInfoData));
         }
         else
         {
@@ -61,7 +63,7 @@ public class GameDataManager :SingleTon<GameDataManager> ,ISingleTon
             {
                 Debug.Log("地图json文件解析失败" + infoJson);
                 mapTileInfoData = new MapTileInfoData();
-                FileManager.Instance.WriteFile(mapTileInfoFilePath, JsonConvert.SerializeObject(mapTileInfoData));
+                FileManager.Instance.WriteFile(mapBuildingInfoFilePath, JsonConvert.SerializeObject(mapTileInfoData));
             }
             else
             {
@@ -70,12 +72,36 @@ public class GameDataManager :SingleTon<GameDataManager> ,ISingleTon
             }
         }
 
+        string floorInfoJson = FileManager.Instance.ReadFile(mapFloorTypeFilePath);
+        if (floorInfoJson == "")
+        {
+            Debug.Log("未获取到目标文件");
+            floorTileTypeData = new MapTileInfoData();
+            FileManager.Instance.WriteFile(mapFloorTypeFilePath, JsonConvert.SerializeObject(floorTileTypeData));
+        }
+        else
+        {
+            MapTileInfoData tiles = JsonConvert.DeserializeObject<MapTileInfoData>(floorInfoJson);
+            if (tiles == null)
+            {
+                Debug.Log("地图json文件解析失败" + floorInfoJson);
+                floorTileTypeData = new MapTileInfoData();
+                FileManager.Instance.WriteFile(mapFloorTypeFilePath, JsonConvert.SerializeObject(floorTileTypeData));
+            }
+            else
+            {
+                Debug.Log("地图json文件解析成功");
+                floorTileTypeData = tiles;
+            }
+        }
+
     }
-    public void SaveMap(MapTileTypeData mapTileTypeData, MapTileInfoData mapTileInfoData)
+    public void SaveMap(MapTileTypeData mapTileTypeData, MapTileInfoData mapTileInfoData, MapTileInfoData floorTileInfoData)
     {
-        Debug.Log("开始保存地图" + mapTileTypeFilePath);
-        FileManager.Instance.WriteFile(mapTileTypeFilePath, JsonConvert.SerializeObject(mapTileTypeData));
-        FileManager.Instance.WriteFile(mapTileInfoFilePath, JsonConvert.SerializeObject(mapTileInfoData));
+        Debug.Log("开始保存地图" + mapBuildingTypeFilePath);
+        FileManager.Instance.WriteFile(mapBuildingTypeFilePath, JsonConvert.SerializeObject(mapTileTypeData));
+        FileManager.Instance.WriteFile(mapBuildingInfoFilePath, JsonConvert.SerializeObject(mapTileInfoData));
+        FileManager.Instance.WriteFile(mapFloorTypeFilePath, JsonConvert.SerializeObject(floorTileInfoData));
     }
     public PlayerData LoadPlayerData()
     {

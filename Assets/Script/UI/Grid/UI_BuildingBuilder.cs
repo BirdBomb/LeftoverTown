@@ -8,7 +8,7 @@ using UniRx;
 using System.Text;
 using UnityEngine.EventSystems;
 
-public class UI_Build : UI_Grid
+public class UI_BuildingBuilder : UI_Grid
 {
     [SerializeField, Header("Ãû×Ö")]
     private Text buildName;
@@ -489,10 +489,10 @@ public class UI_Build : UI_Grid
     }
     private void ClickStartBuildBtn()
     {
-        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeTile()
+        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
         {
-            tileName = targetBuilding.Building_FileName,
-            tilePos = bindTileObj.bindTile.posInCell
+            buildingName = targetBuilding.Building_FileName,
+            buildingPos = bindTileObj.bindTile._posInCell
         }) ;
     }
 

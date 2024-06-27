@@ -11,6 +11,9 @@ using static UnityEngine.Tilemaps.Tile;
 public class MyTile : UnityEngine.Tilemaps.Tile
 {
     #region
+    public Sprite[] m_Sprites;
+    public Sprite m_Preview;
+
     [Header("瓦片通行类型")]
     public TilePassType passType;
     [Header("瓦片交互类型")]
@@ -18,14 +21,10 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     [Header("瓦片阻力")]
     public float passOffset;
 
-    //[HideInInspector]
-    //public int x;
-    //[HideInInspector]
-    //public int y;
     [HideInInspector]
-    public Vector2 posInWorld;
+    public Vector2 _posInWorld;
     [HideInInspector]
-    public Vector3Int posInCell;
+    public Vector3Int _posInCell;
 
     [HideInInspector]
     public GameObject bindObj;
@@ -61,40 +60,48 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     }
     #endregion
     /// <summary>
-    /// 实例瓦片
+    /// 初始化
     /// </summary>
-    public virtual void InstantiateTile(GameObject tileObj,MyTile tileScript)
+    public virtual void InitTile(Vector2 posInWorld, Vector3Int posInCell, GameObject tileObj, MyTile tileScript)
     {
-        name = tileScript.name;
+        _posInWorld = posInWorld + new Vector2(0.5f, 0.5f);
+        _posInCell = posInCell;
 
-        passType = tileScript.passType;
-        interactiveType = tileScript.interactiveType;
-        passOffset = tileScript.passOffset;
-
-        sprite = tileScript.sprite;
-        color = tileScript.color;
-        flags = tileScript.flags;
-        colliderType = tileScript.colliderType;
+        CopyData(tileScript);
+        DrawTile(tileScript);
 
         if (tileObj)
         {
-            bindObj = GameObject.Instantiate(tileObj);
-        }
-    }
-    /// <summary>
-    /// 初始瓦片
-    /// </summary>
-    public virtual void InitTile(Vector2 pos,Vector3Int vector3)
-    {
-        this.posInWorld = pos + new Vector2(0.5f, 0.5f);
-        this.posInCell = vector3;
-        if (bindObj)
-        {
-            bindObj.transform.position = pos + new Vector2(0.5f,0.5f);
+            bindObj = Instantiate(tileObj);
+            bindObj.transform.position = posInWorld + new Vector2(0.5f, 0.5f);
             if (bindObj.TryGetComponent(out TileObj tile))
             {
                 tile.Init(this);
             }
+        }
+    }
+    private void CopyData(MyTile tileScript)
+    {
+        name = tileScript.name;
+        passType = tileScript.passType;
+        interactiveType = tileScript.interactiveType;
+        passOffset = tileScript.passOffset;
+        color = tileScript.color;
+        flags = tileScript.flags;
+        colliderType = tileScript.colliderType;
+    }
+    /// <summary>
+    /// 绘制
+    /// </summary>
+    public virtual void DrawTile(MyTile tileScript)
+    {
+        if (tileScript.m_Sprites != null && tileScript.m_Sprites.Length > 0)
+        {
+            sprite = tileScript.m_Sprites[UnityEngine.Random.Range(0, tileScript.m_Sprites.Length)];
+        }
+        else
+        {
+            sprite = tileScript.sprite;
         }
     }
     /// <summary>
@@ -164,6 +171,96 @@ public class MyTile : UnityEngine.Tilemaps.Tile
         return false;
     }
     #endregion
+
+
+    //#region
+
+    //// 刷新自身以及其他以正交和对角形式相邻的 RoadTile
+    //public override void RefreshTile(Vector3Int location, ITilemap tilemap)
+    //{
+    //    for (int yd = -1; yd <= 1; yd++)
+    //        for (int xd = -1; xd <= 1; xd++)
+    //        {
+    //            Vector3Int position = new Vector3Int(location.x + xd, location.y + yd, location.z);
+    //            if (HasRoadTile(tilemap, position))
+    //                tilemap.RefreshTile(position);
+    //        }
+    //}
+    //// 根据相邻的 RoadTile 确定使用哪个精灵，并将其旋转以适应其他瓦片。
+    ////由于旋转取决于 RoadTile，因此为瓦片设置 TileFlags.OverrideTransform。
+    //public override void GetTileData(Vector3Int location, ITilemap tilemap, ref TileData tileData)
+    //{
+    //    int mask = HasRoadTile(tilemap, location + new Vector3Int(0, 1, 0)) ? 1 : 0;
+    //    mask += HasRoadTile(tilemap, location + new Vector3Int(1, 0, 0)) ? 2 : 0;
+    //    mask += HasRoadTile(tilemap, location + new Vector3Int(0, -1, 0)) ? 4 : 0;
+    //    mask += HasRoadTile(tilemap, location + new Vector3Int(-1, 0, 0)) ? 8 : 0;
+    //    int index = GetIndex((byte)mask);
+    //    if (index >= 0 && index < m_Sprites.Length)
+    //    {
+    //        tileData.sprite = m_Sprites[index];
+    //        tileData.color = Color.white;
+    //        var m = tileData.transform;
+    //        m.SetTRS(Vector3.zero, GetRotation((byte)mask), Vector3.one);
+    //        tileData.transform = m;
+    //        tileData.flags = TileFlags.LockTransform;
+    //        tileData.colliderType = ColliderType.None;
+    //    }
+    //    else
+    //    {
+    //        Debug.LogWarning("Not enough sprites in RoadTile instance");
+    //    }
+    //}
+    //// 这将确定该位置的瓦片是否是相同的 RoadTile。
+    //private bool HasRoadTile(ITilemap tilemap, Vector3Int position)
+    //{
+    //    return tilemap.GetTile(position) == this;
+    //}
+    ////下面根据相邻 RoadTile 的数量确定要使用的精灵
+    //private int GetIndex(byte mask)
+    //{
+    //    switch (mask)
+    //    {
+    //        case 0: return 0;
+    //        case 3:
+    //        case 6:
+    //        case 9:
+    //        case 12: return 1;
+    //        case 1:
+    //        case 2:
+    //        case 4:
+    //        case 5:
+    //        case 10:
+    //        case 8: return 2;
+    //        case 7:
+    //        case 11:
+    //        case 13:
+    //        case 14: return 3;
+    //        case 15: return 4;
+    //    }
+    //    return -1;
+    //}
+    //// 下面根据相邻 RoadTile 的位置确定要使用的旋转
+    //private Quaternion GetRotation(byte mask)
+    //{
+    //    switch (mask)
+    //    {
+    //        case 9:
+    //        case 10:
+    //        case 7:
+    //        case 2:
+    //        case 8:
+    //            return Quaternion.Euler(0f, 0f, -90f);
+    //        case 3:
+    //        case 14:
+    //            return Quaternion.Euler(0f, 0f, -180f);
+    //        case 6:
+    //        case 13:
+    //            return Quaternion.Euler(0f, 0f, -270f);
+    //    }
+    //    return Quaternion.Euler(0f, 0f, 0f);
+    //}
+    //#endregion
+
 #if UNITY_EDITOR
     // 下面是添加菜单项以创建 RoadTile 资源的 helper 函数
     [MenuItem("Assets/Create/MyTile/Base")]

@@ -26,6 +26,7 @@ public class GameEvent
     {
         public string name;
         public Vector3 pos;
+        public System.Action<ActorManager> callBack;
     }
 
     /// <summary>

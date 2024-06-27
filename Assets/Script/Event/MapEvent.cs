@@ -24,14 +24,19 @@ public class MapEvent : MonoBehaviour
         public TileObj tileObj;
         public int damage;
     }
-    public class MapEvent_LocalTile_UpdateInfo
+    public class MapEvent_LocalTile_UpdateBuildingInfo
     {
         public TileObj tileObj;
         public string tileInfo;
     }
-    public class MapEvent_LocalTile_ChangeTile
+    public class MapEvent_LocalTile_ChangeBuilding
     {
-        public Vector3Int tilePos;
-        public string tileName;
+        public Vector3Int buildingPos;
+        public string buildingName;
+    }
+    public class MapEvent_LocalTile_ChangeFloor
+    {
+        public Vector3Int floorPos;
+        public string floorName;
     }
 }

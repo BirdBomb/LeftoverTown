@@ -517,7 +517,7 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_LocalInput_SendEmoji(int id)
     {
-        LocalManager.ActorUI.SendEmoji(EmojiConfigData.GetItemConfig(id));
+        LocalManager.FromRPC_SendEmoji(id);
     }
 
     #endregion

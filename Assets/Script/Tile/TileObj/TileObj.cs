@@ -85,7 +85,7 @@ public class TileObj : MonoBehaviour
     /// </summary>
     public virtual void TryToChangeInfo(string info)
     {
-        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_UpdateInfo
+        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_UpdateBuildingInfo
         {
             tileObj = this,
             tileInfo = info

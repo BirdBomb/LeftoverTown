@@ -16,6 +16,10 @@ public class BuildingConfigData : MonoBehaviour
         new BuildingConfig(){ Building_ID = 1003,Building_Name ="简易木窗",Building_FileName ="WoodWindow_0",Building_SpriteName="WoodWindow_0",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
         new BuildingConfig(){ Building_ID = 1004,Building_Name ="简易木门",Building_FileName ="WoodDoor_0",Building_SpriteName="WoodDoor_0",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
         new BuildingConfig(){ Building_ID = 1005,Building_Name ="木床组件",Building_FileName ="WoodBed_Part",Building_SpriteName="WoodBed_Part",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
+        new BuildingConfig(){ Building_ID = 1006,Building_Name ="路灯",Building_FileName ="Lamp_0",Building_SpriteName="Lamp_0",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
+        new BuildingConfig(){ Building_ID = 1007,Building_Name ="篝火",Building_FileName ="Bonfire_0",Building_SpriteName="Bonfire_0",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
+        new BuildingConfig(){ Building_ID = 1008,Building_Name ="巨大告示牌",Building_FileName ="Billboard",Building_SpriteName="Billboard",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
+        new BuildingConfig(){ Building_ID = 1009,Building_Name ="骸骨",Building_FileName ="Bone",Building_SpriteName="Bone",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
     };
 }
 [Serializable]

@@ -61,6 +61,7 @@ SpriteAtlas:
     - 252374442a32b0842985359f2d11e3bb: 21300000
     - 7bf5b37455e579549b502a98c95f7798: 21300000
     - 0d510ba4cde8eed48ab9849378587c93: 21300000
+    - b90ca0d6d70bc1f4bad7c9d93b888487: 21300000
     - 9bf9d8e70bc253f42a95181509a95dbf: 21300000
     - 3f764f0849c995146a4e66c30e728a0c: 21300000
     - 34b08909523189044baef4c3a7b854a1: 21300000
@@ -80,6 +81,7 @@ SpriteAtlas:
     - e709499e3eb5e0c4b8831628c765d035: 21300000
     - 0382144f9179cfc429c74b6e7f4488d7: 21300000
     - fb66d4af4a751604cbdfa8192ac6ba96: 21300000
+    - 56ce17dfbc0b1c048a1c3b5691724cbc: 21300000
     - 34d82aef782edfe4f90aa7d93f864ac4: 21300000
     - 6c1654ff9eb16e94ca2d7a7a297c43ec: 21300000
   m_MasterAtlas: {fileID: 0}
@@ -95,6 +97,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 252374442a32b0842985359f2d11e3bb, type: 3}
   - {fileID: 21300000, guid: 7bf5b37455e579549b502a98c95f7798, type: 3}
   - {fileID: 21300000, guid: 0d510ba4cde8eed48ab9849378587c93, type: 3}
+  - {fileID: 21300000, guid: b90ca0d6d70bc1f4bad7c9d93b888487, type: 3}
   - {fileID: 21300000, guid: 9bf9d8e70bc253f42a95181509a95dbf, type: 3}
   - {fileID: 21300000, guid: 3f764f0849c995146a4e66c30e728a0c, type: 3}
   - {fileID: 21300000, guid: 34b08909523189044baef4c3a7b854a1, type: 3}
@@ -114,6 +117,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: e709499e3eb5e0c4b8831628c765d035, type: 3}
   - {fileID: 21300000, guid: 0382144f9179cfc429c74b6e7f4488d7, type: 3}
   - {fileID: 21300000, guid: fb66d4af4a751604cbdfa8192ac6ba96, type: 3}
+  - {fileID: 21300000, guid: 56ce17dfbc0b1c048a1c3b5691724cbc, type: 3}
   - {fileID: 21300000, guid: 34d82aef782edfe4f90aa7d93f864ac4, type: 3}
   - {fileID: 21300000, guid: 6c1654ff9eb16e94ca2d7a7a297c43ec, type: 3}
   m_PackedSpriteNamesToIndex:
@@ -128,6 +132,7 @@ SpriteAtlas:
   - Item_4003
   - Item_4003_0
   - Item_4001
+  - Item_5004
   - Item_2008
   - Item_2007
   - Item_2001
@@ -147,6 +152,7 @@ SpriteAtlas:
   - Item_9001
   - Item_5002
   - Item_9003_Part
+  - Item_5003
   - Item_4001_3001
   - Item_2004
   m_RenderDataMap: {}

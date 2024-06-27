@@ -10,8 +10,8 @@ public class TileObj_BedPart : TileObj
     public GameObject Bed_H;
     [HideInInspector]
     public TileObj_BedPart link;
-    private ActorManager _owner = null;
-    private string _ownerName = "";
+    private ActorManager onlyState_owner = null;
+    private string onlyState_ownerName = "";
     public void Start()
     {
         LinkAround();
@@ -20,34 +20,30 @@ public class TileObj_BedPart : TileObj
             ListenTimeUpdate();
         }).AddTo(this);
     }
-    public override void ListenTimeUpdate()
-    {
-        Debug.Log("saaa");
-        if (link != null && transform.position.magnitude < link.transform.position.magnitude)
-        {
-            TryToChangeInfo("Actor/NPC");
-        }
-        base.ListenTimeUpdate();
-    }
     public override void TryToUpdateInfo(string ownerName)
     {
-        Debug.Log(ownerName);
-        _ownerName = ownerName;
-        if (_owner == null)
+        onlyState_ownerName = ownerName;
+        if (onlyState_owner == null)
         {
             MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
             {
-                name = _ownerName,
-                pos = transform.position - Vector3.up * 0.1f
+                name = onlyState_ownerName,
+                pos = transform.position - Vector3.up * 0.1f,
+                callBack = BindOwner
             });
         }
         base.TryToUpdateInfo(ownerName);
+    }
+    public void BindOwner(ActorManager actor)
+    {
+        onlyState_owner = actor;
+        onlyState_owner.onlyState_myBed = bindTile;
     }
     public void LinkAround()
     {
         if (link == null)
         {
-            if (MapManager.Instance.GetTileObj(bindTile.posInCell + Vector3Int.up, out TileObj tileObjUp))
+            if (MapManager.Instance.GetTileObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
             {
                 Debug.Log(tileObjUp.name);
                 if (tileObjUp.name == "WoodBed_Part(Clone)")
@@ -62,7 +58,7 @@ public class TileObj_BedPart : TileObj
                     }
                 }
             }
-            if (MapManager.Instance.GetTileObj(bindTile.posInCell + Vector3Int.down, out TileObj tileObjDown))
+            if (MapManager.Instance.GetTileObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
             {
                 if (tileObjDown.name == "WoodBed_Part(Clone)")
                 {
@@ -76,7 +72,7 @@ public class TileObj_BedPart : TileObj
                     }
                 }
             }
-            if (MapManager.Instance.GetTileObj(bindTile.posInCell + Vector3Int.right, out TileObj tileObjRight))
+            if (MapManager.Instance.GetTileObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
             {
                 if (tileObjRight.name == "WoodBed_Part(Clone)")
                 {
@@ -91,7 +87,7 @@ public class TileObj_BedPart : TileObj
                 }
                 Debug.Log(tileObjRight.name);
             }
-            if (MapManager.Instance.GetTileObj(bindTile.posInCell + Vector3Int.left, out TileObj tileObjLeft))
+            if (MapManager.Instance.GetTileObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
             {
                 if (tileObjLeft.name == "WoodBed_Part(Clone)")
                 {

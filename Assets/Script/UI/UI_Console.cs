@@ -21,6 +21,8 @@ public class UI_Console : MonoBehaviour
         btn_changeItemType_4000.onClick.AddListener(() => { ChangeItemType(4); });
         btn_changeItemType_5000.onClick.AddListener(() => { ChangeItemType(5); });
         btn_changeItemType_9000.onClick.AddListener(() => { ChangeItemType(9); });
+        btn_changeBuildingType.onClick.AddListener(() => { ChangeBuildingType(); });
+        btn_changeFloorType.onClick.AddListener(() => { ChangeFloorType(); });
         btn_Save.onClick.AddListener(() => 
         {
             MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_SaveMapData()
@@ -34,10 +36,10 @@ public class UI_Console : MonoBehaviour
         for (int i = 0; i < btn_list.Count; i++)
         {
             int index = i;
-            btn_list[i].onClick.AddListener(() => { ClickItemBtn(index); });
-            data.ItemIconList.Add(btn_list[i].GetComponent<Image>());
+            btn_list[i].onClick.AddListener(() => { ClickBtn(index); });
+            data.IconList.Add(btn_list[i].GetComponent<Image>());
         }
-
+        data.IconListCount = btn_list.Count;
     }
     #region//输入
     [SerializeField, Header("输入框")]
@@ -72,6 +74,10 @@ public class UI_Console : MonoBehaviour
     private Button btn_changeItemType_5000;
     [SerializeField, Header("切换杂项")]
     private Button btn_changeItemType_9000;
+    [SerializeField, Header("切换建筑建造")]
+    private Button btn_changeBuildingType;
+    [SerializeField, Header("切换地板建造")]
+    private Button btn_changeFloorType;
     [SerializeField, Header("上一页")]
     private Button btn_lastPage;
     [SerializeField, Header("下一页")]
@@ -83,8 +89,28 @@ public class UI_Console : MonoBehaviour
     private void ChangeItemType(int value)
     {
         var data = ConsoleUIArchitecture.Interface.GetModel<IConsoleDataModle>();
+        data.State = ConsoleState.Item;
         data.ItemListType = value;
     }
+    /// <summary>
+    /// 更改目标地块种类
+    /// </summary>
+    /// <param name="value"></param>
+    private void ChangeBuildingType()
+    {
+        var data = ConsoleUIArchitecture.Interface.GetModel<IConsoleDataModle>();
+        data.State = ConsoleState.Building;
+    }
+    /// <summary>
+    /// 更改目标地块种类
+    /// </summary>
+    /// <param name="value"></param>
+    private void ChangeFloorType()
+    {
+        var data = ConsoleUIArchitecture.Interface.GetModel<IConsoleDataModle>();
+        data.State = ConsoleState.Floor;
+    }
+
     /// <summary>
     /// 翻页
     /// </summary>
@@ -94,18 +120,30 @@ public class UI_Console : MonoBehaviour
         var data = ConsoleUIArchitecture.Interface.GetModel<IConsoleDataModle>();
         if (nextPage)
         {
-            data.ItemListPage++;
+            data.ListPage++;
         }
         else
         {
-            data.ItemListPage--;
+            data.ListPage--;
         }
     }
-    private void ClickItemBtn(int index)
+    private void ClickBtn(int index)
     {
         var data = ConsoleUIArchitecture.Interface.GetModel<IConsoleDataModle>();
-        data.ItemListIndex = index;
-        ConsoleUIArchitecture.Interface.SendCommand(new ConsoleCommand_CreateItem());
+        data.ListIndex = index;
+
+        if (data.State == ConsoleState.Item)
+        {
+            ConsoleUIArchitecture.Interface.SendCommand(new ConsoleCommand_CreateItem());
+        }
+        if (data.State == ConsoleState.Building)
+        {
+            ConsoleUIArchitecture.Interface.SendCommand(new ConsoleCommand_CreateBuild());
+        }
+        if (data.State == ConsoleState.Floor)
+        {
+            ConsoleUIArchitecture.Interface.SendCommand(new ConsoleCommand_CreateFloor());
+        }
     }
     #endregion
     #region//控制

@@ -58,6 +58,7 @@ public class ActorManager : MonoBehaviour
     public bool isPlayer = false;
     public bool isState = false;
     public bool isInput = false;
+    public MyTile onlyState_myBed;
     public const float customUpdateTime = 0.1f;
     protected LayerMask tileLayer;
     private void Awake()
@@ -78,7 +79,7 @@ public class ActorManager : MonoBehaviour
         isState = hasStateAuthority;
         isInput = hasInputAuthority;
         InvokeRepeating("CustomUpdate", 1f, customUpdateTime);
-        navManager = GameObject.Find("Furniture").GetComponent<NavManager>();
+        navManager = GameObject.Find("Map").GetComponent<NavManager>();
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneMove>().Subscribe(_ =>
         {
             ListenRoleMove(_.moveActor, _.moveTile);
@@ -351,11 +352,11 @@ public class ActorManager : MonoBehaviour
     {
         tempTiles.Clear();
         MyTile tile = GetMyTile();
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell + Vector3Int.right));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell + Vector3Int.left));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell + Vector3Int.up));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile.posInCell + Vector3Int.down));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.right));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.left));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.up));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.down));
         return tempTiles;
     }
     public void CheckMyTile()
@@ -363,15 +364,15 @@ public class ActorManager : MonoBehaviour
         curTile = GetMyTile();
         if (!curTile) { return; }
         if (lastTile == null) { lastTile = curTile; }
-        if (lastTile.posInWorld != curTile.posInWorld)
+        if (lastTile._posInWorld != curTile._posInWorld)
         {
-            InNewTile();
+            ListenMyself_InNewTile();
         }
     }
     /// <summary>
     /// 到达新地块
     /// </summary>
-    public virtual void InNewTile()
+    public virtual void ListenMyself_InNewTile()
     {
         lastTile = curTile;
         MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneMove
@@ -379,6 +380,13 @@ public class ActorManager : MonoBehaviour
             moveActor = this,
             moveTile = curTile
         });
+    }
+    /// <summary>
+    /// 到达终点
+    /// </summary>
+    public virtual void ListenMyself_InDestinationTile()
+    {
+
     }
     #endregion
     /*物品*/
@@ -410,6 +418,7 @@ public class ActorManager : MonoBehaviour
     }
     public void ResetItem_Hand()
     {
+        if (holdingByHand != null) { holdingByHand.BeRelease(this); }
         holdingByHand = new ItemBase();
         if (bodyController.Hand_LeftItem.childCount > 0)
         {
@@ -428,6 +437,11 @@ public class ActorManager : MonoBehaviour
 
         bodyController.Hand_Left.GetComponent<SpriteRenderer>().enabled = true;
         bodyController.Hand_Right.GetComponent<SpriteRenderer>().enabled = true;
+
+        bodyController.SetBodyBool("Idle", true, 1, null);
+        bodyController.SetHeadBool("Idle", true, 1, null);
+        bodyController.SetHandBool("Idle", true, 1, null);
+        bodyController.SetHandBool("Idle", true, 1, null);
 
         bodyController.Hand_RightItem.localScale = Vector3.one;
         bodyController.Hand_LeftItem.localScale = Vector3.one;
@@ -617,50 +631,56 @@ public class ActorManager : MonoBehaviour
     {
         if (targetTile)
         {
-            /*到达路径点，检查*/
-            if (Vector2.Distance(targetTile.posInWorld, transform.position) <= 0.1f)
+            if (Vector2.Distance(targetTile._posInWorld, transform.position) <= 0.1f)
             {
+                /*到达路径点，检查*/
                 targetTile = null;
-                /*如果路径还未结束*/
                 if (tempPath.Count > 0)
                 {
+                    /*路径还未结束*/
                     tempPath.RemoveAt(0);
                     if (tempPath.Count > 0)
                     {
                         targetTile = tempPath[0];
                     }
                 }
+                else
+                {
+                    ListenMyself_InDestinationTile();
+                    /*路径已经结束*/
+                }
                 CheckMyTile();
                 return;
             }
-            /*到达路径点，前往路径点*/
             else
             {
+                /*到达路径点，前往路径点*/
+
                 Vector2 temp = Vector2.zero;
-                if (transform.position.x > targetTile.posInWorld.x)
+                if (transform.position.x > targetTile._posInWorld.x)
                 {
-                    if ((transform.position.x - targetTile.posInWorld.x) > 0.05f)
+                    if ((transform.position.x - targetTile._posInWorld.x) > 0.05f)
                     {
                         temp += new Vector2(-1, 0);
                     }
                 }
                 else
                 {
-                    if ((transform.position.x - targetTile.posInWorld.x) < -0.05f)
+                    if ((transform.position.x - targetTile._posInWorld.x) < -0.05f)
                     {
                         temp += new Vector2(1, 0);
                     }
                 }
-                if (transform.position.y > targetTile.posInWorld.y)
+                if (transform.position.y > targetTile._posInWorld.y)
                 {
-                    if ((transform.position.y - targetTile.posInWorld.y) > 0.05f)
+                    if ((transform.position.y - targetTile._posInWorld.y) > 0.05f)
                     {
                         temp += new Vector2(0, -1);
                     }
                 }
                 else
                 {
-                    if ((transform.position.y - targetTile.posInWorld.y) < -0.05f)
+                    if ((transform.position.y - targetTile._posInWorld.y) < -0.05f)
                     {
                         temp += new Vector2(0, 1);
                     }
@@ -768,6 +788,16 @@ public class ActorManager : MonoBehaviour
             obj_num.GetComponent<UI_DamageNum>().Play(parameter, new Color32(255, 50, 50, 255));
             PlayTakeDamage(1);
         }
+    }
+    public virtual void FromRPC_SendEmoji(int emojiID)
+    {
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneSendEmoji
+        {
+            actor = this,
+            id = emojiID
+        });
+        ActorUI.SendEmoji(EmojiConfigData.GetItemConfig(emojiID));
+
     }
 }
 [Serializable]

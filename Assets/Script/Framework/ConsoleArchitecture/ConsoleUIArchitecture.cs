@@ -17,6 +17,8 @@ public class ConsoleUIArchitecture : Architecture<ConsoleUIArchitecture>
         RegisterModel<IConsoleDataModle>(new ConsoleDataModle());
         RegisterSystem<IConsoleInputSystem>(new ConsoleInputSystem());
         RegisterSystem<IConsoleItemListSystem>(new ConsoleItemListSystem());
+        RegisterSystem<IConsoleBuildingListSystem>(new ConsoleBuildingListSystem());
+        RegisterSystem<IConsoleFloorListSystem>(new ConsoleFloorListSystem());
     }
 }
 /// <summary>
@@ -24,6 +26,19 @@ public class ConsoleUIArchitecture : Architecture<ConsoleUIArchitecture>
 /// </summary>
 public class ConsoleDataModle : IConsoleDataModle
 {
+    private ConsoleState state;
+    public ConsoleState State 
+    {
+        get { return state; }
+        set
+        {
+            if (state != value)
+            {
+                state = value;
+                GetArchitecture().SendCommand(new ConsoleCommand_UpdateList());
+            }
+        }
+    }
     public bool Initialized { get; set; }
     public void Init()
     {
@@ -53,12 +68,12 @@ public class ConsoleDataModle : IConsoleDataModle
             if (lastItemType != value)
             {
                 lastItemType = value;
-                GetArchitecture().SendCommand(new ConsoleCommand_UpdateItemList());
+                GetArchitecture().SendCommand(new ConsoleCommand_UpdateList());
             }
         }
     }
     private int itemListPage;
-    public int ItemListPage 
+    public int ListPage 
     {
         get { return itemListPage; }
         set
@@ -66,29 +81,37 @@ public class ConsoleDataModle : IConsoleDataModle
             if (itemListPage != value)
             {
                 itemListPage = value;
-                GetArchitecture().SendCommand(new ConsoleCommand_UpdateItemList());
+                GetArchitecture().SendCommand(new ConsoleCommand_UpdateList());
             }
         }
     }
-    public int ItemListIndex { get; set; }
-    private List<UnityEngine.UI.Image> itemIconList = new List<UnityEngine.UI.Image>();
-    public List<UnityEngine.UI.Image> ItemIconList 
+    public int ListIndex { get; set; }
+    private List<UnityEngine.UI.Image> iconList = new List<UnityEngine.UI.Image>();
+    public List<UnityEngine.UI.Image> IconList 
     { 
-        get { return itemIconList; }
+        get { return iconList; }
         set 
         {
-            itemIconList = value;
+            iconList = value;
         }
     }
-
+    public int IconListCount { get; set; }
 }
 public interface IConsoleDataModle : IModel
 {
     public string InputStr { get; set; }
+    public ConsoleState State { get; set; }
     public int ItemListType { get; set; }
-    public int ItemListPage { get; set; }
-    public int ItemListIndex { get; set; }
-    public List<UnityEngine.UI.Image> ItemIconList { get; set; }
+    public int ListPage { get; set; }
+    public int ListIndex { get; set; }
+    public List<UnityEngine.UI.Image> IconList { get; set; }
+    public int IconListCount { get; set; }
+}
+public enum ConsoleState
+{
+    Item,
+    Building,
+    Floor
 }
 #region//控制台指令
 public class ConsoleCommand_EndInput : AbstractCommand
@@ -105,11 +128,22 @@ public class ConsoleCommand_UpdateInput : AbstractCommand
         this.GetSystem<IConsoleInputSystem>().CheckInput();
     }
 }
-public class ConsoleCommand_UpdateItemList : AbstractCommand
+public class ConsoleCommand_UpdateList : AbstractCommand
 {
     protected override void OnExecute()
     {
-        this.GetSystem<IConsoleItemListSystem>().Update();
+        if (this.GetModel<IConsoleDataModle>().State == ConsoleState.Item)
+        {
+            this.GetSystem<IConsoleItemListSystem>().Update();
+        }
+        if (this.GetModel<IConsoleDataModle>().State == ConsoleState.Building)
+        {
+            this.GetSystem<IConsoleBuildingListSystem>().Update();
+        }
+        if (this.GetModel<IConsoleDataModle>().State == ConsoleState.Floor)
+        {
+            this.GetSystem<IConsoleFloorListSystem>().Update();
+        }
     }
 
 }
@@ -120,6 +154,20 @@ public class ConsoleCommand_CreateItem : AbstractCommand
         this.GetSystem<IConsoleItemListSystem>().Create();
     }
 
+}
+public class ConsoleCommand_CreateBuild : AbstractCommand
+{
+    protected override void OnExecute()
+    {
+        this.GetSystem<IConsoleBuildingListSystem>().Create();
+    }
+}
+public class ConsoleCommand_CreateFloor : AbstractCommand
+{
+    protected override void OnExecute()
+    {
+        this.GetSystem<IConsoleFloorListSystem>().Create();
+    }
 }
 #endregion
 /// <summary>
@@ -225,22 +273,25 @@ public class ConsoleItemListSystem : IConsoleItemListSystem
 
     public void Update()
     {
+        var state = this.GetModel<IConsoleDataModle>().State;
         var itemType = this.GetModel<IConsoleDataModle>().ItemListType;
-        var itemPage = this.GetModel<IConsoleDataModle>().ItemListPage;
-        var itemIndex = this.GetModel<IConsoleDataModle>().ItemListIndex;
-        var iconList = this.GetModel<IConsoleDataModle>().ItemIconList;
+        var itemPage = this.GetModel<IConsoleDataModle>().ListPage;
+        var itemIndex = this.GetModel<IConsoleDataModle>().ListIndex;
+        var iconList = this.GetModel<IConsoleDataModle>().IconList;
+        var iconListCount = this.GetModel<IConsoleDataModle>().IconListCount;
+
         List<ItemConfig> itemTargetConfigs = new List<ItemConfig>();
         itemTargetConfigs = ItemConfigData.itemConfigs.FindAll((x) => { return x.Item_ID / 1000 == itemType; });
-        int startIndex = 10 * itemPage;
+        int startIndex = iconListCount * itemPage;
         if (startIndex < 0)
         {
-            this.GetModel<IConsoleDataModle>().ItemListPage = (itemTargetConfigs.Count / 10);
+            this.GetModel<IConsoleDataModle>().ListPage = (itemTargetConfigs.Count / iconListCount);
         }
         else
         {
             if (itemTargetConfigs.Count > startIndex)
             {
-                for (int i = startIndex; i < startIndex + 10; i++)
+                for (int i = startIndex; i < startIndex + iconListCount; i++)
                 {
                     if (itemTargetConfigs.Count > i)
                     {
@@ -254,37 +305,202 @@ public class ConsoleItemListSystem : IConsoleItemListSystem
             }
             else/*超限,页数归零*/
             {
-                this.GetModel<IConsoleDataModle>().ItemListPage = 0;
+                this.GetModel<IConsoleDataModle>().ListPage = 0;
                 Debug.Log("归零");
             }
         }
+
     }
     public void Create()
     {
         var itemType = this.GetModel<IConsoleDataModle>().ItemListType;
-        var itemPage = this.GetModel<IConsoleDataModle>().ItemListPage;
-        var itemIndex = this.GetModel<IConsoleDataModle>().ItemListIndex;
-        var iconList = this.GetModel<IConsoleDataModle>().ItemIconList;
+        var page = this.GetModel<IConsoleDataModle>().ListPage;
+        var index = this.GetModel<IConsoleDataModle>().ListIndex;
+        var iconCount = this.GetModel<IConsoleDataModle>().IconListCount;
         List<ItemConfig> itemTargetConfigs = new List<ItemConfig>();
         itemTargetConfigs = ItemConfigData.itemConfigs.FindAll((x) => { return x.Item_ID / 1000 == itemType; });
-        int startIndex = 10 * itemPage + itemIndex;
+        int startIndex = iconCount * page + index;
         if (itemTargetConfigs.Count > startIndex)
         {
             Type type = Type.GetType("Item_" + itemTargetConfigs[startIndex].Item_ID.ToString());
             ItemData itemData = ((ItemBase)Activator.CreateInstance(type)).GetRandomInitData(itemTargetConfigs[startIndex].Item_ID, 1, 0);
-            //MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-            //{
-            //    item = itemData
-            //});
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
             {
                 item = itemData
             });
         }
+    }
+}
+/// <summary>
+/// 地块清单系统
+/// </summary>
+public class ConsoleBuildingListSystem : IConsoleBuildingListSystem
+{
+    public bool Initialized { get; set; }
+    private IArchitecture _architecture;
+
+    public void Init()
+    {
+
+    }
+    public void Deinit()
+    {
+
+    }
+
+    public void Create()
+    {
+        var page = this.GetModel<IConsoleDataModle>().ListPage;
+        var index = this.GetModel<IConsoleDataModle>().ListIndex;
+        var iconCount = this.GetModel<IConsoleDataModle>().IconListCount;
+        List<BuildingConfig> tileTargetConfigs = BuildingConfigData.buildConfigs;
+        int startIndex = iconCount * page + index;
+        Debug.Log(startIndex.ToString());
+        if (tileTargetConfigs.Count > startIndex)
+        {
+            string buildingName = tileTargetConfigs[startIndex].Building_FileName;
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryBuildBuilding()
+            {
+                name = buildingName
+            });
+        }
+    }
+    public IArchitecture GetArchitecture()
+    {
+        return _architecture;
+    }
+    public void SetArchitecture(IArchitecture architecture)
+    {
+        _architecture = architecture;
+    }
+
+    public void Update()
+    {
+        var itemPage = this.GetModel<IConsoleDataModle>().ListPage;
+        var iconList = this.GetModel<IConsoleDataModle>().IconList;
+        var iconListCount = this.GetModel<IConsoleDataModle>().IconListCount;
+
+        List<BuildingConfig> buildingTargetConfigs = BuildingConfigData.buildConfigs;
+        int startIndex = iconListCount * itemPage;
+
+        if (startIndex < 0)
+        {
+            this.GetModel<IConsoleDataModle>().ListPage = (buildingTargetConfigs.Count / iconListCount);
+        }
+        else
+        {
+            if (buildingTargetConfigs.Count > startIndex)
+            {
+                for (int i = startIndex; i < startIndex + iconListCount; i++)
+                {
+                    if (buildingTargetConfigs.Count > i)
+                    {
+                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite(buildingTargetConfigs[i].Building_SpriteName);
+                    }
+                    else
+                    {
+                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite("Default");
+                    }
+                }
+            }
+            else/*超限,页数归零*/
+            {
+                this.GetModel<IConsoleDataModle>().ListPage = 0;
+                Debug.Log("归零");
+            }
+        }
+
+    }
+}
+public class ConsoleFloorListSystem : IConsoleFloorListSystem
+{
+    public bool Initialized { get; set; }
+    private IArchitecture _architecture;
+
+    public void Init()
+    {
+
+    }
+    public void Deinit()
+    {
+
+    }
+
+    public void Create()
+    {
+        var page = this.GetModel<IConsoleDataModle>().ListPage;
+        var index = this.GetModel<IConsoleDataModle>().ListIndex;
+        var iconCount = this.GetModel<IConsoleDataModle>().IconListCount;
+        List<FloorConfig> tileTargetConfigs = FloorConfigData.floorConfigs;
+        int startIndex = iconCount * page + index;
+        Debug.Log(startIndex.ToString());
+        if (tileTargetConfigs.Count > startIndex)
+        {
+            string floorName = tileTargetConfigs[startIndex].Floor_FileName;
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryBuildFloor()
+            {
+                name = floorName
+            });
+        }
+    }
+    public IArchitecture GetArchitecture()
+    {
+        return _architecture;
+    }
+    public void SetArchitecture(IArchitecture architecture)
+    {
+        _architecture = architecture;
+    }
+
+    public void Update()
+    {
+        var itemPage = this.GetModel<IConsoleDataModle>().ListPage;
+        var iconList = this.GetModel<IConsoleDataModle>().IconList;
+        var iconListCount = this.GetModel<IConsoleDataModle>().IconListCount;
+
+        List<FloorConfig> floorTargetConfigs = FloorConfigData.floorConfigs;
+        int startIndex = iconListCount * itemPage;
+
+        if (startIndex < 0)
+        {
+            this.GetModel<IConsoleDataModle>().ListPage = (floorTargetConfigs.Count / iconListCount);
+        }
+        else
+        {
+            if (floorTargetConfigs.Count > startIndex)
+            {
+                for (int i = startIndex; i < startIndex + iconListCount; i++)
+                {
+                    if (floorTargetConfigs.Count > i)
+                    {
+                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite(floorTargetConfigs[i].Floor_SpriteName);
+                    }
+                    else
+                    {
+                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite("Default");
+                    }
+                }
+            }
+            else/*超限,页数归零*/
+            {
+                this.GetModel<IConsoleDataModle>().ListPage = 0;
+                Debug.Log("归零");
+            }
+        }
 
     }
 }
 public interface IConsoleItemListSystem : ISystem
+{
+    public void Update();
+    public void Create();
+}
+public interface IConsoleBuildingListSystem : ISystem
+{
+    public void Update();
+    public void Create();
+}
+public interface IConsoleFloorListSystem : ISystem
 {
     public void Update();
     public void Create();

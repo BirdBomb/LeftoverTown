@@ -12,10 +12,7 @@ public class UI_Grid : MonoBehaviour
     /// <param name="tileObj"></param>
     public virtual void Open(TileObj tileObj)
     {
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_OpenGridUI()
-        {
-            bindUI = this
-        });
+        
     }
     /// <summary>
     /// 关闭
@@ -23,10 +20,7 @@ public class UI_Grid : MonoBehaviour
     /// <param name="tileObj"></param>
     public virtual void Close(TileObj tileObj)
     {
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_CloseGridUI()
-        {
-            bindUI = this
-        });
+        
     }
     /// <summary>
     /// 格子开始拖拽

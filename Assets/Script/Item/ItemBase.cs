@@ -124,6 +124,14 @@ public class ItemBase
 
     }
     /// <summary>
+    /// ÊÍ·Å
+    /// </summary>
+    /// <param name="who"></param>
+    public virtual void BeRelease(ActorManager who)
+    {
+
+    }
+    /// <summary>
     /// ÓÒ¼üµã»÷
     /// </summary>
     public virtual void ClickRightClick(float dt, bool state, bool input, bool showSI)

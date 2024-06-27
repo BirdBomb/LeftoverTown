@@ -165,6 +165,29 @@ public class PlayerController : MonoBehaviour
                 });
             }
         }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryBuildBuilding>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
+                {
+                    buildingName = _.name,
+                    buildingPos = actorManager.GetMyTile()._posInCell
+                });
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryBuildFloor>().Subscribe(_ =>
+        {
+            if (thisPlayerIsMe)
+            {
+                MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeFloor()
+                {
+                    floorName = _.name,
+                    floorPos = actorManager.GetMyTile()._posInCell
+                });
+            }
+        }).AddTo(this);
+
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_Emoji>().Subscribe(_ =>
         {
             if (thisPlayerIsMe)
@@ -216,18 +239,37 @@ public class PlayerController : MonoBehaviour
             {
                 if (actorManager.GetMyTile().name == "Default")
                 {
-                    MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeTile()
+                    MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                     {
-                        tileName = "Base",
-                        tilePos = actorManager.GetMyTile().posInCell
+                        buildingName = "Base",
+                        buildingPos = actorManager.GetMyTile()._posInCell
                     });
                 }
                 else if (actorManager.GetMyTile().name == "Base")
                 {
-                    MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeTile()
+                    MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                     {
-                        tileName = "Default",
-                        tilePos = actorManager.GetMyTile().posInCell
+                        buildingName = "Default",
+                        buildingPos = actorManager.GetMyTile()._posInCell
+                    });
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                if (actorManager.GetMyTile().name == "Default")
+                {
+                    MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
+                    {
+                        buildingName = "FloorBuilder",
+                        buildingPos = actorManager.GetMyTile()._posInCell
+                    });
+                }
+                else if (actorManager.GetMyTile().name == "FloorBuilder")
+                {
+                    MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
+                    {
+                        buildingName = "Default",
+                        buildingPos = actorManager.GetMyTile()._posInCell
                     });
                 }
             }
