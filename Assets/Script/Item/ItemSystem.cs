@@ -1406,6 +1406,13 @@ public class Item_9004 : ItemBase
 {
 
 }
+/// <summary>
+/// Ô¿³×
+/// </summary>
+public class Item_9005 : ItemBase
+{
+
+}
 
 ///// <summary>
 ///// Ìú¸«Í·

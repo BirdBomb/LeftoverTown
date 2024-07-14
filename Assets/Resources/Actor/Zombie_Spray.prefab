@@ -233,7 +233,7 @@ SpriteRenderer:
   m_Size: {x: 0.16, y: 0.16}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1385506884294209421
@@ -369,11 +369,11 @@ GameObject:
   - component: {fileID: 7183460069481913143}
   - component: {fileID: 4384289921375883734}
   - component: {fileID: 4471197341784355615}
-  - component: {fileID: 8012539075815272}
   - component: {fileID: 8654616369244252524}
   - component: {fileID: 5995745838076438225}
   - component: {fileID: 1156326853458639187}
   - component: {fileID: 6854776739191718578}
+  - component: {fileID: 3641084899495015402}
   m_Layer: 6
   m_Name: Zombie_Spray
   m_TagString: Actor
@@ -500,24 +500,8 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 8012539075815272}
   - {fileID: 5995745838076438225}
---- !u!114 &8012539075815272
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1991950802475674913}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SyncScale: 0
-  SyncParent: 0
-  _autoAOIOverride: 1
-  DisableSharedModeInterpolation: 0
+  - {fileID: 3641084899495015402}
 --- !u!114 &8654616369244252524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -563,7 +547,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2466aa7a23d21a4394b30cc41be8dbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetTransform: {fileID: 8012539075815272}
+  NetTransform: {fileID: 0}
+  networkRigidbody: {fileID: 3641084899495015402}
   LocalManager: {fileID: 1156326853458639187}
   _Data_Seed: 0
   _Data_Hp: 20
@@ -599,16 +584,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17b7c33e554147e4fb7d241483c1b2a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  myRigidbody: {fileID: 7183460069481913143}
   actorConfig:
+    Config_Hp: 10
+    Config_MaxHp: 10
     Config_Speed: 1
-    Config_MaxSpeed: 0
-    Config_Endurance: 0
+    Config_MaxSpeed: 1
+    Config_Endurance: 1
     Config_LootCount: 2
     Config_LootList:
-    - ID: 3001
+    - Item:
+        Item_ID: 0
+        Item_Seed: 0
+        Item_Count: 0
+        Item_Val: 0
       Weight: 100
-    - ID: 3001
+    - Item:
+        Item_ID: 0
+        Item_Seed: 0
+        Item_Count: 0
+        Item_Val: 0
       Weight: 100
+    Config_BagCount: 0
+    Config_BagList: []
   netManager: {fileID: 5995745838076438225}
   bodyController: {fileID: 8654616369244252524}
   skillSector: {fileID: 0}
@@ -617,8 +615,12 @@ MonoBehaviour:
   navManager: {fileID: 0}
   isPlayer: 0
   isState: 0
+  isInput: 0
+  onlyState_myBed: {fileID: 0}
+  face: {x: 0, y: 0}
   tempPath: []
   targetTile: {fileID: 0}
+  attackState: 0
   VisionDistance: 20
   AttackDamage: 2
   AttackDistance: 2
@@ -669,6 +671,28 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.75, y: 1.5}
   m_EdgeRadius: 0
+--- !u!114 &3641084899495015402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991950802475674913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e690b5fb1084f5ab1c86457af401d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SyncScale: 0
+  SyncParent: 0
+  _interpolationTarget: {fileID: 0}
+  UsePreciseRotation: 0
+  UseRenderSleepThresholds: 1
+  RenderThresholds:
+    UseEnergy: 1
+    Position: 0.01
+    Rotation: 0.01
+    Scale: 0.01
 --- !u!1 &2506625215611857494
 GameObject:
   m_ObjectHideFlags: 0

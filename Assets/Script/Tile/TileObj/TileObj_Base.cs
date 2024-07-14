@@ -11,9 +11,9 @@ public class TileObj_Base : TileObj
     public void Start()
     {
     }
-    public override void Invoke()
+    public override void Invoke(PlayerController player)
     {
-        base.Invoke();
+        base.Invoke(player);
     }
     public override void TryToUpdateInfo(string info)
     {

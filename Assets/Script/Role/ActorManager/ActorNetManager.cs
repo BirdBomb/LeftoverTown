@@ -3,6 +3,7 @@ using UnityEngine;
 using Fusion;
 using UniRx;
 using UnityEngine.Windows;
+using Fusion.Addons.Physics;
 /// <summary>
 /// 角色网络管理器
 /// </summary>
@@ -10,26 +11,34 @@ public class ActorNetManager : NetworkBehaviour
 {
     [Header("位置同步组件")]
     public NetworkTransform NetTransform;
+    [Header("位置同步组件")]
+    public NetworkRigidbody2D networkRigidbody;
     [Header("本地角色组件")]
     public ActorManager LocalManager;
     public ActorNetData NetData;
     public override void Spawned()
     {
-        if (!LocalManager.isPlayer)
+        if (LocalManager.isPlayer)
+        {
+           
+        }
+        else
         {
             if (Object.HasStateAuthority)
             {
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
+            InitByNPC();
         }
         LocalManager.InitByNetManager(Object.HasStateAuthority, Object.HasInputAuthority);
-        InitNetData();
-        OnItemInBagChange();
-        OnItemInHandChange();
+        //OnItemInBagChange();
+        //OnItemInHandChange();
         base.Spawned();
     }
-    private void InitNetData()
+    private void InitByNPC()
     {
+        Data_Hp = (int)(LocalManager.actorConfig.Config_Hp);
+        Data_MaxHp = (int)(LocalManager.actorConfig.Config_MaxHp);
         NetData.Speed = (int)(LocalManager.actorConfig.Config_Speed * 1000);
         NetData.MaxSpeed = (int)(LocalManager.actorConfig.Config_Speed * 1000);
         NetData.Endurance = (int)(LocalManager.actorConfig.Config_Endurance * 1000);
@@ -43,11 +52,16 @@ public class ActorNetManager : NetworkBehaviour
     /// 更新网络位置
     /// </summary>
     /// <param name="pos"></param>
-    public void UpdateNetworkTransform(Vector3 pos)
+    public void UpdateNetworkTransform(Vector3 pos,float speed)
     {
-        if (NetTransform && Object.HasStateAuthority)
+        if (networkRigidbody /*&& Object.HasStateAuthority*/)
         {
-            NetTransform.Teleport(pos);
+            if (networkRigidbody.Rigidbody.velocity.magnitude <= speed)
+            {
+                networkRigidbody.Rigidbody.velocity = Vector2.zero;
+                networkRigidbody.Rigidbody.position = (pos);
+            }
+            //networkRigidbody.Teleport(pos);
             //transform.position = pos;
         }
     }
@@ -164,28 +178,28 @@ public class ActorNetManager : NetworkBehaviour
     }
     #region//Networked
 
-    [Networked, OnChangedRender(nameof(OnSeedChange))]
+    [Networked, OnChangedRender(nameof(OnSeedChange)),HideInInspector]
     public int Data_Seed { get; set; }
     public int RandomInRange { get; set; }
-    [Networked, OnChangedRender(nameof(OnHpChange))]
+    [Networked, OnChangedRender(nameof(OnHpChange)), HideInInspector]
     public int Data_Hp { get; set; }
-    [Networked, OnChangedRender(nameof(OnEnChange))]
+    [Networked, OnChangedRender(nameof(OnEnChange)), HideInInspector]
     public int Data_En { get; set; }/*1000倍*/
-    [Networked, OnChangedRender(nameof(OnEnReleaseChange))]
+    [Networked, OnChangedRender(nameof(OnEnReleaseChange)), HideInInspector]
     public int Data_EnRelease { get; set; }/*1000倍*/
-    [Networked, OnChangedRender(nameof(OnMaxHpChange))]
+    [Networked, OnChangedRender(nameof(OnMaxHpChange)), HideInInspector]
     public int Data_MaxHp{ get; set; }
-    [Networked, OnChangedRender(nameof(OnItemInHandChange))]
+    [Networked, OnChangedRender(nameof(OnItemInHandChange)), HideInInspector]
     public ItemData Data_ItemInHand { get; set; }
-    [Networked, OnChangedRender(nameof(OnItemOnHeadChange))]
+    [Networked, OnChangedRender(nameof(OnItemOnHeadChange)), HideInInspector]
     public ItemData Data_ItemOnHead { get; set; }
-    [Networked, OnChangedRender(nameof(OnItemOnBodyChange))]
+    [Networked, OnChangedRender(nameof(OnItemOnBodyChange)), HideInInspector]
     public ItemData Data_ItemOnBody { get; set; }
 
-    [Networked,Capacity(20), OnChangedRender(nameof(OnItemInBagChange))]
+    [Networked,Capacity(20), OnChangedRender(nameof(OnItemInBagChange)), HideInInspector]
     public NetworkLinkedList<ItemData> Data_ItemInBag { get; }
 
-    [Networked, OnChangedRender(nameof(OnBuffsChange))]
+    [Networked, OnChangedRender(nameof(OnBuffsChange)), HideInInspector]
     public NetworkLinkedList<int> Data_Buffs { get; }
     public void OnHpChange()
     {
@@ -271,7 +285,7 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     public void RPC_State_Skill(int parameter, NetworkId networkId)
     {
-        LocalManager.FromRPC_Skill(parameter, networkId);
+        LocalManager.FromRPC_InvokeSkill(parameter, networkId);
     }
     /// <summary>
     /// 生命值改变
@@ -286,6 +300,24 @@ public class ActorNetManager : NetworkBehaviour
         {
             Data_Hp += parameter;
         }
+    }
+    /// <summary>
+    /// RPC:本地端绑定一个技能
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_LocalInput_BindSkill(int skillID)
+    {
+        LocalManager.FromRPC_BindSkill(skillID);
+    }
+    /// <summary>
+    /// RPC:本地端使用一个技能
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_LocalInput_InvokeSkill(int skillID, NetworkId networkId)
+    {
+        LocalManager.FromRPC_InvokeSkill(skillID, networkId);
     }
 
     /// <summary>
@@ -528,4 +560,8 @@ public struct ActorNetData : INetworkStruct
     public int Speed;
     public int MaxSpeed;
     public int Endurance;
+    public int Point_Strength;
+    public int Point_Intelligence;
+    public int Point_Focus;
+    public int Point_Agility;
 }

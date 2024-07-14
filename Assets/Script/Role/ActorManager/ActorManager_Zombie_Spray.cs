@@ -93,7 +93,7 @@ public class ActorManager_Zombie_Spray : ActorManager
     #endregion
     /*客户端方法*/
     #region
-    public override void FromRPC_Skill(int parameter, Fusion.NetworkId id)
+    public override void FromRPC_InvokeSkill(int parameter, Fusion.NetworkId id)
     {
         if (parameter == 1)
         {
@@ -135,7 +135,7 @@ public class ActorManager_Zombie_Spray : ActorManager
                 }
             });
         }
-        base.FromRPC_Skill(parameter, id);
+        base.FromRPC_InvokeSkill(parameter, id);
     }
     #endregion
 }

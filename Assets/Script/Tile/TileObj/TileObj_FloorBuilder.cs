@@ -10,14 +10,14 @@ public class TileObj_FloorBuilder : TileObj
     [SerializeField, Header("Build")]
     private GameObject obj_build;
 
-    public override void Invoke()
+    public override void Invoke(PlayerController player)
     {
         obj_build.SetActive(true);
         obj_build.GetComponent<UI_FloorBuilder>().Open(this);
         obj_build.GetComponent<UI_FloorBuilder>().UpdateInfoFromTile(info);
         obj_singal.SetActive(false);
 
-        base.Invoke();
+        base.Invoke(player);
     }
     public override void TryToUpdateInfo(string info)
     {

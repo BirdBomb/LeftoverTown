@@ -45,7 +45,6 @@ public class TileObj_BedPart : TileObj
         {
             if (MapManager.Instance.GetTileObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
             {
-                Debug.Log(tileObjUp.name);
                 if (tileObjUp.name == "WoodBed_Part(Clone)")
                 {
                     if (tileObjUp.GetComponent<TileObj_BedPart>().link == null)

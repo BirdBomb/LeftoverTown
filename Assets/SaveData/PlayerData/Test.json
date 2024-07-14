@@ -1,1 +1,37 @@
-{"Pos":{"x":0,"y":0,"z":0,"magnitude":0.0,"sqrMagnitude":0}}
+{
+    "Pos": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "magnitude": 0.0,
+        "sqrMagnitude": 0
+    },
+    "Speed": 1500,
+    "MaxSpeed": 3000,
+    "En": 5000,
+    "Hp": 99,
+    "MaxHp": 99,
+    "Food": 0,
+    "MaxFood": 0,
+    "San": 0,
+    "MaxSan": 0,
+    "Point_Strength": 5,
+    "Point_Intelligence": 0,
+    "Point_Focus": 0,
+    "Point_Agility": 0,
+    "BagItems": [],
+    "HandItem": {
+        "Item_ID": 0,
+        "Item_Seed": 0,
+        "Item_Count": 0,
+        "Item_Val": 0
+    },
+    "HeadItem": {
+        "Item_ID": 0,
+        "Item_Seed": 0,
+        "Item_Count": 0,
+        "Item_Val": 0
+    },
+    "Skills_Know": [ 1001,1002 ],
+    "Skills_Use": [  ]
+}

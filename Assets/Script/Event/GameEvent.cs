@@ -5,6 +5,13 @@ using UniRx;
 public class GameEvent 
 {
     /// <summary>
+    /// 本地端绑定本地玩家
+    /// </summary>
+    public class GameEvent_Local_BindLocalPlayer
+    {
+        public PlayerController player;
+    }
+    /// <summary>
     /// 本地端:时间改变
     /// </summary>
     public class GameEvent_Local_TimeChange

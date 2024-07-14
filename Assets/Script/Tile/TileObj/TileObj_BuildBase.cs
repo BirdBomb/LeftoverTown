@@ -12,14 +12,14 @@ public class TileObj_BuildBase : TileObj
     [SerializeField, Header("Build")]
     private GameObject obj_build;
 
-    public override void Invoke()
+    public override void Invoke(PlayerController player)
     {
         obj_build.SetActive(true);
         obj_build.GetComponent<UI_BuildingBuilder>().Open(this);
         obj_build.GetComponent<UI_BuildingBuilder>().UpdateInfoFromTile(info);
         obj_singal.SetActive(false);
 
-        base.Invoke();
+        base.Invoke(player);
     }
     public override void TryToUpdateInfo(string info)
     {

@@ -669,8 +669,8 @@ Rigidbody2D:
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
-  m_AngularDrag: 0
-  m_GravityScale: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -774,16 +774,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 494f42545063bdb4f93851c4870336e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  myRigidbody: {fileID: 6539608634344311076}
   actorConfig:
+    Config_Hp: 10
+    Config_MaxHp: 10
     Config_Speed: 1
-    Config_MaxSpeed: 0
-    Config_Endurance: 0
+    Config_MaxSpeed: 1
+    Config_Endurance: 1
     Config_LootCount: 2
     Config_LootList:
-    - ID: 3001
+    - Item:
+        Item_ID: 0
+        Item_Seed: 0
+        Item_Count: 0
+        Item_Val: 0
       Weight: 10
-    - ID: 3001
+    - Item:
+        Item_ID: 0
+        Item_Seed: 0
+        Item_Count: 0
+        Item_Val: 0
       Weight: 10
+    Config_BagCount: 0
+    Config_BagList: []
   netManager: {fileID: 4989742002647667949}
   bodyController: {fileID: 3952100257627899618}
   skillSector: {fileID: 0}
@@ -792,8 +805,11 @@ MonoBehaviour:
   navManager: {fileID: 0}
   isPlayer: 0
   isState: 0
+  isInput: 0
+  onlyState_myBed: {fileID: 0}
   tempPath: []
   targetTile: {fileID: 0}
+  attackState: 0
   VisionDistance: 20
   AttackDamage: 2
   AttackDistance: 2
@@ -1506,7 +1522,7 @@ SpriteRenderer:
   m_Size: {x: 0.16, y: 0.16}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &8982881390657194043

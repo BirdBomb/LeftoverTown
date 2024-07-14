@@ -638,6 +638,7 @@ GameObject:
   - component: {fileID: 8093025844341083850}
   - component: {fileID: 4527471583313978907}
   - component: {fileID: 9194596716836239696}
+  - component: {fileID: 3291129689055980889}
   m_Layer: 6
   m_Name: NPC
   m_TagString: Actor
@@ -677,6 +678,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actorConfig:
+    Config_Hp: 0
+    Config_MaxHp: 0
     Config_Speed: 1
     Config_MaxSpeed: 0
     Config_Endurance: 0
@@ -910,6 +913,33 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.75, y: 1.5}
   m_EdgeRadius: 0
+--- !u!50 &3291129689055980889
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2867425175812917154}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
 --- !u!1 &3171837985673381903
 GameObject:
   m_ObjectHideFlags: 0

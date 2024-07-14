@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UniRx;
+
 public class TileObj_Wall : TileObj
 {
     public override void TryToUpdateHp(int newHp)

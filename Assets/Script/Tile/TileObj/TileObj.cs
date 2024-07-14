@@ -56,7 +56,7 @@ public class TileObj : MonoBehaviour
     /// <summary>
     /// ½»»¥
     /// </summary>
-    public virtual void Invoke()
+    public virtual void Invoke(PlayerController player)
     {
 
     }

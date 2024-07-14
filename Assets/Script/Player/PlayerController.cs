@@ -11,20 +11,16 @@ public class PlayerController : MonoBehaviour
 {
     [Header("人物")]
     public ActorManager actorManager;
-    [Header("物理")]
-    public Rigidbody2D myRigidbody;
     [Header("物体层级")]
     public LayerMask itemLayer;
+    [HideInInspector]
+    public PlayerData playerData;
     [HideInInspector]
     public bool thisPlayerIsMe = false;
     [HideInInspector]
     public bool thisPlayerIsState = false;
     [HideInInspector]
     public int thisPlayerID = 0;
-    private void Awake()
-    {
-        myRigidbody.gravityScale = 0;
-    }
     private void Start()
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneMove>().Subscribe(_ =>
@@ -219,20 +215,20 @@ public class PlayerController : MonoBehaviour
                     actorManager.NetManager.RPC_LocalInput_AddItemOnHand(itemData);
                 }
             }
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                var item = Physics2D.OverlapCircleAll(transform.position, 0.5f, itemLayer);
-                if (item.Length <= 0) { return; }
-                if (item[0].gameObject.transform.parent.TryGetComponent(out ItemNetObj obj)) 
-                {
-                    actorManager.NetManager.RPC_LocalInput_PickItem(obj.Object.Id);
-                }
-            }
             if (Input.GetKeyDown(KeyCode.F))
             {
                 for (int i = 0; i < nearbyTiles.Count; i++)
                 {
-                    nearbyTiles[i].InvokeTile();
+                    nearbyTiles[i].InvokeTile(this);
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                var item = Physics2D.OverlapCircleAll(transform.position, 0.5f, itemLayer);
+                if (item.Length <= 0) { return; }
+                if (item[0].gameObject.transform.parent.TryGetComponent(out ItemNetObj obj))
+                {
+                    actorManager.NetManager.RPC_LocalInput_PickItem(obj.Object.Id);
                 }
             }
             if (Input.GetKeyDown(KeyCode.B))
@@ -272,6 +268,21 @@ public class PlayerController : MonoBehaviour
                         buildingPos = actorManager.GetMyTile()._posInCell
                     });
                 }
+            }
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                if (playerData.Skills_Use.Count > 0)
+                {
+                    InvokeSkill(playerData.Skills_Use[0]);
+                }
+            }
+            if (Input.GetAxis("Mouse ScrollWheel") > 0)
+            {
+                ChangeUsingSkill(true);
+            }
+            if (Input.GetAxis("Mouse ScrollWheel") < 0)
+            {
+                ChangeUsingSkill(false);
             }
         }
     }
@@ -339,7 +350,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     /// <param name="dir">方向</param>
     /// <param name="speedUp">加速</param>
-    public void State_PlayerInputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
+    public void All_PlayerInputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
     {
         dir = dir.normalized;
         float speed = actorManager.actorConfig.Config_Speed;
@@ -374,8 +385,9 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-        Vector3 newPos = transform.position + new UnityEngine.Vector3(dir.x * speed * deltaTime, dir.y * speed * deltaTime, 0);
-        actorManager.NetManager.UpdateNetworkTransform(newPos);
+        Vector2 velocity = new Vector2(dir.x * speed, dir.y * speed);
+        Vector3 newPos = transform.position + new UnityEngine.Vector3(velocity.x * deltaTime, velocity.y * deltaTime, 0);
+        actorManager.NetManager.UpdateNetworkTransform(newPos, velocity.magnitude);
     }
     /// <summary>
     /// 朝向输入
@@ -390,6 +402,76 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    #endregion
+    #region//技能系统
+    public void ChangeUsingSkill(bool next)
+    {
+        if (playerData.Skills_Use.Count > 0)
+        {
+            int firstSkill = playerData.Skills_Use[0];
+            int lastSkill = playerData.Skills_Use[playerData.Skills_Use.Count - 1];
+
+            if (next)
+            {
+                for(int i = 0; i < playerData.Skills_Use.Count; i++)
+                {
+                    if (playerData.Skills_Use.Count > i + 1)
+                    {
+                        /*有下位*/
+                        playerData.Skills_Use[i] = playerData.Skills_Use[i + 1];
+                    }
+                    else
+                    {
+                        playerData.Skills_Use[i] = firstSkill;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = playerData.Skills_Use.Count - 1; i >= 0; i--)
+                {
+                    if (i > 0)
+                    {
+                        /*有上位*/
+                        playerData.Skills_Use[i] = playerData.Skills_Use[i - 1];
+                    }
+                    else
+                    {
+                        playerData.Skills_Use[i] = lastSkill;
+                    }
+                }
+            }
+            actorManager.NetManager.RPC_LocalInput_BindSkill(playerData.Skills_Use[0]);
+        }
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_BindSkill()
+        {
+            skillIDs = playerData.Skills_Use
+        });
+    }
+    public void BindUseSkill(int id)
+    {
+        if (playerData.Skills_Use.Count < 3)
+        {
+            playerData.Skills_Use.Add(id);
+        }
+        else
+        {
+            playerData.Skills_Use[0] = id;
+        }
+        List<int> copySkill = new List<int>();
+        for (int i = 0; i < playerData.Skills_Use.Count; i++)
+        {
+            copySkill.Add(playerData.Skills_Use[i]);
+        }
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_BindSkill()
+        {
+            skillIDs = copySkill
+        });
+    }
+    public void InvokeSkill(int id)
+    {
+        actorManager.NetManager.RPC_LocalInput_InvokeSkill(id, new Fusion.NetworkId());
+    }
     #endregion
     #region
     public List<MyTile> nearbyTiles = new List<MyTile>();

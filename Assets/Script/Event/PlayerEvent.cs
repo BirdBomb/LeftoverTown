@@ -117,4 +117,12 @@ public class PlayerEvent
     {
         public int id;
     }
+
+    /// <summary>
+    /// 本地玩家:绑定技能
+    /// </summary>
+    public class PlayerEvent_Local_BindSkill
+    {
+        public List<int> skillIDs = new List<int>();
+    }
 }

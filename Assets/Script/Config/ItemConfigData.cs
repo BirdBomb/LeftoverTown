@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemConfigData : MonoBehaviour
+public class ItemConfigData 
 {
     public static ItemConfig GetItemConfig(int ID)
     {
@@ -41,6 +41,7 @@ public class ItemConfigData : MonoBehaviour
         new ItemConfig(){ Item_ID = 9002,Item_Name = "´ÖÖÆÄ¾¼ý",Item_Desc = "",Item_MaxCount = 99,Attack_Distance = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 9003,Item_Name = "¾«ÖÂÄ¾¼ý",Item_Desc = "",Item_MaxCount = 99,Attack_Distance = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 9004,Item_Name = "µ¯Íè",Item_Desc = "",Item_MaxCount = 99,Attack_Distance = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 9005,Item_Name = "Ô¿³×",Item_Desc = "",Item_MaxCount = 99,Attack_Distance = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
     };
 }
 [Serializable]

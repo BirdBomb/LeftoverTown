@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Fusion;
+using Fusion.Addons.Physics;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,12 +9,15 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 using static Unity.Collections.Unicode;
+using static UnityEditor.PlayerSettings;
 using static UnityEditor.Progress;
 /// <summary>
 /// 角色管理器
 /// </summary>
 public class ActorManager : MonoBehaviour
 {
+    [Header("物理")]
+    public Rigidbody2D myRigidbody;
     [SerializeField, Header("角色配置属性")]
     public ActorConfig actorConfig;
     [SerializeField, Header("网络控制器")]
@@ -53,6 +57,8 @@ public class ActorManager : MonoBehaviour
     [HideInInspector]
     public ItemBase wearingOnBody = new ItemBase();
     [HideInInspector]
+    public SkillBase bindSkill = new SkillBase();
+    [HideInInspector]
     public NavManager navManager;
 
     public bool isPlayer = false;
@@ -64,6 +70,7 @@ public class ActorManager : MonoBehaviour
     private void Awake()
     {
         tileLayer = LayerMask.GetMask("TileObj_Wall");
+        myRigidbody.gravityScale = 0;
     }
     public virtual void FixedUpdateNetwork(float dt)
     {
@@ -148,47 +155,61 @@ public class ActorManager : MonoBehaviour
     #region
     private float curPos_X;
     private float curPos_Y;
+    private float rigSpeed;
     private float lastPos_X;
     private float lastPos_Y;
     private bool turnRight = false;
     private bool turnLeft = false;
+    [HideInInspector]
+    public Vector2 face;
     /*检查动画播放状态*/
     public virtual void UpdateAnima(float dt)
     {
         curPos_X = transform.position.x;
         curPos_Y = transform.position.y;
+        rigSpeed = netManager.networkRigidbody.Rigidbody.velocity.magnitude;
+
         float distance = Vector2.Distance(new Vector2(curPos_X, curPos_Y), new Vector2(lastPos_X, lastPos_Y));
         float speed = distance / dt;
-        if (speed > 0.1f)
+        if (rigSpeed <= 0.1f)
         {
-            PlayMove(speed);
-            if (curPos_X > lastPos_X)
+            if (speed > 0.1f)
             {
-                if (!turnRight)
-                {
-                    if (!isPlayer)
-                    {
-                        FaceRight();
-                    }
-                    TurnRight();
-                }
+                PlayMove(speed);
             }
             else
             {
-                if (!turnLeft)
-                {
-                    if (!isPlayer)
-                    {
-                        FaceLeft();
-                    }
-                    TurnLeft();
-                }
+                PlayStop(1);
             }
         }
         else
         {
-            PlayStop(1);
+
         }
+
+        if (curPos_X > lastPos_X)
+        {
+            if (!turnRight)
+            {
+                if (!isPlayer)
+                {
+                    FaceRight();
+                }
+                TurnRight();
+            }
+        }
+        else
+        {
+            if (!turnLeft)
+            {
+                if (!isPlayer)
+                {
+                    FaceLeft();
+                }
+                TurnLeft();
+            }
+        }
+
         lastPos_X = curPos_X;
         lastPos_Y = curPos_Y;
     }
@@ -197,6 +218,7 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     public virtual void FaceTo(Vector3 face)
     {
+        this.face = new Vector2(face.x, face.y).normalized;
         if (face.x > 0)
         {
             FaceRight();
@@ -686,7 +708,10 @@ public class ActorManager : MonoBehaviour
                     }
                 }
                 temp = temp.normalized;
-                netManager.UpdateNetworkTransform(transform.position + new UnityEngine.Vector3(temp.x * dt * actorConfig.Config_Speed, temp.y * dt * actorConfig.Config_Speed, 0));
+
+                Vector2 velocity = new Vector2(temp.x * actorConfig.Config_Speed, temp.y * actorConfig.Config_Speed);
+                Vector3 newPos = transform.position + new UnityEngine.Vector3(velocity.x * dt, velocity.y * dt, 0);
+                netManager.UpdateNetworkTransform(newPos, velocity.magnitude);
             }
         }
     }
@@ -776,9 +801,15 @@ public class ActorManager : MonoBehaviour
             attackTarget = null;
         }
     }
-    public virtual void FromRPC_Skill(int parameter, Fusion.NetworkId id)
+    public virtual void FromRPC_BindSkill(int skillID)
     {
-
+        Type type = Type.GetType("Skill_" + skillID.ToString());
+        bindSkill = (SkillBase)Activator.CreateInstance(type);
+        bindSkill.Init(this);
+    }
+    public virtual void FromRPC_InvokeSkill(int parameter, Fusion.NetworkId id)
+    {
+        bindSkill.ClickSpace();
     }
     public virtual void Listen_HpChange(int parameter, Fusion.NetworkId id)
     {
@@ -803,6 +834,8 @@ public class ActorManager : MonoBehaviour
 [Serializable]
 public struct ActorConfig
 {
+    public float Config_Hp;
+    public float Config_MaxHp;
     public float Config_Speed;
     public float Config_MaxSpeed;
     public float Config_Endurance;

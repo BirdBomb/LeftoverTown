@@ -635,9 +635,10 @@ GameObject:
   - component: {fileID: 29064933900968075}
   - component: {fileID: 6674713896957400925}
   - component: {fileID: 1310663313864215728}
-  - component: {fileID: 8093025844341083850}
   - component: {fileID: 4527471583313978907}
   - component: {fileID: 9194596716836239696}
+  - component: {fileID: 8758531104395135018}
+  - component: {fileID: 2069270092032871842}
   m_Layer: 6
   m_Name: NPC_Soldier
   m_TagString: Actor
@@ -676,10 +677,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 996d3d6878400824cbf477d7d31bbdcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  myRigidbody: {fileID: 8758531104395135018}
   actorConfig:
+    Config_Hp: 999
+    Config_MaxHp: 999
     Config_Speed: 1
-    Config_MaxSpeed: 0
-    Config_Endurance: 0
+    Config_MaxSpeed: 3
+    Config_Endurance: 1
     Config_LootCount: 0
     Config_LootList: []
     Config_BagCount: 1
@@ -700,6 +704,7 @@ MonoBehaviour:
   isState: 0
   isInput: 0
   onlyState_myBed: {fileID: 0}
+  face: {x: 0, y: 0}
   tempPath: []
   targetTile: {fileID: 0}
   attackState: 0
@@ -767,7 +772,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 1310663313864215728}
-  - {fileID: 8093025844341083850}
+  - {fileID: 2069270092032871842}
 --- !u!114 &1310663313864215728
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -780,7 +785,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2466aa7a23d21a4394b30cc41be8dbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetTransform: {fileID: 8093025844341083850}
+  NetTransform: {fileID: 0}
+  networkRigidbody: {fileID: 2069270092032871842}
   LocalManager: {fileID: -2161950949745122565}
   _Data_Seed: 0
   _Data_Hp: 20
@@ -804,22 +810,6 @@ MonoBehaviour:
     Item_Val: 0
   _Data_ItemInBag: []
   _Data_Buffs: 
---- !u!114 &8093025844341083850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2867425175812917154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SyncScale: 0
-  SyncParent: 0
-  _autoAOIOverride: 1
-  DisableSharedModeInterpolation: 0
 --- !u!61 &4527471583313978907
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -910,6 +900,55 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.75, y: 1.5}
   m_EdgeRadius: 0
+--- !u!50 &8758531104395135018
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2867425175812917154}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!114 &2069270092032871842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2867425175812917154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e690b5fb1084f5ab1c86457af401d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SyncScale: 0
+  SyncParent: 0
+  _interpolationTarget: {fileID: 0}
+  UsePreciseRotation: 0
+  UseRenderSleepThresholds: 1
+  RenderThresholds:
+    UseEnergy: 1
+    Position: 0.01
+    Rotation: 0.01
+    Scale: 0.01
 --- !u!1 &3171837985673381903
 GameObject:
   m_ObjectHideFlags: 0

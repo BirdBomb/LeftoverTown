@@ -7,7 +7,7 @@ public class TileObj_Billboard : TileObj
 {
     [SerializeField, Header("Singal")]
     private GameObject obj_singal;
-    public override void Invoke()
+    public override void Invoke(PlayerController player)
     {
         Debug.Log(bindTile._posInWorld);
         MessageBroker.Default.Publish(new UIEvent.UIEvent_ShowTextUI()
@@ -16,7 +16,7 @@ public class TileObj_Billboard : TileObj
         });
         obj_singal.SetActive(false);
 
-        base.Invoke();
+        base.Invoke(player);
     }
 
     public override bool PlayerNearby(PlayerController player)

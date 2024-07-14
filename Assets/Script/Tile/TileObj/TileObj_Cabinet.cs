@@ -13,14 +13,14 @@ public class TileObj_Cabinet : TileObj
     [SerializeField, Header("Cabinet")]
     private GameObject obj_cabinet;
 
-    public override void Invoke()
+    public override void Invoke(PlayerController player)
     {
         obj_cabinet.SetActive(true);
         obj_cabinet.GetComponent<UI_Grid_Cabinet>().Open(this);
         obj_cabinet.GetComponent<UI_Grid_Cabinet>().UpdateInfoFromTile(info);
         obj_singal.SetActive(false);
 
-        base.Invoke();
+        base.Invoke(player);
     }
     public override void TryToUpdateInfo(string info)
     {

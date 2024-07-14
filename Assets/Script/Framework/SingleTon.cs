@@ -8,6 +8,7 @@ public abstract class SingleTon<T>: MonoBehaviour where T : SingleTon<T>, ISingl
     private void Start()
     {
         instance = this as T;
+        instance.Init();
     }
     private static T instance;
     public static T Instance

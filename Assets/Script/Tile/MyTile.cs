@@ -140,11 +140,11 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     /// <summary>
     /// »½ÐÑÍßÆ¬
     /// </summary>
-    public virtual void InvokeTile()
+    public virtual void InvokeTile(PlayerController player)
     {
         if (bindObj && bindObj.TryGetComponent(out TileObj obj))
         {
-            obj.Invoke();
+            obj.Invoke(player);
         }
     }
     /// <summary>

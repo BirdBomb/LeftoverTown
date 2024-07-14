@@ -958,12 +958,12 @@ GameObject:
   - component: {fileID: 1396025594704316764}
   - component: {fileID: 6256712466871839779}
   - component: {fileID: 3222013810136728508}
-  - component: {fileID: 7259909701035603807}
   - component: {fileID: 64678154565952413}
   - component: {fileID: 8091430848374201477}
   - component: {fileID: 4609965642842415961}
   - component: {fileID: 2537916146760977371}
   - component: {fileID: 2382471986505964745}
+  - component: {fileID: 222430417611897641}
   m_Layer: 6
   m_Name: Player
   m_TagString: Actor
@@ -1093,7 +1093,7 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 0
+  m_LinearDrag: 10
   m_AngularDrag: 0.05
   m_GravityScale: 1
   m_Material: {fileID: 0}
@@ -1136,25 +1136,9 @@ MonoBehaviour:
   Flags: 131073
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 7259909701035603807}
   - {fileID: 4609965642842415961}
   - {fileID: 2382471986505964745}
---- !u!114 &7259909701035603807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5344209725395026795}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SyncScale: 0
-  SyncParent: 0
-  _autoAOIOverride: 0
-  DisableSharedModeInterpolation: 0
+  - {fileID: 222430417611897641}
 --- !u!114 &64678154565952413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1201,10 +1185,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actorManager: {fileID: 2537916146760977371}
-  myRigidbody: {fileID: 1396025594704316764}
   itemLayer:
     serializedVersion: 2
     m_Bits: 512
+  playerData:
+    Pos: {x: 0, y: 0, z: 0}
+    Speed: 0
+    MaxSpeed: 0
+    En: 0
+    Hp: 0
+    MaxHp: 0
+    Food: 0
+    MaxFood: 0
+    San: 0
+    MaxSan: 0
+    Point_Strength: 0
+    Point_Intelligence: 0
+    Point_Focus: 0
+    Point_Agility: 0
+    BagItems: []
+    HandItem:
+      Item_ID: 0
+      Item_Seed: 0
+      Item_Count: 0
+      Item_Val: 0
+    HeadItem:
+      Item_ID: 0
+      Item_Seed: 0
+      Item_Count: 0
+      Item_Val: 0
+    Skills_Know: 
+    Skills_Use: 
   thisPlayerIsMe: 0
   thisPlayerIsState: 0
   thisPlayerID: 0
@@ -1241,7 +1252,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e58b55936d28bd94180b55eee8ffb406, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  myRigidbody: {fileID: 1396025594704316764}
   actorConfig:
+    Config_Hp: 0
+    Config_MaxHp: 0
     Config_Speed: 1.5
     Config_MaxSpeed: 3
     Config_Endurance: 5
@@ -1259,6 +1273,7 @@ MonoBehaviour:
   isState: 0
   isInput: 0
   onlyState_myBed: {fileID: 0}
+  face: {x: 0, y: 0}
   tempPath: []
   targetTile: {fileID: 0}
   attackState: 0
@@ -1274,7 +1289,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2466aa7a23d21a4394b30cc41be8dbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetTransform: {fileID: 7259909701035603807}
+  NetTransform: {fileID: 0}
+  networkRigidbody: {fileID: 222430417611897641}
   LocalManager: {fileID: 2537916146760977371}
   _Data_Seed: 0
   _Data_Hp: 10
@@ -1298,6 +1314,28 @@ MonoBehaviour:
     Item_Val: 0
   _Data_ItemInBag: []
   _Data_Buffs: 
+--- !u!114 &222430417611897641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5344209725395026795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e690b5fb1084f5ab1c86457af401d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SyncScale: 0
+  SyncParent: 0
+  _interpolationTarget: {fileID: 0}
+  UsePreciseRotation: 0
+  UseRenderSleepThresholds: 1
+  RenderThresholds:
+    UseEnergy: 1
+    Position: 0.01
+    Rotation: 0.01
+    Scale: 0.01
 --- !u!1 &5854869421010315869
 GameObject:
   m_ObjectHideFlags: 0
