@@ -18,7 +18,7 @@ public class PoolManager : SingleTon<PoolManager>, ISingleTon
             pools[key] = new ObjectPool<GameObject>(
                 createFunc:() => Instantiate(Resources.Load<GameObject>(key)),
                 actionOnGet: obj => obj.SetActive(true),
-                actionOnRelease: obj => obj.SetActive(false),
+                actionOnRelease: obj => { obj.SetActive(false);obj.transform.parent = transform; },
                 actionOnDestroy: obj => { },
                 collectionCheck: false,
                 defaultCapacity: defaultCapacity,

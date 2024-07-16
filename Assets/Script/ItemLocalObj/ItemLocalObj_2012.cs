@@ -11,8 +11,9 @@ public class ItemLocalObj_2012 : ItemLocalObj
     public void Shoot()
     {
         GameObject obj = PoolManager.Instance.GetObject("Effect/Effect_MuzzleFire101");
-        obj.transform.position = muzzle.position;
-        obj.transform.rotation = muzzle.rotation;
+        obj.transform.SetParent(muzzle);
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localRotation = Quaternion.identity;
         AudioManager.Instance.PlayEffect(1001);
         sprite.DOPunchPosition(new Vector3(-0.1f, -0.1f, 0), 0.1f);
     }

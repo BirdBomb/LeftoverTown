@@ -574,9 +574,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 7.7979236, y: -1.329899, z: 0.07240815}
+    m_Target: {x: 9.363394, y: 1.5841333, z: 0.08134864}
     speed: 2
-    m_Value: {x: 7.7979236, y: -1.329899, z: 0.07240815}
+    m_Value: {x: 9.363394, y: 1.5841333, z: 0.08134864}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -626,9 +626,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 2.3894527
+    m_Target: 1.495413
     speed: 2
-    m_Value: 2.3894527
+    m_Value: 1.495413
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -1018,7 +1018,7 @@ MonoBehaviour:
     m_OverlaysVisible: 1
   m_LockTracker:
     m_IsLocked: 0
-  m_LastSelectedObjectID: 65266
+  m_LastSelectedObjectID: 77950
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -1043,7 +1043,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 11373
+  controlID: 17764
 --- !u!114 &13
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -1107,23 +1107,23 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 
+      m_SelectedIDs: d6760000
       m_LastClickedID: 0
-      m_ExpandedIDs: 26cefbfffafaffffd2740000
+      m_ExpandedIDs: 5872f9ffb87df9ffc87df9ffce7df9ff209ef9ff269ef9ff3a9ef9ff649ef9ff689ef9ff849ef9ff0ea3f9ff26cefbfffafaffffd2740000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
-        m_Name: Muzzle
-        m_OriginalName: Muzzle
+        m_Name: 
+        m_OriginalName: 
         m_EditFieldRect:
           serializedVersion: 2
           x: 0
           y: 0
           width: 0
           height: 0
-        m_UserData: 67680
+        m_UserData: 0
         m_IsWaitingForDelay: 0
         m_IsRenaming: 0
-        m_OriginalEventType: 0
+        m_OriginalEventType: 11
         m_IsRenamingFilename: 0
         m_ClientGUIView: {fileID: 13}
       m_SearchString: 
@@ -1264,7 +1264,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Resources/ItemObj
+    - Assets/Resources/Effect
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -1272,16 +1272,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Resources/ItemObj
+  - Assets/Resources/Effect
   m_LastFoldersGridSize: -1
   m_LastProjectPath: F:\UnityProject\LeftoverTown
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 96780000
-    m_LastClickedID: 30870
-    m_ExpandedIDs: 000000009a7600009c7600009e760000a0760000a2760000a4760000a6760000a8760000aa760000ac760000ae760000b0760000b2760000b4760000b6760000b876000000ca9a3b
+    scrollPos: {x: 0, y: 63}
+    m_SelectedIDs: 94780000
+    m_LastClickedID: 30868
+    m_ExpandedIDs: 000000009a7600009c7600009e760000a2760000a4760000a6760000a8760000aa760000ac760000ae760000b0760000b2760000b4760000b6760000b876000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1309,7 +1309,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000009a7600009c7600009e760000a0760000a2760000a4760000a6760000a8760000aa760000ac760000ae760000b0760000b2760000b4760000b6760000b876000000ca9a3b
+    m_ExpandedIDs: 000000009a7600009c7600009e760000a2760000a4760000a6760000a8760000aa760000ac760000ae760000b0760000b2760000b4760000b6760000b876000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1334,8 +1334,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 
-    m_LastClickedInstanceID: 0
+    m_SelectedInstanceIDs: d6760000
+    m_LastClickedInstanceID: 30422
     m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: 2a680000a8610000a48300001ebc000018bc0000d461000098cf0000ca61000006650000b68a00002e74000000000000d67b000064fb0000507300009676000024760000d6840000c48400002ec70000247b00008e9600003875000080810000f2770000f47700008e7601008ea80100f07700000e7800007e740000e4790000007a0000ec790000e8790000867900003c79000010eb0000
     m_RenameOverlay:

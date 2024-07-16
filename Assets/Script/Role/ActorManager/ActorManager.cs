@@ -8,9 +8,6 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
-using static Unity.Collections.Unicode;
-using static UnityEditor.PlayerSettings;
-using static UnityEditor.Progress;
 /// <summary>
 /// ½ÇÉ«¹ÜÀíÆ÷
 /// </summary>
