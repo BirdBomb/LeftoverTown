@@ -191,6 +191,7 @@ public class ActorNetManager : NetworkBehaviour
     public int Data_MaxHp{ get; set; }
     [Networked, OnChangedRender(nameof(OnItemInHandChange)), HideInInspector]
     public ItemData Data_ItemInHand { get; set; }
+    public ItemData Last_ItemInHand;
     [Networked, OnChangedRender(nameof(OnItemOnHeadChange)), HideInInspector]
     public ItemData Data_ItemOnHead { get; set; }
     [Networked, OnChangedRender(nameof(OnItemOnBodyChange)), HideInInspector]

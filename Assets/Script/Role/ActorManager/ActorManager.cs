@@ -421,7 +421,6 @@ public class ActorManager : MonoBehaviour
     public void AddItem_Hand(ItemData data)
     {
         Debug.Log("拿到了手上" + data.Item_ID + "/" + data.Item_Val + "/" + data.Item_Count);
-        ResetItem_Hand();
         /*更新UI*/
         if (isPlayer && netManager.Object.HasInputAuthority)
         {
@@ -430,13 +429,26 @@ public class ActorManager : MonoBehaviour
                 itemData = data
             });
         }
-        if (data.Item_ID != 0) 
+
+        if (netManager.Last_ItemInHand.Item_ID != data.Item_ID)
         {
-            Type type = Type.GetType("Item_" + data.Item_ID.ToString());
-            holdingByHand = (ItemBase)Activator.CreateInstance(type);
-            holdingByHand.UpdateData(data);
-            holdingByHand.BeHolding(this, BodyController);
+            ResetItem_Hand();
+            if (data.Item_ID != 0)
+            {
+                Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+                holdingByHand = (ItemBase)Activator.CreateInstance(type);
+                holdingByHand.UpdateData(data);
+                holdingByHand.BeHolding(this, BodyController);
+            }
         }
+        else
+        {
+            if (holdingByHand != null)
+            {
+                holdingByHand.UpdateData(data);
+            }
+        }
+        netManager.Last_ItemInHand = data;
     }
     public void ResetItem_Hand()
     {
