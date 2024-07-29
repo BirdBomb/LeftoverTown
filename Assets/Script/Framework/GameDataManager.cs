@@ -103,29 +103,26 @@ public class GameDataManager :SingleTon<GameDataManager> ,ISingleTon
         FileManager.Instance.WriteFile(mapBuildingInfoFilePath, JsonConvert.SerializeObject(mapTileInfoData));
         FileManager.Instance.WriteFile(mapFloorTypeFilePath, JsonConvert.SerializeObject(floorTileInfoData));
     }
-    public PlayerData LoadPlayerData()
+    public void LoadPlayer(out PlayerData playerData)
     {
         Debug.Log("开始加载人物" + actorFilePath);
         string json = FileManager.Instance.ReadFile(actorFilePath);
         if (json == "")
         {
             Debug.Log("未获取到目标文件");
-            PlayerData playerData = new PlayerData();
+            playerData = new PlayerData();
             FileManager.Instance.WriteFile(actorFilePath, JsonConvert.SerializeObject(playerData));
-            return null;
         }
         else
         {
-            PlayerData playerData = JsonConvert.DeserializeObject<PlayerData>(json);
+            playerData = JsonConvert.DeserializeObject<PlayerData>(json);
             if (playerData == null)
             {
                 Debug.Log("人物json文件解析失败" + json);
-                return null;
             }
             else
             {
                 Debug.Log("人物json文件解析成功");
-                return playerData;
             }
         }
     }

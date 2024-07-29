@@ -16,7 +16,7 @@ public class ActorManager_NPC_Farmer : ActorManager_NPC
                     if (OnlyState_Update_CheckingAttackingDistance(Time.fixedDeltaTime))
                     {
                         NetManager.RPC_State_Attack(true);
-                        onlyState_attackCDTimer = onlyState_attackCD;
+                        onlyState_attackCDTimer = config.Config_AttackCD;
                     }
                 }
             }

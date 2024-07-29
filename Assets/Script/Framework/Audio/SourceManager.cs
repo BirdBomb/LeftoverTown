@@ -2,41 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SourceManager
+public class SourceManager : MonoBehaviour
 {
     /// <summary>
     /// BGM播放器
     /// </summary>
     public AudioSource MusicSource;
     /// <summary>
-    /// 所有音效播放器
+    /// 特效播放器
     /// </summary>
-    List<AudioSource> EffectSources;
-    GameObject ower;
-    public SourceManager(GameObject tmpOwer)
-    {
-        ower = tmpOwer;
-        Init();
-    }
-    public void Init()
-    {
-        MusicSource = ower.AddComponent<AudioSource>();
-        MusicSource.loop = true;
-        MusicSource.rolloffMode = AudioRolloffMode.Linear;
-        EffectSources = new List<AudioSource>();
-        for (int i = 0; i < 12; i++)
-        {
-            AudioSource source = ower.AddComponent<AudioSource>();
-            EffectSources.Add(source);
-        }
-    }
+    public GameObject EffectSource;
     /// <summary>
-    /// 更新音效设置
+    /// 特效播放器列表
     /// </summary>
-    public void UpdateSetting()
-    {
-
-    }
+    private List<AudioSource> EffectSources = new List<AudioSource>();
     /// <summary>
     /// 获取BGM播放器
     /// </summary>
@@ -51,25 +30,32 @@ public class SourceManager
     /// <returns>闲置播放器</returns>
     public AudioSource GetFreeAudio()
     {
+        ReleaseFreeAudio();
         for (int i = 0; i < EffectSources.Count; i++)
         {
+            if (EffectSources[i] == null)
+            {
+                EffectSources[i] = Instantiate(EffectSource, transform).GetComponent<AudioSource>();
+            }
             if (!EffectSources[i].isPlaying)
             {
+
                 return EffectSources[i];
             }
         }
-        AudioSource source = ower.AddComponent<AudioSource>();
+        AudioSource source = Instantiate(EffectSource, transform).GetComponent<AudioSource>();
         EffectSources.Add(source);
-        UpdateSetting();
         return source;
     }
     /// <summary>
     /// 释放闲置播放器
+    /// (多余12的销毁)
     /// </summary>
     public void ReleaseFreeAudio()
     {
         int tmpCount = 0;
         List<AudioSource> tmpSources = new List<AudioSource>();
+        EffectSources.RemoveAll(x => x == null);
         for (int i = 0; i < EffectSources.Count; i++)
         {
             if (!EffectSources[i].isPlaying)
@@ -85,7 +71,7 @@ public class SourceManager
         {
             AudioSource tmpSource = tmpSources[i];
             EffectSources.Remove(tmpSource);
-            GameObject.Destroy(tmpSource);
+            GameObject.Destroy(tmpSource.gameObject);
         }
     }
 }

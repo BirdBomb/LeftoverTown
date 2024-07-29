@@ -197,7 +197,11 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
 
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
     {
-        
+        Debug.Log("更新大厅列表" + sessionList.Count);
+        MessageBroker.Default.Publish(new NetEvent.NetEvent_SessionListUpdated()
+        {
+             SessionList = sessionList
+        });
     }
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)

@@ -40,4 +40,13 @@ public class FileManager :SingleTon<FileManager>,ISingleTon
             }
         }
     }
+    public void DeleteFile(string name)
+    {
+        string dataPath = Application.dataPath + "/SaveData/" + name + ".json";
+        if (File.Exists(dataPath))
+        {
+            Debug.Log(dataPath);
+            File.Delete(dataPath);
+        }
+    }
 }

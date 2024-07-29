@@ -186,6 +186,90 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &3033885914196410043
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2174281200800555139}
+  - component: {fileID: 710190566689305640}
+  m_Layer: 0
+  m_Name: Hair
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &2174281200800555139
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3033885914196410043}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2119161107779700014}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &710190566689305640
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3033885914196410043}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 680613467
+  m_SortingLayer: 1
+  m_SortingOrder: 3
+  m_Sprite: {fileID: 21300000, guid: f25fab9a2b2420d478a59ff063cc401c, type: 3}
+  m_Color: {r: 0.44654083, g: 0.44654083, b: 0.44654083, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &3742292281275409600
 GameObject:
   m_ObjectHideFlags: 0
@@ -217,6 +301,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2174281200800555139}
+  - {fileID: 2979939975852394153}
   - {fileID: 4241066880056153859}
   m_Father: {fileID: 8430808364454735556}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -364,6 +450,90 @@ SpriteRenderer:
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 0.9375, y: 0.9375}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!1 &4055148526215411050
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2979939975852394153}
+  - component: {fileID: 3360552449941294078}
+  m_Layer: 0
+  m_Name: Eye
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &2979939975852394153
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4055148526215411050}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2119161107779700014}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &3360552449941294078
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4055148526215411050}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 680613467
+  m_SortingLayer: 1
+  m_SortingOrder: 3
+  m_Sprite: {fileID: 21300000, guid: 97d9adcb6a042054581d4f3e99821948, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -753,6 +923,8 @@ MonoBehaviour:
   Hand_RightItem: {fileID: 8563875375428570897}
   Hand_LeftItem: {fileID: 2346170050099575038}
   Head_Item: {fileID: 0}
+  Head_Hair: {fileID: 0}
+  Head_Eye: {fileID: 0}
   Body_Item: {fileID: 0}
   Animator_Head: {fileID: 1516233744517968805}
   AnimaEventListen_Head: {fileID: 8010286993815809363}
@@ -762,6 +934,8 @@ MonoBehaviour:
   AnimaEventListen_Hand: {fileID: 8291550007055532325}
   Animator_Leg: {fileID: 837673495161709092}
   AnimaEventListen_Leg: {fileID: 704179621265863355}
+  Hair: {fileID: 710190566689305640}
+  Eye: {fileID: 3360552449941294078}
 --- !u!114 &8205567626991604323
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -775,28 +949,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myRigidbody: {fileID: 6539608634344311076}
-  actorConfig:
-    Config_Hp: 10
-    Config_MaxHp: 10
-    Config_Speed: 1
-    Config_MaxSpeed: 1
-    Config_Endurance: 1
-    Config_LootCount: 2
-    Config_LootList:
-    - Item:
-        Item_ID: 0
-        Item_Seed: 0
-        Item_Count: 0
-        Item_Val: 0
-      Weight: 10
-    - Item:
-        Item_ID: 0
-        Item_Seed: 0
-        Item_Count: 0
-        Item_Val: 0
-      Weight: 10
-    Config_BagCount: 0
-    Config_BagList: []
   netManager: {fileID: 4989742002647667949}
   bodyController: {fileID: 3952100257627899618}
   skillSector: {fileID: 0}
@@ -807,6 +959,7 @@ MonoBehaviour:
   isState: 0
   isInput: 0
   onlyState_myBed: {fileID: 0}
+  face: {x: 0, y: 0}
   tempPath: []
   targetTile: {fileID: 0}
   attackState: 0
@@ -827,13 +980,43 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NetTransform: {fileID: 6097558857244032321}
+  networkRigidbody: {fileID: 0}
   LocalManager: {fileID: 8205567626991604323}
   _Data_Seed: 0
-  _Data_Hp: 20
+  _Data_Name: 
+  _Data_HairID: 0
+  _Data_HairColor:
+    serializedVersion: 2
+    rgba: 0
+  _Data_EyeID: 0
+  _Data_CommonSpeed: 0
+  _Data_MaxSpeed: 0
+  _Data_CurHp: 0
+  _Data_MaxHp: 20
+  _Data_Armor: 0
+  _Data_CurFood: 0
+  _Data_MaxFood: 0
+  _Data_Water: 0
+  _Data_CurSan: 0
+  _Data_MaxSan: 0
+  _Data_Happy: 0
   _Data_En: 0
   _Data_EnRelease: 0
-  _Data_MaxHp: 20
+  _Data_Point_Strength: 0
+  _Data_Point_Intelligence: 0
+  _Data_Point_SPower: 0
+  _Data_Point_Focus: 0
+  _Data_Point_Agility: 0
+  _Data_Point_Make: 0
+  _Data_Point_Build: 0
+  _Data_Point_Cook: 0
+  _Data_ItemInBag: []
   _Data_ItemInHand:
+    Item_ID: 0
+    Item_Seed: 0
+    Item_Count: 0
+    Item_Val: 0
+  Last_ItemInHand:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
@@ -843,13 +1026,24 @@ MonoBehaviour:
     Item_Seed: 0
     Item_Count: 0
     Item_Val: 0
+  Last_ItemOnHead:
+    Item_ID: 0
+    Item_Seed: 0
+    Item_Count: 0
+    Item_Val: 0
   _Data_ItemOnBody:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
     Item_Val: 0
-  _Data_ItemInBag: []
+  Last_ItemOnBody:
+    Item_ID: 0
+    Item_Seed: 0
+    Item_Count: 0
+    Item_Val: 0
   _Data_Buffs: 
+  _Data_SkillKnow: 
+  _Data_SkillUse: 
 --- !u!1 &6232803865961579023
 GameObject:
   m_ObjectHideFlags: 0

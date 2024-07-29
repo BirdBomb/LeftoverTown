@@ -2,25 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using Fusion;
+
 public class NetEvent 
 {
+    public class NetEvent_CreateGame
+    {
+        public string RoomName;
+        public int RoomType;
+    }
     public class NetEvent_JoinGame
     {
-        /// <summary>
-        /// 服务器
-        /// </summary>
-        public bool IsState;
-        /// <summary>
-        /// 房间名称
-        /// </summary>
         public string RoomName;
-        /// <summary>
-        /// 角色路径
-        /// </summary>
-        public string ActorFilePath;
-        /// <summary>
-        /// 地图路径
-        /// </summary>
-        public string MapFilePath;
+    }
+    public class NetEvent_SessionListUpdated
+    {
+        public List<SessionInfo> SessionList = new List<SessionInfo>();
     }
 }

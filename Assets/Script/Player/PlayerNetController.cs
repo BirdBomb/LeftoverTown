@@ -18,16 +18,11 @@ public class PlayerNetController : NetworkBehaviour
     {
         if (Object.HasInputAuthority)
         {
-            playerCamera.tag = "MainCamera";
-            playerController.thisPlayerIsMe = true;
-            MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_BindLocalPlayer() 
-            { 
-                player = this.playerController
-            });
+            InitByLocalPlayer();
         }
         else
         {
-            playerCamera.gameObject.SetActive(false);
+            InitByOtherPlayer();
         }
         if (Object.HasStateAuthority)
         {
@@ -37,50 +32,71 @@ public class PlayerNetController : NetworkBehaviour
         {
             playerController.thisPlayerIsState = false;
         }
-        playerController.thisPlayerID = Object.InputAuthority.PlayerId;
-        if (Object.HasInputAuthority) { InitData(); }
         base.Spawned();
     }
     /// <summary>
-    /// 初始化玩家数据
+    /// 作为本地玩家初始化
     /// </summary>
-    public void InitData()
+    private void InitByLocalPlayer()
     {
-        playerController.playerData = GameDataManager.Instance.LoadPlayerData();
-        if(playerController.playerData != null)
+        playerCamera.gameObject.SetActive(true);
+        playerCamera.tag = "MainCamera";
+        playerController.thisPlayerIsMe = true;
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_BindLocalPlayer()
         {
-            Debug.Log("--玩家信息获取成功,初始化玩家背包");
-            for (int i = 0; i < playerController.playerData.BagItems.Count; i++)
+            player = playerController
+        });
+        InitLocalPlayerData();
+    }
+    /// <summary>
+    /// 作为其他玩家初始化
+    /// </summary>
+    private void InitByOtherPlayer()
+    {
+        playerCamera.gameObject.SetActive(false);
+    }
+    /// <summary>
+    /// 初始化本地玩家数据
+    /// </summary>
+    public void InitLocalPlayerData()
+    {
+        GameDataManager.Instance.LoadPlayer(out playerController.localPlayerData);
+        if(playerController.localPlayerData != null)
+        {
+            Debug.Log("--玩家信息获取成功--");
+            Debug.Log("--初始化玩家背包");
+            for (int i = 0; i < playerController.localPlayerData.BagItems.Count; i++)
             {
-                playerController.actorManager.NetManager.RPC_LocalInput_AddItemInBag(playerController.playerData.BagItems[i]);
+                playerController.actorManager.NetManager.RPC_LocalInput_AddItemInBag(playerController.localPlayerData.BagItems[i]);
             }
-            Debug.Log("--玩家信息获取成功,初始化玩家手部");
-            playerController.actorManager.NetManager.RPC_LocalInput_AddItemOnHand(playerController.playerData.HandItem);
-            Debug.Log("--玩家信息获取成功,初始化玩家头部");
-            playerController.actorManager.NetManager.RPC_LocalInput_AddItemOnHead(playerController.playerData.HandItem);
-            Debug.Log("--玩家信息获取成功,初始化玩家身体");
-            playerController.actorManager.NetManager.RPC_LocalInput_AddItemOnBody(playerController.playerData.HandItem);
-            PlayerNetData playerNetData = new PlayerNetData();
-            playerNetData.Speed = playerController.playerData.Speed;
-            playerNetData.MaxSpeed = playerController.playerData.MaxSpeed;
-            playerNetData.En = playerController.playerData.En;
-            playerNetData.Pos = playerController.playerData.Pos;
-            playerNetData.Hp = playerController.playerData.Hp;
-            playerNetData.MaxHp = playerController.playerData.MaxHp;
-            playerNetData.Food = playerController.playerData.Food;
-            playerNetData.MaxFood = playerController.playerData.MaxFood;
-            playerNetData.San = playerController.playerData.San;
-            playerNetData.MaxSan = playerController.playerData.MaxSan;
-            playerNetData.Point_Strength = playerController.playerData.Point_Strength;
-            playerNetData.Point_Intelligence = playerController.playerData.Point_Intelligence;
-            playerNetData.Point_Focus = playerController.playerData.Point_Focus;
-            playerNetData.Point_Agility = playerController.playerData.Point_Agility;
-            Debug.Log("--玩家信息获取成功,初始化玩家数据");
-            RPC_Input_InitPlayerData(playerNetData);
-            Debug.Log("--玩家信息获取成功,根据玩家坐标生成周围地图");
+            Debug.Log("--初始化玩家手部");
+            playerController.actorManager.NetManager.RPC_LocalInput_AddItemOnHand(playerController.localPlayerData.HandItem);
+            Debug.Log("--初始化玩家头部");
+            playerController.actorManager.NetManager.RPC_LocalInput_AddItemOnHead(playerController.localPlayerData.HeadItem);
+            Debug.Log("--初始化玩家身体");
+            playerController.actorManager.NetManager.RPC_LocalInput_AddItemOnBody(playerController.localPlayerData.BodyItem);
+            Debug.Log("--初始化玩家数据");
+            playerController.actorManager.NetManager.RPC_LocalInput_InitPlayerCommonData(CreatePlayerNetData(playerController.localPlayerData));
+            Debug.Log("--初始化玩家Buff与Skill");
+            for (int i = 0; i < playerController.localPlayerData.BuffList.Count; i++)
+            {
+                playerController.actorManager.NetManager.RPC_LocalInput_AddBuff(playerController.localPlayerData.BuffList[i]);
+            }
+            for (int i = 0; i < playerController.localPlayerData.SkillKnowList.Count; i++)
+            {
+                playerController.actorManager.NetManager.RPC_LocalInput_AddSkillKnow(playerController.localPlayerData.SkillKnowList[i]);
+            }
+            for (int i = 0; i < playerController.localPlayerData.SkillUseList.Count; i++)
+            {
+                playerController.actorManager.NetManager.RPC_LocalInput_AddSkillUse(playerController.localPlayerData.SkillUseList[i]);
+            }
+
+            Debug.Log("--初始化玩家位置");
+            playerController.actorManager.NetManager.UpdateNetworkTransform(playerController.localPlayerData.Pos, 999);
+            Debug.Log("--根据玩家坐标生成周围地图");
             MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_RequestMapData()
             {
-                pos = playerController.playerData.Pos,
+                pos = playerController.localPlayerData.Pos,
                 player = Object.InputAuthority
             });
         }
@@ -88,6 +104,39 @@ public class PlayerNetController : NetworkBehaviour
         {
             Debug.Log("--玩家信息获取失败,初始化玩家背包");
         }
+    }
+    private PlayerNetData CreatePlayerNetData(PlayerData playerData)
+    {
+        PlayerNetData playerNetData = new PlayerNetData();
+
+        playerNetData.HairID = playerData.HairID;
+        playerNetData.HairColor = playerData.HairColor;
+        playerNetData.EyeID = playerData.EyeID;
+
+        playerNetData.Pos = playerData.Pos;
+        playerNetData.CommonSpeed = playerData.CommonSpeed;
+        playerNetData.MaxSpeed = playerData.MaxSpeed;
+        playerNetData.CurHp = playerData.CurHp;
+        playerNetData.MaxHp = playerData.MaxHp;
+        playerNetData.Armor = playerData.Armor;
+        playerNetData.CurFood = playerData.CurFood;
+        playerNetData.MaxFood = playerData.MaxFood;
+        playerNetData.Water = playerData.Water;
+        playerNetData.CurSan = playerData.CurSan;
+        playerNetData.MaxSan = playerData.MaxSan;
+        playerNetData.Happy = playerData.Happy;
+        playerNetData.En = playerData.En;
+
+        playerNetData.Point_Strength = playerData.Point_Strength;
+        playerNetData.Point_Intelligence = playerData.Point_Intelligence;
+        playerNetData.Point_Agility = playerData.Point_Agility;
+        playerNetData.Point_Focus = playerData.Point_Focus;
+        playerNetData.Point_SPower = playerData.Point_SPower;
+        playerNetData.Point_Make = playerData.Point_Make;
+        playerNetData.Point_Build = playerData.Point_Build;
+        playerNetData.Point_Cook = playerData.Point_Cook;
+
+        return playerNetData;
     }
     private Vector2 moveDir_temp;
     private bool left_press = false;
@@ -198,39 +247,33 @@ public class PlayerNetController : NetworkBehaviour
     public bool Net_PressShift { get; set; } = false;
     [Networked]
     public Vector3 Net_Face { get; set; } = Vector3.zero;
-
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_Input_InitPlayerData(PlayerNetData netData)
-    {
-        /*初始化位置*/
-        playerController.actorManager.NetManager.UpdateNetworkTransform(netData.Pos, 999);
-        playerController.actorManager.NetManager.Data_Hp = netData.Hp;
-        playerController.actorManager.NetManager.Data_MaxHp = netData.MaxHp;
-        playerController.actorManager.NetManager.NetData.Speed = netData.Speed;
-        playerController.actorManager.NetManager.NetData.MaxSpeed = netData.MaxSpeed;
-        playerController.actorManager.NetManager.NetData.Endurance = netData.En;
-        playerController.actorManager.NetManager.NetData.Point_Strength = netData.Point_Strength;
-        playerController.actorManager.NetManager.NetData.Point_Intelligence = netData.Point_Intelligence;
-        playerController.actorManager.NetManager.NetData.Point_Focus = netData.Point_Focus;
-        playerController.actorManager.NetManager.NetData.Point_Agility = netData.Point_Agility;
-    }
-
 }
 public struct PlayerNetData : INetworkStruct
 {
     public Vector3 Pos;
-    public int Hp;
+    public int CurHp;
     public int MaxHp;
-    public int Food;
+    public int Armor;
+    public int CurFood;
     public int MaxFood;
-    public int San;
+    public int Water;
+    public int CurSan;
     public int MaxSan;
-    public int Speed;
+    public int Happy;
+    public int CommonSpeed;
     public int MaxSpeed;
     public int En;
     public int Point_Strength;
     public int Point_Intelligence;
     public int Point_Focus;
     public int Point_Agility;
+    public int Point_SPower;
+    public int Point_Make;
+    public int Point_Build;
+    public int Point_Cook;
+
+    public int HairID;
+    public int EyeID;
+    public Color32 HairColor;
 }
 

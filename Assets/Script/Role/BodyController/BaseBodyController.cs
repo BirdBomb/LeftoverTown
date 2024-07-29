@@ -45,6 +45,19 @@ public class BaseBodyController : MonoBehaviour
     public Animator Animator_Leg;
     public AnimaEventListen AnimaEventListen_Leg;
 
+    #region//脸部
+    /// <summary>
+    /// 绘制脸庞
+    /// </summary>
+    /// <param name="hairID"></param>
+    /// <param name="eyeID"></param>
+    /// <param name="hairColor"></param>
+    public virtual void InitFace(int hairID, int eyeID, Color32 hairColor)
+    {
+
+    }
+    #endregion
+    #region//头部
     public virtual void SetHeadTrigger(string name, float speed, Action<string> action)
     {
         if (!locking)
@@ -70,6 +83,8 @@ public class BaseBodyController : MonoBehaviour
             Animator_Head.SetFloat(name, p);
         }
     }
+    #endregion
+    #region//身体
     public virtual void SetBodyTrigger(string name, float speed, Action<string> action)
     {
         if (!locking)
@@ -95,6 +110,8 @@ public class BaseBodyController : MonoBehaviour
             Animator_Body.SetFloat(name, p);
         }
     }
+    #endregion
+    #region//手部
     public virtual void SetHandTrigger(string name, float speed, Action<string> action)
     {
         if (!locking)
@@ -120,7 +137,8 @@ public class BaseBodyController : MonoBehaviour
             Animator_Hand.SetFloat(name, p);
         }
     }
-
+    #endregion
+    #region//腿部
     public virtual void SetLegTrigger(string name, float speed, Action<string> action)
     {
         if (!locking)
@@ -146,17 +164,7 @@ public class BaseBodyController : MonoBehaviour
             Animator_Leg.SetFloat(name, p);
         }
     }
-    /// <summary>
-    /// 播放手部动画
-    /// </summary>
-    /// <param name="handAction"></param>
-    /// <param name="speed"></param>
-    /// <param name="action"></param>
-    public virtual void PlayHandAction(HandAction handAction,float speed,Action<string> action)
-    {
-
-    }
-
+    #endregion
 }
 public enum BodyAction
 {

@@ -1463,7 +1463,6 @@ public class Item_2012 : ItemBase
                 if (leftPressTimer >= shootCD)
                 {
                     leftPressTimer = 0;
-                    itemLocalObj_2012.Shoot();
                     Shot(Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), input);
                     if (rightPressTimer >= readyTime + 0.2f)
                     {
@@ -1578,6 +1577,7 @@ public class Item_2012 : ItemBase
         Vector3 offsetVector = randomRotation * (rightPosition.normalized);
         if (data.Item_Val != 0 && data.Item_Count > 0)
         {
+            itemLocalObj_2012.Shoot();
             Debug.Log(data.Item_Val);
             GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + data.Item_Val);
             //obj.transform.position = owner.SkillSector.CenterPos;
@@ -1602,6 +1602,10 @@ public class Item_2012 : ItemBase
                     });
                 }
             }
+        }
+        else
+        {
+            itemLocalObj_2012.Dull();
         }
     }
 
@@ -1751,7 +1755,6 @@ public class Item_2013 : ItemBase
                 if (leftPressTimer >= shootCD)
                 {
                     leftPressTimer = 0;
-                    itemLocalObj_2013.Shoot();
                     Shot(Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), input);
                     if (rightPressTimer >= readyTime + 0.2f)
                     {
@@ -1866,6 +1869,7 @@ public class Item_2013 : ItemBase
         Vector3 offsetVector = randomRotation * (rightPosition.normalized);
         if (data.Item_Val != 0 && data.Item_Count > 0)
         {
+            itemLocalObj_2013.Shoot();
             GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + data.Item_Val);
             //obj.transform.position = owner.SkillSector.CenterPos;
             obj.transform.position = itemLocalObj_2013.muzzle.position;
@@ -1889,6 +1893,10 @@ public class Item_2013 : ItemBase
                     });
                 }
             }
+        }
+        else
+        {
+            itemLocalObj_2013.Dull();
         }
     }
 

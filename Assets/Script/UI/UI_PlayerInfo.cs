@@ -95,10 +95,10 @@ public class UI_PlayerInfo : MonoBehaviour
         _handCell.UpdateGridCell(handItem);
         _headCell.UpdateGridCell(headItem);
         _bodyCell.UpdateGridCell(bodyItem);
-        _Strength.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.NetData.Point_Strength.ToString();
-        _Intelligence.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.NetData.Point_Intelligence.ToString();
-        _Focus.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.NetData.Point_Focus.ToString();
-        _Agility.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.NetData.Point_Agility.ToString();
+        _Strength.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Strength.ToString();
+        _Intelligence.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Intelligence.ToString();
+        _Focus.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Focus.ToString();
+        _Agility.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Agility.ToString();
     }
     public void ResetCell()
     {

@@ -12,6 +12,5 @@ public class GameLocalManager : SingleTon<GameLocalManager>, ISingleTon
         {
             localPlayer = _.player;
         }).AddTo(this);
-        Debug.Log(this);
     }
 }

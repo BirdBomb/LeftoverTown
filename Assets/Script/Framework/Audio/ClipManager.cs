@@ -5,24 +5,20 @@ using UnityEngine;
 public class ClipManager
 {
     SingleClip[] allSingleClip;
-    Dictionary<int , SingleClip> singleClipDic = new Dictionary<int, SingleClip>(); 
-    public ClipManager()
+    Dictionary<string , SingleClip> singleClipDic = new Dictionary<string, SingleClip>(); 
+    public SingleClip FindClipByID(string name)
     {
-    }
-    public SingleClip FindClipByID(int id)
-    {
-        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == id; });
-        if (audioConfig.Audio_Name != "")
+        if (name != "")
         {
-            if (singleClipDic.ContainsKey(id))
+            if (singleClipDic.ContainsKey(name))
             {
-                return singleClipDic[id];
+                return singleClipDic[name];
             }
             else
             {
-                AudioClip clip = Resources.Load<AudioClip>("Audio/" + audioConfig.Audio_Name);
+                AudioClip clip = Resources.Load<AudioClip>("Audio/" + name);
                 SingleClip single = new SingleClip(clip);
-                singleClipDic[id] = single;
+                singleClipDic[name] = single;
                 return single;
             }
         }

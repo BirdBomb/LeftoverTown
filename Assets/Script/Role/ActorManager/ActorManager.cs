@@ -15,8 +15,6 @@ public class ActorManager : MonoBehaviour
 {
     [Header("物理")]
     public Rigidbody2D myRigidbody;
-    [SerializeField, Header("角色配置属性")]
-    public ActorConfig actorConfig;
     [SerializeField, Header("网络控制器")]
     private ActorNetManager netManager;
     public ActorNetManager NetManager
@@ -40,7 +38,7 @@ public class ActorManager : MonoBehaviour
     }
     [SerializeField, Header("UI管理器")]
     private ActorUI actorUI;
-    [Header("你现在什么情况?")]
+    [HideInInspector]
     public ActorState actorState;
     public ActorUI ActorUI
     {
@@ -57,10 +55,13 @@ public class ActorManager : MonoBehaviour
     public SkillBase bindSkill = new SkillBase();
     [HideInInspector]
     public NavManager navManager;
-
+    [HideInInspector]
     public bool isPlayer = false;
+    [HideInInspector]
     public bool isState = false;
+    [HideInInspector]
     public bool isInput = false;
+    [HideInInspector]
     public MyTile onlyState_myBed;
     public const float customUpdateTime = 0.1f;
     protected LayerMask tileLayer;
@@ -100,11 +101,6 @@ public class ActorManager : MonoBehaviour
         {
             ListenWorldGlobalTimeChange(_.now);
         }).AddTo(this);
-
-        for (int i = 0; i < actorConfig.Config_BagCount; i++)
-        {
-            netManager.RPC_LocalInput_AddItemInBag(GetBagItem());
-        }
     }
     public void InitByPlayer()
     {
@@ -571,92 +567,12 @@ public class ActorManager : MonoBehaviour
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
         bodyController.Body_Item.GetComponent<SpriteRenderer>().sortingOrder = 2;
     }
-
-    /// <summary>
-    /// 掉落
-    /// </summary>
-    public virtual void Loot()
-    {
-        for (int i = 0; i < actorConfig.Config_LootCount; i++)
-        {
-            ItemData item = GetLootItem();
-            if (item.Item_ID != 0)
-            {
-                item.Item_Seed = System.DateTime.Now.Second + item.Item_Seed;
-                MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
-                {
-                    itemData = item,
-                    pos = transform.position - new Vector3(0, 0.1f, 0)
-                });
-            }
-        }
-        for (int i = 0; i < netManager.Data_ItemInBag.Count; i++)
-        {
-            ItemData item = netManager.Data_ItemInBag[i];
-            MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
-            {
-                itemData = item,
-                pos = transform.position - new Vector3(0, 0.1f, 0)
-            });
-        }
-        if (netManager.Data_ItemInHand.Item_ID != 0)
-        {
-            MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
-            {
-                itemData = netManager.Data_ItemInHand,
-                pos = transform.position - new Vector3(0, 0.1f, 0)
-            });
-        }
-    }
-    /// <summary>
-    /// 根据权重获得一个掉落物id
-    /// </summary>
-    /// <returns></returns>
-    private ItemData GetLootItem()
-    {
-        int weight_Main = 0;
-        int weight_temp = 0;
-        int random;
-        for (int j = 0; j < actorConfig.Config_LootList.Count; j++)
-        {
-            weight_Main += actorConfig.Config_LootList[j].Weight;
-        }
-        random = UnityEngine.Random.Range(0, weight_Main);
-        for (int j = 0; j < actorConfig.Config_LootList.Count; j++)
-        {
-            weight_temp += actorConfig.Config_LootList[j].Weight;
-            if (weight_temp > random)
-            {
-                return actorConfig.Config_LootList[j].Item;
-            }
-        }
-        return new ItemData();
-    }
-    private ItemData GetBagItem()
-    {
-        int weight_Main = 0;
-        int weight_temp = 0;
-        int random;
-        for (int j = 0; j < actorConfig.Config_BagList.Count; j++)
-        {
-            weight_Main += actorConfig.Config_BagList[j].Weight;
-        }
-        random = UnityEngine.Random.Range(0, weight_Main);
-        for (int j = 0; j < actorConfig.Config_BagList.Count; j++)
-        {
-            weight_temp += actorConfig.Config_BagList[j].Weight;
-            if (weight_temp > random)
-            {
-                return actorConfig.Config_BagList[j].Item;
-            }
-        }
-        return new ItemData();
-    }
-
     #endregion
     /*寻路*/
     #region
+    [HideInInspector]
     public List<MyTile> tempPath = new List<MyTile>();
+    [HideInInspector]
     public MyTile targetTile = null;
     public void UpdatePath(float dt)
     {
@@ -718,7 +634,7 @@ public class ActorManager : MonoBehaviour
                 }
                 temp = temp.normalized;
 
-                Vector2 velocity = new Vector2(temp.x * actorConfig.Config_Speed, temp.y * actorConfig.Config_Speed);
+                Vector2 velocity = new Vector2(temp.x * NetManager.Data_CommonSpeed, temp.y * NetManager.Data_CommonSpeed);
                 Vector3 newPos = transform.position + new UnityEngine.Vector3(velocity.x * dt, velocity.y * dt, 0);
                 netManager.UpdateNetworkTransform(newPos, velocity.magnitude);
             }
@@ -775,11 +691,10 @@ public class ActorManager : MonoBehaviour
     /// <summary>
     /// 死亡
     /// </summary>
-    public void Dead()
+    public virtual void Dead()
     {
         if (isState)
         {
-            Loot();
             if (!isPlayer)
             {
                 netManager.Runner.Despawn(netManager.Object);
@@ -789,6 +704,7 @@ public class ActorManager : MonoBehaviour
 
     #endregion
     /*RPC*/
+    [HideInInspector]
     public bool attackState = false;
     public virtual void FromRPC_ChangeAttackState(bool state)
     {
@@ -820,15 +736,6 @@ public class ActorManager : MonoBehaviour
     {
         bindSkill.ClickSpace();
     }
-    public virtual void Listen_HpChange(int parameter, Fusion.NetworkId id)
-    {
-        if (parameter < 0)
-        {
-            GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position + new Vector2(0, 1));
-            obj_num.GetComponent<UI_DamageNum>().Play(parameter, new Color32(255, 50, 50, 255));
-            PlayTakeDamage(1);
-        }
-    }
     public virtual void FromRPC_SendEmoji(int emojiID)
     {
         MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneSendEmoji
@@ -839,19 +746,15 @@ public class ActorManager : MonoBehaviour
         ActorUI.SendEmoji(EmojiConfigData.GetItemConfig(emojiID));
 
     }
-}
-[Serializable]
-public struct ActorConfig
-{
-    public float Config_Hp;
-    public float Config_MaxHp;
-    public float Config_Speed;
-    public float Config_MaxSpeed;
-    public float Config_Endurance;
-    public int Config_LootCount;
-    public List<LootInfo> Config_LootList;
-    public int Config_BagCount;
-    public List<LootInfo> Config_BagList;
+    public virtual void Listen_HpChange(int parameter, Fusion.NetworkId id)
+    {
+        if (parameter < 0)
+        {
+            GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position + new Vector2(0, 1));
+            obj_num.GetComponent<UI_DamageNum>().Play(parameter, new Color32(255, 50, 50, 255));
+            PlayTakeDamage(1);
+        }
+    }
 }
 public enum ActorState
 {

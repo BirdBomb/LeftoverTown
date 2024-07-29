@@ -24,7 +24,7 @@ public class UI_SkillPanel : MonoBehaviour
     public void UpdateDraw()
     {
         if (!atlas) { atlas = Resources.Load<SpriteAtlas>("Atlas/SkillSprite"); }
-        Skill_Know = GameLocalManager.Instance.localPlayer.playerData.Skills_Know;
+        Skill_Know = GameLocalManager.Instance.localPlayer.localPlayerData.SkillKnowList;
         for (int i= 0; i < Skill_Know.Count; i++)
         {
             int index = i;

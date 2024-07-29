@@ -3,53 +3,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using UnityEngine.U2D;
 /// <summary>
 /// 人型身体控制器
 /// </summary>
 
 public class HumanBodyController : BaseBodyController
 {
-    public override void PlayHandAction(HandAction handAction, float speed, Action<string> action)
+    [Header("头发")]
+    public SpriteRenderer Hair;
+    [Header("眼镜")]
+    public SpriteRenderer Eye;
+     private SpriteAtlas atlasHair;
+    private SpriteAtlas atlasEye;
+
+    public override void InitFace(int hairID, int eyeID, Color32 hairColor)
     {
-        AnimaEventListen_Hand.BindEvent(action);
-        if (handAction == HandAction.PutUp)
+        if (atlasEye == null || atlasHair == null)
         {
-            Animator_Hand.SetTrigger("PutUp");
-            Animator_Hand.speed = speed;
-            return;
+            atlasHair = Resources.Load<SpriteAtlas>("Atlas/HairSprite");
+            atlasEye = Resources.Load<SpriteAtlas>("Atlas/EyeSprite");
         }
-        else if (handAction == HandAction.Eat)
-        {
-            Animator_Hand.SetTrigger("Eat");
-            Animator_Hand.speed = speed;
-            return;
-        }
-        else if (handAction == HandAction.Charge)
-        {
-            Animator_Hand.SetTrigger("Charge");
-            Animator_Hand.speed = speed;
-            return;
-        }
-        else if (handAction == HandAction.Bow_Ready)
-        {
-            Animator_Hand.SetTrigger("Bow_Ready");
-            Animator_Hand.SetBool("Bow_Release", false);
-            Animator_Hand.ResetTrigger("Bow_Play");
-            Animator_Hand.speed = speed;
-            return;
-        }
-        else if (handAction == HandAction.Bow_Play)
-        {
-            Animator_Hand.SetTrigger("Bow_Play");
-            Animator_Hand.speed = speed;
-            return;
-        }
-        else if (handAction == HandAction.Bow_Release)
-        {
-            Animator_Hand.SetBool("Bow_Release", true);
-            Animator_Hand.speed = speed;
-            return;
-        }
-        base.PlayHandAction(handAction, speed, action);
+        Hair.sprite = atlasHair.GetSprite("Hair_" + hairID.ToString());
+        Hair.color = hairColor;
+        Eye.sprite = atlasEye.GetSprite("Eye_" + eyeID.ToString());
+        base.InitFace(hairID, eyeID, hairColor);
     }
 }

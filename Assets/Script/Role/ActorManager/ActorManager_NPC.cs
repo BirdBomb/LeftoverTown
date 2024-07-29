@@ -1,27 +1,31 @@
 using Fusion;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UniRx;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
+using static ActorConfigData;
 using static UnityEditor.Progress;
 using static UnityEngine.InputManagerEntry;
 
 public class ActorManager_NPC : ActorManager
 {
-    protected GlobalTime globalTime;
-    protected float view = 20;
-    protected float courage = 2;
-    [Header("攻击CD")]
-    public float onlyState_attackCD = 2;
+    public ActorManager_NPC_Config config;
     protected float onlyState_attackCDTimer;
-    public virtual void InitNPC(ItemData head, ItemData body, ItemData hand, List<ItemData> bag)
+    protected GlobalTime globalTime;
+    public override void InitByNetManager(bool hasStateAuthority, bool hasInputAuthority)
+    {
+        base.InitByNetManager(hasStateAuthority, hasInputAuthority);
+        InitData();
+    }
+    private void InitData()
     {
 
     }
-
     public virtual void FixedUpdate()
     {
 
@@ -301,7 +305,7 @@ public class ActorManager_NPC : ActorManager
         {
             if (who != this)//这个人不是我
             {
-                if (Vector3.Distance(transform.position, who.transform.position) >= view)
+                if (Vector3.Distance(transform.position, who.transform.position) >= config.Config_View)
                 {
                     return false;
                 }
@@ -341,5 +345,108 @@ public class ActorManager_NPC : ActorManager
         RunTo,
         Attack
     }
-
+    //public virtual void Loot()
+    //{
+    //    for (int i = 0; i < actorConfig.Config_LootCount; i++)
+    //    {
+    //        ItemData item = GetLootItem();
+    //        if (item.Item_ID != 0)
+    //        {
+    //            item.Item_Seed = System.DateTime.Now.Second + item.Item_Seed;
+    //            MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
+    //            {
+    //                itemData = item,
+    //                pos = transform.position - new Vector3(0, 0.1f, 0)
+    //            });
+    //        }
+    //    }
+    //    for (int i = 0; i < netManager.Data_ItemInBag.Count; i++)
+    //    {
+    //        ItemData item = netManager.Data_ItemInBag[i];
+    //        MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
+    //        {
+    //            itemData = item,
+    //            pos = transform.position - new Vector3(0, 0.1f, 0)
+    //        });
+    //    }
+    //    if (netManager.Data_ItemInHand.Item_ID != 0)
+    //    {
+    //        MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
+    //        {
+    //            itemData = netManager.Data_ItemInHand,
+    //            pos = transform.position - new Vector3(0, 0.1f, 0)
+    //        });
+    //    }
+    //}
+    //private ItemData GetLootItem()
+    //{
+    //    int weight_Main = 0;
+    //    int weight_temp = 0;
+    //    int random;
+    //    for (int j = 0; j < actorConfig.Config_LootList.Count; j++)
+    //    {
+    //        weight_Main += actorConfig.Config_LootList[j].Weight;
+    //    }
+    //    random = UnityEngine.Random.Range(0, weight_Main);
+    //    for (int j = 0; j < actorConfig.Config_LootList.Count; j++)
+    //    {
+    //        weight_temp += actorConfig.Config_LootList[j].Weight;
+    //        if (weight_temp > random)
+    //        {
+    //            return actorConfig.Config_LootList[j].Item;
+    //        }
+    //    }
+    //    return new ItemData();
+    //}
+    //private ItemData GetBagItem()
+    //{
+    //    int weight_Main = 0;
+    //    int weight_temp = 0;
+    //    int random;
+    //    for (int j = 0; j < actorConfig.Config_BagList.Count; j++)
+    //    {
+    //        weight_Main += actorConfig.Config_BagList[j].Weight;
+    //    }
+    //    random = UnityEngine.Random.Range(0, weight_Main);
+    //    for (int j = 0; j < actorConfig.Config_BagList.Count; j++)
+    //    {
+    //        weight_temp += actorConfig.Config_BagList[j].Weight;
+    //        if (weight_temp > random)
+    //        {
+    //            return actorConfig.Config_BagList[j].Item;
+    //        }
+    //    }
+    //    return new ItemData();
+    //}
+}
+public struct ActorConfig
+{
+}
+[Serializable]
+public struct ActorManager_NPC_Config
+{
+    [Header("生命")]
+    public float Config_Hp;
+    [Header("最大生命")]
+    public float Config_MaxHp;
+    [Header("速度")]
+    public float Config_Speed;
+    [Header("最大速度")]
+    public float Config_MaxSpeed;
+    [Header("体力")]
+    public float Config_Endurance;
+    [Header("掉落数量")]
+    public int Config_LootCount;
+    [Header("掉落列表")]
+    public List<LootInfo> Config_LootList;
+    [Header("背包数量")]
+    public int Config_BagCount;
+    [Header("背包列表")]
+    public List<LootInfo> Config_BagList;
+    [Header("攻击间隔")]
+    public float Config_AttackCD;
+    [Header("视野")]
+    public float Config_View;
+    [Header("勇气")]
+    public float Config_Courage;
 }

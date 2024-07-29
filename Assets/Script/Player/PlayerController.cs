@@ -14,13 +14,11 @@ public class PlayerController : MonoBehaviour
     [Header("物体层级")]
     public LayerMask itemLayer;
     [HideInInspector]
-    public PlayerData playerData;
+    public PlayerData localPlayerData;
     [HideInInspector]
     public bool thisPlayerIsMe = false;
     [HideInInspector]
     public bool thisPlayerIsState = false;
-    [HideInInspector]
-    public int thisPlayerID = 0;
     private void Start()
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneMove>().Subscribe(_ =>
@@ -271,9 +269,9 @@ public class PlayerController : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                if (playerData.Skills_Use.Count > 0)
+                if (localPlayerData.SkillUseList.Count > 0)
                 {
-                    InvokeSkill(playerData.Skills_Use[0]);
+                    InvokeSkill(localPlayerData.SkillUseList[0]);
                 }
             }
             if (Input.GetAxis("Mouse ScrollWheel") > 0)
@@ -353,22 +351,22 @@ public class PlayerController : MonoBehaviour
     public void All_PlayerInputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
     {
         dir = dir.normalized;
-        float speed = actorManager.actorConfig.Config_Speed;
+        float speed = actorManager.NetManager.Data_CommonSpeed;
         if (speedUp)
         {
             shiftReleaseTimer = 0;
             actorManager.NetManager.Data_EnRelease = 0;
-            if (shiftPressTimer < actorManager.NetManager.NetData.Endurance * 0.001f)
+            if (shiftPressTimer < actorManager.NetManager.Data_En * 0.001f)
             {
                 shiftPressTimer += deltaTime;
-                actorManager.NetManager.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetManager.NetData.Endurance));
+                actorManager.NetManager.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetManager.Data_En));
                 if (shiftPressTimer > 1)
                 {
-                    speed = Mathf.Lerp(actorManager.actorConfig.Config_Speed, actorManager.actorConfig.Config_MaxSpeed, 1);
+                    speed = Mathf.Lerp(actorManager.NetManager.Data_CommonSpeed, actorManager.NetManager.Data_MaxSpeed, 1);
                 }
                 else
                 {
-                    speed = Mathf.Lerp(actorManager.actorConfig.Config_Speed, actorManager.actorConfig.Config_MaxSpeed, shiftPressTimer);
+                    speed = Mathf.Lerp(actorManager.NetManager.Data_CommonSpeed, actorManager.NetManager.Data_MaxSpeed, shiftPressTimer);
                 }
             }
         }
@@ -377,11 +375,11 @@ public class PlayerController : MonoBehaviour
             if (shiftPressTimer != 0)
             {
                 shiftReleaseTimer += deltaTime;
-                actorManager.NetManager.Data_EnRelease = (int)((shiftReleaseTimer * 1000) / (0.001f * actorManager.NetManager.NetData.Endurance));
-                if (shiftReleaseTimer > actorManager.NetManager.NetData.Endurance * 0.001f)
+                actorManager.NetManager.Data_EnRelease = (int)((shiftReleaseTimer * 1000) / (0.001f * actorManager.NetManager.Data_En));
+                if (shiftReleaseTimer > actorManager.NetManager.Data_En * 0.001f)
                 {
                     shiftPressTimer = 0;
-                    actorManager.NetManager.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetManager.NetData.Endurance));
+                    actorManager.NetManager.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetManager.Data_En));
                 }
             }
         }
@@ -406,62 +404,62 @@ public class PlayerController : MonoBehaviour
     #region//技能系统
     public void ChangeUsingSkill(bool next)
     {
-        if (playerData.Skills_Use.Count > 0)
+        if (localPlayerData.SkillUseList.Count > 0)
         {
-            int firstSkill = playerData.Skills_Use[0];
-            int lastSkill = playerData.Skills_Use[playerData.Skills_Use.Count - 1];
+            int firstSkill = localPlayerData.SkillUseList[0];
+            int lastSkill = localPlayerData.SkillUseList[localPlayerData.SkillUseList.Count - 1];
 
             if (next)
             {
-                for(int i = 0; i < playerData.Skills_Use.Count; i++)
+                for(int i = 0; i < localPlayerData.SkillUseList.Count; i++)
                 {
-                    if (playerData.Skills_Use.Count > i + 1)
+                    if (localPlayerData.SkillUseList.Count > i + 1)
                     {
                         /*有下位*/
-                        playerData.Skills_Use[i] = playerData.Skills_Use[i + 1];
+                        localPlayerData.SkillUseList[i] = localPlayerData.SkillUseList[i + 1];
                     }
                     else
                     {
-                        playerData.Skills_Use[i] = firstSkill;
+                        localPlayerData.SkillUseList[i] = firstSkill;
                     }
                 }
             }
             else
             {
-                for (int i = playerData.Skills_Use.Count - 1; i >= 0; i--)
+                for (int i = localPlayerData.SkillUseList.Count - 1; i >= 0; i--)
                 {
                     if (i > 0)
                     {
                         /*有上位*/
-                        playerData.Skills_Use[i] = playerData.Skills_Use[i - 1];
+                        localPlayerData.SkillUseList[i] = localPlayerData.SkillUseList[i - 1];
                     }
                     else
                     {
-                        playerData.Skills_Use[i] = lastSkill;
+                        localPlayerData.SkillUseList[i] = lastSkill;
                     }
                 }
             }
-            actorManager.NetManager.RPC_LocalInput_BindSkill(playerData.Skills_Use[0]);
+            actorManager.NetManager.RPC_LocalInput_BindSkill(localPlayerData.SkillUseList[0]);
         }
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_BindSkill()
         {
-            skillIDs = playerData.Skills_Use
+            skillIDs = localPlayerData.SkillUseList
         });
     }
     public void BindUseSkill(int id)
     {
-        if (playerData.Skills_Use.Count < 3)
+        if (localPlayerData.SkillUseList.Count < 3)
         {
-            playerData.Skills_Use.Add(id);
+            localPlayerData.SkillUseList.Add(id);
         }
         else
         {
-            playerData.Skills_Use[0] = id;
+            localPlayerData.SkillUseList[0] = id;
         }
         List<int> copySkill = new List<int>();
-        for (int i = 0; i < playerData.Skills_Use.Count; i++)
+        for (int i = 0; i < localPlayerData.SkillUseList.Count; i++)
         {
-            copySkill.Add(playerData.Skills_Use[i]);
+            copySkill.Add(localPlayerData.SkillUseList[i]);
         }
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_BindSkill()
         {

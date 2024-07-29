@@ -17,9 +17,9 @@ public class Bullet9002 : BulletBase
         transform.DOKill();
         transform.localScale = Vector3.one;
 
-        bullet_Up.sortingOrder = 4;
+        bullet_Up.sortingOrder = 0;
         bullet_Up.gameObject.SetActive(true);
-        bullet_Down.sortingOrder = 3;
+        bullet_Down.sortingOrder = 0;
         bullet_Down.gameObject.SetActive(true);
         base.InitBullet(dir, speed + speedOffset, from);
 
@@ -73,7 +73,7 @@ public class Bullet9002 : BulletBase
     {
         if (parent.TryGetComponent(out SpriteRenderer sprite))
         {
-            bullet_Up.sortingOrder = sprite.sortingOrder + 1;
+            bullet_Up.sortingOrder = sprite.sortingOrder;
         }
         else
         {
@@ -81,7 +81,7 @@ public class Bullet9002 : BulletBase
             {
                 if (parent.GetChild(i).TryGetComponent(out SpriteRenderer spriteRenderer))
                 {
-                    bullet_Up.sortingOrder = spriteRenderer.sortingOrder + 1;
+                    bullet_Up.sortingOrder = spriteRenderer.sortingOrder;
                     break;
                 }
             }

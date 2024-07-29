@@ -2,32 +2,34 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.Audio;
 
 public class AudioManager : SingleTon<AudioManager>, ISingleTon
 {
+    [Header("混音器")]
+    public AudioMixer audioMixer;
     public SourceManager sourceManager;
-    ClipManager clipManager;
+    private ClipManager clipManager = new ClipManager();
     public void Init()
     {
-        sourceManager = new SourceManager(gameObject);
-        clipManager = new ClipManager();
     }
     /// <summary>
     /// 更新音效设置
     /// </summary>
-    public void UpdateSetting()
+    public void UpdateSetting(float volumeEffect, float volumeMusic)
     {
-        sourceManager.UpdateSetting();
+        audioMixer.SetFloat("MusicVolume", volumeMusic);
+        audioMixer.SetFloat("EffectVolume", volumeEffect);
     }
     /// <summary>
     /// 播放BGM
     /// </summary>
     /// <param name="AudioName"></param>
     /// <param name="isLoop"></param>
-    public void PlayMusic(int AudioID, bool isLoop)
+    public void PlayMusic(int AudioID, bool isLoop, Transform root = null)
     {
-        SingleClip tmpClips = clipManager.FindClipByID(AudioID);
-        sourceManager.UpdateSetting();
+        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
+        SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
         if (isLoop)
         {
             sourceManager.MusicSource.loop = true;
@@ -46,15 +48,22 @@ public class AudioManager : SingleTon<AudioManager>, ISingleTon
     /// 播放音效
     /// </summary>
     /// <param name="AudioID"></param>
-    public void PlayEffect(int AudioID)
+    public void PlayEffect(int AudioID,Transform root = null)
     {
-        sourceManager.ReleaseFreeAudio();
-        sourceManager.UpdateSetting();
-        AudioSource tmpSource = sourceManager.GetFreeAudio();
-        SingleClip tmpClips = clipManager.FindClipByID(AudioID);
+        AudioSource tempSource = sourceManager.GetFreeAudio();
+
+        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
+
+        tempSource.maxDistance = audioConfig.Audio_MaxDistance;
+        SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
+        if (root != null)
+        {
+            tempSource.transform.parent = root;
+            tempSource.transform.localPosition = Vector3.zero;
+        }
         if (tmpClips != null)
         {
-            tmpClips.Play(tmpSource);
+            tmpClips.Play(tempSource);
         }
     }
 

@@ -7,7 +7,7 @@ public class AudioConfigData
 {
     public readonly static List<AudioConfig> audioConfigs = new List<AudioConfig>()
     {
-        new AudioConfig(){ Audio_ID = 1001,Audio_Name = "Shoot_0"},
+        new AudioConfig(){ Audio_ID = 1001,Audio_Name = "Shoot_0",Audio_MaxDistance = 200},
     };
 }
 [Serializable]
@@ -17,4 +17,6 @@ public struct AudioConfig
     public int Audio_ID;
     [SerializeField]/*Ãû×Ö*/
     public string Audio_Name;
+    [SerializeField]/*×î´ó¾àÀë*/
+    public float Audio_MaxDistance;
 }

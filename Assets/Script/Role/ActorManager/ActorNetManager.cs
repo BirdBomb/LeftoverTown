@@ -15,7 +15,6 @@ public class ActorNetManager : NetworkBehaviour
     public NetworkRigidbody2D networkRigidbody;
     [Header("本地角色组件")]
     public ActorManager LocalManager;
-    public ActorNetData NetData;
     public override void Spawned()
     {
         if (LocalManager.isPlayer)
@@ -28,20 +27,10 @@ public class ActorNetManager : NetworkBehaviour
             {
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
-            InitByNPC();
         }
         LocalManager.InitByNetManager(Object.HasStateAuthority, Object.HasInputAuthority);
-        //OnItemInBagChange();
-        //OnItemInHandChange();
         base.Spawned();
-    }
-    private void InitByNPC()
-    {
-        Data_Hp = (int)(LocalManager.actorConfig.Config_Hp);
-        Data_MaxHp = (int)(LocalManager.actorConfig.Config_MaxHp);
-        NetData.Speed = (int)(LocalManager.actorConfig.Config_Speed * 1000);
-        NetData.MaxSpeed = (int)(LocalManager.actorConfig.Config_Speed * 1000);
-        NetData.Endurance = (int)(LocalManager.actorConfig.Config_Endurance * 1000);
+        InitNetworkData();
     }
     public override void FixedUpdateNetwork()
     {
@@ -178,49 +167,191 @@ public class ActorNetManager : NetworkBehaviour
     }
     #region//Networked
 
+    public void InitNetworkData()
+    {
+        OnSeedChange();
+        OnNameChange();
+        OnHairIDChange();
+        OnHairColorChange();
+        OnEyeIDChange();
+
+        OnItemInBagChange();
+        OnItemInHandChange();
+        OnItemOnHeadChange();
+        OnItemOnBodyChange();
+
+        OnBuffsChange();
+        OnSkillKnowChange();
+        OnSkillUseChange();
+    }
+
     [Networked, OnChangedRender(nameof(OnSeedChange)),HideInInspector]
     public int Data_Seed { get; set; }
     public int RandomInRange { get; set; }
-    [Networked, OnChangedRender(nameof(OnHpChange)), HideInInspector]
-    public int Data_Hp { get; set; }
+    public void OnSeedChange()
+    {
+        Random.InitState(Data_Seed);
+        RandomInRange = Random.Range(0, 101);
+    }
+
+    #region//外貌和名字
+    /// <summary>
+    /// 名称
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnNameChange)), HideInInspector]
+    public string Data_Name { get; set; }
+    /// <summary>
+    /// 头发ID
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnHairIDChange))]
+    public int Data_HairID { get; set; }
+    /// <summary>
+    /// 头发颜色
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnHairColorChange)), HideInInspector]
+    public Color32 Data_HairColor { get;set; }
+    /// <summary>
+    /// 眼镜ID
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnEyeIDChange)), HideInInspector]
+    public int Data_EyeID { get; set; }
+
+    public void OnNameChange()
+    {
+
+    }
+    public void OnHairIDChange()
+    {
+        LocalManager.BodyController.InitFace(Data_HairID, Data_EyeID, Data_HairColor);
+    }
+    public void OnHairColorChange()
+    {
+        LocalManager.BodyController.InitFace(Data_HairID, Data_EyeID, Data_HairColor);
+    }
+    public void OnEyeIDChange()
+    {
+        LocalManager.BodyController.InitFace(Data_HairID, Data_EyeID, Data_HairColor);
+    }
+    #endregion
+
+    #region//基础属性
+    /// <summary>
+    /// 普通速度
+    /// </summary>
+    [Networked, HideInInspector]
+    public int Data_CommonSpeed { get; set; }
+    /// <summary>
+    /// 最大速度
+    /// </summary>
+    [Networked, HideInInspector]
+    public int Data_MaxSpeed { get; set; }
+    /// <summary>
+    /// 当前生命值
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnCurHpChange)), HideInInspector]
+    public int Data_CurHp { get; set; }
+    /// <summary>
+    /// 最大生命值
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnMaxHpChange)), HideInInspector]
+    public int Data_MaxHp { get; set; }
+    /// <summary>
+    /// 护甲
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnArmorChange)), HideInInspector]
+    public int Data_Armor { get; set; }
+    /// <summary>
+    /// 当前食物值
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnCurFoodChange)), HideInInspector]
+    public int Data_CurFood { get; set; }
+    /// <summary>
+    /// 最大食物值
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnMaxFoodChange)), HideInInspector]
+    public int Data_MaxFood { get; set; }
+    /// <summary>
+    /// 缺水值
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnWaterChange)), HideInInspector]
+    public int Data_Water { get; set; }
+    /// <summary>
+    /// 当前精神值
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnCurSanChange)), HideInInspector]
+    public int Data_CurSan { get; set; }
+    /// <summary>
+    /// 最大精神值
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnMaxSanChange)), HideInInspector]
+    public int Data_MaxSan { get; set; }
+    /// <summary>
+    /// 心情值
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnHappyChange)), HideInInspector]
+    public int Data_Happy { get; set; }
+    /// <summary>
+    /// 耐力值
+    /// </summary>
     [Networked, OnChangedRender(nameof(OnEnChange)), HideInInspector]
     public int Data_En { get; set; }/*1000倍*/
+    /// <summary>
+    /// 耐力恢复
+    /// </summary>
     [Networked, OnChangedRender(nameof(OnEnReleaseChange)), HideInInspector]
     public int Data_EnRelease { get; set; }/*1000倍*/
-    [Networked, OnChangedRender(nameof(OnMaxHpChange)), HideInInspector]
-    public int Data_MaxHp{ get; set; }
-    [Networked, OnChangedRender(nameof(OnItemInHandChange)), HideInInspector]
-    public ItemData Data_ItemInHand { get; set; }
-    public ItemData Last_ItemInHand;
-    [Networked, OnChangedRender(nameof(OnItemOnHeadChange)), HideInInspector]
-    public ItemData Data_ItemOnHead { get; set; }
-    [Networked, OnChangedRender(nameof(OnItemOnBodyChange)), HideInInspector]
-    public ItemData Data_ItemOnBody { get; set; }
 
-    [Networked,Capacity(20), OnChangedRender(nameof(OnItemInBagChange)), HideInInspector]
-    public NetworkLinkedList<ItemData> Data_ItemInBag { get; }
-
-    [Networked, OnChangedRender(nameof(OnBuffsChange)), HideInInspector]
-    public NetworkLinkedList<int> Data_Buffs { get; }
-    public void OnHpChange()
+    public void OnCurHpChange()
     {
-        if (Data_Hp <= 0)
+        if (Data_CurHp <= 0)
         {
             LocalManager.ActorUI.UpdateHPBar(0 / (float)Data_MaxHp);
             LocalManager.TryToDead();
         }
         else
         {
-            LocalManager.ActorUI.UpdateHPBar((float)Data_Hp / (float)Data_MaxHp);
+            LocalManager.ActorUI.UpdateHPBar((float)Data_CurHp / (float)Data_MaxHp);
         }
         if (LocalManager.isPlayer && Object.HasInputAuthority)
         {
+            Debug.Log("UpdateHP");
             MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateData()
             {
-                HP = Data_Hp,
+                HP = Data_CurHp,
                 MaxHP = Data_MaxHp,
             });
         }
+    }
+    public void OnMaxHpChange()
+    {
+
+    }
+    public void OnArmorChange()
+    {
+
+    }
+    public void OnCurFoodChange()
+    {
+    }
+    public void OnMaxFoodChange()
+    {
+
+    }
+    public void OnWaterChange()
+    {
+
+    }
+    public void OnCurSanChange()
+    {
+
+    }
+    public void OnMaxSanChange()
+    {
+
+    }
+    public void OnHappyChange()
+    {
+
     }
     public void OnEnChange()
     {
@@ -230,15 +361,53 @@ public class ActorNetManager : NetworkBehaviour
     {
         LocalManager.ActorUI.UpdateENReleaseBar(Data_EnRelease * 0.001f);
     }
-    public void OnSeedChange()
-    {
-        Random.InitState(Data_Seed);
-        RandomInRange = Random.Range(0, 101);
-    }
-    public void OnMaxHpChange()
-    {
 
-    }
+    #endregion
+
+    #region//能力属性
+    [Networked, HideInInspector]
+    public int Data_Point_Strength { get; set; }
+    [Networked, HideInInspector]
+    public int Data_Point_Intelligence { get; set; }
+    [Networked, HideInInspector]
+    public int Data_Point_SPower { get; set; }
+    [Networked, HideInInspector]
+    public int Data_Point_Focus { get; set; }
+    [Networked, HideInInspector]
+    public int Data_Point_Agility { get; set; }
+    [Networked, HideInInspector]
+    public int Data_Point_Make { get; set; }
+    [Networked, HideInInspector]
+    public int Data_Point_Build { get; set; }
+    [Networked, HideInInspector]
+    public int Data_Point_Cook { get; set; }
+    #endregion
+
+    #region//持有物品
+    /// <summary>
+    /// 背包物体
+    /// </summary>
+    [Networked, Capacity(20), OnChangedRender(nameof(OnItemInBagChange)), HideInInspector]
+    public NetworkLinkedList<ItemData> Data_ItemInBag { get; }
+    /// <summary>
+    /// 手部物体
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnItemInHandChange)), HideInInspector]
+    public ItemData Data_ItemInHand { get; set; }
+    public ItemData Last_ItemInHand;
+    /// <summary>
+    /// 头部物体
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnItemOnHeadChange)), HideInInspector]
+    public ItemData Data_ItemOnHead { get; set; }
+    public ItemData Last_ItemOnHead;
+    /// <summary>
+    /// 身体物体
+    /// </summary>
+    [Networked, OnChangedRender(nameof(OnItemOnBodyChange)), HideInInspector]
+    public ItemData Data_ItemOnBody { get; set; }
+    public ItemData Last_ItemOnBody;
+
     public void OnItemInHandChange()
     {
         LocalManager.AddItem_Hand(Data_ItemInHand);
@@ -266,13 +435,81 @@ public class ActorNetManager : NetworkBehaviour
             });
         }
     }
+
+    #endregion
+
+    #region//特性与技能
+    /// <summary>
+    /// Buff
+    /// </summary>
+    [Networked, Capacity(20), OnChangedRender(nameof(OnBuffsChange)), HideInInspector]
+    public NetworkLinkedList<int> Data_Buffs { get; }
+    [Networked, Capacity(20), OnChangedRender(nameof(OnSkillKnowChange)), HideInInspector]
+    public NetworkLinkedList<int> Data_SkillKnow { get; }
+    [Networked, Capacity(20), OnChangedRender(nameof(OnSkillUseChange)), HideInInspector]
+    public NetworkLinkedList<int> Data_SkillUse { get; }
     public void OnBuffsChange()
     {
 
     }
+    public void OnSkillKnowChange()
+    {
 
+    }
+    public void OnSkillUseChange()
+    {
+
+    }
+    #endregion
     #endregion
     #region//RPC
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_LocalInput_InitPlayerCommonData(PlayerNetData netData)
+    {
+        Data_HairID = netData.HairID;
+        Data_HairColor = netData.HairColor;
+        Data_EyeID = netData.EyeID;
+
+        Data_CurHp = netData.CurHp;
+        Data_MaxHp = netData.MaxHp;
+        Data_Armor = netData.Armor;
+        Data_CurFood = netData.CurFood;
+        Data_MaxFood = netData.MaxFood;
+        Data_Water = netData.Water;
+        Data_CurSan = netData.CurSan;
+        Data_MaxSan = netData.MaxSan;
+        Data_Happy = netData.Happy;
+
+        Data_CommonSpeed = netData.CommonSpeed;
+        Data_MaxSpeed = netData.MaxSpeed;
+
+        Data_En = netData.En;
+
+        Data_Point_Strength = netData.Point_Strength;
+        Data_Point_Intelligence = netData.Point_Intelligence;
+        Data_Point_SPower = netData.Point_SPower;
+        Data_Point_Focus = netData.Point_Focus;
+        Data_Point_Agility = netData.Point_Agility;
+        Data_Point_Make = netData.Point_Make;
+        Data_Point_Build = netData.Point_Build;
+        Data_Point_Cook = netData.Point_Cook;
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_LocalInput_AddBuff(int buffID)
+    {
+        Data_Buffs.Add(buffID);
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_LocalInput_AddSkillKnow(int skillID)
+    {
+        Data_SkillKnow.Add(skillID);
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_LocalInput_AddSkillUse(int skillID)
+    {
+        Data_SkillUse.Add(skillID);
+    }
+
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     public void RPC_State_Attack(bool parameter)
     {
@@ -299,7 +536,7 @@ public class ActorNetManager : NetworkBehaviour
         LocalManager.Listen_HpChange(parameter, networkId);
         if (Object.HasStateAuthority)
         {
-            Data_Hp += parameter;
+            Data_CurHp += parameter;
         }
     }
     /// <summary>
