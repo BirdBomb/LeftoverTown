@@ -6,8 +6,8 @@ AnimatorOverrideController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Item2004
-  m_Controller: {fileID: 9100000, guid: 8f81873cf388fba469ea71f43084bfdf, type: 2}
+  m_Name: Effect_102
+  m_Controller: {fileID: 9100000, guid: 4d72e4d7de3a83f4b966aa69b4812b90, type: 2}
   m_Clips:
-  - m_OriginalClip: {fileID: 7400000, guid: 5a7074e54c0cc3a40bb93980432aebdb, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 980e70a3f6e412c48ab228a3d0d94c65, type: 2}
     m_OverrideClip: {fileID: 7400000, guid: 855b62a979972a84aa1328f3a37e04f6, type: 2}
