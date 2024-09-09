@@ -11,8 +11,12 @@ public class FloorConfigData : MonoBehaviour
     }
     public readonly static List<FloorConfig> floorConfigs = new List<FloorConfig>()
     {
-        new FloorConfig(){ Floor_ID = 1001,Floor_Name ="草地",Floor_SpriteName ="Grass",Floor_FileName ="Grass",Floor_RawLevel = 1,Floor_RawList=new List<int>(){ 1001 } },
-        new FloorConfig(){ Floor_ID = 1002,Floor_Name ="木质地板",Floor_SpriteName ="WoodFloor",Floor_FileName ="WoodFloor",Floor_RawLevel = 1,Floor_RawList=new List<int>(){ 1001 } },
+        new FloorConfig(){ Floor_ID = 1001,Floor_Name ="草地",
+            Floor_SpriteName ="Grass",Floor_FileName ="Grass",Floor_RawLevel = 1,
+            Floor_Raw=new List<FloorRaw>(){ new FloorRaw(1001,2) } },
+        new FloorConfig(){ Floor_ID = 1002,Floor_Name ="木质地板",
+            Floor_SpriteName ="WoodFloor",Floor_FileName ="WoodFloor",Floor_RawLevel = 1,
+            Floor_Raw=new List<FloorRaw>(){ new FloorRaw(1001,2),new FloorRaw(2001,1) } },
     };
 
 }
@@ -23,12 +27,25 @@ public struct FloorConfig
     public int Floor_ID;
     [SerializeField]/*名字*/
     public string Floor_Name;
-    [SerializeField]/*图片名*/
-    public string Floor_SpriteName;
     [SerializeField]/*资源名*/
     public string Floor_FileName;
-    [SerializeField]/*合成表*/
-    public List<int> Floor_RawList;
+    [SerializeField]/*图片名*/
+    public string Floor_SpriteName;
     [SerializeField]/*合成等级*/
     public int Floor_RawLevel;
+    /*建筑原料*/
+    public List<FloorRaw> Floor_Raw;
+}
+/// <summary>
+/// 地板原料
+/// </summary>
+public struct FloorRaw
+{
+    public short ID;
+    public short Count;
+    public FloorRaw(short id, short count)
+    {
+        ID = id;
+        Count = count;
+    }
 }

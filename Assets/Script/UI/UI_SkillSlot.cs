@@ -8,9 +8,9 @@ using UnityEngine.UI;
 public class UI_SkillSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public Image skillImage;
-    public int skillID;
+    public short skillID;
     public bool canDrag = true;
-    public void Init(int id,Sprite sprite)
+    public void Init(short id,Sprite sprite)
     {
         skillImage.sprite = sprite;
         skillID = id;

@@ -1,3 +1,5 @@
+using Fusion;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -19,18 +21,21 @@ public class PlayerController : MonoBehaviour
     public bool thisPlayerIsMe = false;
     [HideInInspector]
     public bool thisPlayerIsState = false;
+    [HideInInspector]
+    public PlayerRef localPlayerRef;
     private void Start()
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneMove>().Subscribe(_ =>
         {
             if (_.moveActor == actorManager && thisPlayerIsMe)
             {
+                UpdateMapInView(_.moveTile._posInCell);
                 UpdateNearByTile();
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag>().Subscribe(_ =>
         {
-            if (thisPlayerIsMe && actorManager.NetManager.Object.HasInputAuthority)
+            if (thisPlayerIsMe)
             {
                 actorManager.NetManager.RPC_LocalInput_LoseItem(_.item);
             }
@@ -39,44 +44,28 @@ public class PlayerController : MonoBehaviour
         {
             if (thisPlayerIsMe)
             {
-                actorManager.NetManager.CalculateBag(_.item, out ItemData itemResidue);
                 actorManager.NetManager.RPC_LocalInput_AddItemInBag(_.item);
-                if (_.itemResidueBack != null)
-                {
-                    _.itemResidueBack.Invoke(itemResidue);
-                }
-                if (itemResidue.Item_Count != 0)//背包溢出
-                {
-                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-                    {
-                        item = itemResidue
-                    });
-                }
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemInBag>().Subscribe(_ =>
         {
             if (thisPlayerIsMe)
             {
-                if(_.oldItem.Item_ID == actorManager.NetManager.Data_ItemInHand.Item_ID&& _.oldItem.Item_Seed == actorManager.NetManager.Data_ItemInHand.Item_Seed)
+                if (actorManager.NetManager.Data_ItemInHand.Equals(_.oldItem))
                 {
-                    actorManager.NetManager.RPC_LocalInput_ChangeItemInHand(_.oldItem, _.newItem);
+                    actorManager.NetManager.RPC_LocalInput_ChangeItemOnHand(_.newItem);
+                }
+                else if (actorManager.NetManager.Data_ItemOnHead.Equals(_.oldItem))
+                {
+                    actorManager.NetManager.RPC_LocalInput_ChangeItemOnHead(_.newItem);
+                }
+                else if (actorManager.NetManager.Data_ItemOnBody.Equals(_.oldItem))
+                {
+                    actorManager.NetManager.RPC_LocalInput_ChangeItemOnBody(_.newItem);
                 }
                 else
                 {
-                    actorManager.NetManager.CalculateBag(_.newItem, out ItemData itemResidue);
                     actorManager.NetManager.RPC_LocalInput_ChangeItemInBag(_.oldItem, _.newItem);
-                    if (_.itemResidueBack != null)
-                    {
-                        _.itemResidueBack.Invoke(itemResidue);
-                    }
-                    if (itemResidue.Item_Count != 0)//背包溢出
-                    {
-                        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-                        {
-                            item = itemResidue
-                        });
-                    }
                 }
             }
         }).AddTo(this);
@@ -84,11 +73,6 @@ public class PlayerController : MonoBehaviour
         {
             if (thisPlayerIsMe)
             {
-                if (actorManager.NetManager.Data_ItemInHand.Item_ID != 0)
-                {
-                    /*手上已经有东西*/
-                    actorManager.NetManager.RPC_LocalInput_AddItemInBag(actorManager.NetManager.Data_ItemInHand);
-                }
                 actorManager.NetManager.RPC_LocalInput_AddItemOnHand(_.item);
             }
         }).AddTo(this);
@@ -96,11 +80,6 @@ public class PlayerController : MonoBehaviour
         {
             if (thisPlayerIsMe)
             {
-                if (actorManager.NetManager.Data_ItemOnHead.Item_ID != 0)
-                {
-                    /*头上已经有东西*/
-                    actorManager.NetManager.RPC_LocalInput_AddItemInBag(actorManager.NetManager.Data_ItemOnHead);
-                }
                 actorManager.NetManager.RPC_LocalInput_AddItemOnHead(_.item);
             }
         }).AddTo(this);
@@ -108,11 +87,6 @@ public class PlayerController : MonoBehaviour
         {
             if (thisPlayerIsMe)
             {
-                if (actorManager.NetManager.Data_ItemOnBody.Item_ID != 0)
-                {
-                    /*头上已经有东西*/
-                    actorManager.NetManager.RPC_LocalInput_AddItemInBag(actorManager.NetManager.Data_ItemOnBody);
-                }
                 actorManager.NetManager.RPC_LocalInput_AddItemOnBody(_.item);
             }
         }).AddTo(this);
@@ -144,7 +118,7 @@ public class PlayerController : MonoBehaviour
                 MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SpawnItem()
                 {
                     itemData = _.item,
-                    pos = transform.position - new Vector3(0, 0.1f, 0)
+                    pos = transform.position - new Vector3(0, 0.1f, 0),
                 });
             }
         }).AddTo(this);
@@ -165,7 +139,7 @@ public class PlayerController : MonoBehaviour
             {
                 MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                 {
-                    buildingName = _.name,
+                    buildingID = _.id,
                     buildingPos = actorManager.GetMyTile()._posInCell
                 });
             }
@@ -176,7 +150,7 @@ public class PlayerController : MonoBehaviour
             {
                 MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeFloor()
                 {
-                    floorName = _.name,
+                    floorID = _.id,
                     floorPos = actorManager.GetMyTile()._posInCell
                 });
             }
@@ -205,11 +179,6 @@ public class PlayerController : MonoBehaviour
                     {
                         item = itemData
                     });
-                    if (actorManager.NetManager.Data_ItemInHand.Item_ID != 0)
-                    {
-                        /*手上已经有东西*/
-                        actorManager.NetManager.RPC_LocalInput_AddItemInBag(actorManager.NetManager.Data_ItemInHand);
-                    }
                     actorManager.NetManager.RPC_LocalInput_AddItemOnHand(itemData);
                 }
             }
@@ -217,7 +186,14 @@ public class PlayerController : MonoBehaviour
             {
                 for (int i = 0; i < nearbyTiles.Count; i++)
                 {
-                    nearbyTiles[i].InvokeTile(this);
+                    nearbyTiles[i].InvokeTile(this, KeyCode.F);
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                for (int i = 0; i < nearbyTiles.Count; i++)
+                {
+                    nearbyTiles[i].InvokeTile(this, KeyCode.E);
                 }
             }
             if (Input.GetKeyDown(KeyCode.Q))
@@ -235,15 +211,15 @@ public class PlayerController : MonoBehaviour
                 {
                     MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                     {
-                        buildingName = "Base",
+                        buildingID = 1,
                         buildingPos = actorManager.GetMyTile()._posInCell
                     });
                 }
-                else if (actorManager.GetMyTile().name == "Base")
+                else if (actorManager.GetMyTile().name == "BuildingBuilder")
                 {
                     MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                     {
-                        buildingName = "Default",
+                        buildingID = 0,
                         buildingPos = actorManager.GetMyTile()._posInCell
                     });
                 }
@@ -254,7 +230,7 @@ public class PlayerController : MonoBehaviour
                 {
                     MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                     {
-                        buildingName = "FloorBuilder",
+                        buildingID = 2,
                         buildingPos = actorManager.GetMyTile()._posInCell
                     });
                 }
@@ -262,7 +238,7 @@ public class PlayerController : MonoBehaviour
                 {
                     MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                     {
-                        buildingName = "Default",
+                        buildingID = 0,
                         buildingPos = actorManager.GetMyTile()._posInCell
                     });
                 }
@@ -302,7 +278,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private bool lastRightPress = false;
     private float shiftPressTimer = 0;
-    private float shiftReleaseTimer = 0;
     /// <summary>
     /// 鼠标输入
     /// </summary>
@@ -351,38 +326,55 @@ public class PlayerController : MonoBehaviour
     public void All_PlayerInputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
     {
         dir = dir.normalized;
-        float speed = actorManager.NetManager.Data_CommonSpeed;
+        float commonSpeed = actorManager.NetManager.Data_CommonSpeed / 10f;
+        float maxSpeed = actorManager.NetManager.Data_MaxSpeed / 10f;
+        float speed;
         if (speedUp)
         {
-            shiftReleaseTimer = 0;
-            actorManager.NetManager.Data_EnRelease = 0;
-            if (shiftPressTimer < actorManager.NetManager.Data_En * 0.001f)
+            if (EnSub((int)(deltaTime * 1000)))
             {
-                shiftPressTimer += deltaTime;
-                actorManager.NetManager.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetManager.Data_En));
-                if (shiftPressTimer > 1)
+                if (shiftPressTimer < 1)
                 {
-                    speed = Mathf.Lerp(actorManager.NetManager.Data_CommonSpeed, actorManager.NetManager.Data_MaxSpeed, 1);
+                    shiftPressTimer += deltaTime;
                 }
                 else
                 {
-                    speed = Mathf.Lerp(actorManager.NetManager.Data_CommonSpeed, actorManager.NetManager.Data_MaxSpeed, shiftPressTimer);
+                    shiftPressTimer = 1;
+                }
+            }
+            else
+            {
+                if (shiftPressTimer > deltaTime)
+                {
+                    shiftPressTimer -= deltaTime;
+                }
+                else
+                {
+                    shiftPressTimer = 0;
                 }
             }
         }
         else
         {
-            if (shiftPressTimer != 0)
+            if (shiftPressTimer > deltaTime)
             {
-                shiftReleaseTimer += deltaTime;
-                actorManager.NetManager.Data_EnRelease = (int)((shiftReleaseTimer * 1000) / (0.001f * actorManager.NetManager.Data_En));
-                if (shiftReleaseTimer > actorManager.NetManager.Data_En * 0.001f)
-                {
-                    shiftPressTimer = 0;
-                    actorManager.NetManager.Data_En = (int)((shiftPressTimer * 1000) / (0.001f * actorManager.NetManager.Data_En));
-                }
+                shiftPressTimer -= deltaTime;
             }
+            else
+            {
+                shiftPressTimer = 0;
+            }
+            EnAdd((int)(deltaTime * actorManager.NetManager.Data_EnRelease));
         }
+        if (shiftPressTimer > 1)
+        {
+            speed = Mathf.Lerp(commonSpeed, maxSpeed, 1);
+        }
+        else
+        {
+            speed = Mathf.Lerp(commonSpeed, maxSpeed, shiftPressTimer);
+        }
+
         Vector2 velocity = new Vector2(dir.x * speed, dir.y * speed);
         Vector3 newPos = transform.position + new UnityEngine.Vector3(velocity.x * deltaTime, velocity.y * deltaTime, 0);
         actorManager.NetManager.UpdateNetworkTransform(newPos, velocity.magnitude);
@@ -396,18 +388,44 @@ public class PlayerController : MonoBehaviour
         actorManager.FaceTo(dir);
         if (actorManager.holdingByHand != null)
         {
-            actorManager.holdingByHand.FaceTo(dir, dt);
+            actorManager.holdingByHand.InputMousePos(dir, dt);
         }
     }
 
+    #endregion
+    #region//耐力系统
+    private bool EnSub(int offset)
+    {
+        if(actorManager.NetManager.Data_CurEn > 50)
+        {
+            actorManager.NetManager.Data_CurEn -= offset;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    private bool EnAdd(int offset)
+    {
+        if (actorManager.NetManager.Data_CurEn < actorManager.NetManager.Data_MaxEn)
+        {
+            actorManager.NetManager.Data_CurEn += offset;
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
     #endregion
     #region//技能系统
     public void ChangeUsingSkill(bool next)
     {
         if (localPlayerData.SkillUseList.Count > 0)
         {
-            int firstSkill = localPlayerData.SkillUseList[0];
-            int lastSkill = localPlayerData.SkillUseList[localPlayerData.SkillUseList.Count - 1];
+            short firstSkill = localPlayerData.SkillUseList[0];
+            short lastSkill = localPlayerData.SkillUseList[localPlayerData.SkillUseList.Count - 1];
 
             if (next)
             {
@@ -446,7 +464,7 @@ public class PlayerController : MonoBehaviour
             skillIDs = localPlayerData.SkillUseList
         });
     }
-    public void BindUseSkill(int id)
+    public void BindUseSkill(short id)
     {
         if (localPlayerData.SkillUseList.Count < 3)
         {
@@ -456,7 +474,7 @@ public class PlayerController : MonoBehaviour
         {
             localPlayerData.SkillUseList[0] = id;
         }
-        List<int> copySkill = new List<int>();
+        List<short> copySkill = new List<short>();
         for (int i = 0; i < localPlayerData.SkillUseList.Count; i++)
         {
             copySkill.Add(localPlayerData.SkillUseList[i]);
@@ -471,11 +489,29 @@ public class PlayerController : MonoBehaviour
         actorManager.NetManager.RPC_LocalInput_InvokeSkill(id, new Fusion.NetworkId());
     }
     #endregion
-    #region
+    #region//地图绘制
     public List<MyTile> nearbyTiles = new List<MyTile>();
     private List<MyTile> tempTiles = new List<MyTile>();
+    private Vector3Int mapCenter = new Vector3Int(-99999,-99999);
+    private int mapView = 15;
     /// <summary>
-    /// 跟新附近的地块
+    /// 更新地图绘制
+    /// </summary>
+    public void UpdateMapInView(Vector3Int pos)
+    {
+        if (Mathf.Abs(pos.x - mapCenter.x) > mapView || Mathf.Abs(pos.y - mapCenter.y) > mapView)
+        {
+            Debug.Log("超出地图绘制范围,绘制新区域" + "当前位置(" + pos + ")" + "地图锚点(" + mapCenter + ")");
+            mapCenter = new Vector3Int((int)Math.Round(pos.x / 20f) * 20, (int)Math.Round(pos.y / 20f) * 20, 0);
+            MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_RequestMapData()
+            {
+                playerPos = mapCenter,
+                playerRef = localPlayerRef
+            });
+        }
+    }
+    /// <summary>
+    /// 更新附近的地块
     /// </summary>
     private void UpdateNearByTile()
     {

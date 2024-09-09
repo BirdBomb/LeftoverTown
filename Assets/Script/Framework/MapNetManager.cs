@@ -4,18 +4,22 @@ using UnityEngine;
 using Fusion;
 using UniRx;
 using System.Threading.Tasks;
+using static UnityEditor.PlayerSettings;
+using System.Numerics;
+using System.Text;
 
 public class MapNetManager : NetworkBehaviour
 {
     public MapTileTypeData buildingTileTypeData = null;
     public MapTileInfoData buildingTileInfoData = null;
-    public MapTileInfoData floorTileTypeData = null;
+    public MapTileTypeData floorTileTypeData = null;
     private bool mapDataAlready = false;
+    private int mapSeed;
     void Start()
     {
         MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_RequestMapData>().Subscribe(_ =>
         {
-            TryRequestMapData(_.pos, _.player);
+            Local_RequestMapData(_.playerPos, _.playerRef);
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_SaveMapData>().Subscribe(_ =>
         {
@@ -26,6 +30,9 @@ public class MapNetManager : NetworkBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_TakeDamage>().Subscribe(_ =>
         {
+            Debug.Log(_.tileObj.bindTile._posInCell);
+            if (_.tileObj.bindTile == null) { Debug.Log("ss1"); }
+            if (Runner.LocalPlayer == null) { Debug.Log("aaa"); }
             RPC_LocalInput_TileTakeDamage(_.tileObj.bindTile._posInCell, _.damage, Runner.LocalPlayer);
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_UpdateBuildingInfo>().Subscribe(_ =>
@@ -34,52 +41,30 @@ public class MapNetManager : NetworkBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_ChangeBuilding>().Subscribe(_ =>
         {
-            RPC_LocalInput_BuildingChange(_.buildingPos, _.buildingName);
+            RPC_LocalInput_BuildingChange(_.buildingPos, _.buildingID);
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_ChangeFloor>().Subscribe(_ =>
         {
-            RPC_LocalInput_FloorChange(_.floorPos, _.floorName);
+            RPC_LocalInput_FloorChange(_.floorPos, _.floorID);
         }).AddTo(this);
     }
-    #region//请求与返回地图数据
-    private void TryRequestMapData(Vector3Int pos,PlayerRef player)
+    public override void Spawned()
     {
-        Debug.Log("尝试请求服务器地图信息/位置坐标" + pos);
-        RPC_RequestMapData(pos, player);
+        base.Spawned();
     }
-    /// <summary>
-    /// 客户端请求地图数据
-    /// </summary>
-    /// <param name="pos"></param>
-    /// <param name="player"></param>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private async void RPC_RequestMapData(Vector3Int pos, PlayerRef player)
-    {
-        if (Object.HasStateAuthority)
-        {
-            Debug.Log("服务器尝试发送地图数据");
-            if (!mapDataAlready)
-            {
-                Debug.Log("服务器地图未初始化,先初始化");
-                mapDataAlready = true;
-                await LoadMap();
-                await TryInitMapForSomeone(pos, 19, player);
-            }
-            else
-            {
-                Debug.Log("服务器地图已经初始化");
-                await TryInitMapForSomeone(pos, 19, player);
-            }
-        }
-    }
+
+
+    #region//保存和读取
     private async Task LoadMap()
     {
-        GameDataManager.Instance.LoadMap(out MapTileTypeData buildingTypeData, out MapTileInfoData buildingInfoData,out MapTileInfoData flootInfoData);
+        GameDataManager.Instance.LoadMap(out MapTileTypeData buildingTypeData, out MapTileInfoData buildingInfoData, out MapTileTypeData floorTypeData);
         buildingTileTypeData = buildingTypeData;
         buildingTileInfoData = buildingInfoData;
-        floorTileTypeData = flootInfoData;
+        floorTileTypeData = floorTypeData;
+
         await Task.Delay(100);
         Debug.Log("服务器地图初始化成功");
+        InitMap();
     }
     private void SaveMap()
     {
@@ -89,149 +74,114 @@ public class MapNetManager : NetworkBehaviour
             Debug.Log("服务器地图保存成功");
         }
     }
-    /// <summary>
-    /// 为某人初始化地图
-    /// </summary>
-    /// <param name="center">中心</param>
-    /// <param name="center">尺寸</param>
-    /// <param name="player">目标玩家</param>
-    /// <returns></returns>
-    private async Task TryInitMapForSomeone(Vector3Int center,int size, PlayerRef player)
+    private void InitMap()
     {
-        for(int i = 0; i < 9; i++)
-        {
-            Vector3Int tempPos = new Vector3Int();
-            if (i == 0) { tempPos = center; }
-            if (i == 1) { tempPos = center + new Vector3Int(size, 0, 0); }
-            if (i == 2) { tempPos = center + new Vector3Int(-size, 0, 0); }
-            if (i == 3) { tempPos = center + new Vector3Int(0, size, 0); }
-            if (i == 4) { tempPos = center + new Vector3Int(0, -size, 0); }
-            if (i == 5) { tempPos = center + new Vector3Int(size, size, 0); }
-            if (i == 6) { tempPos = center + new Vector3Int(-size, size, 0); }
-            if (i == 7) { tempPos = center + new Vector3Int(-size, -size, 0); }
-            if (i == 8) { tempPos = center + new Vector3Int(size, -size, 0); }
-            TrySendBuildingTileTypeData(tempPos, size, size, player);
-            TrySendFloorTileTypeData(tempPos, size, size, player);
-            await Task.Delay(1000);
-            TrySendMapTileInfoData(tempPos, size, size, player);
-        }
+        InitLoop();
+        InitSeed();
     }
-    /// <summary>
-    /// 发送建筑地块类型数据
-    /// </summary>
-    /// <param name="center">区域中心</param>
-    /// <param name="width">区域宽</param>
-    /// <param name="height">区域高</param>
-    /// <param name="player">目标客户端</param>
-    private void TrySendBuildingTileTypeData(Vector3Int center, int width, int height, PlayerRef player)
+    private void InitLoop()
     {
-        string[] tempArray = new string[width * height];
-        int index = 0;
-        for (int x = -(width - 1) / 2; x <= (width - 1) / 2; x++)
+        Debug.Log("开始计算世界时间");
+        Hour = buildingTileInfoData.hour;
+        Date = buildingTileInfoData.date;
+        InvokeRepeating("UpdateTime", 5, 5);
+    }
+    private void InitSeed()
+    {
+        string str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        int seedInt = 0;
+        StringBuilder seedStr = new StringBuilder(buildingTileInfoData.seed);
+        for (int i = 0; i < seedStr.Length; i++)
         {
-            for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
+            char c = seedStr[i];
+            int temp = str.IndexOf(c);
+            seedInt += temp * (int)Mathf.Pow(10, i);
+        }
+        mapSeed = seedInt;
+    }
+    #endregion
+    #region//时间周期
+    public void UpdateTime()
+    {
+        if (Object.HasStateAuthority)
+        {
+            if (Hour < 10)
             {
-                string info = buildingTileTypeData.tiles[(center.x + x).ToString() + "," + (center.y + y).ToString()];
-                tempArray[index] = info;
-                index++;
+                Hour += 1;
             }
+            else
+            {
+                Date += 1;
+                Hour = 0;
+            }
+            buildingTileInfoData.hour = Hour;
+            buildingTileInfoData.date = Date;
         }
-        RPC_SendBuildingTileTypeData(player, tempArray, center, width, height);
+    }
+    #endregion
+    #region//本地端
+    /// <summary>
+    /// 本地端请求地图数据
+    /// </summary>
+    /// <param name="center">区域中心(只能是20的倍数)</param>
+    /// <param name="player"></param>
+    private void Local_RequestMapData(Vector3Int center, PlayerRef player)
+    {
+        Debug.Log("请求服务器地图信息/位置坐标" + center);
+        RPC_LocalInput_RequestMapData(center, player);
     }
     /// <summary>
-    /// 发送地板地块类型数据
+    /// 本地端更新地图中心
     /// </summary>
     /// <param name="center"></param>
     /// <param name="width"></param>
     /// <param name="height"></param>
-    /// <param name="player"></param>
-    private void TrySendFloorTileTypeData(Vector3Int center, int width, int height, PlayerRef player)
+    private void Local_UpdateMapCenter(Vector3Int center, int width, int height, int seed)
     {
-        string[] tempArray = new string[width * height];
-        int index = 0;
-        for (int x = -(width - 1) / 2; x <= (width - 1) / 2; x++)
-        {
-            for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
-            {
-                string info;
-                if (floorTileTypeData.tiles.ContainsKey((center.x + x).ToString() + "," + (center.y + y).ToString()))
-                {
-                    info = floorTileTypeData.tiles[(center.x + x).ToString() + "," + (center.y + y).ToString()];
-                }
-                else
-                {
-                    info ="Grass";
-                }
-                tempArray[index] = info;
-                index++;
-            }
-        }
-        RPC_SendFloorTileTypeData(player, tempArray, center, width, height);
+        Debug.Log("收到服务器地图信息(地图绘制中心)/中心" + center + "尺寸" + width + "/" + height);
+        MapManager.Instance.UpdateMapCenter(center, width, height, seed);
     }
     /// <summary>
-    /// 发送地块信息数据
+    /// 本地端获得地图数据(建筑类别)
     /// </summary>
-    /// <param name="center"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    /// <param name="player"></param>
-    private void TrySendMapTileInfoData(Vector3Int center, int width, int height, PlayerRef player)
-    {
-        string[] tempArray = new string[width * height];
-        int index = 0;
-        for (int x = -(width - 1) / 2; x <= (width - 1) / 2; x++)
-        {
-            for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
-            {
-                if(buildingTileInfoData.tiles.ContainsKey((center.x + x).ToString() + "," + (center.y + y).ToString()))
-                {
-                    string info = buildingTileInfoData.tiles[(center.x + x).ToString() + "," + (center.y + y).ToString()];
-                    tempArray[index] = info;
-                }
-                else
-                {
-                    string info = "";
-                    tempArray[index] = info;
-                }
-                index++;
-            }
-        }
-        RPC_SendBuildingTileInfoData(player, tempArray, center, width, height);
-    }
-    /// <summary>
-    /// 服务端发送地图数据
-    /// </summary>
-    /// <param name="target"></param>
     /// <param name="tileList"></param>
     /// <param name="center"></param>
     /// <param name="width"></param>
     /// <param name="height"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_SendBuildingTileTypeData([RpcTarget] PlayerRef target, string[] tileList, Vector3Int center, int width, int height)
+    private void Local_ReceiveBuildTypeData(int[] tileList, Vector3Int center, int width, int height)
     {
-        //Debug.Log("获取服务器地图数据:中心" + center + "尺寸" + width + "/" + height);
-        int index = 0;
-        for (int x = -(width - 1) / 2; x <= (width - 1) / 2; x++)
+        //Debug.Log("收到服务器地图信息(建筑类别)/中心" + center + "尺寸" + width + "/" + height);
+        if (MapManager.Instance.AddNewAreaInMap(center, width, height))
         {
-            for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
+            int index = 0;
+            for (int x = -width / 2; x < width / 2; x++)
             {
-                MapManager.Instance.CreateBuilding(new Vector3Int(center.x + x, center.y + y, 0), tileList[index]);
-                index++;
+                for (int y = -height / 2; y < height / 2; y++)
+                {
+                    MapManager.Instance.CreateBuilding(new Vector3Int(center.x + x, center.y + y, 0), tileList[index]);
+                    index++;
+                }
             }
         }
     }
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_SendBuildingTileInfoData([RpcTarget] PlayerRef target, string[] tileList, Vector3Int center, int width, int height)
+    /// <summary>
+    /// 本地端获得地图数据(建筑信息)
+    /// </summary>
+    /// <param name="tileList"></param>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    private void Local_ReceiveBuildInfoData(string[] tileList, Vector3Int center, int width, int height)
     {
-        //Debug.Log("获取服务器地图数据:中心" + center + "尺寸" + width + "/" + height);
+        Debug.Log("收到服务器地图信息(建筑信息)/中心" + center + "尺寸" + width + "/" + height);
         int index = 0;
-        for (int x = -(width - 1) / 2; x <= (width - 1) / 2; x++)
+        for (int x = -width / 2; x < width / 2; x++)
         {
-            for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
+            for (int y = -height / 2; y < height / 2; y++)
             {
                 if (tileList[index].Length > 0)
                 {
-                    MapManager.Instance.GetTileObj(new Vector3Int(center.x + x, center.y + y, 0), out TileObj obj);
+                    MapManager.Instance.GetBuildObj(new Vector3Int(center.x + x, center.y + y, 0), out TileObj obj);
                     if (obj != null)
                     {
                         obj.TryToUpdateInfo(tileList[index]);
@@ -240,23 +190,22 @@ public class MapNetManager : NetworkBehaviour
                 index++;
             }
         }
+
     }
     /// <summary>
-    /// 服务端发送地板数据
+    /// 本地端获得地图数据(地块类别)
     /// </summary>
-    /// <param name="target"></param>
     /// <param name="tileList"></param>
     /// <param name="center"></param>
     /// <param name="width"></param>
     /// <param name="height"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_SendFloorTileTypeData([RpcTarget] PlayerRef target, string[] tileList, Vector3Int center, int width, int height)
+    private void Local_ReceiveFloorTypeData(int[] tileList, Vector3Int center, int width, int height)
     {
-        //Debug.Log("获取服务器地图数据:中心" + center + "尺寸" + width + "/" + height);
+        Debug.Log("收到服务器地图信息(地块类别)/中心" + center + "尺寸" + width + "/" + height);
         int index = 0;
-        for (int x = -(width - 1) / 2; x <= (width - 1) / 2; x++)
+        for (int x = -width / 2; x < width / 2; x++)
         {
-            for (int y = -(height - 1) / 2; y <= (height - 1) / 2; y++)
+            for (int y = -height / 2; y < height / 2; y++)
             {
                 MapManager.Instance.CreateFloor(new Vector3Int(center.x + x, center.y + y, 0), tileList[index]);
                 index++;
@@ -264,7 +213,264 @@ public class MapNetManager : NetworkBehaviour
         }
     }
     #endregion
+    #region//服务端
+    /// <summary>
+    /// 为某人初始化地图
+    /// </summary>
+    /// <param name="center">中心</param>
+    /// <param name="center">尺寸</param>
+    /// <param name="player">目标玩家</param>
+    /// <returns></returns>
+    private async Task State_TryInitMapForSomeone(Vector3Int center, int size, PlayerRef player)
+    {
+        State_TrySendMapCenter(center, size, size, player, mapSeed);
+        for (int i = 0; i < 25; i++)
+        {
+            Vector3Int tempPos = new Vector3Int();
+            switch (i)
+            {
+                case 0:
+                    tempPos = center;
+                    break;
+                case 1:
+                    tempPos = center + new Vector3Int(size, 0, 0);
+                    break;
+                case 2:
+                    tempPos = center + new Vector3Int(size, size, 0);
+                    break;
+                case 3:
+                    tempPos = center + new Vector3Int(0, size, 0);
+                    break;
+                case 4:
+                    tempPos = center + new Vector3Int(-size, size, 0);
+                    break;
+                case 5:
+                    tempPos = center + new Vector3Int(-size, 0, 0);
+                    break;
+                case 6:
+                    tempPos = center + new Vector3Int(-size, -size, 0);
+                    break;
+                case 7:
+                    tempPos = center + new Vector3Int(0, -size, 0);
+                    break;
+                case 8:
+                    tempPos = center + new Vector3Int(size, -size, 0);
+                    break;
+                case 9:
+                    tempPos = center + new Vector3Int(size * 2, -size * 2, 0);
+                    break;
+                case 10:
+                    tempPos = center + new Vector3Int(size * 2, -size, 0);
+                    break;
+                case 11:
+                    tempPos = center + new Vector3Int(size * 2, 0, 0);
+                    break;
+                case 12:
+                    tempPos = center + new Vector3Int(size * 2, size, 0);
+                    break;
+                case 13:
+                    tempPos = center + new Vector3Int(size * 2, size * 2, 0);
+                    break;
+                case 14:
+                    tempPos = center + new Vector3Int(size, size * 2, 0);
+                    break;
+                case 15:
+                    tempPos = center + new Vector3Int(0, size * 2, 0);
+                    break;
+                case 16:
+                    tempPos = center + new Vector3Int(-size, size * 2, 0);
+                    break;
+                case 17:
+                    tempPos = center + new Vector3Int(-size * 2, size * 2, 0);
+                    break;
+                case 18:
+                    tempPos = center + new Vector3Int(-size * 2, size, 0);
+                    break;
+                case 19:
+                    tempPos = center + new Vector3Int(-size * 2, 0, 0);
+                    break;
+                case 20:
+                    tempPos = center + new Vector3Int(-size * 2, -size, 0);
+                    break;
+                case 21:
+                    tempPos = center + new Vector3Int(-size * 2, -size * 2, 0);
+                    break;
+                case 22:
+                    tempPos = center + new Vector3Int(-size, -size * 2, 0);
+                    break;
+                case 23:
+                    tempPos = center + new Vector3Int(0, -size * 2, 0);
+                    break;
+                case 24:
+                    tempPos = center + new Vector3Int(size, -size * 2, 0);
+                    break;
+            }
+            await Task.Delay(200);
+            State_TrySendBuildingTileTypeData(tempPos, size, size, player);
+            State_TrySendFloorTileTypeData(tempPos, size, size, player);
+            State_TrySendMapTileInfoData(tempPos, size, size, player);
+        }
+    }
+    private void State_TrySendMapCenter(Vector3Int center, int width, int height, PlayerRef player, int seed)
+    {
+        RPC_StateCall_UpdateMapCenter(player, center, width, height, seed);
+    }
+    private string tempKey;
+    /// <summary>
+    /// 发送建筑地块类型数据
+    /// </summary>
+    /// <param name="center">区域中心</param>
+    /// <param name="width">区域宽</param>
+    /// <param name="height">区域高</param>
+    /// <param name="player">目标客户端</param>
+    private void State_TrySendBuildingTileTypeData(Vector3Int center, int width, int height, PlayerRef player)
+    {
+        int[] tempTileArray = new int[width * height];
+        int index = 0;
+        for (int x = -width / 2; x < width / 2; x++)
+        {
+            for (int y = -height / 2; y < height / 2; y++)
+            {
+                int tempX = center.x + x + 30000;
+                int tempY = center.y + y + 30000;
+                int tempIndex;
+                if (tempY > tempX)
+                {
+                    tempIndex = tempY * tempY + tempY + tempY - tempX;
+                }
+                else
+                {
+                    tempIndex = tempX * tempX + tempY;
+                }
 
+                if (buildingTileTypeData.tileDic.ContainsKey(tempIndex))
+                {
+                    int tileType = buildingTileTypeData.tileDic[tempIndex];
+                    tempTileArray[index] = tileType;
+                }
+                else
+                {
+                    buildingTileTypeData.tileDic.Add(tempIndex, 0);
+                    tempTileArray[index] = 0;
+                }
+                index++;
+            }
+        }
+
+        RPC_StateCall_SendBuildingTileTypeData(player, tempTileArray, center, width, height);
+    }
+    /// <summary>
+    /// 发送地板地块类型数据
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="player"></param>
+    private void State_TrySendFloorTileTypeData(Vector3Int center, int width, int height, PlayerRef player)
+    {
+        int[] tempTileArray = new int[width * height];
+        int index = 0;
+        for (int x = -width / 2; x < width / 2; x++)
+        {
+            for (int y = -height / 2; y < height / 2; y++)
+            {
+                int tempX = center.x + x + 30000;
+                int tempY = center.y + y + 30000;
+                int tempIndex;
+                if (tempY > tempX)
+                {
+                    tempIndex = tempY * tempY + tempY + tempY - tempX;
+                }
+                else
+                {
+                    tempIndex = tempX * tempX + tempY;
+                }
+
+                if (floorTileTypeData.tileDic.ContainsKey(tempIndex))
+                {
+                    int tileType = floorTileTypeData.tileDic[tempIndex];
+                    tempTileArray[index] = tileType;
+                }
+                else
+                {
+                    floorTileTypeData.tileDic.Add(tempIndex, 1001);
+                    tempTileArray[index] = 1001;
+                }
+                index++;
+            }
+        }
+        RPC_StateCall_SendFloorTileTypeData(player, tempTileArray, center, width, height);
+    }
+    /// <summary>
+    /// 发送建筑地块信息数据
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="player"></param>
+    private void State_TrySendMapTileInfoData(Vector3Int center, int width, int height, PlayerRef player)
+    {
+        string[] tempTileArray = new string[width * height];
+        int index = 0;
+        for (int x = -width / 2; x < width / 2; x++)
+        {
+            for (int y = -height / 2; y < height / 2; y++)
+            {
+                int tempX = center.x + x + 30000;
+                int tempY = center.y + y + 30000;
+                int tempIndex;
+                if (tempY > tempX)
+                {
+                    tempIndex = tempY * tempY + tempY + tempY - tempX;
+                }
+                else
+                {
+                    tempIndex = tempX * tempX + tempY;
+                }
+
+                if (buildingTileInfoData.tileDic.ContainsKey(tempIndex))
+                {
+                    string tileInfo = buildingTileInfoData.tileDic[tempIndex];
+                    tempTileArray[index] = tileInfo;
+                }
+                else
+                {
+                    buildingTileInfoData.tileDic.Add(tempIndex, "");
+                    tempTileArray[index] = "";
+                }
+                index++;
+            }
+        }
+        RPC_StateCall_SendBuildingTileInfoData(player, tempTileArray, center, width, height);
+    }
+
+    #endregion
+
+    #region//RPC
+    /// <summary>
+    /// 客户端请求地图数据
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="player"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    private async void RPC_LocalInput_RequestMapData(Vector3Int center, PlayerRef player)
+    {
+        if (Object.HasStateAuthority)
+        {
+            Debug.Log("服务器尝试发送地图数据");
+            if (!mapDataAlready)
+            {
+                Debug.Log("服务器地图未初始化,先初始化");
+                mapDataAlready = true;
+                await LoadMap();
+            }
+            else
+            {
+                Debug.Log("服务器地图已经初始化");
+            }
+            await State_TryInitMapForSomeone(center, 20, player);
+        }
+    }
     /// <summary>
     /// 客户端输入对地块的攻击
     /// </summary>
@@ -276,12 +482,18 @@ public class MapNetManager : NetworkBehaviour
     {
         if (Object.HasStateAuthority)
         {
-            MapManager.Instance.GetTileObj(pos, out TileObj obj);
-            int Hp = obj.CurHp - damage;
-            RPC_StateCall_TileUpdateHp(pos, Hp, player);
-            if (Hp <= 0)
+            if (MapManager.Instance.GetBuildObj(pos, out TileObj obj))
             {
-                RPC_StateCall_BuildingChange(pos, "Default");
+                int Hp = obj.CurHp - damage;
+                RPC_StateCall_TileUpdateHp(pos, Hp, player);
+                if (Hp <= 0)
+                {
+                    RPC_LocalInput_BuildingChange(pos, 0);
+                }
+            }
+            else
+            {
+                Debug.LogError("未找到目标tile(" + pos + ")");
             }
         }
     }
@@ -295,7 +507,18 @@ public class MapNetManager : NetworkBehaviour
         if (Object.HasStateAuthority)
         {
             RPC_StateCall_BuildingUpdateInfo(pos, info);
-            buildingTileInfoData.tiles[(pos.x).ToString() + "," + (pos.y).ToString()] = info;
+            int tempX = pos.x + 30000;
+            int tempY = pos.y + 30000;
+            int tempIndex;
+            if (tempY > tempX)
+            {
+                tempIndex = tempY * tempY + tempY + tempY - tempX;
+            }
+            else
+            {
+                tempIndex = tempX * tempX + tempY;
+            }
+            buildingTileInfoData.tileDic[tempIndex] = info;
             Debug.Log(info);
         }
     }
@@ -303,28 +526,103 @@ public class MapNetManager : NetworkBehaviour
     /// 客户端输入对地块的改变
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_BuildingChange(Vector3Int pos, string name)
+    private void RPC_LocalInput_BuildingChange(Vector3Int pos, int id)
     {
         if (Object.HasStateAuthority)
         {
-            RPC_StateCall_BuildingChange(pos, name);
-            buildingTileTypeData.tiles[(pos.x).ToString() + "," + (pos.y).ToString()] = name;
-            Debug.Log(name);
+            RPC_StateCall_BuildingChange(pos, id);
+            int tempX = pos.x + 30000;
+            int tempY = pos.y + 30000;
+            int tempIndex;
+            if (tempY > tempX)
+            {
+                tempIndex = tempY * tempY + tempY + tempY - tempX;
+            }
+            else
+            {
+                tempIndex = tempX * tempX + tempY;
+            }
+            buildingTileTypeData.tileDic[tempIndex] = id;
         }
     }
     /// <summary>
     /// 客户端输入对地块的改变
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_FloorChange(Vector3Int pos, string name)
+    private void RPC_LocalInput_FloorChange(Vector3Int pos, int id)
     {
         if (Object.HasStateAuthority)
         {
-            RPC_StateCall_FloorChange(pos, name);
-            floorTileTypeData.tiles[(pos.x).ToString() + "," + (pos.y).ToString()] = name;
+            RPC_StateCall_FloorChange(pos, id);
+
+            int tempX = pos.x + 30000;
+            int tempY = pos.y + 30000;
+            int tempIndex;
+            if (tempY > tempX)
+            {
+                tempIndex = tempY * tempY + tempY + tempY - tempX;
+            }
+            else
+            {
+                tempIndex = tempX * tempX + tempY;
+            }
+
+            floorTileTypeData.tileDic[tempIndex] = id;
         }
     }
 
+    /// <summary>
+    /// 服务端发送地图中心
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="tileList"></param>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_UpdateMapCenter([RpcTarget] PlayerRef target,Vector3Int center, int width, int height,int seed)
+    {
+        Local_UpdateMapCenter(center, width, height, seed);
+    }
+    /// <summary>
+    /// 服务端发送建筑类别数据
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="tileList"></param>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_SendBuildingTileTypeData([RpcTarget] PlayerRef target, int[] tileList, Vector3Int center, int width, int height)
+    {
+        Local_ReceiveBuildTypeData(tileList, center, width, height);
+    }
+    /// <summary>
+    /// 服务端发送建筑信息数据
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="tileList"></param>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_SendBuildingTileInfoData([RpcTarget] PlayerRef target, string[] tileList, Vector3Int center, int width, int height)
+    {
+        Local_ReceiveBuildInfoData(tileList, center, width, height);
+    }
+    /// <summary>
+    /// 服务端发送地板类别数据
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="tileList"></param>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_SendFloorTileTypeData([RpcTarget] PlayerRef target, int[] tileList, Vector3Int center, int width, int height)
+    {
+        Local_ReceiveFloorTypeData(tileList, center, width, height);
+    }
     /// <summary>
     /// 服务器通知更新地块生命值
     /// </summary>
@@ -334,7 +632,7 @@ public class MapNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     private void RPC_StateCall_TileUpdateHp(Vector3Int pos, int hp, PlayerRef player)
     {
-        MapManager.Instance.GetTileObj(pos, out TileObj obj);
+        MapManager.Instance.GetBuildObj(pos, out TileObj obj);
         obj.TryToUpdateHp(hp);
     }
     /// <summary>
@@ -342,14 +640,14 @@ public class MapNetManager : NetworkBehaviour
     /// </summary>
     /// <param name="pos"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_BuildingChange(Vector3Int pos, string name)
+    private void RPC_StateCall_BuildingChange(Vector3Int pos, int id)
     {
-        MapManager.Instance.GetTileObj(pos, out TileObj obj);
+        MapManager.Instance.GetBuildObj(pos, out TileObj obj);
         if (obj != null)
         {
-            obj.ListenDestroyMyObj();
+            obj.TryToDestroyMyObj();
         }
-        MapManager.Instance.CreateBuilding(pos, name);
+        MapManager.Instance.CreateBuilding(pos, id);
     }
     /// <summary>
     /// 服务器通知更新建筑信息
@@ -358,7 +656,7 @@ public class MapNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     private void RPC_StateCall_BuildingUpdateInfo(Vector3Int pos, string info)
     {
-        MapManager.Instance.GetTileObj(pos, out TileObj obj);
+        MapManager.Instance.GetBuildObj(pos, out TileObj obj);
         obj.TryToUpdateInfo(info);
     }
     /// <summary>
@@ -366,9 +664,22 @@ public class MapNetManager : NetworkBehaviour
     /// </summary>
     /// <param name="pos"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_FloorChange(Vector3Int pos, string name)
+    private void RPC_StateCall_FloorChange(Vector3Int pos, int id)
     {
-        MapManager.Instance.CreateFloor(pos, name);
+        MapManager.Instance.CreateFloor(pos, id);
     }
 
+    #endregion
+    #region//Network
+    [Networked, OnChangedRender(nameof(OnHourChange)), HideInInspector]
+    public int Hour { get; set; }
+    [Networked, HideInInspector]
+    public int Date { get; set; }
+
+    public void OnHourChange()
+    {
+        WorldManager.Instance.UpdateTime(Hour, Date);
+    }
+
+    #endregion
 }

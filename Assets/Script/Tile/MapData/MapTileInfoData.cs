@@ -5,5 +5,13 @@ using UnityEngine;
 public class MapTileInfoData 
 {
     [SerializeField]
-    public Dictionary<string, string> tiles = new Dictionary<string, string>();
+    public string name;
+    [SerializeField]
+    public string seed;
+    [SerializeField]
+    public int date;
+    [SerializeField]
+    public int hour;
+    [SerializeField]
+    public Dictionary<int, string> tileDic = new Dictionary<int, string>();
 }

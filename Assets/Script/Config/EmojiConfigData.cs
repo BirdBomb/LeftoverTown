@@ -4,18 +4,10 @@ using UnityEngine;
 
 public class EmojiConfigData : MonoBehaviour
 {
-    public static EmojiConfig GetItemConfig(int ID)
+    public static EmojiConfig GetEmojiConfig(int ID)
     {
         return emojiConfigs.Find((x) => { return x.Emoji_ID == ID; });
     }
-    /*
-     * 1000 - 1999 材料
-     * 2000 - 2999 工具
-     * 3000 - 3999 食材
-     * 4000 - 4999 容器
-     * 5000 - 5999 衣物
-     * 9000 - 9999 其他
-     */
     public readonly static List<EmojiConfig> emojiConfigs = new List<EmojiConfig>()
     {
         new EmojiConfig(){ Emoji_ID = 0,Emoji_Name = "震惊" },

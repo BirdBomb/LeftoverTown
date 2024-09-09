@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class ItemLocalObj_2013 : ItemLocalObj
 {
+    public Transform rightHand;
+    public Transform leftHand;
     public Transform sprite;
     public Transform muzzle;
     public void Shoot()
@@ -18,11 +20,6 @@ public class ItemLocalObj_2013 : ItemLocalObj
     }
     public void Dull()
     {
-        GameObject obj = PoolManager.Instance.GetObject("Effect/Effect_MuzzleFire101");
-        obj.transform.SetParent(muzzle);
-        obj.transform.localPosition = Vector3.zero;
-        obj.transform.localRotation = Quaternion.identity;
-        AudioManager.Instance.PlayEffect(1001, transform);
-        sprite.DOPunchPosition(new Vector3(-0.1f, -0.1f, 0), 0.1f);
+        AudioManager.Instance.PlayEffect(1002, transform);
     }
 }

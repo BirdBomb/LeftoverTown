@@ -39,10 +39,6 @@ public class UI_ActorCreatePanel : MonoBehaviour
     {
         panel_Main.gameObject.SetActive(false);
     }
-    private void ResetPanel()
-    {
-
-    }
     #region//½ÇÉ«µãÊý
     public UI_PointPanel point_Strength;
     public UI_PointPanel Point_Intelligence;

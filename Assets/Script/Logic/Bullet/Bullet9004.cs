@@ -9,7 +9,7 @@ public class Bullet9004 : BulletBase
     [SerializeField]
     private float speedOffset;
     [SerializeField]
-    private int damageOffset;
+    private short damageOffset;
     public SpriteRenderer spriteRenderer;
     public TrailRenderer trailRenderer;
     public override void InitBullet(Vector3 dir, float speed, ActorNetManager from)

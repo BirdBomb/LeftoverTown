@@ -60,17 +60,12 @@ public class UI_Grid : MonoBehaviour
 
     }
     /*取出*/
-    public virtual void PutOut(ItemData data)
+    public virtual void PutOut(ItemData before, out ItemData after)
     {
-
+        after = before;
     }
     /*放入*/
-    public virtual void PutIn(ItemData itemData)
-    {
-
-    }
-    /*计算*/
-    public virtual void Calculate(ItemData before, out ItemData after)
+    public virtual void PutIn(ItemData before, out ItemData after)
     {
         after = before;
     }

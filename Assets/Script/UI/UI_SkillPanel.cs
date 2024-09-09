@@ -9,10 +9,10 @@ public class UI_SkillPanel : MonoBehaviour
 {
     public List<UI_SkillSlot> SkillSlotList_Use = new List<UI_SkillSlot>();
     public List<UI_SkillSlot> SkillSlotList_Know = new List<UI_SkillSlot>();
-    private List<int> Skill_Know = new List<int>();
-    private List<int> Skill_Use = new List<int>();
+    private List<short> Skill_Know = new List<short>();
+    private List<short> Skill_Use = new List<short>();
     private SpriteAtlas atlas;
-    public void UpdateUsingSkill(List<int> skills)
+    public void UpdateUsingSkill(List<short> skills)
     {
         if (!atlas) { atlas = Resources.Load<SpriteAtlas>("Atlas/SkillSprite"); }
         for (int i = 0; i < skills.Count; i++)

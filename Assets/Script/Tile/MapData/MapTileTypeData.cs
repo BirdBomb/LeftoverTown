@@ -1,3 +1,5 @@
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,5 +7,5 @@ using UnityEngine;
 public class MapTileTypeData 
 {
     [SerializeField]
-    public Dictionary<string, string> tiles = new Dictionary<string, string>();
+    public Dictionary<int,int> tileDic = new Dictionary<int, int>();
 }

@@ -33,15 +33,15 @@ public class UI_Grid_OnHand : UI_Grid
     }
     private void ResetCell()
     {
-        cell.ClearGridCell();
+        cell.ResetGridCell();
     }
     public void ClickCellLeft(UI_GridCell gridCell)
     {
-        gridCell._bindItem.LeftClickGridCell(gridCell, gridCell._bindItem.data);
+        gridCell._bindItem.LeftClickGridCell(gridCell, gridCell._bindItem.itemData);
     }
     public void ClickCellRight(UI_GridCell gridCell)
     {
-        gridCell._bindItem.RightClickGridCell(gridCell, gridCell._bindItem.data);
+        gridCell._bindItem.RightClickGridCell(gridCell, gridCell._bindItem.itemData);
     }
     public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
@@ -49,7 +49,7 @@ public class UI_Grid_OnHand : UI_Grid
     }
     public override void CellDragIn(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
-        gridCell.image_Icon.transform.position = Input.mousePosition;
+        gridCell.image_MainIcon.transform.position = Input.mousePosition;
     }
     public override void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {

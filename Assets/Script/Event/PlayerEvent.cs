@@ -18,7 +18,6 @@ public class PlayerEvent
     public class PlayerEvent_Local_TryAddItemInBag
     {
         public ItemData item;
-        public Action<ItemData> itemResidueBack;
     }
     /// <summary>
     /// 本地玩家:尝试给背包修改物体
@@ -27,7 +26,6 @@ public class PlayerEvent
     {
         public ItemData oldItem;
         public ItemData newItem;
-        public Action<ItemData> itemResidueBack;
     }
 
     /// <summary>
@@ -100,14 +98,14 @@ public class PlayerEvent
     /// </summary>
     public class PlayerEvent_Local_TryBuildBuilding 
     {
-        public string name;
+        public int id;
     }
     /// <summary>
     /// 本地玩家:创造建筑
     /// </summary>
     public class PlayerEvent_Local_TryBuildFloor
     {
-        public string name;
+        public int id;
     }
 
     /// <summary>
@@ -123,6 +121,6 @@ public class PlayerEvent
     /// </summary>
     public class PlayerEvent_Local_BindSkill
     {
-        public List<int> skillIDs = new List<int>();
+        public List<short> skillIDs = new List<short>();
     }
 }

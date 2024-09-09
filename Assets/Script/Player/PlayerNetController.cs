@@ -18,15 +18,18 @@ public class PlayerNetController : NetworkBehaviour
     {
         if (Object.HasInputAuthority)
         {
+            playerController.localPlayerRef = Object.InputAuthority;
             InitByLocalPlayer();
         }
         else
         {
+            playerController.localPlayerRef = Object.InputAuthority;
             InitByOtherPlayer();
         }
         if (Object.HasStateAuthority)
         {
             playerController.thisPlayerIsState = true;
+            InitByStatePlayer();
         }
         else
         {
@@ -56,6 +59,13 @@ public class PlayerNetController : NetworkBehaviour
         playerCamera.gameObject.SetActive(false);
     }
     /// <summary>
+    /// 作为主机玩家初始化
+    /// </summary>
+    private void InitByStatePlayer()
+    {
+        playerController.actorManager.NetManager.StartLoop();
+    }
+    /// <summary>
     /// 初始化本地玩家数据
     /// </summary>
     public void InitLocalPlayerData()
@@ -65,6 +75,7 @@ public class PlayerNetController : NetworkBehaviour
         {
             Debug.Log("--玩家信息获取成功--");
             Debug.Log("--初始化玩家背包");
+            playerController.actorManager.NetManager.RPC_LocalInput_ChangeBagCapacity(5);
             for (int i = 0; i < playerController.localPlayerData.BagItems.Count; i++)
             {
                 playerController.actorManager.NetManager.RPC_LocalInput_AddItemInBag(playerController.localPlayerData.BagItems[i]);
@@ -93,12 +104,8 @@ public class PlayerNetController : NetworkBehaviour
 
             Debug.Log("--初始化玩家位置");
             playerController.actorManager.NetManager.UpdateNetworkTransform(playerController.localPlayerData.Pos, 999);
-            Debug.Log("--根据玩家坐标生成周围地图");
-            MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_RequestMapData()
-            {
-                pos = playerController.localPlayerData.Pos,
-                player = Object.InputAuthority
-            });
+            Debug.Log("--绘制玩家周围地图");
+            playerController.UpdateMapInView(playerController.localPlayerData.Pos);
         }
         else
         {
@@ -125,6 +132,7 @@ public class PlayerNetController : NetworkBehaviour
         playerNetData.CurSan = playerData.CurSan;
         playerNetData.MaxSan = playerData.MaxSan;
         playerNetData.Happy = playerData.Happy;
+        playerNetData.Coin = playerData.Coin;
         playerNetData.En = playerData.En;
 
         playerNetData.Point_Strength = playerData.Point_Strength;
@@ -253,24 +261,25 @@ public struct PlayerNetData : INetworkStruct
     public Vector3 Pos;
     public int CurHp;
     public int MaxHp;
-    public int Armor;
-    public int CurFood;
-    public int MaxFood;
-    public int Water;
-    public int CurSan;
-    public int MaxSan;
-    public int Happy;
-    public int CommonSpeed;
-    public int MaxSpeed;
+    public short Armor;
+    public short CurFood;
+    public short MaxFood;
+    public short Water;
+    public short CurSan;
+    public short MaxSan;
+    public short Happy;
+    public short Coin;
+    public short CommonSpeed;
+    public short MaxSpeed;
     public int En;
-    public int Point_Strength;
-    public int Point_Intelligence;
-    public int Point_Focus;
-    public int Point_Agility;
-    public int Point_SPower;
-    public int Point_Make;
-    public int Point_Build;
-    public int Point_Cook;
+    public short Point_Strength;
+    public short Point_Intelligence;
+    public short Point_Focus;
+    public short Point_Agility;
+    public short Point_SPower;
+    public short Point_Make;
+    public short Point_Build;
+    public short Point_Cook;
 
     public int HairID;
     public int EyeID;

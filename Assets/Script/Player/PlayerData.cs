@@ -12,13 +12,14 @@ public class PlayerData
         Armor = 0;
         CurFood = 100;
         MaxFood = 100;
-        Water = 100;
+        Water = 5;
         CurSan = 100;
         MaxSan = 100;
-        Happy = 100;
-
-        CommonSpeed = 2;
-        MaxSpeed = 2;
+        Happy = 5;
+        Coin = 100;
+        En = 3000;
+        CommonSpeed = 20;
+        MaxSpeed = 40;
 
         Point_Strength = 1;
         Point_Intelligence = 1;
@@ -43,12 +44,12 @@ public class PlayerData
     /// 常态速度
     /// </summary>
     [SerializeField]
-    public int CommonSpeed;
+    public short CommonSpeed;
     /// <summary>
     /// 最大速度
     /// </summary>
     [SerializeField]
-    public int MaxSpeed;
+    public short MaxSpeed;
     /// <summary>
     /// 耐力
     /// </summary>
@@ -58,7 +59,7 @@ public class PlayerData
     /// 当前生命值
     /// </summary>
     [SerializeField]
-    public int CurHp;
+    public short CurHp;
     /// <summary>
     /// 最大生命值
     /// </summary>
@@ -68,77 +69,82 @@ public class PlayerData
     /// 护甲值
     /// </summary>
     [SerializeField]
-    public int Armor;
+    public short Armor;
     /// <summary>
     /// 当前食物值
     /// </summary>
     [SerializeField]
-    public int CurFood;
+    public short CurFood;
     /// <summary>
     /// 最大食物值
     /// </summary>
     [SerializeField]
-    public int MaxFood;
+    public short MaxFood;
     /// <summary>
     /// 缺水值
     /// </summary>
     [SerializeField]
-    public int Water;
+    public short Water;
     /// <summary>
     /// 当前精神值
     /// </summary>
     [SerializeField]
-    public int CurSan;
+    public short CurSan;
     /// <summary>
     /// 最大精神值
     /// </summary>
     [SerializeField]
-    public int MaxSan;
+    public short MaxSan;
     /// <summary>
     /// 心情值
     /// </summary>
     [SerializeField]
-    public int Happy;
+    public short Happy;
+    /// <summary>
+    /// 金币
+    /// </summary>
+    [SerializeField]
+    public short Coin;
     /// <summary>
     /// 体力
     /// </summary>
     [SerializeField]
-    public int Point_Strength;
+    public short Point_Strength;
     /// <summary>
     /// 智力
     /// </summary>
     [SerializeField]
-    public int Point_Intelligence;
+    public short Point_Intelligence;
     /// <summary>
     /// 法力
     /// </summary>
     [SerializeField]
-    public int Point_SPower;
+    public short Point_SPower;
     /// <summary>
     /// 专注
     /// </summary>
     [SerializeField]
-    public int Point_Focus;
+    public short Point_Focus;
     /// <summary>
     /// 敏捷
     /// </summary>
     [SerializeField]
-    public int Point_Agility;
+    public short Point_Agility;
     /// <summary>
     /// 制造
     /// </summary>
     [SerializeField]
-    public int Point_Make;
+    public short Point_Make;
     /// <summary>
     /// 建造
     /// </summary>
     [SerializeField]
-    public int Point_Build;
+    public short Point_Build;
     /// <summary>
     /// 烹饪
     /// </summary>
     [SerializeField]
-    public int Point_Cook;
+    public short Point_Cook;
 
     /// <summary>
     /// 背包物体
@@ -165,17 +171,17 @@ public class PlayerData
     /// 玩家学会的技能
     /// </summary>
     [SerializeField]
-    public List<int> SkillKnowList = new List<int>();
+    public List<short> SkillKnowList = new List<short>();
     /// <summary>
     /// 玩家使用的技能
     /// </summary>
     [SerializeField]
-    public List<int> SkillUseList = new List<int>();
+    public List<short> SkillUseList = new List<short>();
     /// <summary>
     /// 玩家Buff列表
     /// </summary>
     [SerializeField]
-    public List<int> BuffList = new List<int>();
+    public List<short> BuffList = new List<short>();
     /// <summary>
     /// 玩家Buff点数
     /// </summary>

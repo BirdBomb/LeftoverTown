@@ -17,7 +17,7 @@ public static class UIEvent
     /// </summary>
     public class UIEvent_UpdateItemInBag
     {
-        public List<ItemConfig> itemConfigs = new List<ItemConfig>();
+        public int bagCapacity;
         public List<ItemData> itemDatas = new List<ItemData>();
     }
     /// <summary>
@@ -34,14 +34,71 @@ public static class UIEvent
     {
         public ItemData itemData;
     }
-
     /// <summary>
-    /// UI-更新个人属性
+    /// UI-更新人物描述
     /// </summary>
-    public class UIEvent_UpdateData
+    public class UIEvent_UpdateStatus
+    {
+        public short statusId;
+    }
+    /// <summary>
+    /// UI-更新个人属性HP
+    /// </summary>
+    public class UIEvent_UpdateHPData
     {
         public int HP;
         public int MaxHP;
+    }
+    /// <summary>
+    /// UI-更新个人属性Food
+    /// </summary>
+    public class UIEvent_UpdateFoodData
+    {
+        public int Food;
+        public int MaxFood;
+    }
+    /// <summary>
+    /// UI-更新个人属性San
+    /// </summary>
+    public class UIEvent_UpdateSanData
+    {
+        public int San;
+        public int MaxSan;
+    }
+    /// <summary>
+    /// UI-更新个人属性Armor
+    /// </summary>
+    public class UIEvent_UpdateArmorData
+    {
+        public short Armor;
+    }
+    /// <summary>
+    /// UI-更新个人属性Water
+    /// </summary>
+    public class UIEvent_UpdateWaterData
+    {
+        public short Water;
+    }
+    /// <summary>
+    /// UI-更新个人属性Happy
+    /// </summary>
+    public class UIEvent_UpdateHappyData
+    {
+        public short Happy;
+    }
+    /// <summary>
+    /// UI-更新个人属性Coin
+    /// </summary>
+    public class UIEvent_UpdateCoinData
+    {
+        public int Coin;
+    }
+    /// <summary>
+    /// UI-更新个人属性Fine
+    /// </summary>
+    public class UIEvent_UpdateFineData
+    {
+        public int Fine;
     }
     /// <summary>
     /// 显示文字

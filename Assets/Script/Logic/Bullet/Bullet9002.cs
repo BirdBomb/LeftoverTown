@@ -11,7 +11,7 @@ public class Bullet9002 : BulletBase
     [SerializeField]
     private float speedOffset;
     [SerializeField]
-    private int damageOffset;
+    private short damageOffset;
     public override void InitBullet(Vector3 dir, float speed, ActorNetManager from)
     {
         transform.DOKill();
@@ -46,7 +46,7 @@ public class Bullet9002 : BulletBase
                     if (actor == _from.LocalManager) { continue; }
                     else
                     {
-                        actor.TakeDamage(1 + damageOffset, _from);
+                        actor.TakeDamage(damageOffset, _from);
                         StayIn(hit2D[i].transform);
                     }
                 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.Audio;
+using DG.Tweening;
 
 public class AudioManager : SingleTon<AudioManager>, ISingleTon
 {
@@ -16,11 +17,28 @@ public class AudioManager : SingleTon<AudioManager>, ISingleTon
     /// <summary>
     /// 更新音效设置
     /// </summary>
-    public void UpdateSetting(float volumeEffect, float volumeMusic)
+    public void UpdateMusicSetting(float volumeEffect)
     {
-        audioMixer.SetFloat("MusicVolume", volumeMusic);
-        audioMixer.SetFloat("EffectVolume", volumeEffect);
+        audioMixer.SetFloat("EffectVolume", Remap01ToDB(volumeEffect));
+        Debug.Log(volumeEffect);
     }
+    /// <summary>
+    /// 更新音乐设置
+    /// </summary>
+    /// <param name="volumeMusic"></param>
+    public void UpdateEffectSetting(float volumeMusic)
+    {
+        audioMixer.SetFloat("MusicVolume", Remap01ToDB(volumeMusic));
+    }
+    private float Remap01ToDB(float x)
+    {
+
+        if (x <= 0.0f) x = 0.0001f;
+
+        return Mathf.Log10(x) * 20.0f;
+
+    }
+
     /// <summary>
     /// 播放BGM
     /// </summary>

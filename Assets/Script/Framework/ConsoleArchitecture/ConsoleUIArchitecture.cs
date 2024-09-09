@@ -202,44 +202,44 @@ public class ConsoleInputSystem : IConsoleInputSystem
     }
     public void ExecuteInput()
     {
-        string input = this.GetModel<IConsoleDataModle>().InputStr;
-        string[] strs = input.Split('.');
-        if (strs.Length >= 2)
-        {
-            if (strs[0] == "giveitem")
-            {
-                int id = 1;
-                int val = 0;
-                int count = 1;
-                int seed = System.DateTime.Now.Second;
-                UnityEngine.Random.InitState(seed);
-                string[] itemStrs = strs[1].Split('_');
-                if (itemStrs.Length >= 3)
-                {
-                    id = int.Parse(itemStrs[0]);
-                    val = int.Parse(itemStrs[1]);
-                    count = int.Parse(itemStrs[2]);
-                }
-                else
-                {
-                    id = int.Parse(itemStrs[0]);
-                }
-                Type type = Type.GetType("Item_" + id.ToString());
-                ItemData itemData = ((ItemBase)Activator.CreateInstance(type)).GetRandomInitData(id, count,val);
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-                {
-                    item = itemData
-                });
-            }
-            else if (strs[0] == "spawn")
-            {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySpawnActor()
-                {
-                    name = "Actor/" + strs[1]
-                }); ;
-            }
-        }
-        Debug.Log(" ‰»ÎøÚΩ· ¯±‡º≠£∫" + input);
+        //string input = this.GetModel<IConsoleDataModle>().InputStr;
+        //string[] strs = input.Split('.');
+        //if (strs.Length >= 2)
+        //{
+        //    if (strs[0] == "giveitem")
+        //    {
+        //        int id = 1;
+        //        int val = 0;
+        //        int count = 1;
+        //        int seed = System.DateTime.Now.Second;
+        //        UnityEngine.Random.InitState(seed);
+        //        string[] itemStrs = strs[1].Split('_');
+        //        if (itemStrs.Length >= 3)
+        //        {
+        //            id = int.Parse(itemStrs[0]);
+        //            val = int.Parse(itemStrs[1]);
+        //            count = int.Parse(itemStrs[2]);
+        //        }
+        //        else
+        //        {
+        //            id = int.Parse(itemStrs[0]);
+        //        }
+        //        Type type = Type.GetType("Item_" + id.ToString());
+        //        ItemData itemData = ((ItemBase)Activator.CreateInstance(type)).GetRandomInitData(id, count, val, MapManager.Instance.mapSeed + (int)(System.DateTime.Now.Ticks * 1000));
+        //        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+        //        {
+        //            item = itemData
+        //        });
+        //    }
+        //    else if (strs[0] == "spawn")
+        //    {
+        //        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySpawnActor()
+        //        {
+        //            name = "Actor/" + strs[1]
+        //        }); ;
+        //    }
+        //}
+        //Debug.Log(" ‰»ÎøÚΩ· ¯±‡º≠£∫" + input);
     }
 }
 public interface IConsoleInputSystem:ISystem
@@ -295,11 +295,11 @@ public class ConsoleItemListSystem : IConsoleItemListSystem
                 {
                     if (itemTargetConfigs.Count > i)
                     {
-                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemTargetConfigs[i].Item_ID);
+                        iconList[i - startIndex].sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemTargetConfigs[i].Item_ID);
                     }
                     else
                     {
-                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
+                        iconList[i - startIndex].sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
                     }
                 }
             }
@@ -323,10 +323,18 @@ public class ConsoleItemListSystem : IConsoleItemListSystem
         if (itemTargetConfigs.Count > startIndex)
         {
             Type type = Type.GetType("Item_" + itemTargetConfigs[startIndex].Item_ID.ToString());
-            ItemData itemData = ((ItemBase)Activator.CreateInstance(type)).GetRandomInitData(itemTargetConfigs[startIndex].Item_ID, 1, 0);
+            ItemData itemData= new ItemData
+                (itemTargetConfigs[startIndex].Item_ID,
+                 MapManager.Instance.mapSeed + (int)(System.DateTime.Now.Ticks * 1000),
+                 1,
+                 0,
+                 0,
+                 0,
+                 new ContentData());
+            ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(itemData,out ItemData initData);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
             {
-                item = itemData
+                item = initData
             });
         }
     }
@@ -355,13 +363,12 @@ public class ConsoleBuildingListSystem : IConsoleBuildingListSystem
         var iconCount = this.GetModel<IConsoleDataModle>().IconListCount;
         List<BuildingConfig> tileTargetConfigs = BuildingConfigData.buildConfigs;
         int startIndex = iconCount * page + index;
-        Debug.Log(startIndex.ToString());
         if (tileTargetConfigs.Count > startIndex)
         {
-            string buildingName = tileTargetConfigs[startIndex].Building_FileName;
+            int buildingID = tileTargetConfigs[startIndex].Building_ID;
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryBuildBuilding()
             {
-                name = buildingName
+                id = buildingID
             });
         }
     }
@@ -395,11 +402,11 @@ public class ConsoleBuildingListSystem : IConsoleBuildingListSystem
                 {
                     if (buildingTargetConfigs.Count > i)
                     {
-                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite(buildingTargetConfigs[i].Building_SpriteName);
+                        iconList[i - startIndex].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite(buildingTargetConfigs[i].Building_SpriteName);
                     }
                     else
                     {
-                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite("Default");
+                        iconList[i - startIndex].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite("Default");
                     }
                 }
             }
@@ -436,10 +443,10 @@ public class ConsoleFloorListSystem : IConsoleFloorListSystem
         Debug.Log(startIndex.ToString());
         if (tileTargetConfigs.Count > startIndex)
         {
-            string floorName = tileTargetConfigs[startIndex].Floor_FileName;
+            int floorID = tileTargetConfigs[startIndex].Floor_ID;
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryBuildFloor()
             {
-                name = floorName
+                id = floorID
             });
         }
     }

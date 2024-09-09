@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using System;
+
 public class GameEvent 
 {
     /// <summary>
@@ -16,6 +18,8 @@ public class GameEvent
     /// </summary>
     public class GameEvent_Local_TimeChange
     {
+        public int hour;
+        public int date;
         public GlobalTime now;
     }
     /// <summary>
@@ -67,7 +71,15 @@ public class GameEvent
     public class GameEvent_Local_SomeoneDoSomething
     {
         public ActorManager actor;
-        public ActorAction actorAction;
+        public ActorAction action;
+    }
+    /// <summary>
+    /// 本地端:某人犯法
+    /// </summary>
+    public class GameEvent_Local_SomeoneCommit
+    {
+        public ActorManager actor;
+        public short fine;
     }
     public enum ActorAction
     {
@@ -82,5 +94,17 @@ public class GameEvent
     {
         public ActorManager actor;
         public int id;
+        public float distance;
+    }
+    /// <summary>
+    /// 本地端:找到特定地块
+    /// </summary>
+    public class GameEvent_Local_SomeoneFindTargetTile
+    {
+        public ActorManager actor;
+        public int id;
+        public Vector3 pos;
+        public float distance;
+        public Action<TileObj> action;
     }
 }

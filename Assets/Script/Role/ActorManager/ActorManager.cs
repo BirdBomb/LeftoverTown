@@ -52,6 +52,8 @@ public class ActorManager : MonoBehaviour
     [HideInInspector]
     public ItemBase wearingOnBody = new ItemBase();
     [HideInInspector]
+    public List<ItemBase> itemInBag = new List<ItemBase>();
+    [HideInInspector]
     public SkillBase bindSkill = new SkillBase();
     [HideInInspector]
     public NavManager navManager;
@@ -61,8 +63,6 @@ public class ActorManager : MonoBehaviour
     public bool isState = false;
     [HideInInspector]
     public bool isInput = false;
-    [HideInInspector]
-    public MyTile onlyState_myBed;
     public const float customUpdateTime = 0.1f;
     protected LayerMask tileLayer;
     private void Awake()
@@ -91,15 +91,19 @@ public class ActorManager : MonoBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneSendEmoji>().Subscribe(_ =>
         {
-            ListenRoleSendEmoji(_.actor, _.id);
+            ListenRoleSendEmoji(_.actor, _.id, _.distance);
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneDoSomething>().Subscribe(_ =>
         {
-            ListenRoleDoSamething(_.actor, _.actorAction);
+            ListenRoleDoSamething(_.actor, _.action);
+        }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneCommit>().Subscribe(_ =>
+        {
+            ListenRoleCommit(_.actor, _.fine);
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
         {
-            ListenWorldGlobalTimeChange(_.now);
+            ListenWorldGlobalTimeChange(_.hour, _.date, _.now);
         }).AddTo(this);
     }
     public void InitByPlayer()
@@ -112,9 +116,9 @@ public class ActorManager : MonoBehaviour
     /// 监听时间改变
     /// </summary>
     /// <param name="globalTime"></param>
-    public virtual void ListenWorldGlobalTimeChange(GlobalTime globalTime)
+    public virtual void ListenWorldGlobalTimeChange(int hour,int date,GlobalTime globalTime)
     {
-        
+        netManager.AddOneHour(hour, date, globalTime);
     }
     /// <summary>
     /// 监听某人移动
@@ -122,6 +126,24 @@ public class ActorManager : MonoBehaviour
     /// <param name="who"></param>
     /// <param name="where"></param>
     public virtual void ListenRoleMove(ActorManager who, MyTile where)
+    {
+
+    }
+    /// <summary>
+    /// 监听玩家移动
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="where"></param>
+    public virtual void ListenPlayerMove(ActorManager who, MyTile where)
+    {
+
+    }
+    /// <summary>
+    /// 监听NPC移动
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="where"></param>
+    public virtual void ListenNPCMove(ActorManager who, MyTile where)
     {
 
     }
@@ -135,11 +157,21 @@ public class ActorManager : MonoBehaviour
 
     }
     /// <summary>
+    /// 监听某人犯法
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="actorAction"></param>
+    public virtual void ListenRoleCommit(ActorManager who, short val)
+    {
+
+    }
+    /// <summary>
     /// 监听某人发送emoji
     /// </summary>
-    /// <param name="actor"></param>
-    /// <param name="id"></param>
-    public virtual void ListenRoleSendEmoji(ActorManager actor,int id)
+    /// <param name="actor">谁</param>
+    /// <param name="id">什么</param>
+    /// <param name="distance">距离</param>
+    public virtual void ListenRoleSendEmoji(ActorManager actor, int id, float distance)
     {
 
     }
@@ -413,7 +445,6 @@ public class ActorManager : MonoBehaviour
     /// <param name="showInUI"></param>
     public void AddItem_Hand(ItemData data)
     {
-        Debug.Log("拿到了手上" + data.Item_ID + "/" + data.Item_Val + "/" + data.Item_Count);
         /*更新UI*/
         if (isPlayer && netManager.Object.HasInputAuthority)
         {
@@ -422,30 +453,35 @@ public class ActorManager : MonoBehaviour
                 itemData = data
             });
         }
-
-        if (netManager.Last_ItemInHand.Item_ID != data.Item_ID)
+        if (data.Item_ID != 0)
         {
-            ResetItem_Hand();
-            if (data.Item_ID != 0)
+            if (netManager.Last_ItemInHand.Item_ID != data.Item_ID)
             {
+                ResetItem_Hand();
                 Type type = Type.GetType("Item_" + data.Item_ID.ToString());
                 holdingByHand = (ItemBase)Activator.CreateInstance(type);
                 holdingByHand.UpdateData(data);
-                holdingByHand.BeHolding(this, BodyController);
+                holdingByHand.Holding_Start(this, BodyController);
+                holdingByHand.Holding_UpdateLook();
+            }
+            else
+            {
+                if (holdingByHand != null)
+                {
+                    holdingByHand.UpdateData(data);
+                    holdingByHand.Holding_UpdateLook();
+                }
             }
         }
         else
         {
-            if (holdingByHand != null)
-            {
-                holdingByHand.UpdateData(data);
-            }
+            ResetItem_Hand();
         }
         netManager.Last_ItemInHand = data;
     }
     public void ResetItem_Hand()
     {
-        if (holdingByHand != null) { holdingByHand.BeRelease(this); }
+        if (holdingByHand != null) { holdingByHand.Holding_Over(this); }
         holdingByHand = new ItemBase();
         if (bodyController.Hand_LeftItem.childCount > 0)
         {
@@ -491,11 +527,15 @@ public class ActorManager : MonoBehaviour
     /// <param name="data"></param>
     public void WearItem_Head(ItemData data)
     {
-        Debug.Log("戴到了头上" + data.Item_ID + "/" + data.Item_Val + "/" + data.Item_Count);
         ResetItem_Head();
         /*更新UI*/
         if (isPlayer && netManager.Object.HasInputAuthority)
         {
+            CheckStatus(netManager.Data_ItemOnBody.Item_ID, netManager.Data_ItemOnHead.Item_ID, netManager.Data_Fine, out short id);
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateStatus()
+            {
+                statusId = id
+            });
             MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemOnHead()
             {
                 itemData = data
@@ -532,11 +572,15 @@ public class ActorManager : MonoBehaviour
     /// <param name="data"></param>
     public void WearItem_Body(ItemData data)
     {
-        Debug.Log("穿到身上" + data.Item_ID + "/" + data.Item_Val + "/" + data.Item_Count);
         ResetItem_Body();
         /*更新UI*/
         if (isPlayer && netManager.Object.HasInputAuthority)
         {
+            CheckStatus(netManager.Data_ItemOnBody.Item_ID, netManager.Data_ItemOnHead.Item_ID, netManager.Data_Fine, out short id);
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateStatus()
+            {
+                statusId = id
+            });
             MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemOnBody()
             {
                 itemData = data
@@ -566,6 +610,42 @@ public class ActorManager : MonoBehaviour
         bodyController.Body_Item.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
         bodyController.Body_Item.GetComponent<SpriteRenderer>().sortingOrder = 2;
+    }
+    #endregion
+    /*身份*/
+    #region
+    /// <summary>
+    /// 检查身份
+    /// </summary>
+    /// <param name="clothes"></param>
+    /// <param name="hat"></param>
+    /// <param name="id"></param>
+    /// <param name="fine"></param>
+    public void CheckStatus(short clothes,short hat,short fine,out short id)
+    {
+        id = 0;
+        StatusConfig status;
+        status = StatusConfigData.statusConfigs.Find((x) => { return x.Status_Clothes == clothes; });
+        if (status.Status_ID != 0)
+        {
+            id = status.Status_ID;
+            Debug.Log(clothes + "/" + hat);
+            return;
+        }
+        status = StatusConfigData.statusConfigs.Find((x) => { return x.Status_Hat == hat; });
+        if (status.Status_ID != 0)
+        {
+            id = status.Status_ID;
+            return;
+        }
+        if (clothes / 1000 != 5 && hat / 1000 != 5)
+        {
+            id = 1002;
+        }
+        else
+        {
+            id = 1003;
+        }
     }
     #endregion
     /*寻路*/
@@ -634,7 +714,8 @@ public class ActorManager : MonoBehaviour
                 }
                 temp = temp.normalized;
 
-                Vector2 velocity = new Vector2(temp.x * NetManager.Data_CommonSpeed, temp.y * NetManager.Data_CommonSpeed);
+                float commonSpeed = NetManager.Data_CommonSpeed / 10f;
+                Vector2 velocity = new Vector2(temp.x * commonSpeed, temp.y * commonSpeed);
                 Vector3 newPos = transform.position + new UnityEngine.Vector3(velocity.x * dt, velocity.y * dt, 0);
                 netManager.UpdateNetworkTransform(newPos, velocity.magnitude);
             }
@@ -677,7 +758,15 @@ public class ActorManager : MonoBehaviour
     {
         if (actorState != ActorState.Dead && from.HasInputAuthority)
         {
-            netManager.RPC_HpChange(-val, from.Object.Id);
+            val -= netManager.Data_Armor;
+            if (val > 0)
+            {
+                netManager.RPC_HpChange(-val, from.Object.Id);
+            }
+            else
+            {
+                netManager.RPC_HpChange(0, from.Object.Id);
+            }
         }
     }
     public void TryToDead()
@@ -701,16 +790,116 @@ public class ActorManager : MonoBehaviour
             }
         }
     }
-
+    /// <summary>
+    /// 减少食物值
+    /// </summary>
+    /// <param name="val"></param>
+    /// <returns></returns>
+    public int SubFood(int val)
+    {
+        if (actorState != ActorState.Dead && isState)
+        {
+            if (netManager.Data_CurFood + val > 0)
+            {
+                netManager.RPC_FoodChange((short)(netManager.Data_CurFood + val));
+            }
+            else
+            {
+                netManager.RPC_FoodChange(0);
+            }
+        }
+        return netManager.Data_CurFood;
+    }
+    /// <summary>
+    /// 增加食物值
+    /// </summary>
+    /// <param name="val"></param>
+    /// <returns></returns>
+    public int AddFood(int val)
+    {
+        if (actorState != ActorState.Dead && isState)
+        {
+            if (netManager.Data_CurFood + val <= netManager.Data_MaxFood)
+            {
+                netManager.RPC_FoodChange((short)(netManager.Data_CurFood + val));
+            }
+            else
+            {
+                netManager.RPC_FoodChange(netManager.Data_MaxFood);
+            }
+        }
+        return netManager.Data_CurFood;
+    }
+    /// <summary>
+    /// 支付
+    /// </summary>
+    /// <returns></returns>
+    public bool PayCoin(int coin)
+    {
+        if (netManager.Data_Coin >= coin)
+        {
+            netManager.RPC_LocalInput_PayCoin(coin);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    /// <summary>
+    /// 赚钱
+    /// </summary>
+    /// <returns></returns>
+    public int EarnCoin(int coin)
+    {
+        netManager.RPC_LocalInput_EarnCoin(coin);
+        return netManager.Data_Coin;
+    }
+    /// <summary>
+    /// 增加罚金
+    /// </summary>
+    public void AddFine(short val)
+    {
+        if (NetManager.Data_Fine > 999)
+        {
+            val = 10;
+        }
+        NetManager.RPC_LocalInput_ChangeFine(val);
+    }
+    /// <summary>
+    /// 清空罚金
+    /// </summary>
+    public void ClearFine()
+    {
+        NetManager.RPC_LocalInput_ChangeFine((short)-NetManager.Data_Fine);
+    }
     #endregion
     /*RPC*/
-    [HideInInspector]
-    public bool attackState = false;
+    #region
+    /// <summary>
+    /// 攻击状态
+    /// </summary>
+    protected bool attackState = false;
+    /// <summary>
+    /// 攻击目标
+    /// </summary>
+    protected ActorManager attackTarget;
+    /// <summary>
+    /// 注视目标
+    /// </summary>
+    protected List<ActorManager> lookTarget = new List<ActorManager>();
+    /// <summary>
+    /// 记忆目标
+    /// </summary>
+    protected List<ActorManager> rememberTarget = new List<ActorManager>();
+    /// <summary>
+    /// 更改攻击状态
+    /// </summary>
+    /// <param name="state"></param>
     public virtual void FromRPC_ChangeAttackState(bool state)
     {
         attackState = state;
     }
-    protected ActorManager attackTarget;
     /// <summary>
     /// 更改攻击目标
     /// </summary>
@@ -732,7 +921,7 @@ public class ActorManager : MonoBehaviour
         bindSkill = (SkillBase)Activator.CreateInstance(type);
         bindSkill.Init(this);
     }
-    public virtual void FromRPC_InvokeSkill(int parameter, Fusion.NetworkId id)
+    public virtual void FromRPC_NpcUseSkill(int parameter, Fusion.NetworkId id)
     {
         bindSkill.ClickSpace();
     }
@@ -741,20 +930,21 @@ public class ActorManager : MonoBehaviour
         MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneSendEmoji
         {
             actor = this,
-            id = emojiID
+            id = emojiID,
+            distance = 10
         });
-        ActorUI.SendEmoji(EmojiConfigData.GetItemConfig(emojiID));
-
+        ActorUI.SendEmoji(EmojiConfigData.GetEmojiConfig(emojiID));
     }
     public virtual void Listen_HpChange(int parameter, Fusion.NetworkId id)
     {
-        if (parameter < 0)
+        if (parameter <= 0)
         {
             GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position + new Vector2(0, 1));
             obj_num.GetComponent<UI_DamageNum>().Play(parameter, new Color32(255, 50, 50, 255));
             PlayTakeDamage(1);
         }
     }
+    #endregion
 }
 public enum ActorState
 {

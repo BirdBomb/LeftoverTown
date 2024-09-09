@@ -5,6 +5,10 @@ using UnityEngine;
 
 public class SkillConfigData
 {
+    public static SkillConfig GetSkillConfig(short ID)
+    {
+        return skillConfigs.Find((x) => { return x.Skill_ID == ID; });
+    }
     public readonly static List<SkillConfig> skillConfigs = new List<SkillConfig>()
     {
         new SkillConfig(){ Skill_ID = 1001,Skill_Name = "闪避步伐",Skill_Desc = "能够快速短距离移动的招式。无论什么阵营，是所有拿起武器保卫家园的人类士兵学会的第一个技能",Skill_Strength = 0,Skill_Intelligence = 0,Skill_Focus = 0, Skill_Agility = 0},
@@ -26,7 +30,7 @@ public class SkillConfigData
 public struct SkillConfig
 {
     [SerializeField]/*编号*/
-    public int Skill_ID;
+    public short Skill_ID;
     [SerializeField]/*名字*/
     public string Skill_Name;
     [SerializeField]/*描述*/
@@ -34,11 +38,11 @@ public struct SkillConfig
     [SerializeField]/*CD*/
     public string Skill_CD;
     [SerializeField]/*最小使用力量*/
-    public int Skill_Strength;
+    public short Skill_Strength;
     [SerializeField]/*最小使用智力*/
-    public int Skill_Intelligence;
+    public short Skill_Intelligence;
     [SerializeField]/*最小使用专注*/
-    public int Skill_Focus;
+    public short Skill_Focus;
     [SerializeField]/*最小使用敏捷*/
-    public int Skill_Agility;
+    public short Skill_Agility;
 }

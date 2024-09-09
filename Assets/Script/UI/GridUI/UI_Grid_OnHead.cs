@@ -33,7 +33,7 @@ public class UI_Grid_OnHead : UI_Grid
     }
     private void ResetCell()
     {
-        cell.ClearGridCell();
+        cell.ResetGridCell();
     }
     public void ClickCellLeft(UI_GridCell gridCell)
     {
@@ -49,7 +49,7 @@ public class UI_Grid_OnHead : UI_Grid
     }
     public override void CellDragIn(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
-        gridCell.image_Icon.transform.position = Input.mousePosition;
+        gridCell.image_MainIcon.transform.position = Input.mousePosition;
     }
     public override void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {

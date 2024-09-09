@@ -22,6 +22,10 @@ public class UI_Grid_Bag : UI_Grid
             BagUpdateItem();
 
         }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
+        {
+            BagUpdateItem();
+        }).AddTo(this);
     }
     /// <summary>
     /// 更新背包物体
@@ -46,7 +50,7 @@ public class UI_Grid_Bag : UI_Grid
     }
     private void ResetCell(UI_GridCell cell)
     {
-        cell.ClearGridCell();
+        cell.ResetGridCell();
     }
     /// <summary>
     /// 绘制一个格子
@@ -61,11 +65,11 @@ public class UI_Grid_Bag : UI_Grid
     }
     public void ClickCellLeft(UI_GridCell gridCell)
     {
-        gridCell._bindItem.LeftClickGridCell(gridCell, gridCell._bindItem.data);
+        gridCell._bindItem.LeftClickGridCell(gridCell, gridCell._bindItem.itemData);
     }
     public void ClickCellRight(UI_GridCell gridCell)
     {
-        gridCell._bindItem.RightClickGridCell(gridCell, gridCell._bindItem.data);
+        gridCell._bindItem.RightClickGridCell(gridCell, gridCell._bindItem.itemData);
     }
     public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
@@ -73,7 +77,7 @@ public class UI_Grid_Bag : UI_Grid
     }
     public override void CellDragIn(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
-        gridCell.image_Icon.transform.position = Input.mousePosition;
+        gridCell.image_MainIcon.transform.position = Input.mousePosition;
     }
     public override void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {

@@ -77,12 +77,12 @@ public class ActorManager_Zombie_Spray : ActorManager
             if (distance < AttackDistance)
             {
                 AttackTimer = AttackCD;
-                NetManager.RPC_State_Skill(1, targetActor.NetManager.Object.Id);
+                NetManager.RPC_State_NpcUseSkill(1, targetActor.NetManager.Object.Id);
             }
             else if (distance < SkillDistance)
             {
                 AttackTimer = AttackCD * 2;
-                NetManager.RPC_State_Skill(2, targetActor.NetManager.Object.Id);
+                NetManager.RPC_State_NpcUseSkill(2, targetActor.NetManager.Object.Id);
             }
         }
         else
@@ -93,7 +93,7 @@ public class ActorManager_Zombie_Spray : ActorManager
     #endregion
     /*客户端方法*/
     #region
-    public override void FromRPC_InvokeSkill(int parameter, Fusion.NetworkId id)
+    public override void FromRPC_NpcUseSkill(int parameter, Fusion.NetworkId id)
     {
         if (parameter == 1)
         {
@@ -135,7 +135,7 @@ public class ActorManager_Zombie_Spray : ActorManager
                 }
             });
         }
-        base.FromRPC_InvokeSkill(parameter, id);
+        base.FromRPC_NpcUseSkill(parameter, id);
     }
     #endregion
 }

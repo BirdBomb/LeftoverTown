@@ -12,6 +12,7 @@ public class UI_Main : MonoBehaviour
 
     public UI_GameCreate ui_GameCreate;
     public UI_GameLobby ui_GameLobby;
+    public UI_GameSetting UI_GameSetting;
     public void Start()
     {
         Bind();
@@ -26,6 +27,7 @@ public class UI_Main : MonoBehaviour
     private void ClickGameCreateBtn()
     {
         ui_GameCreate.UpdateActorChooseUI();
+        ui_GameCreate.UpdateMapChooseUI();
         ui_GameCreate.ShowPanel();
     }
     private void ClickGameLobbyBtn()
@@ -35,7 +37,7 @@ public class UI_Main : MonoBehaviour
     }
     private void ClickSettingBtn()
     {
-
+        UI_GameSetting.ShowPanel();
     }
     private void ClickQuitBtn()
     {

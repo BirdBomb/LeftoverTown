@@ -6,81 +6,111 @@ using UnityEngine.U2D;
 using UniRx;
 using System.Text;
 using UnityEngine.EventSystems;
+using System;
+using DG.Tweening;
+using TMPro;
 
 public class UI_FloorBuilder : UI_Grid
 {
-    [SerializeField, Header("名字")]
-    private Text buildName;
-    [SerializeField, Header("图片")]
-    private Image buildSprite;
+    #region//建筑预览
+    [SerializeField, Header("地块预览")]
+    private RectTransform panel_floorPanel;
+    [SerializeField, Header("地块名字")]
+    private Text text_floorName;
+    [SerializeField, Header("地块图片")]
+    private Image image_floorSprite;
     [SerializeField, Header("合成栏图片")]
-    private List<Image> buildRawSpriteList = new List<Image>();
+    private List<Image> imageList_floorRawSprite = new List<Image>();
     [SerializeField, Header("合成栏数量")]
-    private List<Text> buildRawTextList = new List<Text>();
-    [SerializeField, Header("左滚")]
-    private Button leftBtn;
-    [SerializeField, Header("右滚")]
-    private Button rightBtn;
-    [SerializeField, Header("准备建造")]
-    private Button readyBuildBtn;
-    [SerializeField, Header("开始建造")]
-    private Button startBuildBtn;
-
+    private List<Text> textList_floorRawText = new List<Text>();
+    [SerializeField, Header("准备建造按钮")]
+    private Button btn_readyBuild;
+    [SerializeField, Header("开始建造按钮")]
+    private Button btn_startBuild;
+    #endregion
+    #region//建筑列表
+    [SerializeField, Header("地块列表")]
+    private RectTransform panel_floorList;
+    [SerializeField, Header("地块等级")]
+    private Text text_floorLevel;
+    [SerializeField, Header("地块按钮列表")]
+    private List<Button> btns_floorNameBtn = new List<Button>();
+    [SerializeField, Header("上一难度按钮")]
+    private Button btn_LastLevel;
+    [SerializeField, Header("下一难度按钮")]
+    private Button btn_NextLevel;
+    [SerializeField, Header("上一页按钮")]
+    private Button btn_LastPage;
+    [SerializeField, Header("下一页按钮")]
+    private Button btn_NextPage;
+    #endregion
     /// <summary>
-    /// 是否准备开始建造
+    /// 地块列表
     /// </summary>
-    private bool isReadyBuilding;
+    private List<FloorConfig> floorConfigs = new List<FloorConfig>();
     /// <summary>
-    /// 准备开始建造的建筑
+    /// 选中的地块
     /// </summary>
     private FloorConfig targetFloor;
+    private List<ItemData> itemDataList = new List<ItemData>();
+    private int curPage;
+    private int CurPage
+    {
+        get { return curPage; }
+        set
+        {
+            curPage = value;
+        }
+    }
+
+    private int curLevel;
+    private int CurLevel
+    {
+        get { return curLevel; }
+        set
+        {
+            if (curLevel != value)
+            {
+                floorConfigs = FloorConfigData.floorConfigs.FindAll((x) => { return x.Floor_RawLevel == value; });
+                curLevel = value;
+                CurPage = 0;
+                UpdateBuildingListUI();
+            }
+        }
+    }
 
     private TileObj bindTileObj;
-    private SpriteAtlas floorAtlas;
+    private SpriteAtlas buildingAtlas;
     private SpriteAtlas itemAtlas;
-    private int index = 0;
-    private List<ItemData> rawConfigList = new List<ItemData>();
-    private List<ItemData> itemDataList = new List<ItemData>();
-
     private void Awake()
     {
-        floorAtlas = Resources.Load<SpriteAtlas>("Atlas/TileSprite");
+        buildingAtlas = Resources.Load<SpriteAtlas>("Atlas/TileSprite");
         itemAtlas = Resources.Load<SpriteAtlas>("Atlas/ItemSprite");
     }
     private void Start()
     {
-        leftBtn.onClick.AddListener(ClickLeftBtn);
-        rightBtn.onClick.AddListener(ClickRightBtn);
-        readyBuildBtn.onClick.AddListener(ClickReadyBuildBtn);
-        startBuildBtn.onClick.AddListener(ClickStartBuildBtn);
-        targetFloor = FloorConfigData.GetItemConfig(1001);
-        gameObject.SetActive(false);
+        btn_startBuild.onClick.AddListener(ClickStartBuildBtn);
+        btn_LastLevel.onClick.AddListener(ClickLastLevelBtn);
+        btn_NextLevel.onClick.AddListener(ClickNextLevelBtn);
+        btn_LastPage.onClick.AddListener(ClickLastPageBtn);
+        btn_NextPage.onClick.AddListener(ClickNextPageBtn);
+        floorConfigs = FloorConfigData.floorConfigs.FindAll((x) => { return x.Floor_RawLevel == 0; });
+        UpdateBuildingListUI();
     }
     public override void Open(TileObj tileObj)
     {
         bindTileObj = tileObj;
         base.Open(tileObj);
     }
-    public override void Close(TileObj tileObj)
-    {
-        base.Close(tileObj);
-    }
-    public void ClickCellLeft(ItemData itemData)
-    {
-
-    }
-    public void ClickCellRight(ItemData itemData)
-    {
-
-    }
+    #region//UI操作
     public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
 
     }
     public override void CellDragIn(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
-        RectTransformUtility.ScreenPointToWorldPointInRectangle(gridCell.image_Icon.rectTransform, Input.mousePosition, Camera.main, out Vector3 pos);
-        gridCell.image_Icon.transform.position = pos;
+        RectTransformUtility.ScreenPointToWorldPointInRectangle(gridCell.image_MainIcon.rectTransform, Input.mousePosition, Camera.main, out Vector3 pos);
+        gridCell.image_MainIcon.transform.position = pos;
     }
     public override void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
@@ -93,29 +123,25 @@ public class UI_FloorBuilder : UI_Grid
             {
                 if (result.gameObject.TryGetComponent(out UI_Grid grid))
                 {
-                    PutOut(itemData);
-                    grid.ListenDragOn(this, gridCell, itemData);
+                    PutOut(itemData, out ItemData afterData);
+                    grid.ListenDragOn(this, gridCell, afterData);
                     return;
                 }
             }
         }
         else
         {
+            PutOut(itemData, out ItemData afterData);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
             {
-                item = itemData
+                item = afterData
             });
-            PutOut(itemData);
         }
 
     }
     public override void ListenDragOn<T>(T grid, UI_GridCell cell, ItemData itemData)
     {
-        Calculate(itemData, out ItemData back);
-        if (back.Item_Count != itemData.Item_Count)
-        {
-            PutIn(itemData);
-        }
+        PutIn(itemData, out ItemData back);
         if (back.Item_Count != 0)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
@@ -125,151 +151,271 @@ public class UI_FloorBuilder : UI_Grid
         }
         base.ListenDragOn<T>(grid, cell, itemData);
     }
-
-    public override void PutIn(ItemData itemData)
+    /// <summary>
+    /// 上一难度按钮点击
+    /// </summary>
+    private void ClickNextLevelBtn()
     {
-        int index = -1;
-        int add = 0;
-        for (int i = 0; i < itemDataList.Count; i++)
+        if (curLevel < 10)
         {
-            if (itemDataList[i].Item_ID == itemData.Item_ID)
-            {
-                /*背包里面有同名物体*/
-                ItemConfig item = ItemConfigData.GetItemConfig(itemData.Item_ID);
-                int maxCount = item.Item_MaxCount;
-                if (itemData.Item_Count + itemDataList[i].Item_Count <= maxCount)
-                {
-                    /*背包里面有同名物体,且可以叠加*/
-                    index = i;
-                    add = itemData.Item_Count;
-                }
-                else
-                {
-                    /*背包里面有同名物体,不可叠加*/
-                    index = i;
-                    add = maxCount - itemDataList[i].Item_Count;
-                }
-            }
-        }
-        if (index == -1)
-        {
-            /*背包里面没有同名物体,查看是否需要*/
-            int temp_b = -1;
-            temp_b = rawConfigList.FindIndex((x) => { return x.Item_ID == itemData.Item_ID; });
-            if (temp_b >= 0)/*我需要这个物体*/
-            {
-                ItemData rawItemData = rawConfigList[temp_b];
-                int maxCount = rawItemData.Item_Count;
-                if (itemData.Item_Count <= maxCount)
-                {
-                    /*可以全部放入*/
-                    add = itemData.Item_Count;
-                    itemData.Item_Count -= add;
-                }
-                else
-                {
-                    /*可以部分放入*/
-                    add = maxCount;
-                    itemData.Item_Count -= add;
-                }
-                ItemData newItemData = new ItemData();
-                newItemData.Item_ID = itemData.Item_ID;
-                newItemData.Item_Seed = itemData.Item_Seed;
-                newItemData.Item_Count = add;
-                itemDataList.Add(newItemData);
-            }
-            else/*我不需要这个物体*/
-            {
-
-            }
+            CurLevel++;
         }
         else
         {
-            ItemData targetItem = itemDataList[index];
-            targetItem.Item_Count += add;
-            itemDataList[index] = targetItem;
+            CurLevel = 0;
         }
-        ChangeInfoToTile();
-
-        base.PutIn(itemData);
     }
-    public override void PutOut(ItemData data)
+    /// <summary>
+    /// 下一难度按钮点击
+    /// </summary>
+    private void ClickLastLevelBtn()
     {
-        itemDataList.Remove(data);
-        ChangeInfoToTile();
-        base.PutOut(data);
-    }
-    public override void Calculate(ItemData before, out ItemData after)
-    {
-        if (isReadyBuilding)
+        if (curLevel > 0)
         {
-            int temp_a = -1;
-            int add = 0;
+            CurLevel--;
+        }
+        else
+        {
+            CurLevel = 10;
+        }
+    }
+    /// <summary>
+    /// 上一页按钮点击
+    /// </summary>
+    private void ClickNextPageBtn()
+    {
+        if (CurPage * 10 < floorConfigs.Count)
+        {
+            CurPage++;
+        }
+        else
+        {
+            CurPage = 0;
+        }
+        UpdateBuildingListUI();
+    }
+    /// <summary>
+    /// 下一页按钮点击
+    /// </summary>
+    private void ClickLastPageBtn()
+    {
+        if (CurPage > 0)
+        {
+            CurPage--;
+            UpdateBuildingListUI();
+        }
+    }
+    /// <summary>
+    /// 预览建筑按钮点击
+    /// </summary>
+    /// <param name="buildingConfig"></param>
+    private void ClickBuildingNameBtn(FloorConfig floorConfig)
+    {
+        if (targetFloor.Floor_ID == 0)
+        {
+            DrawBuildingPanel(floorConfig);
+            DrawBuildingRaw(floorConfig);
+            btn_readyBuild.gameObject.SetActive(true);
+            btn_readyBuild.onClick.RemoveAllListeners();
+            btn_readyBuild.onClick.AddListener(() => { ClickReadyBuildBtn(floorConfig); });
+        }
+    }
+    /// <summary>
+    /// 准备建造按钮点击
+    /// </summary>
+    /// <param name="buildingConfig"></param>
+    private void ClickReadyBuildBtn(FloorConfig floorConfig)
+    {
+        targetFloor = floorConfig;
+        ChangeInfoToTile();
+    }
+    /// <summary>
+    /// 开始建造按钮
+    /// </summary>
+    private void ClickStartBuildBtn()
+    {
+        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
+        {
+            buildingID = 0,
+            buildingPos = bindTileObj.bindTile._posInCell
+        });
+        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeFloor()
+        {
+            floorID = targetFloor.Floor_ID,
+            floorPos = bindTileObj.bindTile._posInCell
+        });
+    }
 
-            for (int i = 0; i < itemDataList.Count; i++)
+    #endregion
+    #region//UI管理
+    /// <summary>
+    /// 重置建筑UI
+    /// </summary>
+    private void ResetBuildUI()
+    {
+        btn_readyBuild.gameObject.SetActive(false);
+        btn_startBuild.gameObject.SetActive(false);
+        text_floorName.text = "";
+        image_floorSprite.gameObject.SetActive(false);
+        for (int i = 0; i < imageList_floorRawSprite.Count; i++)
+        {
+            imageList_floorRawSprite[i].gameObject.SetActive(false);
+        }
+        for (int i = 0; i < textList_floorRawText.Count; i++)
+        {
+            textList_floorRawText[i].text = "";
+        }
+    }
+    /// <summary>
+    /// 更新建筑列表
+    /// </summary>
+    private void UpdateBuildingListUI()
+    {
+        for (int i = 0; i < btns_floorNameBtn.Count; i++)
+        {
+            btns_floorNameBtn[i].onClick.RemoveAllListeners();
+            if (i + CurPage * 10 < floorConfigs.Count)
             {
-                if (itemDataList[i].Item_ID == before.Item_ID)
-                {
-                    /*存放列表里面有同名物体,查询需要的物体上限*/
-                    ItemData rawItemData = rawConfigList.Find((x) => { return x.Item_ID == before.Item_ID; });
-                    int maxCount = rawItemData.Item_Count;
-                    if (before.Item_Count + itemDataList[i].Item_Count <= maxCount)
-                    {
-                        /*背包里面有同名物体,且未达上限*/
-                        temp_a = i;
-                        add = before.Item_Count;
-                    }
-                    else
-                    {
-                        /*背包里面有同名物体,不可再叠加*/
-                        temp_a = i;
-                        add = maxCount - itemDataList[i].Item_Count;
-                    }
-                }
-            }
-
-            if (temp_a == -1)
-            {
-                /*背包里面没有同名物体,查看是否需要*/
-                int temp_b = -1;
-                temp_b = rawConfigList.FindIndex((x) => { return x.Item_ID == before.Item_ID; });
-                if (temp_b >= 0)/*我需要这个物体*/
-                {
-                    ItemData rawItemData = rawConfigList[temp_b];
-                    int maxCount = rawItemData.Item_Count;
-                    if (before.Item_Count <= maxCount)
-                    {
-                        /*可以全部放入*/
-                        add = before.Item_Count;
-                        before.Item_Count -= add;
-                    }
-                    else
-                    {
-                        /*可以部分放入*/
-                        add = maxCount;
-                        before.Item_Count -= add;
-                    }
-                }
-                else/*我不需要这个物体*/
-                {
-
-                }
+                FloorConfig floorConfig = floorConfigs[i + CurPage * 10];
+                btns_floorNameBtn[i].gameObject.SetActive(true);
+                btns_floorNameBtn[i].onClick.AddListener(() => { ClickBuildingNameBtn(floorConfig); });
+                btns_floorNameBtn[i].transform.Find("Text").GetComponent<TextMeshProUGUI>().text = floorConfig.Floor_Name;
             }
             else
             {
-                before.Item_Count -= add;
+                btns_floorNameBtn[i].gameObject.SetActive(false);
+                btns_floorNameBtn[i].transform.Find("Text").GetComponent<TextMeshProUGUI>().text = "";
             }
-            after = before;
+        }
+        text_floorLevel.text = "难度等级" + CurLevel;
+    }
+    private void HideBuildingListUI()
+    {
+        panel_floorList.DOLocalMoveX(0, 0.2f);
+        panel_floorPanel.DOLocalMoveX(0, 0.2f);
+
+        btn_NextLevel.gameObject.SetActive(false);
+        btn_LastLevel.gameObject.SetActive(false);
+        btn_NextPage.gameObject.SetActive(false);
+        btn_LastPage.gameObject.SetActive(false);
+    }
+    /// <summary>
+    /// 绘制建筑预览界面
+    /// </summary>
+    private void DrawBuildingPanel(FloorConfig config)
+    {
+        if (config.Floor_ID > 0)
+        {
+            image_floorSprite.gameObject.SetActive(true);
+            image_floorSprite.sprite = buildingAtlas.GetSprite(config.Floor_SpriteName);
+            text_floorName.text = config.Floor_Name;
         }
         else
         {
-            base.Calculate(before, out after);
+            image_floorSprite.gameObject.SetActive(false);
+            text_floorName.text = "";
         }
     }
+    /// <summary>
+    /// 绘制建筑材料界面
+    /// </summary>
+    private void DrawBuildingRaw(FloorConfig config)
+    {
+        for (int i = 0; i < imageList_floorRawSprite.Count; i++)
+        {
+            imageList_floorRawSprite[i].gameObject.SetActive(false);
+        }
+        for (int i = 0; i < textList_floorRawText.Count; i++)
+        {
+            textList_floorRawText[i].text = "";
+        }
+
+        if (config.Floor_ID == 0)
+        {
+            for (int i = 0; i < config.Floor_Raw.Count; i++)
+            {
+                imageList_floorRawSprite[i].gameObject.SetActive(true);
+                imageList_floorRawSprite[i].sprite = itemAtlas.GetSprite("Item_" + config.Floor_Raw[i].ID.ToString());
+                textList_floorRawText[i].text = "0/" + config.Floor_Raw[i].Count.ToString();
+            }
+        }
+        else
+        {
+            for (int i = 0; i < config.Floor_Raw.Count; i++)
+            {
+                imageList_floorRawSprite[i].gameObject.SetActive(true);
+                imageList_floorRawSprite[i].sprite = itemAtlas.GetSprite("Item_" + config.Floor_Raw[i].ID.ToString());
+
+                int tempIndex = itemDataList.FindIndex((x) => { return x.Item_ID == config.Floor_Raw[i].ID; });
+
+                if (tempIndex >= 0)
+                {
+                    textList_floorRawText[i].text = itemDataList[tempIndex].Item_Count.ToString() + "/" + config.Floor_Raw[i].Count.ToString();
+                }
+                else
+                {
+                    textList_floorRawText[i].text = "0/" + config.Floor_Raw[i].Count.ToString();
+                }
+            }
+
+        }
+    }
+
+    #endregion
+    #region//拿出放入
+    public override void PutOut(ItemData before, out ItemData after)
+    {
+        itemDataList.Remove(before);
+        after = before;
+        ChangeInfoToTile();
+    }
+    public override void PutIn(ItemData before, out ItemData after)
+    {
+        if (targetFloor.Floor_ID > 0)
+        {
+            ItemData resData = before;
+
+            for (int i = 0; i < targetFloor.Floor_Raw.Count; i++)
+            {
+                if (targetFloor.Floor_Raw[i].ID == before.Item_ID)
+                {
+                    /*需要这个作为材料*/
+                    int index = itemDataList.FindIndex((x) => { return x.Item_ID == before.Item_ID; });
+                    if (index >= 0)
+                    {
+                        /*已经有这个材料*/
+                        Type type = Type.GetType("Item_" + before.Item_ID.ToString());
+                        ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(itemDataList[index], resData, targetFloor.Floor_Raw[i].Count, out ItemData newData, out resData);
+                        itemDataList[index] = newData;
+                    }
+                    else
+                    {
+                        /*还没有这个材料*/
+                        ItemData itemData = before;
+                        itemData.Item_Count = 0;
+                        Type type = Type.GetType("Item_" + before.Item_ID.ToString());
+                        ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(itemData, resData, targetFloor.Floor_Raw[i].Count, out ItemData newData, out resData);
+                        itemDataList.Add(newData);
+                    }
+                }
+            }
+            after = resData;
+        }
+        else
+        {
+            base.PutIn(before, out after);
+        }
+        ChangeInfoToTile();
+    }
+    #endregion
+    #region//信息上传与更新
+    /// <summary>
+    /// 更新信息
+    /// </summary>
+    /// <param name="info"></param>
     public void UpdateInfoFromTile(string info)
     {
         itemDataList.Clear();
-        isReadyBuilding = false;
         string[] strings = info.Split("/*I*/");
         for (int i = 0; i < strings.Length; i++)
         {
@@ -278,7 +424,6 @@ public class UI_FloorBuilder : UI_Grid
                 /*第一位是待建建筑id*/
                 if (strings[i] != "")
                 {
-                    isReadyBuilding = true;
                     targetFloor = FloorConfigData.GetItemConfig(int.Parse(strings[i]));
                 }
             }
@@ -289,11 +434,18 @@ public class UI_FloorBuilder : UI_Grid
                 itemDataList.Add(data);
             }
         }
-        if (targetFloor.Floor_ID == 0) { targetFloor = FloorConfigData.GetItemConfig(1001); }
         ResetBuildUI();
-        UpdateBuildUI();
-        CheckRawList();
+        if (targetFloor.Floor_ID != 0)
+        {
+            DrawBuildingPanel(targetFloor);
+            DrawBuildingRaw(targetFloor);
+            HideBuildingListUI();
+            CheckRawList();
+        }
     }
+    /// <summary>
+    /// 更改信息
+    /// </summary>
     public void ChangeInfoToTile()
     {
         StringBuilder builder = new StringBuilder();
@@ -304,200 +456,34 @@ public class UI_FloorBuilder : UI_Grid
         }
         bindTileObj.TryToChangeInfo(builder.ToString());
     }
+    #endregion
+    #region//建造UI
+    /// <summary>
+    /// 检查建筑材料
+    /// </summary>
     private void CheckRawList()
     {
-        if (isReadyBuilding)
+        if (targetFloor.Floor_ID != 0)
         {
-            for (int i = 0; i < rawConfigList.Count; i++)
+            for (int i = 0; i < targetFloor.Floor_Raw.Count; i++)
             {
-                int temp = -1;
-                temp = itemDataList.FindIndex((x) => { return x.Item_ID == rawConfigList[i].Item_ID; });
-                if (temp >= 0)
+                int index = itemDataList.FindIndex((x) => { return x.Item_ID == targetFloor.Floor_Raw[i].ID; });
+                if (index >= 0)
                 {
-                    if (itemDataList[temp].Item_Count >= rawConfigList[i].Item_Count)
+                    if (itemDataList[index].Item_Count < targetFloor.Floor_Raw[i].Count)
                     {
-
-                    }
-                    else
-                    {
+                        /*这个材料数量不足*/
                         return;
                     }
                 }
                 else
                 {
+                    /*没有这个材料*/
                     return;
                 }
             }
-            startBuildBtn.gameObject.SetActive(true);
+            btn_startBuild.gameObject.SetActive(true);
         }
     }
-    private void ResetBuildUI()
-    {
-        for (int i = 0; i < buildRawSpriteList.Count; i++)
-        {
-            buildRawSpriteList[i].gameObject.SetActive(false);
-        }
-        for (int i = 0; i < buildRawTextList.Count; i++)
-        {
-            buildRawTextList[i].text = "";
-        }
-    }
-    private void UpdateBuildUI()
-    {
-        if (isReadyBuilding)
-        {
-            leftBtn.gameObject.SetActive(false);
-            rightBtn.gameObject.SetActive(false);
-            readyBuildBtn.gameObject.SetActive(false);
-
-            DrawBuildingSprite(targetFloor);
-            UpdateBuildRawList(targetFloor);
-            DrawBuildingRawList();
-        }
-        else
-        {
-            leftBtn.gameObject.SetActive(true);
-            rightBtn.gameObject.SetActive(true);
-            readyBuildBtn.gameObject.SetActive(true);
-
-            DrawBuildingSprite(targetFloor);
-            UpdateBuildRawList(targetFloor);
-            DrawBuildingRawList();
-        }
-    }
-    /// <summary>
-    /// 绘制建筑预览
-    /// </summary>
-    private void DrawBuildingSprite(FloorConfig config)
-    {
-        if (config.Floor_ID > 0)
-        {
-            //Debug.Log(config.Building_SpriteName);
-            //if (buildingAtlas == null) 
-            //{
-            //    buildingAtlas = Resources.Load<SpriteAtlas>("Atlas/TileSprite");
-            //}
-            buildSprite.sprite = floorAtlas.GetSprite(config.Floor_SpriteName);
-            buildName.text = config.Floor_Name;
-        }
-    }
-    /// <summary>
-    /// 更新建筑合成列表
-    /// </summary>
-    private void UpdateBuildRawList(FloorConfig config)
-    {
-        rawConfigList.Clear();
-        for (int i = 0; i < config.Floor_RawList.Count; i++)
-        {
-            int temp = rawConfigList.FindIndex((x) => { return x.Item_ID == config.Floor_RawList[i]; });
-            if (temp >= 0)
-            {
-                ItemData rawItemData = new ItemData();
-                rawItemData.Item_ID = config.Floor_RawList[i];
-                rawItemData.Item_Count = rawConfigList[temp].Item_Count + 1;
-                rawConfigList[temp] = rawItemData;
-
-            }
-            else
-            {
-                ItemData rawItemData = new ItemData();
-                rawItemData.Item_ID = config.Floor_RawList[i];
-                rawItemData.Item_Count = 1;
-                rawConfigList.Add(rawItemData);
-            }
-        }
-
-    }
-    /// <summary>
-    /// 绘制建筑合成列表
-    /// </summary>
-    private void DrawBuildingRawList()
-    {
-        if (!isReadyBuilding)
-        {
-            for (int i = 0; i < rawConfigList.Count; i++)
-            {
-                buildRawSpriteList[i].gameObject.SetActive(true);
-                buildRawSpriteList[i].sprite = itemAtlas.GetSprite("Item_" + rawConfigList[i].Item_ID.ToString());
-                buildRawTextList[i].text = "0/" + rawConfigList[i].Item_Count.ToString();
-            }
-        }
-        else
-        {
-            for (int i = 0; i < rawConfigList.Count; i++)
-            {
-                buildRawSpriteList[i].gameObject.SetActive(true);
-                buildRawSpriteList[i].sprite = itemAtlas.GetSprite("Item_" + rawConfigList[i].Item_ID.ToString());
-
-                int tempIndex = itemDataList.FindIndex((x) => { return x.Item_ID == rawConfigList[i].Item_ID; });
-
-                if (tempIndex >= 0)
-                {
-                    buildRawTextList[i].text = itemDataList[tempIndex].Item_Count.ToString() + "/" + rawConfigList[i].Item_Count.ToString();
-                }
-                else
-                {
-                    buildRawTextList[i].text = "0/" + rawConfigList[i].Item_Count.ToString();
-                }
-            }
-
-        }
-    }
-    /// <summary>
-    /// 上一页
-    /// </summary>
-    private void ClickLeftBtn()
-    {
-        if (index == 0)
-        {
-            index = FloorConfigData.floorConfigs.Count - 1;
-        }
-        else
-        {
-            index--;
-        }
-        targetFloor = FloorConfigData.floorConfigs[index];
-        ResetBuildUI();
-        DrawBuildingSprite(targetFloor);
-        UpdateBuildRawList(targetFloor);
-        DrawBuildingRawList();
-    }
-    /// <summary>
-    /// 下一页
-    /// </summary>
-    private void ClickRightBtn()
-    {
-        if (index == FloorConfigData.floorConfigs.Count - 1)
-        {
-            index = 0;
-        }
-        else
-        {
-            index++;
-        }
-        targetFloor = FloorConfigData.floorConfigs[index];
-        ResetBuildUI();
-        DrawBuildingSprite(targetFloor);
-        UpdateBuildRawList(targetFloor);
-        DrawBuildingRawList();
-    }
-    private void ClickReadyBuildBtn()
-    {
-        isReadyBuilding = true;
-        ChangeInfoToTile();
-    }
-    private void ClickStartBuildBtn()
-    {
-        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeFloor()
-        {
-            floorName = targetFloor.Floor_FileName,
-            floorPos = bindTileObj.bindTile._posInCell
-        });
-        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
-        {
-            buildingName = "Default",
-            buildingPos = bindTileObj.bindTile._posInCell
-        });
-
-    }
+    #endregion
 }

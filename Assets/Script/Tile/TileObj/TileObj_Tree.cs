@@ -5,6 +5,8 @@ using DG.Tweening;
 
 public class TileObj_Tree : TileObj
 {
+    #region//信息更新与上传
+    #endregion
     public override void TryToUpdateHp(int newHp)
     {
         if (newHp <= CurHp)
@@ -14,7 +16,7 @@ public class TileObj_Tree : TileObj
         base.TryToUpdateHp(newHp);
     }
 
-    public override void ListenDestroyMyObj()
+    public override void TryToDestroyMyObj()
     {
         PlayBreakAnim();
         Invoke("DestroyMyObj", 0.3f);
@@ -22,7 +24,7 @@ public class TileObj_Tree : TileObj
     public override void DestroyMyObj()
     {
         Loot();
-        base.DestroyMyObj();
+        Destroy(gameObject);
     }
     public override void PlayDamagedAnim()
     {

@@ -9,8 +9,8 @@ public class MapEvent : MonoBehaviour
     /// </summary>
     public class MapEvent_LocalTile_RequestMapData
     {
-        public Vector3Int pos;
-        public PlayerRef player;
+        public Vector3Int playerPos;
+        public PlayerRef playerRef;
     }
     /// <summary>
     /// 请求保存地图数据
@@ -32,11 +32,11 @@ public class MapEvent : MonoBehaviour
     public class MapEvent_LocalTile_ChangeBuilding
     {
         public Vector3Int buildingPos;
-        public string buildingName;
+        public int buildingID;
     }
     public class MapEvent_LocalTile_ChangeFloor
     {
         public Vector3Int floorPos;
-        public string floorName;
+        public int floorID;
     }
 }

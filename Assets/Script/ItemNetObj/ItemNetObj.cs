@@ -8,6 +8,8 @@ using UnityEngine.UI;
 using UnityEngine.Rendering;
 using System.Globalization;
 using System;
+using Unity.VisualScripting;
+using static UnityEngine.GraphicsBuffer;
 
 public class ItemNetObj : NetworkBehaviour
 {
@@ -35,18 +37,19 @@ public class ItemNetObj : NetworkBehaviour
         }
         else
         {
-            if (_bindItem.data.Item_ID != data.Item_ID)
+            if (_bindItem.itemData.Item_ID != data.Item_ID)
             {
                 Type type = Type.GetType("Item_" + data.Item_ID.ToString());
                 _bindItem = (ItemBase)Activator.CreateInstance(type);
             }
         }
         _bindItem.UpdateData(data);
-        _bindItem.DrawItemObj(this);
-        _bindItem.PlayDropAnim(this);
+        _bindItem.StaticAction_DrawItemObj(this, data);
+        _bindItem.StaticAction_PlayDropAnim(this);
     }
     public virtual void PickUp(out ItemData itemData)
     {
         itemData = data;
     }
+
 }

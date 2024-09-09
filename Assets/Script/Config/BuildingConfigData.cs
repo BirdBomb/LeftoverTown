@@ -11,15 +11,84 @@ public class BuildingConfigData : MonoBehaviour
     }
     public readonly static List<BuildingConfig> buildConfigs = new List<BuildingConfig>()
     {
-        new BuildingConfig(){ Building_ID = 1001,Building_Name ="简易木墙",Building_FileName ="WoodWall_0",Building_SpriteName="WoodWall_0",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001,1001 } },
-        new BuildingConfig(){ Building_ID = 1002,Building_Name ="简易柜子",Building_FileName ="Cabinet_0",Building_SpriteName="Cabinet_0_0",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001,1001,1001,3001,3001 } },
-        new BuildingConfig(){ Building_ID = 1003,Building_Name ="简易木窗",Building_FileName ="WoodWindow_0",Building_SpriteName="WoodWindow_0",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
-        new BuildingConfig(){ Building_ID = 1004,Building_Name ="简易木门",Building_FileName ="WoodDoor_0",Building_SpriteName="WoodDoor_0",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
-        new BuildingConfig(){ Building_ID = 1005,Building_Name ="木床组件",Building_FileName ="WoodBed_Part",Building_SpriteName="WoodBed_Part",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
-        new BuildingConfig(){ Building_ID = 1006,Building_Name ="路灯",Building_FileName ="Lamp_0",Building_SpriteName="Lamp_0",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
-        new BuildingConfig(){ Building_ID = 1007,Building_Name ="篝火",Building_FileName ="Bonfire_0",Building_SpriteName="Bonfire_0",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
-        new BuildingConfig(){ Building_ID = 1008,Building_Name ="巨大告示牌",Building_FileName ="Billboard",Building_SpriteName="Billboard",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
-        new BuildingConfig(){ Building_ID = 1009,Building_Name ="骸骨",Building_FileName ="Bone",Building_SpriteName="Bone",Building_RawLevel = 1,Building_RawList=new List<int>(){ 1001 } },
+        new BuildingConfig(){ Building_ID = 0,Building_Name ="空",
+            Building_FileName ="Default",Building_SpriteName="Default",Building_RawLevel = 10,
+            Building_Raw = new List<BuildingRaw>(){ } },
+        new BuildingConfig(){ Building_ID = 1,Building_Name ="建筑建造块",
+            Building_FileName ="BuildingBuilder",Building_SpriteName="BuildingBuilder",Building_RawLevel = 10,
+            Building_Raw = new List<BuildingRaw>(){ } },
+        new BuildingConfig(){ Building_ID = 2,Building_Name ="地板建造块",
+            Building_FileName ="FloorBuilder",Building_SpriteName="FloorBuilder",Building_RawLevel = 10,
+            Building_Raw = new List<BuildingRaw>(){ } },
+
+        new BuildingConfig(){ Building_ID = 1001,Building_Name ="简易木墙",
+            Building_FileName ="WoodWall",Building_SpriteName="WoodWall",Building_RawLevel = 1,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1002,Building_Name ="简易柜子",
+            Building_FileName ="Cabinet_0",Building_SpriteName="Cabinet_0_0",Building_RawLevel = 1,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1003,Building_Name ="简易木窗",
+            Building_FileName ="WoodWindow_0",Building_SpriteName="WoodWindow_0",Building_RawLevel = 1,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1004,Building_Name ="简易木门",
+            Building_FileName ="WoodDoor_0",Building_SpriteName="WoodDoor_0",Building_RawLevel = 1,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1005,Building_Name ="木床组件",
+            Building_FileName ="WoodBed_Part",Building_SpriteName="WoodBed_Part",Building_RawLevel = 1,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1006,Building_Name ="路灯",
+            Building_FileName ="Lamp_0",Building_SpriteName="Lamp_0",Building_RawLevel = 5,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) }},
+        new BuildingConfig(){ Building_ID = 1007,Building_Name ="篝火",
+            Building_FileName ="Bonfire",Building_SpriteName="Bonfire",Building_RawLevel = 0,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1008,Building_Name ="巨大告示牌",
+            Building_FileName ="Billboard",Building_SpriteName="Billboard",Building_RawLevel = 1,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1009,Building_Name ="骸骨",
+            Building_FileName ="Bone",Building_SpriteName="Bone",Building_RawLevel = 1,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1010,Building_Name ="小型冰箱",
+            Building_FileName ="Refrigerator",Building_SpriteName="Refrigerator",Building_RawLevel = 2,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1011,Building_Name ="石头篝火",
+            Building_FileName ="BonfireStone",Building_SpriteName="BonfireStone",Building_RawLevel = 0,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1012,Building_Name ="厨灶",
+            Building_FileName ="Stove",Building_SpriteName="Stove",Building_RawLevel = 2,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1013,Building_Name ="木制工具台",
+            Building_FileName ="WoodWorkingBench",Building_SpriteName="WoodWorkingBench",Building_RawLevel = 2,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1014,Building_Name ="柜台",
+            Building_FileName ="Desk",Building_SpriteName="Desk",Building_RawLevel = 2,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1015,Building_Name ="收银柜台",
+            Building_FileName ="CashDesk",Building_SpriteName="CashDesk",Building_RawLevel = 2,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1016,Building_Name ="木桶",
+            Building_FileName ="WoodVat",Building_SpriteName="WoodVat",Building_RawLevel = 4,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1017,Building_Name ="墙灯",
+            Building_FileName ="WallLight",Building_SpriteName="WallLight",Building_RawLevel = 4,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1018,Building_Name ="工具货架",
+            Building_FileName ="GoodsShelf_Tool",Building_SpriteName="GoodsShelf_Tool",Building_RawLevel = 4,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+
+        new BuildingConfig(){ Building_ID = 2001,Building_Name ="树",
+            Building_FileName ="Tree",Building_SpriteName="Tree",Building_RawLevel = 10,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 2002,Building_Name ="果树",
+            Building_FileName ="TreeFruit",Building_SpriteName="TreeFruit",Building_RawLevel = 10,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 2003,Building_Name ="矿石",
+            Building_FileName ="Rock",Building_SpriteName="Rock",Building_RawLevel = 10,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+
+        new BuildingConfig(){ Building_ID = 3001,Building_Name ="工具店招牌",
+            Building_FileName ="ShopSign_Tool",Building_SpriteName="ShopSign_Tool",Building_RawLevel = 10,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
     };
 }
 [Serializable]
@@ -33,8 +102,21 @@ public struct BuildingConfig
     public string Building_FileName;
     [SerializeField]/*图片名*/
     public string Building_SpriteName;
-    [SerializeField]/*合成表*/
-    public List<int> Building_RawList;
     [SerializeField]/*合成等级*/
     public int Building_RawLevel;
+    /*建筑原料*/
+    public List<BuildingRaw>Building_Raw;
+}
+/// <summary>
+/// 建筑原料
+/// </summary>
+public struct BuildingRaw
+{
+    public short ID;
+    public short Count;
+    public BuildingRaw(short id, short count)
+    {
+        ID = id;
+        Count = count;
+    }
 }

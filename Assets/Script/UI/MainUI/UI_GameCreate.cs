@@ -91,9 +91,65 @@ public class UI_GameCreate : MonoBehaviour
     }
     #endregion
     #region//地图选择
-    //public List<UI_ActorChooseButton> ActorChooseButtonList = new List<UI_ActorChooseButton>();
+    public List<UI_MapChooseButton> MapChooseButtonList = new List<UI_MapChooseButton>();
+    public void UpdateMapChooseUI()
+    {
+        for (int i = 0; i < MapChooseButtonList.Count; i++)
+        {
+            MapChooseButtonList[i].gameObject.SetActive(false);
+        }
+        for (int i = 0; i < MapChooseButtonList.Count; i++)
+        {
+            int index = i;
+            string data = FileManager.Instance.ReadFile("MapData/MapBuildInfo" + index);
+            MapChooseButtonList[index].gameObject.SetActive(true);
+            MapChooseButtonList[index].Init(data,
+                "MapData/MapBuildInfo" + index,
+                "MapData/MapBuildType" + index,
+                "MapData/MapFloorType" + index,
+               (_) =>
+               {
+                   ShowMapShowPanel(_.bind_Data, _.bind_BuildInfoPath,_.bind_BuildTypePath,_.bind_FloorTypePath);
+               }, (_) =>
+               {
+                   ShowMapCreatePanel(_.bind_BuildInfoPath, _.bind_BuildTypePath, _.bind_FloorTypePath);
+               }, (_) =>
+               {
+                   UpdateMapChooseUI();
+               });
+        }
+    }
+
     #endregion
     #region//地图预览
+    public UI_MapShowPanel MapShowPanel = new UI_MapShowPanel();
+    public void ShowMapShowPanel(string mapBuildInfoData, string mapBuildInfoPath, string mapBuildTypePath,string mapFloorTypePath)
+    {
+        ActorCreatePanel.Hide();
+        MapTileInfoData data = JsonConvert.DeserializeObject<MapTileInfoData>(mapBuildInfoData);
+        MapShowPanel.Init(data.name, data.seed);
+        buildInfoPath = mapBuildInfoPath;
+        buildTypePath = mapBuildTypePath; 
+        floorTypePath = mapFloorTypePath;
+    }
+    #endregion
+    #region//地图创建
+    public UI_MapCreatePanel MapCreatePanel = new UI_MapCreatePanel();
+    public void ShowMapCreatePanel(string mapBuildInfoPath, string mapBuildTypePath, string mapFloorTypePath)
+    {
+        MapShowPanel.Hide();
+        MapCreatePanel.Show();
+        MapCreatePanel.Init(mapBuildInfoPath, mapBuildTypePath, mapFloorTypePath, () =>
+        {
+            HideMapCreatePanel();
+        });
+    }
+    public void HideMapCreatePanel()
+    {
+        UpdateMapChooseUI();
+        MapCreatePanel.Hide();
+    }
+
     #endregion
     #region//游戏房间设置
 
@@ -102,10 +158,10 @@ public class UI_GameCreate : MonoBehaviour
     public Button btn_CreateRoom;
 
     private string roomName;
-    private string actorDataPath;
-    private string buildInfoPath = "MapData/SaveData_BuildingTileInfo_Test";
-    private string buildTypePath = "MapData/SaveData_BuildingTileType_Test";
-    private string floorTypePath = "MapData/SaveData_FloorTileType_Test";
+    private string actorDataPath = "";
+    private string buildInfoPath = "";
+    private string buildTypePath = "";
+    private string floorTypePath = "";
 
     private int roomType;
     private void BindRoomSettingPanel()
@@ -144,7 +200,7 @@ public class UI_GameCreate : MonoBehaviour
     }
     private bool CheckRoomSetting()
     {
-        if (roomName != "")
+        if (roomName != ""&& buildTypePath!=""&& buildInfoPath != "" && floorTypePath != "" && actorDataPath != "")
         {
             return true;
         }

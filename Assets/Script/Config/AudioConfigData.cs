@@ -8,6 +8,7 @@ public class AudioConfigData
     public readonly static List<AudioConfig> audioConfigs = new List<AudioConfig>()
     {
         new AudioConfig(){ Audio_ID = 1001,Audio_Name = "Shoot_0",Audio_MaxDistance = 200},
+        new AudioConfig(){ Audio_ID = 1002,Audio_Name = "Dull_0",Audio_MaxDistance = 20},
     };
 }
 [Serializable]

@@ -1,4 +1,5 @@
 using ExitGames.Client.Photon.StructWrapping;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -24,7 +25,13 @@ public class UI_Grid_Cabinet : UI_Grid
     {
         base.Open(tileObj);
     }
-
+    public void Start()
+    {
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
+        {
+            DrawEveryCell();
+        }).AddTo(this);
+    }
 
     /// <summary>
     /// 从地块获取更新
@@ -86,7 +93,7 @@ public class UI_Grid_Cabinet : UI_Grid
     /// <param name="cell"></param>
     private void ResetCell(UI_GridCell cell)
     {
-        cell.ClearGridCell();
+        cell.ResetGridCell();
     }
     /// <summary>
     /// 绘制一个格子
@@ -113,8 +120,8 @@ public class UI_Grid_Cabinet : UI_Grid
     }
     public override void CellDragIn(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
-        RectTransformUtility.ScreenPointToWorldPointInRectangle(gridCell.image_Icon.rectTransform, Input.mousePosition, Camera.main,out Vector3 pos);
-        gridCell.image_Icon.transform.position = pos;
+        RectTransformUtility.ScreenPointToWorldPointInRectangle(gridCell.image_MainIcon.rectTransform, Input.mousePosition, Camera.main,out Vector3 pos);
+        gridCell.image_MainIcon.transform.position = pos;
     }
     public override void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
@@ -127,28 +134,24 @@ public class UI_Grid_Cabinet : UI_Grid
             {
                 if (result.gameObject.TryGetComponent(out UI_Grid grid))
                 {
-                    PutOut(itemData);
-                    grid.ListenDragOn(this, gridCell, itemData);
+                    PutOut(itemData, out ItemData afterData);
+                    grid.ListenDragOn(this, gridCell, afterData);
                     return;
                 }
             }
         }
         else
         {
+            PutOut(itemData, out ItemData afterData);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
             {
-                item = itemData
+                item = afterData
             });
-            PutOut(itemData);
         }
     }
     public override void ListenDragOn<T>(T grid, UI_GridCell cell, ItemData itemData)
     {
-        Calculate(itemData, out ItemData back);
-        if (back.Item_Count != itemData.Item_Count)
-        {
-            PutIn(itemData);
-        }
+        PutIn(itemData, out ItemData back);
         if (back.Item_Count != 0)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
@@ -159,107 +162,56 @@ public class UI_Grid_Cabinet : UI_Grid
         base.ListenDragOn<T>(grid, cell, itemData);
     }
     /*取出*/
-    public override void PutOut(ItemData data)
+    public override void PutOut(ItemData before, out ItemData after)
     {
-        itemDataList.Remove(data);
+        itemDataList.Remove(before);
+        after = before;
         ChangeInfoToTile();
     }
     /*放入*/
-    public override void PutIn(ItemData itemData)
+    public override void PutIn(ItemData before, out ItemData after)
     {
-        int index = -1;
-        int add = 0;
-        for (int i = 0; i < itemDataList.Count; i++)
+        ItemConfig config = ItemConfigData.GetItemConfig(before.Item_ID);
+        ItemData resData = before;
+        if (config.Item_Size == ItemSize.AsGroup)
         {
-            if (itemDataList[i].Item_ID == itemData.Item_ID)
+            for (int i = 0; i < cellList.Count; i++)
             {
-                /*背包里面有同名物体*/
-                ItemConfig item = ItemConfigData.GetItemConfig(itemData.Item_ID);
-                int maxCount = item.Item_MaxCount;
-                if (itemData.Item_Count + itemDataList[i].Item_Count <= maxCount)
+                if (itemDataList.Count > i)
                 {
-                    /*背包里面有同名物体,且可以叠加*/
-                    index = i;
-                    add = itemData.Item_Count;
+                    if (itemDataList[i].Item_ID == resData.Item_ID)
+                    {
+                        Type type = Type.GetType("Item_" + itemDataList[i].Item_ID.ToString());
+                        ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(itemDataList[i], resData, config.Item_MaxCount, out ItemData newData, out resData);
+                        itemDataList[i] = newData;
+                    }
                 }
                 else
                 {
-                    /*背包里面有同名物体,不可叠加*/
-                    index = i;
-                    add = maxCount - itemDataList[i].Item_Count;
+                    if (resData.Item_Count > 0)
+                    {
+                        ItemData emptyData = resData;
+                        emptyData.Item_Count = 0;
+                        Type type = Type.GetType("Item_" + resData.Item_ID.ToString());
+                        ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(emptyData, resData, config.Item_MaxCount, out ItemData newData, out resData);
+                        itemDataList.Add(newData);
+                    }
                 }
-            }
-        }
-
-        if (index == -1)
-        {
-            /*背包里面无同名物体*/
-            if (itemDataList.Count < cellList.Count)
-            {
-                itemDataList.Add(itemData);
             }
         }
         else
         {
-            ItemData targetItem = itemDataList[index];
-            targetItem.Item_Count += add;
-            itemDataList[index] = targetItem;
-            /*如果还有剩余*/
-            itemData.Item_Count -= add;
-            if (itemData.Item_Count > 0 && itemDataList.Count < cellList.Count)
+            if (itemDataList.Count < cellList.Count)
             {
-                itemDataList.Add(itemData);
+                ItemData emptyData = resData;
+                emptyData.Item_Count = 0;
+                Type type = Type.GetType("Item_" + resData.Item_ID.ToString());
+                ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(emptyData, resData, config.Item_MaxCount, out ItemData newData, out resData);
+                itemDataList.Add(newData);
             }
         }
+        after = resData;
         ChangeInfoToTile();
-    }
-    /*计算*/
-    public override void Calculate(ItemData before, out ItemData after)
-    {
-        int index = -1;
-        int add = 0;
-        for (int i = 0; i < itemDataList.Count; i++)
-        {
-            if (itemDataList[i].Item_ID == before.Item_ID)
-            {
-                /*背包里面有同名物体*/
-                ItemConfig item = ItemConfigData.GetItemConfig(before.Item_ID);
-                int maxCount = item.Item_MaxCount;
-                if (before.Item_Count + itemDataList[i].Item_Count <= maxCount)
-                {
-                    /*背包里面有同名物体,且可以叠加*/
-                    index = i;
-                    add = before.Item_Count;
-                }
-                else
-                {
-                    /*背包里面有同名物体,不可叠加*/
-                    index = i;
-                    add = maxCount - itemDataList[i].Item_Count;
-                }
-            }
-        }
-
-        if (index == -1)
-        {
-            if (itemDataList.Count < cellList.Count)
-            {
-                /*背包里面没有同名物体且背包未达上限*/
-                before.Item_Count = 0;
-            }
-        }
-        else
-        {
-            if (itemDataList.Count < cellList.Count)/*塞一个新的*/
-            {
-                before.Item_Count = 0;
-            }
-            else
-            {
-                before.Item_Count -= add;
-            }
-        }
-        after = before;
     }
 
 }

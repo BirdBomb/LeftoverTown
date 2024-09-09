@@ -28,6 +28,7 @@ public class MyTile : UnityEngine.Tilemaps.Tile
 
     [HideInInspector]
     public GameObject bindObj;
+
     #region//寻路相关
     /// <summary>
     /// 总权重
@@ -62,7 +63,7 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     /// <summary>
     /// 初始化
     /// </summary>
-    public virtual void InitTile(Vector2 posInWorld, Vector3Int posInCell, GameObject tileObj, MyTile tileScript)
+    public virtual void InitTile(Vector2 posInWorld, Vector3Int posInCell, GameObject tileObj, MyTile tileScript,Transform pool)
     {
         _posInWorld = posInWorld + new Vector2(0.5f, 0.5f);
         _posInCell = posInCell;
@@ -72,7 +73,7 @@ public class MyTile : UnityEngine.Tilemaps.Tile
 
         if (tileObj)
         {
-            bindObj = Instantiate(tileObj);
+            bindObj = Instantiate(tileObj, pool);
             bindObj.transform.position = posInWorld + new Vector2(0.5f, 0.5f);
             if (bindObj.TryGetComponent(out TileObj tile))
             {
@@ -140,11 +141,11 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     /// <summary>
     /// 唤醒瓦片
     /// </summary>
-    public virtual void InvokeTile(PlayerController player)
+    public virtual void InvokeTile(PlayerController player,KeyCode code)
     {
         if (bindObj && bindObj.TryGetComponent(out TileObj obj))
         {
-            obj.Invoke(player);
+            obj.Invoke(player, code);
         }
     }
     /// <summary>

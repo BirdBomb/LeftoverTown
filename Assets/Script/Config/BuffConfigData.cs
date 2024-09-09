@@ -50,7 +50,7 @@ public class BuffConfigData : MonoBehaviour
 }
 public struct BuffConfig
 {
-    public int Buff_ID;
+    public short Buff_ID;
     public string Buff_Name;
     public string Buff_Desc;
     public int Buff_Cost;

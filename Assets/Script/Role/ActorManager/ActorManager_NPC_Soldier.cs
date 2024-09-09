@@ -12,12 +12,11 @@ public class ActorManager_NPC_Soldier : ActorManager_NPC
         {
             if (attackTarget)
             {
-                if (OnlyState_Update_AttackingTimer(Time.fixedDeltaTime))
+                if (OnlyState_Update_CheckingAttackingTimer(Time.fixedDeltaTime))
                 {
                     if (OnlyState_Update_CheckingAttackingDistance(Time.fixedDeltaTime))
                     {
-                        NetManager.RPC_State_Attack(true);
-                        onlyState_attackCDTimer = config.Config_AttackCD;
+                        NetManager.RPC_State_NpcChangeAttackState(true);
                     }
                 }
             }
@@ -30,26 +29,6 @@ public class ActorManager_NPC_Soldier : ActorManager_NPC
         base.FixedUpdate();
     }
     #region//监听
-    public override void ListenWorldGlobalTimeChange_HighNoon()
-    {
-        base.ListenWorldGlobalTimeChange_HighNoon();
-    }
-    public override void ListenWorldGlobalTimeChange_Dusk()
-    {
-        if (onlyState_myBed)
-        {
-            FindWayToTarget(onlyState_myBed._posInWorld);
-        }
-        base.ListenWorldGlobalTimeChange_Dusk();
-    }
-    public override void ListenRoleMove_Me(ActorManager actor, MyTile where)
-    {
-        if (isState)
-        {
-
-        }
-        base.ListenRoleMove_Me(actor, where);
-    }
     public override void ListenRoleMove_Other(ActorManager actor, MyTile where)
     {
         if (isState)
@@ -57,24 +36,25 @@ public class ActorManager_NPC_Soldier : ActorManager_NPC
             if (OnlyState_TryLookAt(actor))
             {
                 /*我能看见他*/
-                OnlyState_CheckOutTarget(actor, out int handItemID, out int headItemID, out int bodyItemID);
+                OnlyState_CheckOutSomeone(actor, out short handItemID, out short headItemID, out short bodyItemID, out short fine);
                 if (attackTarget)
                 {
                     /*我已经有了目标*/
                     if (actor != attackTarget)
                     {
                         /*这个人不是我的攻击目标*/
-                        if (ItemConfigData.GetItemConfig(handItemID).Item_Type == ItemType.Weapon)
+                        if (CanIAttack(actor, handItemID, headItemID, bodyItemID, fine))
                         {
                             if (Vector3.Distance(transform.position, actor.transform.position) < Vector3.Distance(transform.position, attackTarget.transform.position) - 1)
                             {
                                 NetManager.RPC_LocalInput_SendEmoji(9);
-                                NetManager.RPC_State_ChangeAttackTarget(actor.NetManager.Object.Id);
+                                NetManager.RPC_State_NpcChangeAttackTarget(actor.NetManager.Object.Id);
                             }
                         }
                     }
                     else
                     {
+                        /*这个人是我的攻击目标*/
                         OnlyState_Follow(FollowType.Attack);
                     }
                 }
@@ -82,10 +62,10 @@ public class ActorManager_NPC_Soldier : ActorManager_NPC
                 {
                     /*我还没有目标*/
                     FaceTo(actor.transform.position - transform.position);
-                    if (ItemConfigData.GetItemConfig(handItemID).Item_Type == ItemType.Weapon)
+                    if (CanIAttack(actor, handItemID, headItemID, bodyItemID, fine))
                     {
                         NetManager.RPC_LocalInput_SendEmoji(9);
-                        NetManager.RPC_State_ChangeAttackTarget(actor.NetManager.Object.Id);
+                        NetManager.RPC_State_NpcChangeAttackTarget(actor.NetManager.Object.Id);
                     }
                 }
             }
@@ -94,14 +74,14 @@ public class ActorManager_NPC_Soldier : ActorManager_NPC
                 if (actor == attackTarget)
                 {
                     NetManager.RPC_LocalInput_SendEmoji(1);
-                    NetManager.RPC_State_ChangeAttackTarget(new NetworkId());
+                    NetManager.RPC_State_NpcChangeAttackTarget(new NetworkId());
                 }
             }
         }
         base.ListenRoleMove_Other(actor, where);
     }
     #endregion
-    #region//条件更新
+    #region//基类方法
     public override void FromRPC_ChangeAttackTarget(NetworkId id)
     {
         base.FromRPC_ChangeAttackTarget(id);
@@ -115,34 +95,55 @@ public class ActorManager_NPC_Soldier : ActorManager_NPC
             OnlyState_PutDown();
         }
     }
-    public override void OnlyState_TryUnderstand(ActorManager who, int id)
+    public override void OnlyState_TryUnderstand(ActorManager who, int id, bool look, bool hear)
     {
+        int emoji = -1;
         if (id == 2 || id == 3)
         {
-            StartCoroutine(SendEmoji(0.5f, 1));
+            emoji = 1;
         }
         else if (id == 4)
         {
-            StartCoroutine(SendEmoji(0.5f, 4));
+            emoji = 4;
             if (attackTarget == who)
             {
-                NetManager.RPC_State_ChangeAttackTarget(new NetworkId());
+                NetManager.RPC_State_NpcChangeAttackTarget(new NetworkId());
             }
         }
         else if (id == 5)
         {
-            StartCoroutine(SendEmoji(0.5f, 9));
-            NetManager.RPC_State_ChangeAttackTarget(who.NetManager.Object.Id);
+            emoji = 9;
+            NetManager.RPC_State_NpcChangeAttackTarget(who.NetManager.Object.Id);
         }
         else if (id == 12)
         {
-            StartCoroutine(SendEmoji(0.5f, 3));
+            emoji = 3;
         }
         else if (id == 16)
         {
-            StartCoroutine(SendEmoji(0.5f, 0));
+            emoji = 0;
+            FindWayToTarget(who.GetMyTile()._posInWorld);
         }
+        TryToSendEmoji(0.5f, emoji);
     }
     #endregion
+    #region//士兵专有方法
+    /// <summary>
+    /// 我应该攻击吗
+    /// </summary>
+    /// <returns>攻击</returns>
+    private bool CanIAttack(ActorManager actor, short inHand, short onHead, short onBody,short fine)
+    {
+        if (actor.NetManager.Data_Fine > 0)
+        {
+            CheckStatus(onBody, onHead, fine, out short id);
+            if (id != 1004)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    #endregion
 }

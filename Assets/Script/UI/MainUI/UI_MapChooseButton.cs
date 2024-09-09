@@ -3,16 +3,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using TMPro;
+using System;
+using static UnityEngine.InputManagerEntry;
 
 public class UI_MapChooseButton : MonoBehaviour
 {
     public Button btn_Create;
     public Button btn_Choose;
-    public Button btn_Del;
-    public Image image_Head;
-    private string _data;
-    private string _path;
-    private UI_ActorShowPanel _actorShow;
+    public Button btn_Delete;
+    public TextMeshProUGUI text_MapName;
+
+    [HideInInspector]
+    public string bind_Data;
+    [HideInInspector]
+    public string bind_BuildInfoPath;
+    [HideInInspector]
+    public string bind_BuildTypePath;
+    [HideInInspector]
+    public string bind_FloorTypePath;
+
+    private Action<UI_MapChooseButton> chooseAction;
+    private Action<UI_MapChooseButton> createAction;
+    private Action<UI_MapChooseButton> deleteAction;
+
     public void Start()
     {
         Bind();
@@ -21,38 +35,51 @@ public class UI_MapChooseButton : MonoBehaviour
     {
         btn_Create.onClick.AddListener(Create);
         btn_Choose.onClick.AddListener(Choose);
-        btn_Del.onClick.AddListener(Del);
+        btn_Delete.onClick.AddListener(Delete);
     }
-    public void InitByPlayer(string data, string path, UI_ActorShowPanel actorShow)
+    public void Init(string data, string buildInfoPath, string buildTypePath,string floorTypePath, Action<UI_MapChooseButton> choose, Action<UI_MapChooseButton> create, Action<UI_MapChooseButton> delete)
     {
-        btn_Choose.gameObject.SetActive(true);
-        btn_Create.gameObject.SetActive(false);
-        _data = data;
-        _path = path;
-        _actorShow = actorShow;
+        bind_Data = data;
+        bind_BuildInfoPath = buildInfoPath;
+        bind_BuildTypePath = buildTypePath;
+        bind_FloorTypePath = floorTypePath;
+
+        chooseAction = choose;
+        createAction = create;
+        deleteAction = delete;
+
+        if (data != "")
+        {
+            text_MapName.text = JsonConvert.DeserializeObject<MapTileInfoData>(data).name;
+            btn_Choose.gameObject.SetActive(true);
+            btn_Delete.gameObject.SetActive(true);
+            btn_Create.gameObject.SetActive(false);
+        }
+        else
+        {
+            btn_Choose.gameObject.SetActive(false);
+            btn_Delete.gameObject.SetActive(false);
+            btn_Create.gameObject.SetActive(true);
+        }
     }
-    public void InitByEmpty()
-    {
-        btn_Choose.gameObject.SetActive(false);
-        btn_Create.gameObject.SetActive(true);
-        _data = "";
-        _path = "";
-        _actorShow = null;
-    }
+
     public void Create()
     {
-
+        createAction.Invoke(this);
     }
     public void Choose()
     {
-        if (_actorShow)
-        {
-            _actorShow.Init(JsonConvert.DeserializeObject<PlayerData>(_data));
-        }
+        chooseAction.Invoke(this);
     }
-    public void Del()
+    public void Delete()
     {
-
+        deleteAction.Invoke(this);
+        FileManager.Instance.DeleteFile(bind_BuildInfoPath);
+        FileManager.Instance.DeleteFile(bind_BuildTypePath);
+        FileManager.Instance.DeleteFile(bind_FloorTypePath);
+        btn_Choose.gameObject.SetActive(false);
+        btn_Delete.gameObject.SetActive(false);
+        btn_Create.gameObject.SetActive(true);
     }
 
 }

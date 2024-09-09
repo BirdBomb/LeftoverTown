@@ -8,99 +8,116 @@ public class TileObj_BedPart : TileObj
     public GameObject Bed_Part;
     public GameObject Bed_V;
     public GameObject Bed_H;
-    [HideInInspector]
-    public TileObj_BedPart link;
-    private ActorManager onlyState_owner = null;
-    private string onlyState_ownerName = "";
+    private ActorManager owner = null;
     public void Start()
     {
-        LinkAround();
+        if (!linkAlready)
+        {
+            CheckAround("WoodBed_Part", true);
+        }
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
         {
-            ListenTimeUpdate();
+
         }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneFindTargetTile>().Subscribe(_ =>
+        {
+            if (_.id == 1005)
+            {
+                if(!owner) 
+                {
+                    if (Vector3.Distance(_.pos, transform.position) < _.distance)
+                    {
+                        BindOwner(_.actor);
+                        _.action(this);
+                    }
+                }
+            }
+        }).AddTo(this);
+    }
+
+    #region//信息更新与上传
+    public override void TryToChangeInfo(string info)
+    {
+        base.TryToChangeInfo(info);
     }
     public override void TryToUpdateInfo(string ownerName)
     {
-        onlyState_ownerName = ownerName;
-        if (onlyState_owner == null)
-        {
-            MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
-            {
-                name = onlyState_ownerName,
-                pos = transform.position - Vector3.up * 0.1f,
-                callBack = BindOwner
-            });
-        }
         base.TryToUpdateInfo(ownerName);
     }
+    #endregion
+    #region//床铺
+    /// <summary>
+    /// 绑定所有者
+    /// </summary>
+    /// <param name="actor"></param>
     public void BindOwner(ActorManager actor)
     {
-        onlyState_owner = actor;
-        onlyState_owner.onlyState_myBed = bindTile;
+        owner = actor;
     }
-    public void LinkAround()
+    #endregion
+    #region//连接
+    public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
     {
-        if (link == null)
+        Debug.Log(linkState);
+        if (!linkAlready && linkState != LinkState.NoneSide)
         {
-            if (MapManager.Instance.GetTileObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
+            if (linkToRight && linkToRight.BeLink(Vector2Int.left))
             {
-                if (tileObjUp.name == "WoodBed_Part(Clone)")
-                {
-                    if (tileObjUp.GetComponent<TileObj_BedPart>().link == null)
-                    {
-                        tileObjUp.GetComponent<TileObj_BedPart>().link = this;
-                        this.link = tileObjUp.GetComponent<TileObj_BedPart>();
-                        tileObjUp.GetComponent<TileObj_BedPart>().Bed_Part.SetActive(false);
-                        Bed_V.SetActive(true);
-                        Bed_Part.SetActive(false);
-                    }
-                }
+                linkAlready = true;
+                Bed_Part.SetActive(false);
+                Bed_H.SetActive(true);
             }
-            if (MapManager.Instance.GetTileObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
+            else if (linkToLeft && linkToLeft.BeLink(Vector2Int.right))
             {
-                if (tileObjDown.name == "WoodBed_Part(Clone)")
-                {
-                    if (tileObjDown.GetComponent<TileObj_BedPart>().link == null)
-                    {
-                        tileObjDown.GetComponent<TileObj_BedPart>().link = this;
-                        this.link = tileObjDown.GetComponent<TileObj_BedPart>();
-                        tileObjDown.GetComponent<TileObj_BedPart>().Bed_Part.SetActive(false);
-                        tileObjDown.GetComponent<TileObj_BedPart>().Bed_V.SetActive(true);
-                        Bed_Part.SetActive(false);
-                    }
-                }
+                linkAlready = true;
+                Bed_Part.SetActive(false);
             }
-            if (MapManager.Instance.GetTileObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
+            else if (linkToUp && linkToUp.BeLink(Vector2Int.down))
             {
-                if (tileObjRight.name == "WoodBed_Part(Clone)")
-                {
-                    if (tileObjRight.GetComponent<TileObj_BedPart>().link == null)
-                    {
-                        tileObjRight.GetComponent<TileObj_BedPart>().link = this;
-                        this.link = tileObjRight.GetComponent<TileObj_BedPart>();
-                        tileObjRight.GetComponent<TileObj_BedPart>().Bed_Part.SetActive(false);
-                        Bed_H.SetActive(true);
-                        Bed_Part.SetActive(false);
-                    }
-                }
-                Debug.Log(tileObjRight.name);
+                linkAlready = true;
+                Bed_Part.SetActive(false);
+                Bed_V.SetActive(true);
             }
-            if (MapManager.Instance.GetTileObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
+            else if (linkToDown && linkToDown.BeLink(Vector2Int.up))
             {
-                if (tileObjLeft.name == "WoodBed_Part(Clone)")
-                {
-                    if (tileObjLeft.GetComponent<TileObj_BedPart>().link == null)
-                    {
-                        tileObjLeft.GetComponent<TileObj_BedPart>().link = this;
-                        this.link = tileObjLeft.GetComponent<TileObj_BedPart>();
-                        tileObjLeft.GetComponent<TileObj_BedPart>().Bed_Part.SetActive(false);
-                        tileObjLeft.GetComponent<TileObj_BedPart>().Bed_H.SetActive(true);
-                        Bed_Part.SetActive(false);
-                    }
-                }
+                linkAlready = true;
+                Bed_Part.SetActive(false);
             }
         }
-
+        base.LinkAround(linkState, linkToUp, linkToDown, linkToLeft, linkToRight);
     }
+    public override bool BeLink(Vector2Int fromPos)
+    {
+        if (!linkAlready)
+        {
+            if (fromPos == Vector2Int.up)
+            {
+                linkAlready = true;
+                Bed_Part.SetActive(false);
+                Bed_V.SetActive(true);
+                return true;
+            }
+            if (fromPos == Vector2Int.down)
+            {
+                linkAlready = true;
+                Bed_Part.SetActive(false);
+                return true;
+            }
+            if (fromPos == Vector2Int.left)
+            {
+                linkAlready = true;
+                Bed_Part.SetActive(false);
+                return true;
+            }
+            if (fromPos == Vector2Int.right)
+            {
+                linkAlready = true;
+                Bed_Part.SetActive(false);
+                Bed_H.SetActive(true);
+                return true;
+            }
+        }
+        return base.BeLink(fromPos);
+    }
+    #endregion
 }

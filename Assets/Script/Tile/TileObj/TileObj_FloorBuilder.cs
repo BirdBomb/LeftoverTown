@@ -6,45 +6,85 @@ using UnityEngine;
 public class TileObj_FloorBuilder : TileObj
 {
     [SerializeField, Header("Singal")]
-    private GameObject obj_singal;
+    private GameObject obj_singalF;
     [SerializeField, Header("Build")]
     private GameObject obj_build;
-
-    public override void Invoke(PlayerController player)
+    [SerializeField, Header("建造UI")]
+    private UI_FloorBuilder uI_FloorBuilder;
+    #region//玩家交互
+    public override void Invoke(PlayerController player, KeyCode code)
     {
-        obj_build.SetActive(true);
-        obj_build.GetComponent<UI_FloorBuilder>().Open(this);
-        obj_build.GetComponent<UI_FloorBuilder>().UpdateInfoFromTile(info);
-        obj_singal.SetActive(false);
-
-        base.Invoke(player);
+        if (code == KeyCode.F)
+        {
+            OpenOrCloseSingal(obj_build.activeSelf);
+            OpenOrCloseBuildUI(!obj_build.activeSelf);
+        }
+        base.Invoke(player, code);
     }
-    public override void TryToUpdateInfo(string info)
+    private void OpenOrCloseSingal(bool open)
     {
-        obj_build.GetComponent<UI_FloorBuilder>().UpdateInfoFromTile(info);
-        base.TryToUpdateInfo(info);
+        obj_singalF.transform.DOKill();
+        if (open)
+        {
+            obj_singalF.SetActive(true);
+            obj_singalF.transform.localScale = Vector3.one;
+            obj_singalF.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+        }
+        else
+        {
+            obj_singalF.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
+            {
+                obj_singalF.SetActive(false);
+            });
+        }
     }
-
+    private void OpenOrCloseBuildUI(bool open)
+    {
+        if (open)
+        {
+            obj_build.transform.localScale = Vector3.one;
+            obj_build.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_build.SetActive(true);
+            uI_FloorBuilder.Open(this);
+            uI_FloorBuilder.UpdateInfoFromTile(info);
+        }
+        else
+        {
+            obj_build.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
+            {
+                obj_build.SetActive(false);
+            });
+            uI_FloorBuilder.Close(this);
+        }
+    }
     public override bool PlayerNearby(PlayerController player)
     {
         /*靠近是我自己*/
         if (player.thisPlayerIsMe)
         {
-            obj_singal.SetActive(true);
-            transform.DOKill();
-            transform.localScale = Vector3.one;
-            transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-
+            OpenOrCloseSingal(true);
             return true;
         }
         return false;
     }
     public override bool PlayerFaraway(PlayerController player)
     {
-        /*靠近的不是我自己*/
-        if (!player.thisPlayerIsMe) { return false; }
-        obj_singal.SetActive(false);
-        obj_build.SetActive(false);
+        /*离开是我自己*/
+        if (player.thisPlayerIsMe)
+        {
+            OpenOrCloseSingal(false);
+            OpenOrCloseBuildUI(false);
+            return true;
+        }
         return true;
     }
+    #endregion
+    #region//更新与上传
+    public override void TryToUpdateInfo(string info)
+    {
+        uI_FloorBuilder.UpdateInfoFromTile(info);
+        base.TryToUpdateInfo(info);
+    }
+    #endregion
 }
+
