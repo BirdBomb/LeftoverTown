@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 841fd20310c2ba74b887a80fe62be4a8, type: 3}
-  m_Name: WoodWall_0
+  m_Name: WoodWorkingBench
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 21300000, guid: db0f25797662ee143a872f39f0ec0ec1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 22ac82bdb9ca3f34ebe33d6c7afee1fc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1
@@ -33,13 +33,15 @@ MonoBehaviour:
     e33: 1
   m_InstancedGameObject: {fileID: 0}
   m_Flags: 1
-  m_ColliderType: 2
-  passType: 2
+  m_ColliderType: 0
+  m_Sprites: []
+  m_Preview: {fileID: 0}
+  passType: 0
   interactiveType: 0
-  passOffset: 99
-  x: 5
-  y: 7
-  pos: {x: 5, y: 7}
+  passOffset: 0
+  _posInWorld: {x: 0, y: 0}
+  _posInCell: {x: 0, y: 0, z: 0}
+  bindObj: {fileID: 0}
   _temp_DistanceMain: 0
   _temp_DistanceToFrom: 0
   _temp_DistanceToTarget: 0

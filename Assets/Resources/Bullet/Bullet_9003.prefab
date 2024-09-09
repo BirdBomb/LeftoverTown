@@ -59,7 +59,7 @@ MonoBehaviour:
   bullet_Up: {fileID: 6301272907957791235}
   bullet_Down: {fileID: 7262733601969274396}
   speedOffset: 10
-  damageOffset: 10
+  damageOffset: 2
 --- !u!1 &5199270181708958086
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,11 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 8721843472562826823}
   - component: {fileID: 6114030997716344390}
-  - component: {fileID: 3210479287355351718}
   - component: {fileID: 8881614893855585948}
   - component: {fileID: 1471297938197209122}
   m_Layer: 11
-  m_Name: Tree_0
+  m_Name: Tree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -87,44 +86,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &3210479287355351718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 223198607764510710}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ShadowGroup: 0
-  m_ComponentVersion: 1
-  m_HasRenderer: 1
-  m_UseRendererSilhouette: 1
-  m_CastsShadows: 1
-  m_SelfShadows: 0
-  m_ApplyToSortingLayers: 0000000013754321
-  m_ShapePath:
-  - {x: -0.56655693, y: -0.5225556, z: 0}
-  - {x: -0.5705123, y: -0.30376303, z: 0}
-  - {x: -0.20830214, y: -0.30242312, z: 0}
-  - {x: -0.1430819, y: -0.23409724, z: 0}
-  - {x: 0.12711656, y: -0.23099136, z: 0}
-  - {x: 0.19544256, y: -0.30863476, z: 0}
-  - {x: 0.5799198, y: -0.31269217, z: 0}
-  - {x: 0.5638077, y: -0.5274577, z: 0}
-  - {x: 0.20107567, y: -0.52014065, z: 0}
-  - {x: 0.13345754, y: -0.64035106, z: 0}
-  - {x: -0.1332587, y: -0.6253246, z: 0}
-  - {x: -0.21590316, y: -0.520141, z: 0}
-  m_ShapePathHash: 1536472321
-  m_Mesh: {fileID: 0}
-  m_InstanceId: 33974
-  m_LocalBounds:
-    m_Center: {x: 0.00470376, y: -0.4356712, z: 0}
-    m_Extent: {x: 0.57521605, y: 0.20467985, z: 0}
 --- !u!61 &8881614893855585948
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -187,17 +148,9 @@ MonoBehaviour:
   MaxHp: 15
   Armor: 0
   LootList:
-  - Item:
-      Item_ID: 0
-      Item_Seed: 0
-      Item_Count: 0
-      Item_Val: 0
+  - ID: 1001
     Weight: 100
-  - Item:
-      Item_ID: 0
-      Item_Seed: 0
-      Item_Count: 0
-      Item_Val: 0
+  - ID: 1006
     Weight: 20
   LootCount: 2
   info: 

@@ -1040,7 +1040,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6059930380166377277}
   - component: {fileID: 2022657539192607843}
-  - component: {fileID: 3326612246029564930}
   - component: {fileID: 1396025594704316764}
   - component: {fileID: 6256712466871839779}
   - component: {fileID: 3222013810136728508}
@@ -1120,51 +1119,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.5}
-  m_EdgeRadius: 0
---- !u!61 &3326612246029564930
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5344209725395026795}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.75}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.75, y: 1.5}
   m_EdgeRadius: 0
 --- !u!50 &1396025594704316764
 Rigidbody2D:
@@ -1249,8 +1203,6 @@ MonoBehaviour:
   Hand_RightItem: {fileID: 4659562439935735061}
   Hand_LeftItem: {fileID: 4687643200630205078}
   Head_Item: {fileID: 2456220067808556946}
-  Head_Hair: {fileID: 3021659447948503902}
-  Head_Eye: {fileID: 5979455860914326337}
   Body_Item: {fileID: 5538097259606671428}
   Animator_Head: {fileID: 2107887346306368779}
   AnimaEventListen_Head: {fileID: 4700032786192033993}
@@ -1306,17 +1258,23 @@ MonoBehaviour:
       Item_ID: 0
       Item_Seed: 0
       Item_Count: 0
-      Item_Val: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
     HeadItem:
       Item_ID: 0
       Item_Seed: 0
       Item_Count: 0
-      Item_Val: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
     BodyItem:
       Item_ID: 0
       Item_Seed: 0
       Item_Count: 0
-      Item_Val: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
     SkillKnowList: 
     SkillUseList: 
     BuffList: 
@@ -1409,7 +1367,8 @@ MonoBehaviour:
   _Data_CurSan: 0
   _Data_MaxSan: 0
   _Data_Happy: 0
-  _Data_En: 0
+  _Data_MaxEn: 0
+  _Data_CurEn: 0
   _Data_EnRelease: 0
   _Data_Point_Strength: 0
   _Data_Point_Intelligence: 0
@@ -1420,36 +1379,49 @@ MonoBehaviour:
   _Data_Point_Build: 0
   _Data_Point_Cook: 0
   _Data_ItemInBag: []
+  _Data_BagCapacity: 0
   _Data_ItemInHand:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
   Last_ItemInHand:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
   _Data_ItemOnHead:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
   Last_ItemOnHead:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
   _Data_ItemOnBody:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
   Last_ItemOnBody:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
   _Data_Buffs: 
   _Data_SkillKnow: 
   _Data_SkillUse: 

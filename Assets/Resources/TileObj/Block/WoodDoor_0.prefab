@@ -55,12 +55,16 @@ MonoBehaviour:
   LootList: []
   LootCount: 0
   info: 
+  linkAlready: 0
+  linkFrom: {fileID: 0}
   ui_Unlock: {fileID: 5299021380619734367}
+  text_Unlock: {fileID: 5931847018814307302}
   ui_Lock: {fileID: 2852986071424804728}
   ui_Bar: {fileID: 5008216076648415523}
   obj_door_Open: {fileID: 7084365283948227318}
   obj_door_Close: {fileID: 1834688590796754361}
   obj_door_Lock: {fileID: 1799780511152697632}
+  lockPro: 22
 --- !u!1 &1799780511152697632
 GameObject:
   m_ObjectHideFlags: 0
@@ -412,7 +416,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 103}
+  m_AnchoredPosition: {x: 0, y: 114}
   m_SizeDelta: {x: 40, y: 52}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8378279642515278694
@@ -562,8 +566,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 18.8, y: 9}
-  m_SizeDelta: {x: 61.63, y: 30}
+  m_AnchoredPosition: {x: 18, y: 8}
+  m_SizeDelta: {x: 60, y: 24.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6293644901969129323
 CanvasRenderer:
@@ -595,7 +599,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 24
+    m_FontSize: 20
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 2
@@ -606,7 +610,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 99%
+  m_Text: 100%
 --- !u!1 &5299021380619734367
 GameObject:
   m_ObjectHideFlags: 0
@@ -643,7 +647,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 103}
+  m_AnchoredPosition: {x: 0, y: 128}
   m_SizeDelta: {x: 112, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8847432692106653659
@@ -674,7 +678,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: fc3ee7c9536779f4e8cea37791f25947, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 662ef09d4329e204ca8a39768bee1524, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

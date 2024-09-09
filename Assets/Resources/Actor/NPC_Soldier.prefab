@@ -525,7 +525,7 @@ SpriteRenderer:
   m_SortingLayerID: 680613467
   m_SortingLayer: 1
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: 6f6a3bdded8269a4abae3aa2094b3e2b, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -533,7 +533,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2254144686477851356
@@ -694,7 +694,7 @@ SpriteRenderer:
   m_SortingLayerID: 680613467
   m_SortingLayer: 1
   m_SortingOrder: 5
-  m_Sprite: {fileID: 21300000, guid: 0382144f9179cfc429c74b6e7f4488d7, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -702,7 +702,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2867425175812917154
@@ -775,19 +775,18 @@ MonoBehaviour:
   face: {x: 0, y: 0}
   tempPath: []
   targetTile: {fileID: 0}
-  attackState: 0
   config:
-    Config_Hp: 0
-    Config_MaxHp: 0
-    Config_Speed: 0
-    Config_MaxSpeed: 0
-    Config_Endurance: 0
+    Config_Hp: 50
+    Config_Armor: 0
+    Config_Speed: 40
+    Config_Endurance: 100
+    Config_Hat: 5002
+    Config_Clothes: 5001
+    Config_BagList: d707
     Config_LootCount: 0
     Config_LootList: []
-    Config_BagCount: 0
-    Config_BagList: []
-    Config_AttackCD: 0
-    Config_View: 0
+    Config_AttackCD: 2
+    Config_View: 10
     Config_Courage: 0
 --- !u!114 &7964058090080186231
 MonoBehaviour:
@@ -813,8 +812,6 @@ MonoBehaviour:
   Hand_RightItem: {fileID: 4600643322571010172}
   Hand_LeftItem: {fileID: 2163034111697260581}
   Head_Item: {fileID: 6969192100663231132}
-  Head_Hair: {fileID: 0}
-  Head_Eye: {fileID: 0}
   Body_Item: {fileID: 3884887897447303710}
   Animator_Head: {fileID: 2812944113391369514}
   AnimaEventListen_Head: {fileID: 3043538101650264681}
@@ -890,7 +887,9 @@ MonoBehaviour:
   _Data_CurSan: 0
   _Data_MaxSan: 0
   _Data_Happy: 0
-  _Data_En: 0
+  _Data_Coin: 0
+  _Data_MaxEn: 0
+  _Data_CurEn: 0
   _Data_EnRelease: 0
   _Data_Point_Strength: 0
   _Data_Point_Intelligence: 0
@@ -901,36 +900,91 @@ MonoBehaviour:
   _Data_Point_Build: 0
   _Data_Point_Cook: 0
   _Data_ItemInBag: []
+  _Data_BagCapacity: 0
   _Data_ItemInHand:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
+    Item_Content:
+      Item_ID: 0
+      Item_Seed: 0
+      Item_Count: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
   Last_ItemInHand:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
+    Item_Content:
+      Item_ID: 0
+      Item_Seed: 0
+      Item_Count: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
   _Data_ItemOnHead:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
+    Item_Content:
+      Item_ID: 0
+      Item_Seed: 0
+      Item_Count: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
   Last_ItemOnHead:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
+    Item_Content:
+      Item_ID: 0
+      Item_Seed: 0
+      Item_Count: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
   _Data_ItemOnBody:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
+    Item_Content:
+      Item_ID: 0
+      Item_Seed: 0
+      Item_Count: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
   Last_ItemOnBody:
     Item_ID: 0
     Item_Seed: 0
     Item_Count: 0
-    Item_Val: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_DurabilityPoint: 0
+    Item_Content:
+      Item_ID: 0
+      Item_Seed: 0
+      Item_Count: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
   _Data_Buffs: 
   _Data_SkillKnow: 
   _Data_SkillUse: 
@@ -1554,7 +1608,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
   m_SortingLayer: 1
-  m_SortingOrder: 4
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 47f5b63d10634754f94e06efdc4cbdc8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1772,7 +1826,7 @@ SpriteRenderer:
   m_SortingLayerID: 680613467
   m_SortingLayer: 1
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 0b60de6f2d6cd0043ba2a77b3595d911, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0b309dc0a922fe24d8129af239f880f8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1878,7 +1932,7 @@ SpriteRenderer:
   m_SortingLayerID: 680613467
   m_SortingLayer: 1
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 3be312d630ed2184f8f9f1b3962dfaa3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 94ff3d4132ebba94e8496914b370eca4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

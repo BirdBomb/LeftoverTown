@@ -142,8 +142,8 @@ MonoBehaviour:
     m_Bits: 1089
   bullet_Up: {fileID: 6343754269742602848}
   bullet_Down: {fileID: 8770896344107528377}
-  speedOffset: 0
-  damageOffset: 0
+  speedOffset: 5
+  damageOffset: 1
 --- !u!1 &8439158991072856255
 GameObject:
   m_ObjectHideFlags: 0

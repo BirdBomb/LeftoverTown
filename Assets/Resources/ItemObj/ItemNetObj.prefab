@@ -209,16 +209,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 3987010938153933470}
   root: {fileID: 5988308554712546337}
-  config:
+  _data:
     Item_ID: 0
-    Item_Name: 
-    Item_Desc: 
-    Item_CurCount: 0
-    Item_MaxCount: 0
-    Item_Type: 0
-    Average_Weight: 0
-    Average_Value: 0
-    Item_Info: 
+    Item_Seed: 0
+    Item_Count: 0
+    Item_Val: 0
+  target:
+    serializedVersion: 2
+    m_Bits: 1089
 --- !u!210 &5988308554712546337
 SortingGroup:
   m_ObjectHideFlags: 0
