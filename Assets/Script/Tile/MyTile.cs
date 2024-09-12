@@ -11,8 +11,6 @@ using static UnityEngine.Tilemaps.Tile;
 public class MyTile : UnityEngine.Tilemaps.Tile
 {
     #region
-    public Sprite[] m_Sprites;
-    public Sprite m_Preview;
 
     [Header("瓦片通行类型")]
     public TilePassType passType;
@@ -51,6 +49,9 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     [HideInInspector]
     public MyTile _temp_fatherTile;
 
+    /// <summary>
+    /// 重置路径信息
+    /// </summary>
     public void ResetTilePathInfo()
     {
         _temp_DistanceToFrom = 0;
@@ -61,7 +62,7 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     }
     #endregion
     /// <summary>
-    /// 初始化
+    /// 初始地块
     /// </summary>
     public virtual void InitTile(Vector2 posInWorld, Vector3Int posInCell, GameObject tileObj, MyTile tileScript,Transform pool)
     {
@@ -69,7 +70,6 @@ public class MyTile : UnityEngine.Tilemaps.Tile
         _posInCell = posInCell;
 
         CopyData(tileScript);
-        DrawTile(tileScript);
 
         if (tileObj)
         {
@@ -81,6 +81,10 @@ public class MyTile : UnityEngine.Tilemaps.Tile
             }
         }
     }
+    /// <summary>
+    /// 复制地块
+    /// </summary>
+    /// <param name="tileScript"></param>
     private void CopyData(MyTile tileScript)
     {
         name = tileScript.name;
@@ -90,52 +94,6 @@ public class MyTile : UnityEngine.Tilemaps.Tile
         color = tileScript.color;
         flags = tileScript.flags;
         colliderType = tileScript.colliderType;
-    }
-    /// <summary>
-    /// 绘制
-    /// </summary>
-    public virtual void DrawTile(MyTile tileScript)
-    {
-        if (tileScript.m_Sprites != null && tileScript.m_Sprites.Length > 0)
-        {
-            sprite = tileScript.m_Sprites[UnityEngine.Random.Range(0, tileScript.m_Sprites.Length)];
-        }
-        else
-        {
-            sprite = tileScript.sprite;
-        }
-    }
-    /// <summary>
-    /// 读取瓦片
-    /// </summary>
-    public virtual void LoadTile(string json)
-    {
-        if(bindObj && bindObj.TryGetComponent(out TileObj obj))
-        {
-            obj.Init(this); 
-            obj.Load(json);
-        }
-    }
-    /// <summary>
-    /// 保存瓦片
-    /// </summary>
-    public virtual void SaveTile(out string json)
-    {
-        if (bindObj && bindObj.TryGetComponent(out TileObj obj))
-        {
-            obj.Save(out json);
-        }
-        else
-        {
-            json = string.Empty;
-        }
-    }
-    /// <summary>
-    /// 更新瓦片
-    /// </summary>
-    public virtual void UpdateTile(string json)
-    {
-
     }
 
     /// <summary>
@@ -171,10 +129,85 @@ public class MyTile : UnityEngine.Tilemaps.Tile
         }
         return false;
     }
+    /// <summary>
+    /// 持有瓦片
+    /// </summary>
+    /// <param name="who"></param>
+    /// <returns></returns>
+    public virtual bool HoldingTileByPlayer(PlayerController who)
+    {
+        if (bindObj && bindObj.TryGetComponent(out TileObj obj))
+        {
+            return obj.PlayerHolding(who);
+        }
+        return false;
+    }
+    /// <summary>
+    /// 释放瓦片
+    /// </summary>
+    /// <param name="who"></param>
+    /// <returns></returns>
+    public virtual bool ReleaseTileByPlayer(PlayerController who)
+    {
+        if (bindObj && bindObj.TryGetComponent(out TileObj obj))
+        {
+            return obj.PlayerRelease(who);
+        }
+        return false;
+    }
+
     #endregion
+    #region//弃用
+    //public Sprite[] m_Sprites;
+    //public Sprite m_Preview;
+    ///// <summary>
+    ///// 绘制地块
+    ///// </summary>
+    ///// <param name="tileConfig"></param>
+    ///// <returns></returns>
+    //public virtual void DrawTile(MyTile tileConfig)
+    //{
+    //    if (tileConfig.m_Sprites != null && tileConfig.m_Sprites.Length > 0)
+    //    {
+    //        sprite = tileConfig.m_Sprites[UnityEngine.Random.Range(0, tileConfig.m_Sprites.Length)];
+    //    }
+    //    else
+    //    {
+    //        sprite = tileConfig.sprite;
+    //    }
+    //}
+    ///// <summary>
+    ///// 读取瓦片
+    ///// </summary>
+    //public virtual void LoadTile(string json)
+    //{
+    //    if (bindObj && bindObj.TryGetComponent(out TileObj obj))
+    //    {
+    //        obj.Init(this);
+    //        obj.Load(json);
+    //    }
+    //}
+    ///// <summary>
+    ///// 保存瓦片
+    ///// </summary>
+    //public virtual void SaveTile(out string json)
+    //{
+    //    if (bindObj && bindObj.TryGetComponent(out TileObj obj))
+    //    {
+    //        obj.Save(out json);
+    //    }
+    //    else
+    //    {
+    //        json = string.Empty;
+    //    }
+    //}
+    ///// <summary>
+    ///// 更新瓦片
+    ///// </summary>
+    //public virtual void UpdateTile(string json)
+    //{
 
-
-    //#region
+    //}
 
     //// 刷新自身以及其他以正交和对角形式相邻的 RoadTile
     //public override void RefreshTile(Vector3Int location, ITilemap tilemap)
@@ -260,7 +293,7 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     //    }
     //    return Quaternion.Euler(0f, 0f, 0f);
     //}
-    //#endregion
+    #endregion
 
 #if UNITY_EDITOR
     // 下面是添加菜单项以创建 RoadTile 资源的 helper 函数

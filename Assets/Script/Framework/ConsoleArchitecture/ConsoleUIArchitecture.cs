@@ -440,7 +440,6 @@ public class ConsoleFloorListSystem : IConsoleFloorListSystem
         var iconCount = this.GetModel<IConsoleDataModle>().IconListCount;
         List<FloorConfig> tileTargetConfigs = FloorConfigData.floorConfigs;
         int startIndex = iconCount * page + index;
-        Debug.Log(startIndex.ToString());
         if (tileTargetConfigs.Count > startIndex)
         {
             int floorID = tileTargetConfigs[startIndex].Floor_ID;

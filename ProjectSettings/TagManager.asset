@@ -18,7 +18,7 @@ TagManager:
   - ItemObj
   - TileObj_Wall
   - TileObj_Furniture
-  - 
+  - TileObj_Floor
   - 
   - 
   - 
@@ -41,6 +41,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Ground
+    uniqueID: 2286351593
     locked: 0
   - name: OnGround
     uniqueID: 680613467

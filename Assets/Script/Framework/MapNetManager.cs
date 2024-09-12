@@ -150,8 +150,8 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="height"></param>
     private void Local_ReceiveBuildTypeData(int[] tileList, Vector3Int center, int width, int height)
     {
-        //Debug.Log("收到服务器地图信息(建筑类别)/中心" + center + "尺寸" + width + "/" + height);
-        if (MapManager.Instance.AddNewAreaInMap(center, width, height))
+        Debug.Log("收到服务器地图信息(建筑类别)/中心" + center + "尺寸" + width + "/" + height);
+        if (MapManager.Instance.AddNewAreaInBuildingMap(center, width, height))
         {
             int index = 0;
             for (int x = -width / 2; x < width / 2; x++)
@@ -202,13 +202,17 @@ public class MapNetManager : NetworkBehaviour
     private void Local_ReceiveFloorTypeData(int[] tileList, Vector3Int center, int width, int height)
     {
         Debug.Log("收到服务器地图信息(地块类别)/中心" + center + "尺寸" + width + "/" + height);
-        int index = 0;
-        for (int x = -width / 2; x < width / 2; x++)
+
+        if (MapManager.Instance.AddNewAreaInFloorMap(center, width, height))
         {
-            for (int y = -height / 2; y < height / 2; y++)
+            int index = 0;
+            for (int x = -width / 2; x < width / 2; x++)
             {
-                MapManager.Instance.CreateFloor(new Vector3Int(center.x + x, center.y + y, 0), tileList[index]);
-                index++;
+                for (int y = -height / 2; y < height / 2; y++)
+                {
+                    MapManager.Instance.CreateFloor(new Vector3Int(center.x + x, center.y + y, 0), tileList[index]);
+                    index++;
+                }
             }
         }
     }

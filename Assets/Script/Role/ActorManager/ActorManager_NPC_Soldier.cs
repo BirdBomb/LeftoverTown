@@ -36,7 +36,7 @@ public class ActorManager_NPC_Soldier : ActorManager_NPC
             if (OnlyState_TryLookAt(actor))
             {
                 /*我能看见他*/
-                OnlyState_CheckOutSomeone(actor, out short handItemID, out short headItemID, out short bodyItemID, out short fine);
+                CheckOutSomeone(actor, out short handItemID, out short headItemID, out short bodyItemID, out short fine);
                 if (attackTarget)
                 {
                     /*我已经有了目标*/

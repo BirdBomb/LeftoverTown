@@ -26,3 +26,25 @@ public class Item_5003 : ItemBase_Clothes
 {
 
 }
+/// <summary>
+/// 草帽
+/// </summary>
+public class Item_5004 : ItemBase_Clothes
+{
+
+}
+/// <summary>
+/// 抓痕盔
+/// </summary>
+public class Item_5005 : ItemBase_Clothes
+{
+
+}
+/// <summary>
+/// 制式防护衣
+/// </summary>
+public class Item_5006 : ItemBase_Clothes
+{
+
+}
+

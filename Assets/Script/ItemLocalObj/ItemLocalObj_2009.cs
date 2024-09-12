@@ -5,17 +5,25 @@ using UnityEngine;
 
 public class ItemLocalObj_2009 : ItemLocalObj
 {
+    public Transform rightHand;
     public Transform sprite;
     public Transform muzzle;
-    public Transform rightHand;
     public void Shoot()
     {
-        GameObject obj = PoolManager.Instance.GetObject("Effect/Effect_MuzzleFire101");
-        obj.transform.SetParent(muzzle);
-        obj.transform.localPosition = Vector3.zero;
-        obj.transform.localRotation = Quaternion.identity;
+        GameObject muzzleFire101 = PoolManager.Instance.GetObject("Effect/Effect_MuzzleFire101");
+        muzzleFire101.transform.SetParent(muzzle);
+        muzzleFire101.transform.localScale = Vector3.one;
+        muzzleFire101.transform.localPosition = Vector3.zero;
+        muzzleFire101.transform.localRotation = Quaternion.identity;
+
+        GameObject muzzleSmoke = PoolManager.Instance.GetObject("Effect/Effect_MuzzleSmoke");
+        muzzleSmoke.transform.localScale = Vector3.one;
+        muzzleSmoke.transform.position = muzzle.position;
+        muzzleSmoke.transform.rotation = Quaternion.identity;
         AudioManager.Instance.PlayEffect(1001, transform);
+
         sprite.DOPunchPosition(new Vector3(-0.2f, -0.2f, 0), 0.2f);
+
     }
     public void Dull()
     {

@@ -9,12 +9,15 @@ public class NavManager : MonoBehaviour
 {
     public Tilemap tilemap;
     public Grid grid;
-    public int listCount;
-    [HideInInspector]
-    public List<MyTile> openList = new List<MyTile>();
-    [HideInInspector]
-    public List<MyTile> closeList = new List<MyTile>();
-
+    //private int maxStep = 16;
+    /// <summary>
+    /// 未选中列表
+    /// </summary>
+    private List<MyTile> openList = new List<MyTile>();
+    /// <summary>
+    /// 选中列表
+    /// </summary>
+    private List<MyTile> closeList = new List<MyTile>();
     public MyTile FindTileByPos(Vector2 pos)
     {
         return (MyTile)tilemap.GetTile(grid.WorldToCell(pos));
@@ -24,22 +27,23 @@ public class NavManager : MonoBehaviour
         if (to.passType == TilePassType.PassStop)
         {
             Debug.Log("无法前往目标点");
+            from.ResetTilePathInfo();
             return new List<MyTile> { from, from };
         }
         if (to._posInWorld == from._posInWorld)
         {
             Debug.Log("原地前进");
+            from.ResetTilePathInfo();
             return new List<MyTile> { from, from };
         }
         openList.Clear();
         closeList.Clear();
-
         openList.Add(to);
 
         to.ResetTilePathInfo();
         from.ResetTilePathInfo();
 
-        while (openList.Count > 0)
+        while (openList.Count > 0 /*&& closeList.Count < maxStep*/)
         {
             MyTile minTile = FindMinTile(openList);
 
@@ -48,12 +52,12 @@ public class NavManager : MonoBehaviour
 
             List<MyTile> surroundTiles = FindSurroundTile(minTile);
             SurroundTileFilter(surroundTiles, closeList);
-
             foreach(MyTile surroundTile in surroundTiles)
             {
-                /*如果在openlist里有周围的格子*/
+                /*遍历周围的格子*/
                 if (openList.Contains(surroundTile))
                 {
+                    /*这个格子已经被添加到未选择列表，更新路径数据*/
                     float newPathG = CalcG(surroundTile, minTile);
                     if (newPathG < surroundTile._temp_DistanceToFrom)
                     {
@@ -62,9 +66,9 @@ public class NavManager : MonoBehaviour
                         surroundTile._temp_fatherTile = minTile;
                     }
                 }
-                /*如果在openlist没有周围的格子*/
                 else
                 {
+                    /*这个格子还未被添加到未选择列表，添加到选择列表*/
                     surroundTile.ResetTilePathInfo();
                     surroundTile._temp_fatherTile = minTile;
                     CalcF(surroundTile, from);
@@ -75,12 +79,34 @@ public class NavManager : MonoBehaviour
             {
                 break;
             }
-
         }
-        return ShowPath(to,from);
+        return CreatePath(to,from);
     }
+    private List<MyTile> CreatePath(MyTile start, MyTile end)
+    {
+        List<MyTile> pathList = new List<MyTile>();
+        MyTile temp = end;
+        while (true)
+        {
+            if (temp._temp_fatherTile == null)
+            {
+                break;
+            }
+            else
+            {
+                pathList.Add(temp._temp_fatherTile);
+                temp = temp._temp_fatherTile;
+            }
+        }
+        foreach (MyTile tile in pathList)
+        {
+            tile.ResetTilePathInfo();
+        }
+        return pathList;
+    }
+
     /// <summary>
-    /// 在列表里找预计值最小的格子
+    /// 在未选中列表里找最近的格子
     /// </summary>
     /// <param name="tiles"></param>
     /// <returns></returns>
@@ -107,8 +133,8 @@ public class NavManager : MonoBehaviour
     {
         List<MyTile> list = new List<MyTile>();
 
-        MyTile up = null, down = null, right = null, left = null,
-            rightUp = null, leftUp = null, rightDown = null, leftDown = null;
+        MyTile up , down , right , left,
+            rightUp , leftUp , rightDown , leftDown;
 
         up = (MyTile)tilemap.GetTile(from._posInCell + Vector3Int.up);
         down = (MyTile)tilemap.GetTile(from._posInCell + Vector3Int.down);
@@ -179,7 +205,7 @@ public class NavManager : MonoBehaviour
         return list;
     }
     /// <summary>
-    /// 将已经进入关闭列表的格子移出周围格子
+    /// 将已经进入选中列表的格子移出周围格子
     /// </summary>
     /// <param name="surroundTiles"></param>
     /// <param name="closeTiles"></param>
@@ -225,21 +251,5 @@ public class NavManager : MonoBehaviour
         now._temp_DistanceMain = f;
         now._temp_DistanceToFrom = g;
         now._temp_DistanceToTarget = h;
-    }
-    List<MyTile> path = new List<MyTile>();
-    private List<MyTile> ShowPath(MyTile start,MyTile end)
-    {
-        path.Clear();
-        MyTile temp = end;
-        while(true)
-        {
-            path.Add(temp);
-            if(temp._temp_fatherTile == null)
-            {
-                break;
-            }
-            temp = temp._temp_fatherTile;
-        }
-        return path;
     }
 }

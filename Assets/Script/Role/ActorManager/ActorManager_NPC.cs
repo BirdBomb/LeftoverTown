@@ -286,20 +286,6 @@ public class ActorManager_NPC : ActorManager
         base.FromRPC_ChangeAttackTarget(id);
     }
     /// <summary>
-    /// 审视某人
-    /// </summary>
-    /// <param name="who"></param>
-    /// <param name="handItemID"></param>
-    /// <param name="headItemID"></param>
-    /// <param name="bodyItemID"></param>
-    public virtual void OnlyState_CheckOutSomeone(ActorManager who, out short handItemID, out short headItemID, out short bodyItemID,out short fine)
-    {
-        handItemID = who.NetManager.Data_ItemInHand.Item_ID;
-        headItemID = who.NetManager.Data_ItemOnHead.Item_ID;
-        bodyItemID = who.NetManager.Data_ItemOnBody.Item_ID;
-        fine = who.NetManager.Data_Fine;
-    }
-    /// <summary>
     /// 跟踪目标
     /// </summary>
     /// <param name="followType">跟踪方式</param>
@@ -307,7 +293,7 @@ public class ActorManager_NPC : ActorManager
     {
         if (attackTarget)
         {
-            Vector2 moveTo = Vector2.one;
+            Vector2 moveTo;
             if (followType == FollowType.RunAway)
             {
                 Vector3 attackTargetDir = attackTarget.transform.position - transform.position;
@@ -341,6 +327,7 @@ public class ActorManager_NPC : ActorManager
                 float attackDistance = holdingByHand == null ? 0 : holdingByHand.itemConfig.Attack_Distance;
                 if (targetDistance < attackDistance && attackDistance > 2)
                 {
+                    /*目标在自己的攻击范围内,远离目标*/
                     Vector3 attackTargetDir = attackTarget.transform.position - transform.position;
                     int toX = 0;
                     int toY = 0;
@@ -364,9 +351,9 @@ public class ActorManager_NPC : ActorManager
                 }
                 else
                 {
+                    /*目标不在自己的攻击范围内,走向目标*/
                     moveTo = attackTarget.GetMyTile()._posInWorld;
                 }
-
             }
             else
             {
@@ -417,20 +404,17 @@ public class ActorManager_NPC : ActorManager
     /// <returns>能否看到</returns>
     public virtual bool OnlyState_TryLookAt(ActorManager who)
     {
-        if (isState)
+        if (who != this)//这个人不是我
         {
-            if (who != this)//这个人不是我
+            if (Vector3.Distance(transform.position, who.transform.position) >= 10)
             {
-                if (Vector3.Distance(transform.position, who.transform.position) >= 10)
-                {
-                    return false;
-                }
-                if (Physics2D.LinecastAll(who.transform.position, transform.position, tileLayer).Length > 0)
-                {
-                    return false;
-                }
-                return true;
+                return false;
             }
+            if (Physics2D.LinecastAll(who.transform.position, transform.position, tileLayer).Length > 0)
+            {
+                return false;
+            }
+            return true;
         }
         return false;
     }
@@ -510,6 +494,23 @@ public class ActorManager_NPC : ActorManager
         yield return new WaitForSeconds(wait);
         NetManager.RPC_LocalInput_SendEmoji(id);
     }
+    #endregion
+    #region//通用方法
+    /// <summary>
+    /// 审视某人
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="handItemID"></param>
+    /// <param name="headItemID"></param>
+    /// <param name="bodyItemID"></param>
+    public virtual void CheckOutSomeone(ActorManager who, out short handItemID, out short headItemID, out short bodyItemID, out short fine)
+    {
+        handItemID = who.NetManager.Data_ItemInHand.Item_ID;
+        headItemID = who.NetManager.Data_ItemOnHead.Item_ID;
+        bodyItemID = who.NetManager.Data_ItemOnBody.Item_ID;
+        fine = who.NetManager.Data_Fine;
+    }
+
     #endregion
     /// <summary>
     /// 跟踪方式

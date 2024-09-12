@@ -27,14 +27,11 @@ public class ActorManager_NPC_Assistant : ActorManager_NPC
     }
     public override void ListenRoleCommit(ActorManager who, short val)
     {
-        if (isState)
+        if (OnlyState_TryLookAt(who))
         {
-            if (OnlyState_TryLookAt(who))
-            {
-                who.AddFine(val);
-                TryToSendEmoji(0.2f, 16);
-            }
+            who.AddFine(val);
         }
+        TryToSendEmoji(0.2f, 16);
         base.ListenRoleCommit(who, val);
     }
     public override void ListenRoleMove_Other(ActorManager actor, MyTile where)
@@ -46,7 +43,7 @@ public class ActorManager_NPC_Assistant : ActorManager_NPC
                 if (OnlyState_TryLookAt(actor))
                 {
                     rememberTarget.Add(actor);
-                    OnlyState_CheckOutSomeone(actor, out short handItemID, out short headItemID, out short bodyItemID, out short fine);
+                    CheckOutSomeone(actor, out short handItemID, out short headItemID, out short bodyItemID, out short fine);
                     CheckStatus(bodyItemID, headItemID, fine, out short id);
                     MeetSomeone(id, fine);
                 }

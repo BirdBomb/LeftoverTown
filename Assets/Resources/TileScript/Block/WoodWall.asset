@@ -39,6 +39,7 @@ MonoBehaviour:
   passType: 2
   interactiveType: 0
   passOffset: 99
+  needInstance: 1
   _posInWorld: {x: 0, y: 0}
   _posInCell: {x: 0, y: 0, z: 0}
   bindObj: {fileID: 0}

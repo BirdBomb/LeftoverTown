@@ -817,7 +817,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 52d70af3a604ea042af652ed8ebfee63, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -846,9 +846,10 @@ MonoBehaviour:
   CurHp: 0
   MaxHp: 0
   Armor: 0
+  info: 
+  linkAlready: 0
   LootList: []
   LootCount: 0
-  info: 
   uI_Grid_Fuel: {fileID: 5592752966900323856}
   uI_Grid_Barbecue: {fileID: 9212665327902447109}
   obj_singalF: {fileID: 2990679650942912506}
@@ -1027,7 +1028,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 3
   m_Sprite: {fileID: 871940666, guid: c637b57b1299fde43b66b2de3d7ceb63, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1060,7 +1061,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeIntensityEnabled: 0
-  m_ApplyToSortingLayers: 00000000137543215b569128
+  m_ApplyToSortingLayers: 00000000e9f446885b56912813754321
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -1161,7 +1162,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 2
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

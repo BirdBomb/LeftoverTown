@@ -11,7 +11,6 @@ public class ItemSystem2000
 /// <summary>
 /// 木斧头
 /// </summary>
-[Serializable]
 public class Item_2001 : ItemBase_Tool
 {
     private short attackDamage = 5;
@@ -123,7 +122,6 @@ public class Item_2001 : ItemBase_Tool
 /// <summary>
 /// 铁斧头
 /// </summary>
-[Serializable]
 public class Item_2002 : ItemBase_Tool
 {
     private short attackDamage = 7;
@@ -235,7 +233,6 @@ public class Item_2002 : ItemBase_Tool
 /// <summary>
 /// 粗制木弓
 /// </summary>
-[Serializable]
 public class Item_2003 : ItemBase_Gun
 {
     private bool attackState = false;
@@ -956,6 +953,7 @@ public class Item_2009 : ItemBase_Gun
             ItemConfig putInItemConfig = ItemConfigData.GetItemConfig(putInItemData.Item_ID);
             if (putInItemConfig.Item_ID == 9004)
             {
+                AudioManager.Instance.PlayEffect(1003);
                 Type type = Type.GetType("Item_" + putInItemData.Item_ID.ToString());
                 ((ItemBase)Activator.CreateInstance(type)).StaticAction_FillUp(itemData, putInItemData, 7, out newItemData, out residueItem);
             }
@@ -980,7 +978,7 @@ public class Item_2009 : ItemBase_Gun
         {
             if (inputData.rightPressTimer >= attackReadyTime)
             {
-                Shot(Mathf.Lerp(attackMaxRange, attackMinRange, (inputData.rightPressTimer - attackReadyTime) / attackAimTime), input);
+                TryToShot(Mathf.Lerp(attackMaxRange, attackMinRange, (inputData.rightPressTimer - attackReadyTime) / attackAimTime), input);
                 inputData.rightPressTimer = 0;
                 if (showSI)
                 {
@@ -1077,20 +1075,11 @@ public class Item_2009 : ItemBase_Gun
 
         base.InputMousePos(mouse, time);
     }
-    private void Shot(float offset, bool inputState)
+    private void TryToShot(float offset, bool inputState)
     {
-        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetManager.RandomInRange * 0.01f);
-        // 将角度转换为Quaternion
-        Quaternion randomRotation = Quaternion.Euler(0f, 0f, randomAngle);
-        // 将旋转应用到原始向量上
-        Vector3 offsetVector = randomRotation * (inputData.mousePosition.normalized);
         if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
         {
-            AddForce(2);
-            itemLocalObj_2009.Shoot();
-            GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + itemData.Item_Content.Item_ID);
-            obj.transform.position = owner.SkillSector.CenterPos;
-            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetManager);
+            Shot(offset);
             if (inputState)
             {
                 ItemData _oldItem = itemData;
@@ -1110,6 +1099,20 @@ public class Item_2009 : ItemBase_Gun
         {
             itemLocalObj_2009.Dull();
         }
+    }
+    private void Shot(float offset)
+    {
+        itemLocalObj_2009.Shoot();
+        AddForce(2);
+        //获得随机偏转角
+        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetManager.RandomInRange * 0.01f);
+        // 将角度转换为Quaternion
+        Quaternion randomRotation = Quaternion.Euler(0f, 0f, randomAngle);
+        // 将旋转应用到原始向量上
+        Vector3 offsetVector = randomRotation * (inputData.mousePosition.normalized);
+        GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + itemData.Item_Content.Item_ID);
+        obj.transform.position = itemLocalObj_2009.muzzle.position;
+        obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetManager);
     }
     private void AddForce(float force)
     {
@@ -1422,6 +1425,7 @@ public class Item_2012 : ItemBase_Gun
             ItemConfig putInItemConfig = ItemConfigData.GetItemConfig(putInItemData.Item_ID);
             if (putInItemConfig.Item_ID == 9004)
             {
+                AudioManager.Instance.PlayEffect(1003);
                 Type type = Type.GetType("Item_" + putInItemData.Item_ID.ToString());
                 ((ItemBase)Activator.CreateInstance(type)).StaticAction_FillUp(itemData, putInItemData, 30, out newItemData, out residueItem);
             }
@@ -1440,24 +1444,6 @@ public class Item_2012 : ItemBase_Gun
         }
         return residueItem;
     }
-    //public override void ClickLeftClick(float dt, bool state, bool input, bool showSI)
-    //{
-    //    if (owner)
-    //    {
-    //        if (rightPressTimer >= readyTime)
-    //        {
-    //            Shot(Mathf.Lerp(maxAngleRange, minAngleRange, (rightPressTimer - readyTime) / aimTime), input);
-    //            rightPressTimer = 0;
-    //            alreadyShot = true;
-    //            owner.BodyController.SetHandTrigger("Shoot_Play", 1, null);
-    //            if (showSI)
-    //            {
-    //                owner.SkillSector.Update_SIsector(rightPosition, 0, 0, 0); ;
-    //            }
-    //        }
-    //    }
-    //    base.ClickLeftClick(dt, state, input, showSI);
-    //}
 
     public override bool PressLeftClick(float dt, bool state, bool input, bool showSI)
     {
@@ -1469,7 +1455,7 @@ public class Item_2012 : ItemBase_Gun
                 if (inputData.leftPressTimer >= shootCD)
                 {
                     inputData.leftPressTimer = 0;
-                    Shot(Mathf.Lerp(attackMaxRange, attackMinRange, (inputData.rightPressTimer - attackReadyTime) / attackAimTime), input);
+                    TryToShot(Mathf.Lerp(attackMaxRange, attackMinRange, (inputData.rightPressTimer - attackReadyTime) / attackAimTime), input);
                     if (inputData.rightPressTimer >= attackReadyTime + 0.2f)
                     {
                         inputData.rightPressTimer -= 0.2f;
@@ -1571,21 +1557,11 @@ public class Item_2012 : ItemBase_Gun
 
         base.InputMousePos(mouse, time);
     }
-    private void Shot(float offset, bool inputState)
+    private void TryToShot(float offset, bool inputState)
     {
-        owner.NetManager.networkRigidbody.Rigidbody.velocity = -inputData.mousePosition.normalized * 2;
-        owner.NetManager.UpdateSeed();
-        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetManager.RandomInRange * 0.01f);
-        // 将角度转换为Quaternion
-        Quaternion randomRotation = Quaternion.Euler(0f, 0f, randomAngle);
-        // 将旋转应用到原始向量上
-        Vector3 offsetVector = randomRotation * (inputData.mousePosition.normalized);
         if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
         {
-            itemLocalObj_2012.Shoot();
-            GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + itemData.Item_Content.Item_ID);
-            obj.transform.position = itemLocalObj_2012.muzzle.position;
-            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetManager);
+            Shot(offset);
             if (inputState)
             {
                 ItemData _oldItem = itemData;
@@ -1606,7 +1582,25 @@ public class Item_2012 : ItemBase_Gun
             itemLocalObj_2012.Dull();
         }
     }
-
+    private void Shot(float offset)
+    {
+        itemLocalObj_2012.Shoot();
+        AddForce(1);
+        //获得随机偏转角
+        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetManager.RandomInRange * 0.01f);
+        // 将角度转换为Quaternion
+        Quaternion randomRotation = Quaternion.Euler(0f, 0f, randomAngle);
+        // 将旋转应用到原始向量上
+        Vector3 offsetVector = randomRotation * (inputData.mousePosition.normalized);
+        GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + itemData.Item_Content.Item_ID);
+        obj.transform.position = itemLocalObj_2012.muzzle.position;
+        obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetManager);
+    }
+    private void AddForce(float force)
+    {
+        owner.NetManager.networkRigidbody.Rigidbody.velocity = -inputData.mousePosition.normalized * force;
+        owner.NetManager.UpdateSeed();
+    }
 }
 /// <summary>
 /// 双手步枪
@@ -1634,7 +1628,6 @@ public class Item_2013 : ItemBase_Gun
         body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
         body.Hand_Right.GetComponent<SpriteRenderer>().enabled = false;
     }
-
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
         gridCell.grid_Child.OpenGrid(itemData, TryInPut);
@@ -1649,6 +1642,7 @@ public class Item_2013 : ItemBase_Gun
             ItemConfig putInItemConfig = ItemConfigData.GetItemConfig(putInItemData.Item_ID);
             if (putInItemConfig.Item_ID == 9004)
             {
+                AudioManager.Instance.PlayEffect(1003);
                 Type type = Type.GetType("Item_" + putInItemData.Item_ID.ToString());
                 ((ItemBase)Activator.CreateInstance(type)).StaticAction_FillUp(itemData, putInItemData, 30, out newItemData, out residueItem);
             }
@@ -1678,7 +1672,7 @@ public class Item_2013 : ItemBase_Gun
                 if (inputData.leftPressTimer >= shootCD)
                 {
                     inputData.leftPressTimer = 0;
-                    Shot(Mathf.Lerp(attackMaxRange, attackMinRange, (inputData.rightPressTimer - attackReadyTime) / attackAimTime), input);
+                    TryToShot(Mathf.Lerp(attackMaxRange, attackMinRange, (inputData.rightPressTimer - attackReadyTime) / attackAimTime), input);
                     if (inputData.rightPressTimer >= attackReadyTime + 0.2f)
                     {
                         inputData.rightPressTimer -= 0.2f;
@@ -1688,7 +1682,6 @@ public class Item_2013 : ItemBase_Gun
         }
         return base.PressLeftClick(dt, state, input, showSI);
     }
-
     public override bool PressRightClick(float dt, bool state, bool input, bool showSI)
     {
         if (owner && !alreadyShot)
@@ -1781,22 +1774,11 @@ public class Item_2013 : ItemBase_Gun
 
         base.InputMousePos(mouse, time);
     }
-    private void Shot(float offset, bool inputState)
+    private void TryToShot(float offset, bool inputState)
     {
-        owner.NetManager.networkRigidbody.Rigidbody.velocity = -inputData.mousePosition.normalized * 2;
-        owner.NetManager.UpdateSeed();
-        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetManager.RandomInRange * 0.01f);
-        // 将角度转换为Quaternion
-        Quaternion randomRotation = Quaternion.Euler(0f, 0f, randomAngle);
-        // 将旋转应用到原始向量上
-        Vector3 offsetVector = randomRotation * (inputData.mousePosition.normalized);
         if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
         {
-            itemLocalObj_2013.Shoot();
-            GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + itemData.Item_Content.Item_ID);
-            //obj.transform.position = owner.SkillSector.CenterPos;
-            obj.transform.position = itemLocalObj_2013.muzzle.position;
-            obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetManager);
+            Shot(offset);
             if (inputState)
             {
                 ItemData _oldItem = itemData;
@@ -1816,6 +1798,25 @@ public class Item_2013 : ItemBase_Gun
         {
             itemLocalObj_2013.Dull();
         }
+    }
+    private void Shot(float offset)
+    {
+        itemLocalObj_2013.Shoot();
+        AddForce(2);
+        //获得随机偏转角
+        float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, owner.NetManager.RandomInRange * 0.01f);
+        // 将角度转换为Quaternion
+        Quaternion randomRotation = Quaternion.Euler(0f, 0f, randomAngle);
+        // 将旋转应用到原始向量上
+        Vector3 offsetVector = randomRotation * (inputData.mousePosition.normalized);
+        GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + itemData.Item_Content.Item_ID);
+        obj.transform.position = itemLocalObj_2013.muzzle.position;
+        obj.GetComponent<BulletBase>().InitBullet(offsetVector, 10, owner.NetManager);
+    }
+    private void AddForce(float force)
+    {
+        owner.NetManager.networkRigidbody.Rigidbody.velocity = -inputData.mousePosition.normalized * force;
+        owner.NetManager.UpdateSeed();
     }
 
 }

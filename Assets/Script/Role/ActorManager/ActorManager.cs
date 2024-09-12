@@ -130,24 +130,6 @@ public class ActorManager : MonoBehaviour
 
     }
     /// <summary>
-    /// 监听玩家移动
-    /// </summary>
-    /// <param name="who"></param>
-    /// <param name="where"></param>
-    public virtual void ListenPlayerMove(ActorManager who, MyTile where)
-    {
-
-    }
-    /// <summary>
-    /// 监听NPC移动
-    /// </summary>
-    /// <param name="who"></param>
-    /// <param name="where"></param>
-    public virtual void ListenNPCMove(ActorManager who, MyTile where)
-    {
-
-    }
-    /// <summary>
     /// 监听某人做了什么事情
     /// </summary>
     /// <param name="who"></param>
@@ -400,9 +382,9 @@ public class ActorManager : MonoBehaviour
         tempTiles.Clear();
         MyTile tile = GetMyTile();
         tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell));
+        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.up));
         tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.right));
         tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.left));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.up));
         tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.down));
         return tempTiles;
     }
@@ -531,10 +513,9 @@ public class ActorManager : MonoBehaviour
         /*更新UI*/
         if (isPlayer && netManager.Object.HasInputAuthority)
         {
-            CheckStatus(netManager.Data_ItemOnBody.Item_ID, netManager.Data_ItemOnHead.Item_ID, netManager.Data_Fine, out short id);
             MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateStatus()
             {
-                statusId = id
+                statusId = NetManager.LocalData_Status
             });
             MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemOnHead()
             {
@@ -576,10 +557,9 @@ public class ActorManager : MonoBehaviour
         /*更新UI*/
         if (isPlayer && netManager.Object.HasInputAuthority)
         {
-            CheckStatus(netManager.Data_ItemOnBody.Item_ID, netManager.Data_ItemOnHead.Item_ID, netManager.Data_Fine, out short id);
             MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateStatus()
             {
-                statusId = id
+                statusId = NetManager.LocalData_Status
             });
             MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemOnBody()
             {
@@ -665,11 +645,14 @@ public class ActorManager : MonoBehaviour
                 if (tempPath.Count > 0)
                 {
                     /*路径还未结束*/
+                    targetTile = tempPath[0];
                     tempPath.RemoveAt(0);
-                    if (tempPath.Count > 0)
-                    {
-                        targetTile = tempPath[0];
-                    }
+
+                    //tempPath.RemoveAt(0);
+                    //if (tempPath.Count > 0)
+                    //{
+                    //    targetTile = tempPath[0];
+                    //}
                 }
                 else
                 {
@@ -681,8 +664,7 @@ public class ActorManager : MonoBehaviour
             }
             else
             {
-                /*到达路径点，前往路径点*/
-
+                /*还未到达路径点，前往路径点*/
                 Vector2 temp = Vector2.zero;
                 if (transform.position.x > targetTile._posInWorld.x)
                 {
@@ -727,24 +709,13 @@ public class ActorManager : MonoBehaviour
     /// <param name="targetPos"></param>
     public virtual void FindWayToTarget(Vector2 targetPos)
     {
+        tempPath.Clear();
         tempPath = navManager.FindPath(navManager.FindTileByPos(targetPos), GetMyTile());
-        if (tempPath != null)
+        if (tempPath.Count > 1)
         {
-            /*按照路径移动时会直接跳过第一个路径点，防止横跳*/
-            if (tempPath.Count > 1)
-            {
-                tempPath.RemoveAt(0);
-            }
             targetTile = tempPath[0];
+            tempPath.RemoveAt(0);
         }
-    }
-    public virtual void CalculatePath(Vector2 from, Vector2 to)
-    {
-        if (tempPath != null)
-        {
-            tempPath.Clear();
-        }
-        tempPath = navManager.FindPath(navManager.FindTileByPos(to), navManager.FindTileByPos(from));
     }
     #endregion
     /*基本属性变化*/
@@ -931,7 +902,7 @@ public class ActorManager : MonoBehaviour
         {
             actor = this,
             id = emojiID,
-            distance = 10
+            distance = EmojiConfigData.GetEmojiConfig(emojiID).Emoji_Distance
         });
         ActorUI.SendEmoji(EmojiConfigData.GetEmojiConfig(emojiID));
     }

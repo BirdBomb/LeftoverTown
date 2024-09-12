@@ -30,10 +30,12 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     public MapNetManager mapNetManager;
     [HideInInspector]
     public int mapSeed;
-    private List<Vector3Int> mapAreaList = new List<Vector3Int>();
+    private List<Vector3Int> buildingAreaList = new List<Vector3Int>();
+    private List<Vector3Int> floorAreaList = new List<Vector3Int>();
     private Dictionary<int, MyTile> FloorTilePool = new Dictionary<int, MyTile>();
     private Dictionary<int, MyTile> BuildTilePool = new Dictionary<int, MyTile>();
     private Dictionary<int, GameObject> BuildObjPool = new Dictionary<int, GameObject>();
+    private Dictionary<int, GameObject> FloorObjPool = new Dictionary<int, GameObject>();
 
     public void Init()
     {
@@ -46,31 +48,45 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     {
         Debug.Log("初始化地图种子" + seed);
         mapSeed = seed;
-        List<Vector3Int> cullingList = new List<Vector3Int>();
+        List<Vector3Int> cullingBuildingList = new List<Vector3Int>();
+        List<Vector3Int> cullingFloorList = new List<Vector3Int>();
         /*遍历所有已经绘制的区域并记录离中心过远的区域*/
-        for (int i = 0; i < mapAreaList.Count; i++)
+        for (int i = 0; i < buildingAreaList.Count; i++)
         {
-            if (Vector3Int.Distance(mapAreaList[i], center) > 60)
+            if (Vector3Int.Distance(buildingAreaList[i], center) > 60)
             {
-                Vector3Int temp = mapAreaList[i];
+                Vector3Int temp = buildingAreaList[i];
                 SubNewAreaInMap(temp, width, height);
-                cullingList.Add(temp);
+                cullingBuildingList.Add(temp);
             }
         }
         /*遍历所有已经绘制的区域并剔除已经记录的区域*/
-        for (int i = 0; i < cullingList.Count; i++)
+        for (int i = 0; i < cullingBuildingList.Count; i++)
         {
-            mapAreaList.Remove(cullingList[i]);
+            buildingAreaList.Remove(cullingBuildingList[i]);
         }
-    }
-    /// <summary>
-    /// 添加一个绘制好的区域
-    /// </summary>
-    public bool AddNewAreaInMap(Vector3Int center,int widht,int height)
-    {
-        if (!mapAreaList.Contains(center))
+        /*遍历所有已经绘制的区域并记录离中心过远的区域*/
+        for (int i = 0; i < floorAreaList.Count; i++)
         {
-            mapAreaList.Add(center);
+            if (Vector3Int.Distance(floorAreaList[i], center) > 60)
+            {
+                Vector3Int temp = floorAreaList[i];
+                SubNewAreaInMap(temp, width, height);
+                cullingFloorList.Add(temp);
+            }
+        }
+        /*遍历所有已经绘制的区域并剔除已经记录的区域*/
+        for (int i = 0; i < cullingFloorList.Count; i++)
+        {
+            floorAreaList.Remove(cullingFloorList[i]);
+        }
+
+    }
+    public bool AddNewAreaInBuildingMap(Vector3Int center,int widht,int height)
+    {
+        if (!buildingAreaList.Contains(center))
+        {
+            buildingAreaList.Add(center);
             return true;
         }
         else
@@ -78,6 +94,19 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
             return false;
         }
     }
+    public bool AddNewAreaInFloorMap(Vector3Int center, int widht, int height)
+    {
+        if (!floorAreaList.Contains(center))
+        {
+            floorAreaList.Add(center);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     /// <summary>
     /// 去除一个绘制好的区域
     /// </summary>
@@ -123,11 +152,16 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     /// <param name="tilePos"></param>
     public void DeleteFloor(Vector3Int tilePos)
     {
-        if (floorMap.HasTile(tilePos))
+        MyTile tile = floorMap.GetTile<MyTile>(tilePos);
+        if (tile != null)
         {
-            Destroy(floorMap.GetTile(tilePos));
-            floorMap.SetTile(tilePos, null);
+            if (tile.bindObj && tile.bindObj.TryGetComponent(out TileObj obj))
+            {
+                Destroy(obj.gameObject);
+            }
+            Destroy(tile);
         }
+        floorMap.SetTile(tilePos, null);
     }
     /// <summary>
     /// 生成地板
@@ -138,10 +172,17 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     {
         /*创建实例*/
         MyTile tileBase = ScriptableObject.CreateInstance<MyTile>();
-        /*绘制瓦片*/
-        tileBase.DrawTile(GetFloorScript(tileID));
+        tileBase.InitTile(floorGrid.CellToWorld(tilePos), tilePos, GetFloorObj(tileID), GetFloorScript(tileID), floorPool);
         /*将瓦片置于正确位置*/
-        floorMap.SetTile(tilePos, tileBase);
+        if (floorMap.HasTile(tilePos))
+        {
+            DeleteFloor(tilePos);
+            floorMap.SetTile(tilePos, tileBase);
+        }
+        else
+        {
+            floorMap.SetTile(tilePos, tileBase);
+        }
     }
     /// <summary>
     /// 生成建筑
@@ -152,8 +193,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     {
         /*创建实例*/
         MyTile tileBase = ScriptableObject.CreateInstance<MyTile>();
-        /*初始瓦片*/
-        tileBase.InitTile(buildingGrid.CellToWorld(tilePos), tilePos, GetBuildingObj(tileID), GetBuildingScript(tileID),buildPool);
+        tileBase.InitTile(floorGrid.CellToWorld(tilePos), tilePos, GetBuildingObj(tileID), GetBuildingScript(tileID), buildPool);
         /*将瓦片置于正确位置*/
         if (buildingMap.HasTile(tilePos))
         {
@@ -204,7 +244,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         }
         else
         {
-            MyTile config = Resources.Load<MyTile>("TileScript/Ground/" + FloorConfigData.GetItemConfig(id).Floor_FileName);
+            MyTile config = Resources.Load<MyTile>("TileScript/Floor/" + FloorConfigData.GetItemConfig(id).Floor_FileName);
             if (config != null)
             {
                 FloorTilePool.Add(id, config);
@@ -269,5 +309,34 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
                 return null;
             }
         }
+    }
+    /// <summary>
+    /// 根据ID获取地板obj
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    private GameObject GetFloorObj(int id)
+    {
+        if (FloorObjPool.ContainsKey(id))
+        {
+            return FloorObjPool[id];
+        }
+        else
+        {
+            try
+            {
+                GameObject tileObj = Resources.Load<GameObject>("TileObj/Floor/" + FloorConfigData.GetItemConfig(id).Floor_FileName);
+                if (tileObj != null)
+                {
+                    FloorObjPool.Add(id, tileObj);
+                }
+                return tileObj;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
     }
 }

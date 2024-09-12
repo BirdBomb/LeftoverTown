@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2765080764979696546}
   - component: {fileID: 2852386540408338598}
-  - component: {fileID: 9075610828304427945}
+  - component: {fileID: 6201795986385881469}
   m_Layer: 11
   m_Name: Bone
   m_TagString: Untagged
@@ -72,7 +72,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 054dac1780c28b94886ce33d9f043aae, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &9075610828304427945
+--- !u!114 &6201795986385881469
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,13 +94,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1386816016900358989}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90a3d08399b6cef40984d0f98733be0e, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a9d884e6e0bf154b99fbe8f14be838a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bindTile: {fileID: 11400000, guid: c68ed7b9155967940a5574f2cf02051c, type: 2}
+  bindTile: {fileID: 0}
   CurHp: 0
   MaxHp: 0
   Armor: 0
+  info: 
+  linkAlready: 0
   LootList: []
   LootCount: 0
-  info: 

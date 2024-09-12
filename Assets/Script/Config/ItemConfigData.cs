@@ -148,11 +148,17 @@ public class ItemConfigData
             Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Ingredient,Average_Value = 1 },
         #endregion
         #region//5000
-        new ItemConfig(){ Item_ID = 5001,Item_Name = "夜巡衣",Item_Desc = "夜巡队员套装之一，不提供护甲值",
+        new ItemConfig(){ Item_ID = 5001,Item_Name = "夜巡队衣",Item_Desc = "三季镇夜巡队员套装之一，不提供护甲值",
             Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Clothes,Average_Value = 1, },
-        new ItemConfig(){ Item_ID = 5002,Item_Name = "夜巡帽",Item_Desc = "夜巡队员套装之一，不提供护甲值",
+        new ItemConfig(){ Item_ID = 5002,Item_Name = "夜巡队帽",Item_Desc = "三季镇夜巡队员套装之一，不提供护甲值",
             Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
         new ItemConfig(){ Item_ID = 5003,Item_Name = "布衣服(灰)",Item_Desc = "灰色的布制衣服",
+            Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
+        new ItemConfig(){ Item_ID = 5004,Item_Name = "草帽",Item_Desc = "去冒险吧",
+            Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
+        new ItemConfig(){ Item_ID = 5005,Item_Name = "抓痕盔",Item_Desc = "三季镇治安队员的套装之一，头盔侧面的红色抓痕是佩戴者抵御丧尸的证明",
+            Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
+        new ItemConfig(){ Item_ID = 5006,Item_Name = "制式防护衣",Item_Desc = "三季镇治安队员的套装之一，可以抵御一定程度的攻击",
             Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
         #endregion
         #region//9000

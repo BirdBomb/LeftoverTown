@@ -64,6 +64,7 @@ SpriteAtlas:
     - 26c85093c5fec6f42bcc11455287ab12: 21300000
     - d5cfbce36b6bbd14a8aed1b866579907: 21300000
     - 40850104d9bc3b74f84922b7ed0828d3: 21300000
+    - 4fff060421743b448b95679f226b4075: 21300000
     - 252374442a32b0842985359f2d11e3bb: 21300000
     - cb98f754f475f724490b00845be313d1: 21300000
     - ebb402647aa46584793c59311cb3faf6: 21300000
@@ -76,6 +77,7 @@ SpriteAtlas:
     - 1ca7a7d779d073e4db37757fb3b1c220: 21300000
     - 9bf9d8e70bc253f42a95181509a95dbf: 21300000
     - 3f764f0849c995146a4e66c30e728a0c: 21300000
+    - aa0cca585c1a6494bb3155178b40e6f5: 21300000
     - be6eb298670c11b46a502f3931d1b9c2: 21300000
     - 34b08909523189044baef4c3a7b854a1: 21300000
     - 4eceba0987f801b43ab7952c13c5015b: 21300000
@@ -141,6 +143,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 26c85093c5fec6f42bcc11455287ab12, type: 3}
   - {fileID: 21300000, guid: d5cfbce36b6bbd14a8aed1b866579907, type: 3}
   - {fileID: 21300000, guid: 40850104d9bc3b74f84922b7ed0828d3, type: 3}
+  - {fileID: 21300000, guid: 4fff060421743b448b95679f226b4075, type: 3}
   - {fileID: 21300000, guid: 252374442a32b0842985359f2d11e3bb, type: 3}
   - {fileID: 21300000, guid: cb98f754f475f724490b00845be313d1, type: 3}
   - {fileID: 21300000, guid: ebb402647aa46584793c59311cb3faf6, type: 3}
@@ -153,6 +156,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 1ca7a7d779d073e4db37757fb3b1c220, type: 3}
   - {fileID: 21300000, guid: 9bf9d8e70bc253f42a95181509a95dbf, type: 3}
   - {fileID: 21300000, guid: 3f764f0849c995146a4e66c30e728a0c, type: 3}
+  - {fileID: 21300000, guid: aa0cca585c1a6494bb3155178b40e6f5, type: 3}
   - {fileID: 21300000, guid: be6eb298670c11b46a502f3931d1b9c2, type: 3}
   - {fileID: 21300000, guid: 34b08909523189044baef4c3a7b854a1, type: 3}
   - {fileID: 21300000, guid: 4eceba0987f801b43ab7952c13c5015b, type: 3}
@@ -217,6 +221,7 @@ SpriteAtlas:
   - Item_9002
   - Item_4012
   - Item_Default
+  - Item_5006
   - Item_4003
   - Item_1018
   - Item_3008
@@ -229,6 +234,7 @@ SpriteAtlas:
   - Item_3003
   - Item_2008
   - Item_2007
+  - Item_5005
   - Item_1004
   - Item_2001
   - Item_3999

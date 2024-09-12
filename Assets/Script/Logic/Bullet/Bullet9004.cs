@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class Bullet9004 : BulletBase
 {
@@ -12,12 +13,15 @@ public class Bullet9004 : BulletBase
     private short damageOffset;
     public SpriteRenderer spriteRenderer;
     public TrailRenderer trailRenderer;
+    public Light2D bulletLight;
     public override void InitBullet(Vector3 dir, float speed, ActorNetManager from)
     {
         transform.DOKill();
         transform.localScale = Vector3.one;
         spriteRenderer.enabled = true;
         trailRenderer.enabled = true;
+        bulletLight.enabled = true;
+        bulletLight.intensity = 1;
         trailRenderer.Clear();
         base.InitBullet(dir, speed + speedOffset, from);
 
@@ -58,27 +62,30 @@ public class Bullet9004 : BulletBase
     }
     public void Boom()
     {
-        spriteRenderer.enabled = false;
-        _hide = true;
         moveSpeed = 0;
-        CancelInvoke();
-        Invoke("HideBullet", 20);
     }
 
     public void SpeedDown(float dt)
     {
+        if (bulletLight.intensity > 0)
+        {
+            bulletLight.intensity -= dt;
+        }
         if (moveSpeed > 0)
         {
             moveSpeed -= dt;
         }
-        if (moveSpeed < 0)
+        else
         {
             HideBullet();
         }
     }
     public override void HideBullet()
     {
+        _hide = true;
+        spriteRenderer.enabled = false;
         trailRenderer.enabled = false;
+        bulletLight.enabled = false;
         base.HideBullet();
     }
 }

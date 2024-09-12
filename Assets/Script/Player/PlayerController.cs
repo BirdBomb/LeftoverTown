@@ -184,16 +184,16 @@ public class PlayerController : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.F))
             {
-                for (int i = 0; i < nearbyTiles.Count; i++)
+                if (holdingTile)
                 {
-                    nearbyTiles[i].InvokeTile(this, KeyCode.F);
+                    holdingTile.InvokeTile(this, KeyCode.F);
                 }
             }
             if (Input.GetKeyDown(KeyCode.E))
             {
-                for (int i = 0; i < nearbyTiles.Count; i++)
+                if (holdingTile)
                 {
-                    nearbyTiles[i].InvokeTile(this, KeyCode.E);
+                    holdingTile.InvokeTile(this, KeyCode.E);
                 }
             }
             if (Input.GetKeyDown(KeyCode.Q))
@@ -490,7 +490,8 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
     #region//地图绘制
-    public List<MyTile> nearbyTiles = new List<MyTile>();
+    private List<MyTile> nearbyTiles = new List<MyTile>();
+    private MyTile holdingTile = null;
     private List<MyTile> tempTiles = new List<MyTile>();
     private Vector3Int mapCenter = new Vector3Int(-99999,-99999);
     private int mapView = 15;
@@ -539,6 +540,29 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+        /*更新持有地块*/
+        for (int i = 0; i < tempTiles.Count; i++)
+        {
+            if (tempTiles[i] == null) { continue; }
+            if (holdingTile != tempTiles[i])
+            {
+                if (tempTiles[i].HoldingTileByPlayer(this))
+                {
+                    UpdateHoldingTile(tempTiles[i]);
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+        UpdateHoldingTile(null);
+    }
+    private void UpdateHoldingTile(MyTile tile)
+    {
+        holdingTile?.ReleaseTileByPlayer(this);
+        holdingTile = tile;
     }
     #endregion
 }

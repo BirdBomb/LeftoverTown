@@ -49,10 +49,10 @@ MonoBehaviour:
   CurHp: 0
   MaxHp: 0
   Armor: 0
-  LootList: []
-  LootCount: 0
   info: 
   linkAlready: 0
+  LootList: []
+  LootCount: 0
 --- !u!1 &2337525471934583243
 GameObject:
   m_ObjectHideFlags: 0
@@ -125,7 +125,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 7d90db301c10fe14c89c768220075cb7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -190,7 +190,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeIntensityEnabled: 0
-  m_ApplyToSortingLayers: 00000000b786b0155b56912813754321
+  m_ApplyToSortingLayers: 00000000e9f446885b56912813754321
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -200,7 +200,7 @@ MonoBehaviour:
   m_NormalMapQuality: 2
   m_UseNormalMap: 0
   m_ShadowIntensityEnabled: 1
-  m_ShadowIntensity: 0.75
+  m_ShadowIntensity: 1
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:

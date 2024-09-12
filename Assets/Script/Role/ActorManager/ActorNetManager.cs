@@ -426,17 +426,19 @@ public class ActorNetManager : NetworkBehaviour
     [Networked, OnChangedRender(nameof(OnItemOnBodyChange)), HideInInspector]
     public ItemData Data_ItemOnBody { get; set; }
     public ItemData Last_ItemOnBody;
-
+    public short LocalData_Status;
     public void OnItemInHandChange()
     {
         LocalManager.AddItem_Hand(Data_ItemInHand);
     }
     public void OnItemOnHeadChange()
     {
+        LocalManager.CheckStatus(Data_ItemOnBody.Item_ID, Data_ItemOnHead.Item_ID, Data_Fine, out LocalData_Status);
         LocalManager.WearItem_Head(Data_ItemOnHead);
     }
     public void OnItemOnBodyChange()
     {
+        LocalManager.CheckStatus(Data_ItemOnBody.Item_ID, Data_ItemOnHead.Item_ID, Data_Fine, out LocalData_Status);
         LocalManager.WearItem_Body(Data_ItemOnBody);
     }
     public void OnItemInBagChange()
