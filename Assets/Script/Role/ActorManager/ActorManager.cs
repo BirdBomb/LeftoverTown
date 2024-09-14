@@ -87,11 +87,11 @@ public class ActorManager : MonoBehaviour
         navManager = GameObject.Find("Map").GetComponent<NavManager>();
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneMove>().Subscribe(_ =>
         {
-            ListenRoleMove(_.moveActor, _.moveTile);
+            Listen_RoleMove(_.moveActor, _.moveTile);
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneSendEmoji>().Subscribe(_ =>
         {
-            ListenRoleSendEmoji(_.actor, _.id, _.distance);
+            Listen_RoleSendEmoji(_.actor, _.id, _.distance);
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneDoSomething>().Subscribe(_ =>
         {
@@ -103,7 +103,7 @@ public class ActorManager : MonoBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
         {
-            ListenWorldGlobalTimeChange(_.hour, _.date, _.now);
+            Listen_WorldGlobalTimeChange(_.hour, _.date, _.now);
         }).AddTo(this);
     }
     public void InitByPlayer()
@@ -116,7 +116,7 @@ public class ActorManager : MonoBehaviour
     /// 监听时间改变
     /// </summary>
     /// <param name="globalTime"></param>
-    public virtual void ListenWorldGlobalTimeChange(int hour,int date,GlobalTime globalTime)
+    public virtual void Listen_WorldGlobalTimeChange(int hour,int date,GlobalTime globalTime)
     {
         netManager.AddOneHour(hour, date, globalTime);
     }
@@ -125,7 +125,7 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     /// <param name="who"></param>
     /// <param name="where"></param>
-    public virtual void ListenRoleMove(ActorManager who, MyTile where)
+    public virtual void Listen_RoleMove(ActorManager who, MyTile where)
     {
 
     }
@@ -153,7 +153,7 @@ public class ActorManager : MonoBehaviour
     /// <param name="actor">谁</param>
     /// <param name="id">什么</param>
     /// <param name="distance">距离</param>
-    public virtual void ListenRoleSendEmoji(ActorManager actor, int id, float distance)
+    public virtual void Listen_RoleSendEmoji(ActorManager actor, int id, float distance)
     {
 
     }
@@ -609,7 +609,6 @@ public class ActorManager : MonoBehaviour
         if (status.Status_ID != 0)
         {
             id = status.Status_ID;
-            Debug.Log(clothes + "/" + hat);
             return;
         }
         status = StatusConfigData.statusConfigs.Find((x) => { return x.Status_Hat == hat; });
@@ -827,22 +826,21 @@ public class ActorManager : MonoBehaviour
         return netManager.Data_Coin;
     }
     /// <summary>
-    /// 增加罚金
+    /// 设置罚金
     /// </summary>
-    public void AddFine(short val)
+    public void SetFine(short val)
     {
-        if (NetManager.Data_Fine > 999)
+        if (NetManager.Data_Fine < val)
         {
-            val = 10;
+            NetManager.RPC_LocalInput_ChangeFine(val);
         }
-        NetManager.RPC_LocalInput_ChangeFine(val);
     }
     /// <summary>
     /// 清空罚金
     /// </summary>
     public void ClearFine()
     {
-        NetManager.RPC_LocalInput_ChangeFine((short)-NetManager.Data_Fine);
+        NetManager.RPC_LocalInput_ChangeFine(0);
     }
     #endregion
     /*RPC*/

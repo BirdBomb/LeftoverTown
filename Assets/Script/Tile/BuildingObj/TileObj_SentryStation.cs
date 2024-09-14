@@ -5,9 +5,19 @@ using UnityEngine;
 
 public class TileObj_SentryStation : TileObj
 {
-    private ActorManager onlyState_owner;
+    private ActorManager owner;
     private void Start()
     {
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneFindTargetTile>().Subscribe(_ =>
+        {
+            if (_.id == 1023)
+            {
+                if (Vector3.Distance(_.pos, transform.position) < _.distance)
+                {
+                    _.action(this);
+                }
+            }
+        }).AddTo(this);
         CreateNPC();
     }
     private void OnDestroy()
@@ -15,7 +25,7 @@ public class TileObj_SentryStation : TileObj
         DestroyNPC();
     }
 
-    #region//ÊÕÒøÌ¨
+    #region//¸ÚÉÚ
     private void CreateNPC()
     {
         MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
@@ -27,14 +37,14 @@ public class TileObj_SentryStation : TileObj
     }
     private void DestroyNPC()
     {
-        if (onlyState_owner != null)
+        if (owner != null)
         {
-            Destroy(onlyState_owner.gameObject);
+            Destroy(owner.gameObject);
         }
     }
     public void BindOwner(ActorManager actor)
     {
-        onlyState_owner = actor;
+        owner = actor;
     }
     #endregion
 

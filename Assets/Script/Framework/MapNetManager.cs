@@ -138,7 +138,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="height"></param>
     private void Local_UpdateMapCenter(Vector3Int center, int width, int height, int seed)
     {
-        Debug.Log("收到服务器地图信息(地图绘制中心)/中心" + center + "尺寸" + width + "/" + height);
+        //Debug.Log("收到服务器地图信息(地图绘制中心)/中心" + center + "尺寸" + width + "/" + height);
         MapManager.Instance.UpdateMapCenter(center, width, height, seed);
     }
     /// <summary>
@@ -150,7 +150,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="height"></param>
     private void Local_ReceiveBuildTypeData(int[] tileList, Vector3Int center, int width, int height)
     {
-        Debug.Log("收到服务器地图信息(建筑类别)/中心" + center + "尺寸" + width + "/" + height);
+        //Debug.Log("收到服务器地图信息(建筑类别)/中心" + center + "尺寸" + width + "/" + height);
         if (MapManager.Instance.AddNewAreaInBuildingMap(center, width, height))
         {
             int index = 0;
@@ -173,7 +173,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="height"></param>
     private void Local_ReceiveBuildInfoData(string[] tileList, Vector3Int center, int width, int height)
     {
-        Debug.Log("收到服务器地图信息(建筑信息)/中心" + center + "尺寸" + width + "/" + height);
+        //Debug.Log("收到服务器地图信息(建筑信息)/中心" + center + "尺寸" + width + "/" + height);
         int index = 0;
         for (int x = -width / 2; x < width / 2; x++)
         {
@@ -201,7 +201,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="height"></param>
     private void Local_ReceiveFloorTypeData(int[] tileList, Vector3Int center, int width, int height)
     {
-        Debug.Log("收到服务器地图信息(地块类别)/中心" + center + "尺寸" + width + "/" + height);
+        //Debug.Log("收到服务器地图信息(地块类别)/中心" + center + "尺寸" + width + "/" + height);
 
         if (MapManager.Instance.AddNewAreaInFloorMap(center, width, height))
         {

@@ -990,7 +990,7 @@ public class ActorNetManager : NetworkBehaviour
     }
     private void OnlyState_ChangeFine(short val)
     {
-        Data_Fine += val;
+        Data_Fine = val;
     }
     #endregion
 

@@ -41,7 +41,7 @@ public class TileObj_CashDesk : TileObj
     {
         MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
         {
-            name = "Actor/NPC_Assistant",
+            name = "Actor/NPC_TownAssistant",
             pos = transform.position + Vector3.up,
             callBack = BindOwner
         });
@@ -56,7 +56,7 @@ public class TileObj_CashDesk : TileObj
     public void BindOwner(ActorManager actor)
     {
         onlyState_owner = actor;
-        (actor as ActorManager_NPC_Assistant).BindWorkTile(this);
+        (actor as ActorManager_NPC_TownAssistant).BindWorkTile(this);
     }
     #endregion
     #region//¼Ì³Ð·½·¨

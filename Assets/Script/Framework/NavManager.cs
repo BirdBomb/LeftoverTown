@@ -32,7 +32,6 @@ public class NavManager : MonoBehaviour
         }
         if (to._posInWorld == from._posInWorld)
         {
-            Debug.Log("原地前进");
             from.ResetTilePathInfo();
             return new List<MyTile> { from, from };
         }

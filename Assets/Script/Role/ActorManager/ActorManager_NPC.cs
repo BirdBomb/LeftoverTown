@@ -24,7 +24,7 @@ public class ActorManager_NPC : ActorManager
     /// </summary>
     protected float data_AttackCD;
     protected float onlyState_attackCDTimer;
-
+    private Vector3 offset = new Vector3(0, -0.5f, 0);
     public virtual void FixedUpdate()
     {
 
@@ -127,33 +127,33 @@ public class ActorManager_NPC : ActorManager
     #endregion
     
     #region//监听
-    public override void ListenRoleMove(ActorManager actor, MyTile where)
+    public override void Listen_RoleMove(ActorManager actor, MyTile where)
     {
         if (actor == this)
         {
-            ListenRoleMove_Me(actor, where);
+            Listen_IMove(actor, where);
         }
         else
         {
-            ListenRoleMove_Other(actor, where);
+            Listen_OtherMove(actor, where);
         }
-        base.ListenRoleMove(actor, where);
+        base.Listen_RoleMove(actor, where);
     }
     /// <summary>
-    /// 其他人移动
+    /// 监听其他人移动
     /// </summary>
     /// <param name="actor"></param>
     /// <param name="where"></param>
-    public virtual void ListenRoleMove_Other(ActorManager actor, MyTile where)
+    public virtual void Listen_OtherMove(ActorManager actor, MyTile where)
     {
 
     }
     /// <summary>
-    /// 我自己移动
+    /// 监听我自己移动
     /// </summary>
     /// <param name="actor"></param>
     /// <param name="where"></param>
-    public virtual void ListenRoleMove_Me(ActorManager actor, MyTile where)
+    public virtual void Listen_IMove(ActorManager actor, MyTile where)
     {
 
     }
@@ -163,16 +163,16 @@ public class ActorManager_NPC : ActorManager
     /// <param name="hour"></param>
     /// <param name="date"></param>
     /// <param name="globalTime"></param>
-    public override void ListenWorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
+    public override void Listen_WorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
     {
-        base.ListenWorldGlobalTimeChange(hour, date, globalTime);
+        base.Listen_WorldGlobalTimeChange(hour, date, globalTime);
     }
     /// <summary>
     /// 监听某人发送Emoji
     /// </summary>
     /// <param name="actor"></param>
     /// <param name="id"></param>
-    public override void ListenRoleSendEmoji(ActorManager actor, int id, float distance)
+    public override void Listen_RoleSendEmoji(ActorManager actor, int id, float distance)
     {
         if (isState)
         {
@@ -181,7 +181,7 @@ public class ActorManager_NPC : ActorManager
                 OnlyState_TryUnderstand(actor, id, OnlyState_TryLookAt(actor), true);
             }
         }
-        base.ListenRoleSendEmoji(actor, id, distance);
+        base.Listen_RoleSendEmoji(actor, id, distance);
     }
     /// <summary>
     /// 监听生命值变化
@@ -235,7 +235,7 @@ public class ActorManager_NPC : ActorManager
             FaceTo(attackTarget.transform.position - transform.position);
             if (holdingByHand != null)
             {
-                holdingByHand.InputMousePos(attackTarget.transform.position - transform.position, dt);
+                holdingByHand.InputMousePos(attackTarget.transform.position + offset - transform.position, dt);
             }
         }
     }
@@ -267,7 +267,6 @@ public class ActorManager_NPC : ActorManager
     {
         if (Vector3.Distance(attackTarget.transform.position, transform.position) < holdingByHand.itemConfig.Attack_Distance + 0.5f)
         {
-            NetManager.RPC_State_NpcChangeAttackState(true);
             return true;
         }
         else
@@ -387,6 +386,30 @@ public class ActorManager_NPC : ActorManager
         }
     }
     /// <summary>
+    /// 拿出
+    /// </summary>
+    /// <param name="ID">拿出物体ID</param>
+    public virtual void OnlyState_PutOut(short ID)
+    {
+        if (holdingByHand != null && holdingByHand.itemConfig.Item_ID == ID)
+        {
+            return;
+        }
+        else
+        {
+            for (int i = 0; i < NetManager.Data_ItemInBag.Count; i++)
+            {
+                if (ItemConfigData.GetItemConfig(NetManager.Data_ItemInBag[i].Item_ID).Item_ID == ID)
+                {
+                    ItemData item = NetManager.Data_ItemInBag[i];
+                    NetManager.OnlyState_AddItemOnHand(item);
+                    NetManager.OnlyState_LoseItem(item);
+                    return;
+                }
+            }
+        }
+    }
+    /// <summary>
     /// 收起
     /// </summary>
     public virtual void OnlyState_PutDown()
@@ -406,7 +429,7 @@ public class ActorManager_NPC : ActorManager
     {
         if (who != this)//这个人不是我
         {
-            if (Vector3.Distance(transform.position, who.transform.position) >= 10)
+            if (Vector3.Distance(transform.position, who.transform.position) >= config.Config_View)
             {
                 return false;
             }
@@ -541,6 +564,8 @@ public struct ActorManager_NPC_Config
     public short Config_Hp;
     [Header("护甲")]
     public short Config_Armor;
+    [Header("视野")]
+    public short Config_View;
     [Header("速度(分米每秒)")]
     public short Config_Speed;
     [Header("体力")]

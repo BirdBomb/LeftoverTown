@@ -716,7 +716,7 @@ GameObject:
   - component: {fileID: 1614621998564945313}
   - component: {fileID: 29064933900968075}
   - component: {fileID: 8758531104395135018}
-  - component: {fileID: 4527471583313978907}
+  - component: {fileID: 6773966252868501803}
   - component: {fileID: 9194596716836239696}
   - component: {fileID: 6674713896957400925}
   - component: {fileID: 7964058090080186231}
@@ -788,8 +788,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!61 &4527471583313978907
-BoxCollider2D:
+--- !u!58 &6773966252868501803
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -820,19 +820,9 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.25}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
+  m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Size: {x: 0.5, y: 0.5}
-  m_EdgeRadius: 0
+  m_Radius: 0.1
 --- !u!61 &9194596716836239696
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1118,11 +1108,12 @@ MonoBehaviour:
   config:
     Config_Hp: 50
     Config_Armor: 0
+    Config_View: 20
     Config_Speed: 40
     Config_Endurance: 100
     Config_Hat: 5002
     Config_Clothes: 5001
-    Config_BagList: d707
+    Config_BagList: dd07d407
     Config_LootCount: 0
     Config_LootList: []
     Config_AttackCD: 2

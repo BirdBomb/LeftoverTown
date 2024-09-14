@@ -3,11 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-using static GameEvent;
 
-public class ActorManager_NPC_Assistant : ActorManager_NPC
+public class ActorManager_NPC_TownAssistant : ActorManager_NPC
 {
-    #region//监听
+    protected TileObj safeTile = null;
+    protected TileObj workTile = null;
+    protected TileObj restTile = null;
+    GlobalTime lastGlobalTime;
+
+    #region//小镇店主专有方法
     public override void OnlyState_TryUnderstand(ActorManager who, int id, bool look, bool hear)
     {
         if (id == 16)
@@ -29,12 +33,12 @@ public class ActorManager_NPC_Assistant : ActorManager_NPC
     {
         if (OnlyState_TryLookAt(who))
         {
-            who.AddFine(val);
+            who.SetFine(val);
         }
         TryToSendEmoji(0.2f, 16);
         base.ListenRoleCommit(who, val);
     }
-    public override void ListenRoleMove_Other(ActorManager actor, MyTile where)
+    public override void Listen_OtherMove(ActorManager actor, MyTile where)
     {
         if (isState)
         {
@@ -49,10 +53,9 @@ public class ActorManager_NPC_Assistant : ActorManager_NPC
                 }
             }
         }
-        base.ListenRoleMove_Other(actor, where);
+        base.Listen_OtherMove(actor, where);
     }
-    GlobalTime lastGlobalTime;
-    public override void ListenWorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
+    public override void Listen_WorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
     {
         if (lastGlobalTime != globalTime)
         {
@@ -66,24 +69,21 @@ public class ActorManager_NPC_Assistant : ActorManager_NPC
                 GoToRest();
             }
         }
-        base.ListenWorldGlobalTimeChange(hour, date, globalTime);
+        base.Listen_WorldGlobalTimeChange(hour, date, globalTime);
     }
+
     public override void Listen_HpChange(int parameter, NetworkId networkId)
     {
-        ActorManager actor = NetManager.Runner.FindObject(networkId).GetComponent<ActorManager>();
-        if (attackTarget != actor)
+        ActorManager who = NetManager.Runner.FindObject(networkId).GetComponent<ActorManager>();
+        if (who.isPlayer && OnlyState_TryLookAt(who))
         {
-            FromRPC_ChangeAttackTarget(actor.NetManager.Object.Id);
-            OnlyState_Follow(FollowType.RunTo);
+            who.SetFine(500);
             TryToSendEmoji(0.1f, 16);
         }
+        GoToSafe();
         base.Listen_HpChange(parameter, networkId);
     }
 
-    #endregion
-    #region//店员方法
-    protected TileObj workTile = null;
-    protected TileObj restTile = null;
     /// <summary>
     /// 绑定工作tile
     /// </summary>
@@ -99,7 +99,14 @@ public class ActorManager_NPC_Assistant : ActorManager_NPC
     public virtual void BindRestTile(TileObj tile)
     {
         restTile = tile;
-        FindWayToTarget(restTile.bindTile._posInWorld);
+    }
+    /// <summary>
+    /// 绑定安全tile
+    /// </summary>
+    /// <param name="tile"></param>
+    public virtual void BindSafeTile(TileObj tile)
+    {
+        safeTile = tile;
     }
     /// <summary>
     /// 去工作
@@ -133,7 +140,40 @@ public class ActorManager_NPC_Assistant : ActorManager_NPC
                 distance = 10,
                 action = BindRestTile
             });
+            if (restTile)
+            {
+                FindWayToTarget(restTile.bindTile._posInWorld);
+            }
         }
+    }
+    /// <summary>
+    /// 避险
+    /// </summary>
+    public void GoToSafe()
+    {
+        if (!safeTile)
+        {
+            MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneFindTargetTile
+            {
+                actor = this,
+                id = 1023,
+                pos = transform.position,
+                distance = 20,
+                action = BindSafeTile
+            });
+        }
+        if (safeTile)
+        {
+            if (Vector2.Distance(safeTile.transform.position, transform.position) > 5)
+            {
+                FindWayToTarget(safeTile.bindTile._posInWorld);
+                return;
+            }
+        }
+        NetManager.UpdateSeed();
+        UnityEngine.Random.InitState(NetManager.RandomInRange);
+        Vector2 pos = UnityEngine.Random.insideUnitCircle * 4;
+        FindWayToTarget(GetMyTile()._posInWorld + pos);
     }
     /// <summary>
     /// 遇见某人
@@ -141,7 +181,7 @@ public class ActorManager_NPC_Assistant : ActorManager_NPC
     public void MeetSomeone(int id, int fine)
     {
         int emoji;
-        if(id == 1001 || id == 1002)
+        if (id == 1001 || id == 1002)
         {
             emoji = 0;
         }
@@ -151,5 +191,7 @@ public class ActorManager_NPC_Assistant : ActorManager_NPC
         }
         TryToSendEmoji(0.2f, emoji);
     }
+
+
     #endregion
 }

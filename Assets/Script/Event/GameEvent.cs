@@ -97,7 +97,7 @@ public class GameEvent
         public float distance;
     }
     /// <summary>
-    /// 本地端:找到特定地块
+    /// 本地端:一定范围内找到特定地块
     /// </summary>
     public class GameEvent_Local_SomeoneFindTargetTile
     {

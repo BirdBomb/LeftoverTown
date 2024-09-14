@@ -178,7 +178,7 @@ public class ItemBase
     /// <param name="val"></param>
     public virtual void Holding_ChangeDurability(sbyte val)
     {
-        if (val != 0) 
+        if (val != 0 && owner.isPlayer) 
         {
             ItemData _oldItem = itemData;
             ItemData _newItem = itemData;
@@ -189,7 +189,7 @@ public class ItemBase
                     item = itemData,
                 });
             }
-            if (owner.isPlayer)
+            else
             {
                 _newItem.Item_Durability += val;
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()

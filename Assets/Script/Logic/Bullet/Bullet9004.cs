@@ -38,7 +38,7 @@ public class Bullet9004 : BulletBase
         lastPos = curPos;
         curPos = transform.position;
 
-        RaycastHit2D[] hit2D = Physics2D.LinecastAll(lastPos, curPos, target);
+        RaycastHit2D[] hit2D = Physics2D.LinecastAll(lastPos, curPos + moveDir * moveSpeed * dt, target);
         for (int i = 0; i < hit2D.Length; i++)
         {
             if (hit2D[i].collider.CompareTag("Actor"))
@@ -49,19 +49,21 @@ public class Bullet9004 : BulletBase
                     else
                     {
                         actor.TakeDamage(1 + damageOffset, _from);
-                        Boom();
+                        Boom(hit2D[i].point);
                     }
                 }
             }
             else
             {
-                Boom();
+                Boom(hit2D[i].point);
             }
         }
         base.Check(dt);
     }
-    public void Boom()
+    public void Boom(Vector2 pos)
     {
+        GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_BulletBoom105");
+        effect.transform.position = pos;
         moveSpeed = 0;
     }
 

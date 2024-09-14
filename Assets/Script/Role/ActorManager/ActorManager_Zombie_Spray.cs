@@ -17,7 +17,7 @@ public class ActorManager_Zombie_Spray : ActorManager
     private float AttackTimer;
     [Header("当前目标")]
     private ActorManager targetActor;
-    public override void ListenRoleMove(ActorManager who, MyTile where)
+    public override void Listen_RoleMove(ActorManager who, MyTile where)
     {
         if (isState)
         {
@@ -32,7 +32,7 @@ public class ActorManager_Zombie_Spray : ActorManager
                 TryToFollowTarget();
             }
         }
-        base.ListenRoleMove(who, where);
+        base.Listen_RoleMove(who, where);
     }
     public override void CustomUpdate()
     {
