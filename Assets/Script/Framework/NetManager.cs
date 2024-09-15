@@ -5,9 +5,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UniRx;
 using DG.Tweening;
+using Fusion.Addons.Physics;
 
 public class NetManager : SingleTon<NetManager>,ISingleTon
 {
+    private GameObject netCore;
     private NetworkRunner networkRunner;
     public void Init()
     {
@@ -16,10 +18,7 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
 
     private void Start()
     {
-        networkRunner = gameObject.AddComponent<NetworkRunner>();
-        networkRunner.ProvideInput = true;
-        networkRunner.JoinSessionLobby(SessionLobby.ClientServer);
-
+        CreateNetCore();
         MessageBroker.Default.Receive<NetEvent.NetEvent_JoinGame>().Subscribe(_ =>
         {
             JoinRoom(_.RoomName);
@@ -29,10 +28,16 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
             CreateRoom(_.RoomName,_.RoomType);
         });
     }
+    private void CreateNetCore()
+    {
+        GameObject obj = Resources.Load<GameObject>("Runner/NetRunner");
+        netCore = Instantiate(obj, transform);
+        networkRunner = netCore.GetComponent<NetworkRunner>();
+        networkRunner.ProvideInput = true;
+        networkRunner.JoinSessionLobby(SessionLobby.ClientServer);
+    }
     public async void CreateRoom(string roomName,int roomType)
     {
-        //networkRunner = gameObject.AddComponent<NetworkRunner>();
-        //networkRunner.ProvideInput = true;
         var scene = SceneRef.FromIndex(1);
         var sceneInfo = new NetworkSceneInfo();
         if (scene.IsValid)

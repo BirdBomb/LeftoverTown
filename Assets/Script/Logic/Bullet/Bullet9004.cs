@@ -37,7 +37,7 @@ public class Bullet9004 : BulletBase
     {
         lastPos = curPos;
         curPos = transform.position;
-
+        //Physics2D.Simulate(dt);
         RaycastHit2D[] hit2D = Physics2D.LinecastAll(lastPos, curPos + moveDir * moveSpeed * dt, target);
         for (int i = 0; i < hit2D.Length; i++)
         {

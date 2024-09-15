@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8721843472562826823}
-  - component: {fileID: 5912875140467498111}
   - component: {fileID: 7207421581844431240}
+  - component: {fileID: 2538139231883781556}
   m_Layer: 10
   m_Name: WoodWall
   m_TagString: Untagged
@@ -50,7 +50,43 @@ Transform:
   - {fileID: 6966114659556953534}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &5912875140467498111
+--- !u!114 &7207421581844431240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 223198607764510710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90a3d08399b6cef40984d0f98733be0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bindTile: {fileID: 11400000, guid: c68ed7b9155967940a5574f2cf02051c, type: 2}
+  CurHp: 15
+  MaxHp: 15
+  Armor: 0
+  info: 
+  linkAlready: 0
+  LootList: []
+  LootCount: 0
+  NoneSide: {fileID: 7025035575502255062}
+  FourSide: {fileID: 1760960171347560352}
+  OneSide_Up: {fileID: 2112432333042473026}
+  OneSide_Down: {fileID: 3994685698294442084}
+  OneSide_Left: {fileID: 4404739683172527637}
+  OneSide_Right: {fileID: 8887202156902132605}
+  TwoSide_UpDown: {fileID: 6601272208033590681}
+  TwoSide_LeftRight: {fileID: 1000691356273030972}
+  TwoSide_UpLeft: {fileID: 7457547361440224678}
+  TwoSide_UpRight: {fileID: 1403930531727890160}
+  TwoSide_DownLeft: {fileID: 8099552727995768251}
+  TwoSide_DownRight: {fileID: 2373034411920771526}
+  ThreeSide_LeftMissing: {fileID: 7606497165187969004}
+  ThreeSide_RightMissing: {fileID: 6867859553207718710}
+  ThreeSide_UpMissing: {fileID: 6127276875379218303}
+  ThreeSide_DownMissing: {fileID: 5284544184156280568}
+--- !u!61 &2538139231883781556
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -95,42 +131,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &7207421581844431240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 223198607764510710}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90a3d08399b6cef40984d0f98733be0e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindTile: {fileID: 11400000, guid: c68ed7b9155967940a5574f2cf02051c, type: 2}
-  CurHp: 15
-  MaxHp: 15
-  Armor: 0
-  info: 
-  linkAlready: 0
-  LootList: []
-  LootCount: 0
-  NoneSide: {fileID: 7025035575502255062}
-  FourSide: {fileID: 1760960171347560352}
-  OneSide_Up: {fileID: 2112432333042473026}
-  OneSide_Down: {fileID: 3994685698294442084}
-  OneSide_Left: {fileID: 4404739683172527637}
-  OneSide_Right: {fileID: 8887202156902132605}
-  TwoSide_UpDown: {fileID: 6601272208033590681}
-  TwoSide_LeftRight: {fileID: 1000691356273030972}
-  TwoSide_UpLeft: {fileID: 7457547361440224678}
-  TwoSide_UpRight: {fileID: 1403930531727890160}
-  TwoSide_DownLeft: {fileID: 8099552727995768251}
-  TwoSide_DownRight: {fileID: 2373034411920771526}
-  ThreeSide_LeftMissing: {fileID: 7606497165187969004}
-  ThreeSide_RightMissing: {fileID: 6867859553207718710}
-  ThreeSide_UpMissing: {fileID: 6127276875379218303}
-  ThreeSide_DownMissing: {fileID: 5284544184156280568}
 --- !u!1 &1000691356273030972
 GameObject:
   m_ObjectHideFlags: 0

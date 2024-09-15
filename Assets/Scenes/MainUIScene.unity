@@ -41394,7 +41394,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1288811977}
   - component: {fileID: 1288811979}
-  - component: {fileID: 1288811978}
   m_Layer: 0
   m_Name: NetManager
   m_TagString: Untagged
@@ -41417,20 +41416,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 127843858}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1288811978
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1288811976}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c68e368187caa94c8cff40147f9b09f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _playerPrefab:
-    RawGuidValue: 330d62b040f51954c83b2e4356df0edb
 --- !u!114 &1288811979
 MonoBehaviour:
   m_ObjectHideFlags: 0

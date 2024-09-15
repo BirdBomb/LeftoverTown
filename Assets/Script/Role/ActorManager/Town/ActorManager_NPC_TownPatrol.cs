@@ -114,13 +114,16 @@ public class ActorManager_NPC_TownPatrol : ActorManager_NPC
                 OnlyState_PutDown();
             }
         }
-        if (sentryStationList.Count <= 0)
+        if (isState)
         {
-            FindSentryStation();
-        }
-        if (hour % 6 == 0)
-        {
-            TurnToNextSentryStation();
+            if (sentryStationList.Count <= 0)
+            {
+                FindSentryStation();
+            }
+            if (hour % 6 == 0)
+            {
+                TurnToNextSentryStation();
+            }
         }
         base.Listen_WorldGlobalTimeChange(hour, date, globalTime);
     }
