@@ -287,7 +287,7 @@ public class ItemBase
     /// </summary>
     public virtual void StaticAction_DrawItemObj(ItemNetObj obj,ItemData data)
     {
-        obj.icon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_ID);
+        obj.spriteIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_ID);
     }
     /// <summary>
     /// 外置方法(播放掉落动画)
@@ -295,16 +295,14 @@ public class ItemBase
     /// <param name="obj"></param>
     public virtual void StaticAction_PlayDropAnim(ItemNetObj obj)
     {
-        obj.root.enabled = true;
-        obj.icon.transform.DOKill();
-        obj.icon.transform.localScale = Vector3.zero;
+        obj.spriteIcon.transform.DOKill();
+        obj.spriteIcon.transform.localScale = Vector3.zero;
         UnityEngine.Random.InitState(itemData.Item_Seed);
         Vector3 point = UnityEngine.Random.insideUnitCircle.normalized * UnityEngine.Random.Range(0.2f, 0.5f);
-        obj.icon.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack);
-        obj.icon.transform.DOLocalJump(point, 1, 1, 0.5f).OnComplete(() =>
+        obj.spriteIcon.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack);
+        obj.spriteIcon.transform.DOLocalJump(point, 1, 1, 0.5f).OnComplete(() =>
         {
-            obj.root.enabled = false;
-            obj.icon.transform.DOPunchScale(new Vector3(0.2f, -0.2f, 0), 0.1f).SetEase(Ease.OutBack);
+            obj.spriteIcon.transform.DOPunchScale(new Vector3(0.2f, -0.2f, 0), 0.1f).SetEase(Ease.OutBack);
         }).SetEase(Ease.InOutQuad);
     }
     #endregion

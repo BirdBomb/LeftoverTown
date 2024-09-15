@@ -79,7 +79,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.25, y: 1.25}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
@@ -132,7 +132,6 @@ GameObject:
   - component: {fileID: 3074297510079878968}
   - component: {fileID: 7848675721485328758}
   - component: {fileID: 6275203049536375947}
-  - component: {fileID: 5988308554712546337}
   m_Layer: 9
   m_Name: ItemNetObj
   m_TagString: Untagged
@@ -140,13 +139,14 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &1864759281999687290
-RectTransform:
+--- !u!4 &1864759281999687290
+Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9145015433403934731}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -155,11 +155,6 @@ RectTransform:
   - {fileID: 232270017012936329}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3074297510079878968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207,8 +202,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25ebce08a777ece4c9c5b861c5a687d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 3987010938153933470}
-  root: {fileID: 5988308554712546337}
+  spriteIcon: {fileID: 3987010938153933470}
+  spriteCollider: {fileID: 7364747193395371982}
   _data:
     Item_ID: 0
     Item_Seed: 0
@@ -223,15 +218,3 @@ MonoBehaviour:
       Item_Info: 0
       Item_Durability: 0
       Item_DurabilityPoint: 0
---- !u!210 &5988308554712546337
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9145015433403934731}
-  m_Enabled: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_SortAtRoot: 0

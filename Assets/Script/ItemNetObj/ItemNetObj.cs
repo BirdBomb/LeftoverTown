@@ -14,9 +14,9 @@ using static UnityEngine.GraphicsBuffer;
 public class ItemNetObj : NetworkBehaviour
 {
     [Header("物品图标")]
-    public SpriteRenderer icon;
-    [Header("物品根部")]
-    public SortingGroup root;
+    public SpriteRenderer spriteIcon;
+    [Header("物品碰撞")]
+    public CircleCollider2D spriteCollider;
     [Networked, OnChangedRender(nameof(UpdateItem))]
     public ItemData data { get; set; } = new ItemData();
     private ItemBase _bindItem;

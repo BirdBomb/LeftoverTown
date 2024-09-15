@@ -164,7 +164,6 @@ public class PlayerController : MonoBehaviour
             }
         }).AddTo(this);
         actorManager.InitByPlayer();
-        itemLayer = LayerMask.GetMask("ItemObj");
     }
     private void Update()
     {
@@ -198,11 +197,15 @@ public class PlayerController : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.Q))
             {
-                var item = Physics2D.OverlapCircleAll(transform.position, 0.5f, itemLayer);
-                if (item.Length <= 0) { return; }
-                if (item[0].gameObject.transform.parent.TryGetComponent(out ItemNetObj obj))
+                var items = Physics2D.OverlapCircleAll(transform.position, 0.5f, itemLayer);
+                Debug.Log(items.Length + "/" + transform.position + "/" );
+                foreach (Collider2D item in items)
                 {
-                    actorManager.NetManager.RPC_LocalInput_PickItem(obj.Object.Id);
+                    if (item.gameObject.transform.parent.TryGetComponent(out ItemNetObj obj))
+                    {
+                        actorManager.NetManager.RPC_LocalInput_PickItem(obj.Object.Id);
+                        break;
+                    }
                 }
             }
             if (Input.GetKeyDown(KeyCode.B))
