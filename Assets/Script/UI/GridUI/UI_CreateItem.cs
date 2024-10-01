@@ -106,12 +106,15 @@ public class UI_CreateItem : UI_Grid
         createItemConfigs = CreateConfigData.createConfigs.FindAll((x) => { return x.Create_Level == 0; });
         UpdateCreateListUI();
     }
+    #region//打开关闭
     public override void Open(TileObj tileObj)
     {
         bindTileObj = tileObj;
         base.Open(tileObj);
     }
-    #region//UI操作
+
+    #endregion
+    #region//UI交互
     public void ClickCellLeft(UI_GridCell gridCell)
     {
 
@@ -246,7 +249,7 @@ public class UI_CreateItem : UI_Grid
         }
     }
     #endregion
-    #region//UI管理
+    #region//UI绘制
     /// <summary>
     /// 重置制造UI
     /// </summary>

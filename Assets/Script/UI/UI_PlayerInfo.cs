@@ -1,10 +1,12 @@
 using Fusion;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UniRx;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
+using UnityEngine.XR;
 using static UnityEditor.Timeline.Actions.MenuPriority;
 
 public class UI_PlayerInfo : MonoBehaviour
@@ -12,6 +14,16 @@ public class UI_PlayerInfo : MonoBehaviour
     bool open = false;
     public GameObject mask;
     public GameObject bg;
+    private SpriteAtlas atlasHair;
+    private SpriteAtlas atlasEye;
+    [SerializeField, Header("玩家头发")]
+    private Image playerHair;
+    [SerializeField, Header("玩家眼睛")]
+    private Image playerEye;
+    [SerializeField, Header("玩家名字")]
+    private TextMeshProUGUI playerName;
+    [SerializeField, Header("玩家悬赏")]
+    private TextMeshProUGUI playerFine;
     [SerializeField, Header("背包槽位")]
     private List<UI_GridCell> _bagCellList = new List<UI_GridCell>();
     [SerializeField, Header("手部槽位")]
@@ -25,13 +37,21 @@ public class UI_PlayerInfo : MonoBehaviour
     [SerializeField, Header("技能轮盘")]
     private List<UI_SkillSlot> skillUse;
     [SerializeField, Header("力量")]
-    private Text _Strength;
+    public UI_PointPanel point_Strength;
     [SerializeField, Header("智力")]
-    private Text _Intelligence;
+    public UI_PointPanel Point_Intelligence;
+    [SerializeField, Header("法力")]
+    public UI_PointPanel Point_SPower;
     [SerializeField, Header("专注")]
-    private Text _Focus;
+    public UI_PointPanel Point_Focus;
     [SerializeField, Header("敏捷")]
-    private Text _Agility;
+    public UI_PointPanel Point_Agility;
+    [SerializeField, Header("制造")]
+    public UI_PointPanel Point_Make;
+    [SerializeField, Header("建造")]
+    public UI_PointPanel Point_Build;
+    [SerializeField, Header("烹饪")]
+    public UI_PointPanel Point_Cook;
     private SpriteAtlas atlas;
 
     private void Start()
@@ -95,10 +115,22 @@ public class UI_PlayerInfo : MonoBehaviour
         _handCell.UpdateGridCell(handItem);
         _headCell.UpdateGridCell(headItem);
         _bodyCell.UpdateGridCell(bodyItem);
-        _Strength.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Strength.ToString();
-        _Intelligence.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Intelligence.ToString();
-        _Focus.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Focus.ToString();
-        _Agility.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Agility.ToString();
+
+        playerName.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Name.ToString();
+        playerFine.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Fine.ToString();
+        InitPlayerPhoto(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_HairID, 
+            GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_EyeID, 
+            GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_HairColor);
+
+        point_Strength.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Strength);
+        Point_Intelligence.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Intelligence);
+        Point_SPower.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_SPower);
+        Point_Focus.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Focus);
+        Point_Agility.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Agility);
+        Point_Make.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Make);
+        Point_Build.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Build);
+        Point_Cook.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Cook);
+
     }
     public void ResetCell()
     {
@@ -110,5 +142,16 @@ public class UI_PlayerInfo : MonoBehaviour
         _handCell.UpdateGridCell(itemData);
         _headCell.UpdateGridCell(itemData);
         _bodyCell.UpdateGridCell(itemData);
+    }
+    private void InitPlayerPhoto(int hairID, int eyeID, Color32 hairColor)
+    {
+        if (atlasEye == null || atlasHair == null)
+        {
+            atlasHair = Resources.Load<SpriteAtlas>("Atlas/HairSprite");
+            atlasEye = Resources.Load<SpriteAtlas>("Atlas/EyeSprite");
+        }
+        playerHair.sprite = atlasHair.GetSprite("Hair_" + hairID.ToString());
+        playerHair.color = hairColor;
+        playerEye.sprite = atlasEye.GetSprite("Eye_" + eyeID.ToString());
     }
 }

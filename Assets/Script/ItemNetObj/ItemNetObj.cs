@@ -43,7 +43,7 @@ public class ItemNetObj : NetworkBehaviour
                 _bindItem = (ItemBase)Activator.CreateInstance(type);
             }
         }
-        _bindItem.UpdateData(data);
+        _bindItem.UpdateDataFromNet(data);
         _bindItem.StaticAction_DrawItemObj(this, data);
         _bindItem.StaticAction_PlayDropAnim(this);
     }

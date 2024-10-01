@@ -90,6 +90,9 @@ public class BuildingConfigData : MonoBehaviour
         new BuildingConfig(){ Building_ID = 1023,Building_Name ="¸ÚÉÚ",
             Building_FileName ="SentryStation",Building_SpriteName="SentryStation",Building_RawLevel = 4,
             Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
+        new BuildingConfig(){ Building_ID = 1024,Building_Name ="Ö§³ÅÖù",
+            Building_FileName ="WoodShore",Building_SpriteName="WoodShore",Building_RawLevel = 2,
+            Building_Raw = new List<BuildingRaw>(){ new BuildingRaw(1001,4),new BuildingRaw(1002,5) } },
 
         new BuildingConfig(){ Building_ID = 2001,Building_Name ="Ê÷",
             Building_FileName ="Tree",Building_SpriteName="Tree",Building_RawLevel = 10,

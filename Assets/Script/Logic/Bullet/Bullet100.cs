@@ -25,7 +25,7 @@ public class Bullet100 : BulletBase
                     if (actor == _from.LocalManager) { continue; }
                     else
                     {
-                        actor.TakeDamage(5, _from);
+                        TryAttack(actor);
                         HideBullet();
                         PoolManager.Instance.GetObject("Effect/Effect_Bullet100").transform.position = hit2D[i].point;
                     }
@@ -39,4 +39,15 @@ public class Bullet100 : BulletBase
         }
         base.Check(dt);
     }
+    /// <summary>
+    /// ³¢ÊÔ¹¥»÷
+    /// </summary>
+    private void TryAttack(ActorManager actor)
+    {
+        if (_input)
+        {
+            actor.AllClient_TakeDamage(configDamage, _from);
+        }
+    }
+
 }

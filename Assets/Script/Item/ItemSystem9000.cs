@@ -12,39 +12,39 @@ public class ItemSystem9000
 /// </summary>
 public class Item_9001 : ItemBase
 {
-    public override void Holding_Start(ActorManager owner, BaseBodyController body)
+    #region//Ê¹ÓÃÂß¼­
+    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
     {
-        this.owner = owner;
-        body.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
-            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_9001");
-        base.Holding_Start(owner, body);
-    }
-    public override void ClickLeftClick(float dt, bool state, bool input, bool showSI)
-    {
-        if (owner)
+        if (inputData.leftPressTimer == 0)
         {
-            if (input)
+            if (owner)
             {
-                owner.BodyController.SetHandTrigger("PutUp", 0.2f, PutUp);
-            }
-            else
-            {
-                owner.BodyController.SetHandTrigger("PutUp", 0.2f, null);
+                owner.BodyController.SetHandTrigger("PutUp", 1, (string str) =>
+                {
+                    if (input && str.Equals("PutUp"))
+                    {
+                        OnlyInput_PutUp();
+                    }
+                });
+                owner.BodyController.SetHandTrigger("PutUp", 1, null);
             }
         }
-        base.ClickLeftClick(dt, state, input, showSI);
+        inputData.leftPressTimer = pressTimer;
+        return true;
     }
-    private void PutUp(string name)
+    public override void ReleaseLeftPress(bool state, bool input, bool player)
     {
-        if (name == "PutUp")
-        {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySpawnActor()
-            {
-                name = "Actor/Zombie_Spray"
-            });
-        }
+        inputData.leftPressTimer = 0;
+        base.ReleaseLeftPress(state, input, player);
     }
-
+    private void OnlyInput_PutUp()
+    {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySpawnActor()
+        {
+            name = "Actor/Zombie_Spray"
+        });
+    }
+    #endregion
 }
 /// <summary>
 /// ´ÖÖÆÄ¾¼ý

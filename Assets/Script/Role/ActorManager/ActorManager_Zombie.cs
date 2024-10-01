@@ -17,7 +17,7 @@ public class ActorManager_Zombie : ActorManager
     private float AttackTimer;
     [Header("当前目标")]
     private ActorManager targetActor;
-    public override void Listen_RoleMove(ActorManager who, MyTile where)
+    public override void AllClientListen_RoleMove(ActorManager who, MyTile where)
     {
         if (isState)
         {
@@ -32,15 +32,15 @@ public class ActorManager_Zombie : ActorManager
                 TryToFollowTarget();
             }
         }
-        base.Listen_RoleMove(who, where);
+        base.AllClientListen_RoleMove(who, where);
     }
-    public override void CustomUpdate()
+    public override void AllClient_CustomUpdate()
     {
         if (isState)
         {
             TryToAttack(customUpdateTime);
         }
-        base.CustomUpdate();
+        base.AllClient_CustomUpdate();
     }
     /*服务器方法*/
     #region
@@ -60,7 +60,7 @@ public class ActorManager_Zombie : ActorManager
         {
             if (Vector2.Distance(targetActor.transform.position, transform.position) < 1.5f * VisionDistance)
             {
-                FindWayToTarget(targetActor.GetMyTile()._posInWorld);
+                OnlyState_FindWayToTarget(targetActor.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInWorld);
             }
             else
             {
@@ -87,7 +87,7 @@ public class ActorManager_Zombie : ActorManager
     #endregion
     /*客户端方法*/
     #region
-    public override void FromRPC_NpcUseSkill(int parameter, Fusion.NetworkId id)
+    public override void AllClient_UseSkill(int parameter, Fusion.NetworkId id)
     {
         if (parameter == 1)
         {
@@ -104,7 +104,7 @@ public class ActorManager_Zombie : ActorManager
                             {
                                 if (actor != this)
                                 {
-                                    actor.TakeDamage(AttackDamage, NetManager);
+                                    actor.AllClient_TakeDamage(AttackDamage, NetManager);
                                 }
                             }
                         }
@@ -112,7 +112,7 @@ public class ActorManager_Zombie : ActorManager
                 }
             });
         }
-        base.FromRPC_NpcUseSkill(parameter, id);
+        base.AllClient_UseSkill(parameter, id);
     }
 
     #endregion

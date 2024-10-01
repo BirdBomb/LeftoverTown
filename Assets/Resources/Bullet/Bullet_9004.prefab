@@ -51,13 +51,14 @@ MonoBehaviour:
   curPos: {x: 0, y: 0, z: 0}
   lastPos: {x: 0, y: 0, z: 0}
   life: 3
+  configDamage: 5
+  configSpeed: 50
   bulletPath: Bullet/Bullet_9004
   effectPath: 
   target:
     serializedVersion: 2
     m_Bits: 1089
   speedOffset: 50
-  damageOffset: 10
   spriteRenderer: {fileID: 6301272907957791235}
   trailRenderer: {fileID: 6008889255792531987}
   bulletLight: {fileID: 3836740984328718162}

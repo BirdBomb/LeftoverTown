@@ -79,43 +79,15 @@ public class TileObj_Cabinet : TileObj
             OpenOrCloseCabinetUI(false);
             return true;
         }
-        return true;
+        return false;
     }
 
     #endregion
-    #region//更新上传
+    #region//信息更新与上传
     public override void TryToUpdateInfo(string info)
     {
         uI_Grid_Cabinet.UpdateInfoFromTile(info);
         base.TryToUpdateInfo(info);
-    }
-    public override void TryToUpdateHp(int newHp)
-    {
-        if (newHp <= CurHp)
-        {
-            PlayDamagedAnim();
-        }
-        base.TryToUpdateHp(newHp);
-    }
-    #endregion
-    #region//容器
-    public override void TryToDestroyMyObj()
-    {
-        PlayBreakAnim();
-        Invoke("DestroyMyObj", 0.3f);
-    }
-    public override void PlayDamagedAnim()
-    {
-        obj_cabinet.transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
-        base.PlayDamagedAnim();
-    }
-    public override void PlayBreakAnim()
-    {
-        obj_cabinet.transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack).OnComplete(() =>
-        {
-            obj_cabinet.transform.DOScaleX(0, 0.05f);
-        });
-        base.PlayBreakAnim();
     }
     #endregion
 }

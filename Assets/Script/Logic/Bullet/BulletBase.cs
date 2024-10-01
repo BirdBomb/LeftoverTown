@@ -14,6 +14,11 @@ public class BulletBase : MonoBehaviour
     public Vector3 lastPos;
     [SerializeField, Header("生命周期")]
     public float life;
+    [SerializeField, Header("子弹伤害")]
+    public short configDamage;
+    [SerializeField, Header("子弹速度")]
+    public short configSpeed;
+
     [SerializeField, Header("子弹本身加载路径")]
     public string bulletPath;
     [SerializeField, Header("击中特效加载路径")]
@@ -30,7 +35,7 @@ public class BulletBase : MonoBehaviour
         curPos = transform.position;
         lastPos = transform.position;
         moveDir = dir;
-        moveSpeed = speed;
+        moveSpeed = configSpeed + speed;
 
         _ownerId = from.Object.Id;
         _from = from;
@@ -61,9 +66,17 @@ public class BulletBase : MonoBehaviour
             Check(Time.fixedDeltaTime);
         }
     }
+    /// <summary>
+    /// 飞行
+    /// </summary>
+    /// <param name="dt"></param>
     public virtual void Fly(float dt)
     {
     }
+    /// <summary>
+    /// 检测
+    /// </summary>
+    /// <param name="dt"></param>
     public virtual void Check(float dt)
     {
 

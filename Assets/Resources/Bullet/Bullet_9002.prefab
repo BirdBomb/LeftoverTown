@@ -71,7 +71,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: bedabe6e7f8b81945979f5c5f198bcf7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -135,6 +135,8 @@ MonoBehaviour:
   curPos: {x: 0, y: 0, z: 0}
   lastPos: {x: 0, y: 0, z: 0}
   life: 3
+  configDamage: 5
+  configSpeed: 40
   bulletPath: Bullet/Bullet_9002
   effectPath: 
   target:
@@ -142,8 +144,7 @@ MonoBehaviour:
     m_Bits: 1089
   bullet_Up: {fileID: 6343754269742602848}
   bullet_Down: {fileID: 8770896344107528377}
-  speedOffset: 5
-  damageOffset: 1
+  speedDown: 40
 --- !u!1 &8439158991072856255
 GameObject:
   m_ObjectHideFlags: 0
@@ -215,7 +216,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 26c85093c5fec6f42bcc11455287ab12, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

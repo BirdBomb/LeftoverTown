@@ -158,7 +158,7 @@ public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         BindID = data.Item_ID;
         if (data.Item_ID != 0)
         {
-            _bindItem.UpdateData(data);
+            _bindItem.UpdateDataFromNet(data);
             _bindItem.DrawGridCell(this);
         }
         return _bindItem;

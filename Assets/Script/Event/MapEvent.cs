@@ -9,7 +9,13 @@ public class MapEvent : MonoBehaviour
     /// </summary>
     public class MapEvent_LocalTile_RequestMapData
     {
+        /// <summary>
+        /// 角色位置
+        /// </summary>
         public Vector3Int playerPos;
+        /// <summary>
+        /// 角色引用
+        /// </summary>
         public PlayerRef playerRef;
     }
     /// <summary>

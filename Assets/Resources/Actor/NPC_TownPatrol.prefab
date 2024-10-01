@@ -920,6 +920,7 @@ MonoBehaviour:
   AnimaEventListen_Hand: {fileID: 2371838918710998596}
   Animator_Leg: {fileID: 1868219027016183442}
   AnimaEventListen_Leg: {fileID: 5912057443916585167}
+  faceDir: {x: 0, y: 0}
   Hair: {fileID: 6765523464800134154}
   Eye: {fileID: 1108438412904804613}
 --- !u!114 &2069270092032871842
@@ -956,7 +957,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2466aa7a23d21a4394b30cc41be8dbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetTransform: {fileID: 0}
   networkRigidbody: {fileID: 2069270092032871842}
   LocalManager: {fileID: 5660947807307507888}
   _Data_Seed: 0
@@ -1098,13 +1098,9 @@ MonoBehaviour:
   skillSector: {fileID: 5897699707596743604}
   actorUI: {fileID: 819256106078883666}
   actorState: 0
-  navManager: {fileID: 0}
   isPlayer: 0
   isState: 0
   isInput: 0
-  face: {x: 0, y: 0}
-  tempPath: []
-  targetTile: {fileID: 0}
   config:
     Config_Hp: 50
     Config_Armor: 0
@@ -1113,7 +1109,7 @@ MonoBehaviour:
     Config_Endurance: 100
     Config_Hat: 5002
     Config_Clothes: 5001
-    Config_BagList: e107d407
+    Config_BagList: d507d407
     Config_LootCount: 0
     Config_LootList: []
     Config_AttackCD: 2

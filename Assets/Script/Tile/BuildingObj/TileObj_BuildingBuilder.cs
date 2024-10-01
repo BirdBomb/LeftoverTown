@@ -78,10 +78,10 @@ public class TileObj_BuildingBuilder : TileObj
             OpenOrCloseBuildUI(false);
             return true;
         }
-        return true;
+        return false;
     }
     #endregion
-    #region//更新与上传
+    #region//信息更新与上传
     public override void TryToUpdateInfo(string info)
     {
         uI_BuildingBuilder.UpdateInfoFromTile(info);

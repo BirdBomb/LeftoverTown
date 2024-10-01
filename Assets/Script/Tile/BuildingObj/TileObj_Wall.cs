@@ -6,137 +6,84 @@ using UniRx;
 
 public class TileObj_Wall : TileObj
 {
-    [SerializeField]
-    private GameObject NoneSide;
-    [SerializeField]
-    private GameObject FourSide;
-    [SerializeField]
-    private GameObject OneSide_Up;
-    [SerializeField]
-    private GameObject OneSide_Down;
-    [SerializeField]
-    private GameObject OneSide_Left;
-    [SerializeField]
-    private GameObject OneSide_Right;
-    [SerializeField]
-    private GameObject TwoSide_UpDown;
-    [SerializeField]
-    private GameObject TwoSide_LeftRight;
-    [SerializeField]
-    private GameObject TwoSide_UpLeft;
-    [SerializeField]
-    private GameObject TwoSide_UpRight;
-    [SerializeField]
-    private GameObject TwoSide_DownLeft;
-    [SerializeField]
-    private GameObject TwoSide_DownRight;
-    [SerializeField]
-    private GameObject ThreeSide_LeftMissing;
-    [SerializeField]
-    private GameObject ThreeSide_RightMissing;
-    [SerializeField]
-    private GameObject ThreeSide_UpMissing;
-    [SerializeField]
-    private GameObject ThreeSide_DownMissing;
-    private void Start()
+    #region//»æÖÆ
+    public SpriteRenderer WallSprite;
+    public Sprite[] FourSide;
+    public Sprite[] NoneSide;
+    public Sprite[] OneSide_Down;
+    public Sprite[] OneSide_Left;
+    public Sprite[] OneSide_Right;
+    public Sprite[] OneSide_Up;
+    public Sprite[] ThreeSide_DownMissing;
+    public Sprite[] ThreeSide_LeftMissing;
+    public Sprite[] ThreeSide_RightMissing;
+    public Sprite[] ThreeSide_UpMissing;
+    public Sprite[] TwoSide_DownLeft;
+    public Sprite[] TwoSide_DownRight;
+    public Sprite[] TwoSide_LeftRight;
+    public Sprite[] TwoSide_UpDown;
+    public Sprite[] TwoSide_UpLeft;
+    public Sprite[] TwoSide_UpRight;
+    public override void Draw()
     {
         CheckAround(bindTile.name, true);
-    }
-    public override void TryToUpdateHp(int newHp)
-    {
-        if (newHp <= CurHp)
-        {
-            PlayDamagedAnim();
-        }
-        base.TryToUpdateHp(newHp);
-    }
-    public override void TryToDestroyMyObj()
-    {
-        PlayBreakAnim();
-        Invoke("DestroyMyObj", 0.3f);
-    }
-    public override void PlayDamagedAnim()
-    {
-        transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
-        base.PlayDamagedAnim();
-    }
-    public override void PlayBreakAnim()
-    {
-        transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack).OnComplete(() =>
-        {
-            transform.DOScaleX(0, 0.05f);
-        });
-        base.PlayBreakAnim();
+        base.Draw();
     }
     public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
     {
-        NoneSide.SetActive(false);
-        FourSide.SetActive(false);
-        OneSide_Up.SetActive(false);
-        OneSide_Down.SetActive(false);
-        OneSide_Left.SetActive(false);
-        OneSide_Right.SetActive(false);
-        TwoSide_UpDown.SetActive(false);
-        TwoSide_LeftRight.SetActive(false);
-        TwoSide_DownLeft.SetActive(false);
-        TwoSide_DownRight.SetActive(false);
-        TwoSide_UpLeft.SetActive(false);
-        TwoSide_UpRight.SetActive(false);
-        ThreeSide_LeftMissing.SetActive(false);
-        ThreeSide_RightMissing.SetActive(false);
-        ThreeSide_UpMissing.SetActive(false);
-        ThreeSide_DownMissing.SetActive(false);
+        int m = new System.Random().Next(0, 2);
         switch (linkState)
         {
             case LinkState.FourSide:
-                FourSide.SetActive(true);
+                WallSprite.sprite = FourSide[new System.Random().Next(0, FourSide.Length)];
                 break;
             case LinkState.NoneSide:
-                NoneSide.SetActive(true);
-                break;
-            case LinkState.OneSide_Up:
-                OneSide_Up.SetActive(true);
+                WallSprite.sprite = NoneSide[new System.Random().Next(0, NoneSide.Length)];
                 break;
             case LinkState.OneSide_Down:
-                OneSide_Down.SetActive(true);
+                WallSprite.sprite = OneSide_Down[new System.Random().Next(0, OneSide_Down.Length)];
                 break;
             case LinkState.OneSide_Left:
-                OneSide_Left.SetActive(true);
+                WallSprite.sprite = OneSide_Left[new System.Random().Next(0, OneSide_Left.Length)];
                 break;
             case LinkState.OneSide_Right:
-                OneSide_Right.SetActive(true);
+                WallSprite.sprite = OneSide_Right[new System.Random().Next(0, OneSide_Right.Length)];
                 break;
-            case LinkState.TwoSide_UpDown:
-                TwoSide_UpDown.SetActive(true);
-                break;
-            case LinkState.TwoSide_LeftRight:
-                TwoSide_LeftRight.SetActive(true);
-                break;
-            case LinkState.TwoSide_DownLeft:
-                TwoSide_DownLeft.SetActive(true);
-                break;
-            case LinkState.TwoSide_DownRight:
-                TwoSide_DownRight.SetActive(true);
-                break;
-            case LinkState.TwoSide_UpRight:
-                TwoSide_UpRight.SetActive(true);
-                break;
-            case LinkState.TwoSide_UpLeft:
-                TwoSide_UpLeft.SetActive(true);
-                break;
-            case LinkState.ThreeSide_UpMissing:
-                ThreeSide_UpMissing.SetActive(true);
+            case LinkState.OneSide_Up:
+                WallSprite.sprite = OneSide_Up[new System.Random().Next(0, OneSide_Up.Length)];
                 break;
             case LinkState.ThreeSide_DownMissing:
-                ThreeSide_DownMissing.SetActive(true);
+                WallSprite.sprite = ThreeSide_DownMissing[new System.Random().Next(0, ThreeSide_DownMissing.Length)];
                 break;
             case LinkState.ThreeSide_LeftMissing:
-                ThreeSide_LeftMissing.SetActive(true);
+                WallSprite.sprite = ThreeSide_LeftMissing[new System.Random().Next(0, ThreeSide_LeftMissing.Length)];
                 break;
             case LinkState.ThreeSide_RightMissing:
-                ThreeSide_RightMissing.SetActive(true);
+                WallSprite.sprite = ThreeSide_RightMissing[new System.Random().Next(0, ThreeSide_RightMissing.Length)];
+                break;
+            case LinkState.ThreeSide_UpMissing:
+                WallSprite.sprite = ThreeSide_UpMissing[new System.Random().Next(0, ThreeSide_UpMissing.Length)];
+                break;
+            case LinkState.TwoSide_DownLeft:
+                WallSprite.sprite = TwoSide_DownLeft[new System.Random().Next(0, TwoSide_DownLeft.Length)];
+                break;
+            case LinkState.TwoSide_DownRight:
+                WallSprite.sprite = TwoSide_DownRight[new System.Random().Next(0, TwoSide_DownRight.Length)];
+                break;
+            case LinkState.TwoSide_LeftRight:
+                WallSprite.sprite = TwoSide_LeftRight[new System.Random().Next(0, TwoSide_LeftRight.Length)];
+                break;
+            case LinkState.TwoSide_UpDown:
+                WallSprite.sprite = TwoSide_UpDown[new System.Random().Next(0, TwoSide_UpDown.Length)];
+                break;
+            case LinkState.TwoSide_UpLeft:
+                WallSprite.sprite = TwoSide_UpLeft[new System.Random().Next(0, TwoSide_UpLeft.Length)];
+                break;
+            case LinkState.TwoSide_UpRight:
+                WallSprite.sprite = TwoSide_UpRight[new System.Random().Next(0, TwoSide_UpRight.Length)];
                 break;
         }
         base.LinkAround(linkState, linkToUp, linkToDown, linkToLeft, linkToRight);
     }
+    #endregion
 }

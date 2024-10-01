@@ -84,5 +84,24 @@ public class AudioManager : SingleTon<AudioManager>, ISingleTon
             tmpClips.Play(tempSource);
         }
     }
+    /// <summary>
+    /// 播放音效
+    /// </summary>
+    /// <param name="AudioID"></param>
+    /// <param name="pos"></param>
+    public void PlayEffect(int AudioID,Vector3 pos)
+    {
+        AudioSource tempSource = sourceManager.GetFreeAudio();
+
+        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
+
+        tempSource.maxDistance = audioConfig.Audio_MaxDistance;
+        SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
+        tempSource.transform.position = pos + new Vector3(0, 0, -10);
+        if (tmpClips != null)
+        {
+            tmpClips.Play(tempSource);
+        }
+    }
 
 }

@@ -11,10 +11,6 @@ public class TileObj_BedPart : TileObj
     private ActorManager owner = null;
     public void Start()
     {
-        if (!linkAlready)
-        {
-            CheckAround("WoodBed_Part", true);
-        }
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
         {
 
@@ -55,10 +51,17 @@ public class TileObj_BedPart : TileObj
         owner = actor;
     }
     #endregion
-    #region//¡¨Ω”
+    #region//ªÊ÷∆
+    public override void Draw()
+    {
+        if (!linkAlready)
+        {
+            CheckAround("WoodBed_Part", true);
+        }
+        base.Draw();
+    }
     public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
     {
-        Debug.Log(linkState);
         if (!linkAlready && linkState != LinkState.NoneSide)
         {
             if (linkToRight && linkToRight.BeLink(Vector2Int.left))

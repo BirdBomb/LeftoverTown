@@ -1,12 +1,12 @@
 using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+
 public class TileObj_Billboard : TileObj
 {
     [SerializeField, Header("SingalF")]
     private GameObject obj_singalF;
+    #region//玩家交互
     public override void Invoke(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
@@ -15,36 +15,44 @@ public class TileObj_Billboard : TileObj
             {
                 text = info
             });
+            OpenOrCloseSingal(false);
         }
-        obj_singalF.SetActive(false);
         base.Invoke(player, code);
     }
     public override bool PlayerHolding(PlayerController player)
     {
-        /*靠近是我自己*/
         if (player.thisPlayerIsMe)
         {
-            obj_singalF.SetActive(true);
-            obj_singalF.transform.DOKill();
-            obj_singalF.transform.localScale = Vector3.one;
-            obj_singalF.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            OpenOrCloseSingal(true);
             return true;
         }
         return false;
     }
     public override bool PlayerRelease(PlayerController player)
     {
-        /*离开是我自己*/
-        if (player.thisPlayerIsMe) 
+        if (player.thisPlayerIsMe)
         {
-            obj_singalF.transform.DOKill();
-            obj_singalF.transform.DOScale(Vector3.zero, 0.2f).OnComplete(() =>
+            OpenOrCloseSingal(false);
+            return true;
+        }
+        return false;
+    }
+    private void OpenOrCloseSingal(bool open)
+    {
+        obj_singalF.transform.DOKill();
+        if (open)
+        {
+            obj_singalF.SetActive(true);
+            obj_singalF.transform.localScale = Vector3.one;
+            obj_singalF.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+        }
+        else
+        {
+            obj_singalF.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
             {
                 obj_singalF.SetActive(false);
             });
-            return true; 
         }
-        return true;
     }
-
+    #endregion
 }

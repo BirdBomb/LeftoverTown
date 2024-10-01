@@ -34,12 +34,12 @@ MonoBehaviour:
   m_InstancedGameObject: {fileID: 0}
   m_Flags: 1
   m_ColliderType: 0
-  passType: 0
-  interactiveType: 0
-  passOffset: 0
+  config_passType: 0
+  config_passDrag: 1
   _posInWorld: {x: 0, y: 0}
   _posInCell: {x: 0, y: 0, z: 0}
   bindObj: {fileID: 0}
+  temp_PassDrag: 0
   _temp_DistanceMain: 0
   _temp_DistanceToFrom: 0
   _temp_DistanceToTarget: 0

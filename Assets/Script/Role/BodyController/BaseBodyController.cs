@@ -165,6 +165,69 @@ public class BaseBodyController : MonoBehaviour
         }
     }
     #endregion
+
+    #region//转向
+    [HideInInspector]
+    public Vector2 faceDir;
+    private bool turnRight = false;
+    private bool turnLeft = false;
+    private bool faceRight = false;
+    private bool faceLeft = false;
+
+    /// <summary>
+    /// 面向左边
+    /// </summary>
+    public virtual void FaceLeft()
+    {
+        if (!faceLeft)
+        {
+            faceLeft = true;
+            faceRight = false;
+            Head.localScale = new Vector3(-1, 1, 1);
+            Body.localScale = new Vector3(-1, 1, 1);
+            Hand.localScale = new Vector3(-1, 1, 1);
+        }
+    }
+    /// <summary>
+    /// 面向右边
+    /// </summary>
+    public virtual void FaceRight()
+    {
+        if (!faceRight)
+        {
+            faceLeft = false;
+            faceRight = true;
+            Head.localScale = new Vector3(1, 1, 1);
+            Body.localScale = new Vector3(1, 1, 1);
+            Hand.localScale = new Vector3(1, 1, 1);
+        }
+    }
+    /// <summary>
+    /// 转向左边
+    /// </summary>
+    public void TurnLeft()
+    {
+        if (!turnLeft)
+        {
+            turnLeft = true;
+            turnRight = false;
+            Leg.localScale = new Vector3(-1, 1, 1);
+        }
+    }
+    /// <summary>
+    /// 转向右边
+    /// </summary>
+    public void TurnRight()
+    {
+        if (!turnRight)
+        {
+            turnRight = true;
+            turnLeft = false;
+            Leg.localScale = new Vector3(1, 1, 1);
+        }
+    }
+
+    #endregion
 }
 public enum BodyAction
 {

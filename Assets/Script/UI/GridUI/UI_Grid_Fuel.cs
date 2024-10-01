@@ -12,36 +12,17 @@ using DG.Tweening;
 
 public class UI_Grid_Fuel : UI_Grid
 {
-
-    /// <summary>
-    /// 燃料格子
-    /// </summary>
-    public UI_GridCell cell_Fuel;
-    /// <summary>
-    /// 燃料物体
-    /// </summary>
-    private ItemData item_Fuel;
-    /// <summary>
-    /// 燃料剩余值
-    /// </summary>
-    public Text text_FuelVal;
-    /// <summary>
-    /// 点燃按钮
-    /// </summary>
-    public Button btn_Ignite;
-    /// <summary>
-    /// 燃料燃值
-    /// </summary>
-    public TextMeshProUGUI text_Offset;
-
-    /// <summary>
-    /// 绑定事件(添加燃料)
-    /// </summary>
-    public Action<ItemData> action_AddFuel;
-    /// <summary>
-    /// 绑定事件(点燃燃料)
-    /// </summary>
-    public Action<short> action_IgniteFuel;
+    [SerializeField, Header("燃料格子")]
+    private UI_GridCell cell_Fuel;
+    [SerializeField, Header("燃料剩余")]
+    private Text text_FuelVal;
+    [SerializeField, Header("燃烧按钮")]
+    private Button btn_Ignite;
+    [SerializeField, Header("燃烧燃值")]
+    private TextMeshProUGUI text_Offset;
+    private ItemData itemData_Fuel = new ItemData();
+    private Action<ItemData> action_AddFuel;
+    private Action<short> action_IgniteFuel;
     private TileObj bindTileObj;
 
     private void Start()
@@ -50,8 +31,14 @@ public class UI_Grid_Fuel : UI_Grid
     }
     private void Bind()
     {
-        btn_Ignite.onClick.AddListener(ClickIgniteBtn);
+        btn_Ignite.onClick.AddListener(Ignite);
     }
+    public void BindAction(Action<ItemData> add, Action<short> ignite)
+    {
+        action_AddFuel = add;
+        action_IgniteFuel = ignite;
+    }
+    #region//打开关闭
     public override void Open(TileObj tileObj)
     {
         bindTileObj = tileObj;
@@ -62,12 +49,45 @@ public class UI_Grid_Fuel : UI_Grid
         bindTileObj = tileObj;
         base.Close(tileObj);
     }
-    public void BindAction(Action<ItemData> add, Action<short> ignite)
+
+    #endregion
+    #region//信息更新与上传
+    public void UpdateInfoFromTile(short fuelVal, short fuelMax, ItemData fuel)
     {
-        action_AddFuel = add;
-        action_IgniteFuel = ignite;
+        itemData_Fuel = fuel;
+        DrawCell(itemData_Fuel, cell_Fuel);
+        text_FuelVal.text = ((int)((float)fuelVal / fuelMax * 100)).ToString() + "%";
+        if (FuelConfigData.GetFuelConfig(fuel.Item_ID).FuelID != 0)
+        {
+            text_Offset.text = "+" + FuelConfigData.GetFuelConfig(fuel.Item_ID).FuelVal.ToString();
+        }
+        else
+        {
+            text_Offset.text = "+0";
+        }
     }
-    #region//UI操作
+    public void ChangeInfoToTile()
+    {
+        if (action_AddFuel != null)
+        {
+            action_AddFuel.Invoke(itemData_Fuel);
+        };
+        bindTileObj.TryToChangeInfo("");
+    }
+    #endregion
+    #region//UI绘制
+    /// <summary>
+    /// 绘制一个格子
+    /// </summary>
+    /// <param name="cell"></param>
+    /// <param name="config"></param>
+    private void DrawCell(ItemData data, UI_GridCell cell)
+    {
+        cell.UpdateGridCell(data);
+        cell.BindDragAction(CellDragBegin, CellDragIn, CellDragEnd);
+    }
+    #endregion
+    #region//UI交互
     public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
 
@@ -116,36 +136,6 @@ public class UI_Grid_Fuel : UI_Grid
         }
         base.ListenDragOn<T>(grid, cell, itemData);
     }
-    private void ClickIgniteBtn()
-    {
-        if (item_Fuel.Item_Count > 0)
-        {
-            if (action_IgniteFuel != null)
-            {
-                cell_Fuel.DOKill();
-                cell_Fuel.transform.localScale = Vector3.one;
-                cell_Fuel.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack).OnComplete(() =>
-                {
-                    action_IgniteFuel.Invoke(FuelConfigData.GetFuelConfig(item_Fuel.Item_ID).FuelVal);
-                    item_Fuel = new ItemData();
-                    ChangeInfoToTile();
-                });
-            };
-        }
-    }
-    #endregion
-    #region//UI管理
-    /// <summary>
-    /// 绘制一个格子
-    /// </summary>
-    /// <param name="cell"></param>
-    /// <param name="config"></param>
-    private void DrawCell(ItemData data, UI_GridCell cell)
-    {
-        cell.UpdateGridCell(data);
-        cell.BindDragAction(CellDragBegin, CellDragIn, CellDragEnd);
-    }
-
     #endregion
     #region//放入取出
     public override void PutIn(ItemData before, out ItemData after)
@@ -159,7 +149,7 @@ public class UI_Grid_Fuel : UI_Grid
             Type type = Type.GetType("Item_" + before.Item_ID.ToString());
             ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(itemData, resData, 1, out ItemData newData, out resData);
             after = resData;
-            item_Fuel = newData;
+            itemData_Fuel = newData;
             ChangeInfoToTile();
         }
         else
@@ -169,33 +159,28 @@ public class UI_Grid_Fuel : UI_Grid
     }
     public override void PutOut(ItemData before, out ItemData after)
     {
-        item_Fuel = new ItemData();
+        itemData_Fuel = new ItemData();
         ChangeInfoToTile();
         base.PutOut(before, out after);
     }
     #endregion
-    #region//上传更新
-    public void UpdateInfoFromTile(short fuelVal, short fuelMax, ItemData fuel)
+    #region//燃烧
+    private void Ignite()
     {
-        item_Fuel = fuel;
-        DrawCell(item_Fuel, cell_Fuel);
-        text_FuelVal.text = ((int)((float)fuelVal / fuelMax * 100)).ToString() + "%";
-        if (FuelConfigData.GetFuelConfig(fuel.Item_ID).FuelID != 0)
+        if (itemData_Fuel.Item_Count > 0)
         {
-            text_Offset.text = "+" + FuelConfigData.GetFuelConfig(fuel.Item_ID).FuelVal.ToString();
+            if (action_IgniteFuel != null)
+            {
+                cell_Fuel.DOKill();
+                cell_Fuel.transform.localScale = Vector3.one;
+                cell_Fuel.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack).OnComplete(() =>
+                {
+                    action_IgniteFuel.Invoke(FuelConfigData.GetFuelConfig(itemData_Fuel.Item_ID).FuelVal);
+                    itemData_Fuel = new ItemData();
+                    ChangeInfoToTile();
+                });
+            };
         }
-        else
-        {
-            text_Offset.text = "+0";
-        }
-    }
-    public void ChangeInfoToTile()
-    {
-        if (action_AddFuel != null)
-        {
-            action_AddFuel.Invoke(item_Fuel);
-        };
-        bindTileObj.TryToChangeInfo("");
     }
     #endregion
 }

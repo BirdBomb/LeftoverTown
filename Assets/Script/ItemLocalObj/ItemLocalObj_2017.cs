@@ -9,8 +9,12 @@ public class ItemLocalObj_2017 : ItemLocalObj
     public Transform leftHand;
     public Transform sprite;
     public Transform muzzle;
-    public void Shoot()
+    public void Shoot(short bulletID, Vector3 dir, ActorManager from)
     {
+        GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + bulletID);
+        obj.transform.position = muzzle.position;
+        obj.GetComponent<BulletBase>().InitBullet(dir, 1, from.NetManager);
+
         GameObject muzzleFire101 = PoolManager.Instance.GetObject("Effect/Effect_MuzzleFire101");
         muzzleFire101.transform.SetParent(muzzle);
         muzzleFire101.transform.localScale = Vector3.one;
@@ -21,12 +25,14 @@ public class ItemLocalObj_2017 : ItemLocalObj
         muzzleSmoke.transform.localScale = Vector3.one;
         muzzleSmoke.transform.position = muzzle.position;
         muzzleSmoke.transform.rotation = Quaternion.identity;
-        AudioManager.Instance.PlayEffect(1001, transform);
+        AudioManager.Instance.PlayEffect(1001, transform.position);
 
+        sprite.DOKill();
+        sprite.localPosition = Vector3.zero;
         sprite.DOPunchPosition(new Vector3(-0.1f, -0.1f, 0), 0.1f);
     }
-    public void Dull()
+    public void Dull(ActorManager from)
     {
-        AudioManager.Instance.PlayEffect(1002, transform);
+        AudioManager.Instance.PlayEffect(1002, transform.position);
     }
 }

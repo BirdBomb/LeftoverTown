@@ -151,7 +151,6 @@ public class TileObj_Bonfire : TileObj
             uI_Grid_Barbecue.Close(this);
         }
     }
-
     public override bool PlayerHolding(PlayerController player)
     {
         /*靠近是我自己*/
@@ -172,7 +171,7 @@ public class TileObj_Bonfire : TileObj
             OpenOrCloseBarbecue(false);
             return true;
         }
-        return true;
+        return false;
     }
     #endregion
     #region//事件绑定

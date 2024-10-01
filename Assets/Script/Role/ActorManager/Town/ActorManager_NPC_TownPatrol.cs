@@ -9,101 +9,95 @@ using UnityEngine;
 /// </summary>
 public class ActorManager_NPC_TownPatrol : ActorManager_NPC
 {
-    private List<UnityEngine.Vector2> sentryStationList = new List<UnityEngine.Vector2>();
-    private UnityEngine.Vector2 sentryStationLast = UnityEngine.Vector2.zero;
+    /// <summary>
+    /// 已知岗哨
+    /// </summary>
+    private List<UnityEngine.Vector2> onlyState_sentryStationList = new List<UnityEngine.Vector2>();
+    /// <summary>
+    /// 上个岗哨
+    /// </summary>
+    private UnityEngine.Vector2 onlyState_sentryStationLast = UnityEngine.Vector2.zero;
     public override void FixedUpdate()
     {
-        if (attackTarget)
+        AllClient_AttackLoop(Time.fixedDeltaTime);
+        base.FixedUpdate();
+    }
+    public override void OnlyState_FixedUpdateNetwork(float dt)
+    {
+        if (allClient_AttackTarget)
         {
-            float dt = Time.fixedDeltaTime;
-            AllLocal_Update_LookingTarget(dt);
-            AllLocal_Update_AttackingTarget(dt);
-            if (isState)
+            if (OnlyState_Update_CheckingAttackingTimer(dt))
             {
-                if (OnlyState_Update_CheckingAttackingTimer(dt))
+                if (OnlyState_Update_CheckingAttackingDistance(dt))
                 {
-                    if (OnlyState_Update_CheckingAttackingDistance(dt))
+                    if (allClient_AttackTarget.actorState != ActorState.Dead)
                     {
-                        if (attackTarget.actorState != ActorState.Dead)
-                        {
-                            NetManager.RPC_State_NpcChangeAttackState(true);
-                        }
-                        else
-                        {
-                            NetManager.RPC_State_NpcChangeAttackTarget(new NetworkId());
-                        }
+                        NetManager.RPC_State_NpcChangeAttackState(true);
+                    }
+                    else
+                    {
+                        NetManager.RPC_State_NpcChangeAttackTarget(new NetworkId());
                     }
                 }
             }
         }
-        base.FixedUpdate();
+
+        base.OnlyState_FixedUpdateNetwork(dt);
     }
     #region//夜训队专有方法
-    public override void Listen_OtherMove(ActorManager actor, MyTile where)
+    public override void OnlyStateListen_MoveOther(ActorManager actor, MyTile where)
     {
-        if (isState)
+        if (Tool_TryLookAt(actor))
         {
-            if (OnlyState_TryLookAt(actor))
+            /*我看的见*/
+            if (allClient_AttackTarget == actor)
             {
-                if (!attackTarget)
-                {
-                    FaceTo(actor.transform.position - transform.position);
-                    if (CanIAttack(actor))
-                    {
-                        TryToSendEmoji(0.1f, 9);
-                        NetManager.RPC_State_NpcChangeAttackTarget(actor.NetManager.Object.Id);
-                    }
-                }
-                else
-                {
-                    OnlyState_Follow(FollowType.Attack);
-                }
+                OnlyState_Follow(FollowType.Attack);
             }
             else
             {
-                if (attackTarget == actor)
+                if (OnlyState_CanIAttack(actor))
                 {
-                    TryToSendEmoji(0.1f, 1);
-                    NetManager.RPC_State_NpcChangeAttackTarget(new NetworkId());
+                    AllClient_TryToSendEmoji(0.1f, 9);
+                    NetManager.RPC_State_NpcChangeAttackTarget(actor.NetManager.Object.Id);
                 }
             }
         }
-        base.Listen_OtherMove(actor, where);
-    }
-    public override void Listen_HpChange(int parameter, NetworkId id)
-    {
-        ActorManager who = NetManager.Runner.FindObject(id).GetComponent<ActorManager>();
-        if (who.isPlayer && OnlyState_TryLookAt(who))
+        else
         {
-            who.SetFine(500);
-            TryToSendEmoji(0.1f, 16);
-        }
-        base.Listen_HpChange(parameter, id);
-    }
-    public override void ListenRoleCommit(ActorManager who, short val)
-    {
-        if (OnlyState_TryLookAt(who))
-        {
-            who.SetFine(val);
-        }
-        TryToSendEmoji(0.2f, 0);
-        base.ListenRoleCommit(who, val);
-    }
-    public override void ListenMyself_InDestinationTile()
-    {
-        if (!attackTarget)
-        {
-            TryToSendEmoji(0.1f, 1);
-            if (sentryStationLast != Vector2.zero)
+            /*我看不见*/
+            if (allClient_AttackTarget == actor)
             {
-                MoveToTargetSentryStation(sentryStationLast);
+                /*丢失攻击目标*/
+                OnlyState_Follow(FollowType.RunTo);
+                AllClient_TryToSendEmoji(0.1f, 1);
+                NetManager.RPC_State_NpcChangeAttackTarget(new NetworkId());
             }
         }
-        base.ListenMyself_InDestinationTile();
+        base.OnlyStateListen_MoveOther(actor, where);
     }
-    public override void Listen_WorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
+    public override void AllClientListen_MyselfHpChange(int parameter, NetworkId id)
     {
-        if (!attackTarget)
+        ActorManager who = NetManager.Runner.FindObject(id).GetComponent<ActorManager>();
+        if (who.isPlayer && Tool_TryLookAt(who))
+        {
+            who.AllClient_SetFine(500);
+            AllClient_TryToSendEmoji(0.1f, 16);
+        }
+        base.AllClientListen_MyselfHpChange(parameter, id);
+    }
+    public override void OnlyStateListen_RoleCommit(ActorManager who, short val)
+    {
+        if (Tool_TryLookAt(who))
+        {
+            who.AllClient_SetFine(val);
+        }
+        AllClient_TryToSendEmoji(0.2f, 0);
+        base.OnlyStateListen_RoleCommit(who, val);
+    }
+    public override void OnlyStateListen_WorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
+    {
+        if (!allClient_AttackTarget)
         {
             if (globalTime == GlobalTime.Dusk || globalTime == GlobalTime.Evening)
             {
@@ -114,34 +108,28 @@ public class ActorManager_NPC_TownPatrol : ActorManager_NPC
                 OnlyState_PutDown();
             }
         }
-        if (isState)
+        if (onlyState_sentryStationList.Count <= 0)
         {
-            if (sentryStationList.Count <= 0)
-            {
-                FindSentryStation();
-            }
-            if (hour % 6 == 0)
-            {
-                TurnToNextSentryStation();
-            }
+            OnlyState_FindSentryStation();
         }
-        base.Listen_WorldGlobalTimeChange(hour, date, globalTime);
+        if (hour % 6 == 0)
+        {
+            OnlyState_TurnToNextSentryStation();
+        }
+        base.OnlyStateListen_WorldGlobalTimeChange(hour, date, globalTime);
     }
-    public override void FromRPC_ChangeAttackTarget(NetworkId id)
+    public override void OnlyStateListen_ChangeAttackTarget(NetworkId id)
     {
-        base.FromRPC_ChangeAttackTarget(id);
-        if (isState)
+        if (allClient_AttackTarget)
         {
-            if (attackTarget)
-            {
-                OnlyState_PutOut(ItemType.Weapon);
-                FindWayToTarget(attackTarget.GetMyTile()._posInWorld);
-            }
-            else
-            {
-                OnlyState_PutDown();
-            }
+            OnlyState_PutOut(ItemType.Weapon);
+            OnlyState_FindWayToTarget(allClient_AttackTarget.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInWorld);
         }
+        else
+        {
+            OnlyState_PutDown();
+        }
+        base.OnlyStateListen_ChangeAttackTarget(id);
     }
     public override void OnlyState_TryUnderstand(ActorManager who, int id, bool look, bool hear)
     {
@@ -150,19 +138,33 @@ public class ActorManager_NPC_TownPatrol : ActorManager_NPC
         {
             case 16:
                 emoji = 0;
-                FindWayToTarget(who.GetMyTile()._posInWorld);
+                OnlyState_FindWayToTarget(who.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInWorld);
                 break;
         }
-        TryToSendEmoji(0.5f, emoji);
+        AllClient_TryToSendEmoji(0.5f, emoji);
         base.OnlyState_TryUnderstand(who, id, look, hear);
+    }
+    /// <summary>
+    /// 攻击循环
+    /// </summary>
+    public void AllClient_AttackLoop(float dt)
+    {
+        if (allClient_AttackTarget)
+        {
+            AllClient_Simulate_InputMousePos(allClient_AttackTarget.transform.position);
+            if (allClient_AttackState)
+            {
+                allClient_AttackState = !AllClient_Simulate_InputMousePress(dt, MouseInputType.PressRightThenPressLeft);
+            }
+        }
     }
     /// <summary>
     /// 我应该攻击吗
     /// </summary>
     /// <returns>攻击</returns>
-    private bool CanIAttack(ActorManager actor)
+    private bool OnlyState_CanIAttack(ActorManager actor)
     {
-        if (actor.NetManager.Data_Fine > 0)
+        if (!allClient_AttackTarget && actor.NetManager.Data_Fine > 0)
         {
             if (actor.NetManager.LocalData_Status != 1004)
             {
@@ -174,7 +176,7 @@ public class ActorManager_NPC_TownPatrol : ActorManager_NPC
     /// <summary>
     /// 查找岗哨
     /// </summary>
-    private void FindSentryStation()
+    private void OnlyState_FindSentryStation()
     {
         MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneFindTargetTile
         {
@@ -182,18 +184,18 @@ public class ActorManager_NPC_TownPatrol : ActorManager_NPC
             id = 1023,
             pos = transform.position,
             distance = 60,
-            action = AddSentryStation
+            action = OnlyState_AddSentryStation
         });
-        sentryStationLast = FindClosestSentryStation(sentryStationList);
+        onlyState_sentryStationLast = OnlyState_FindClosestSentryStation(onlyState_sentryStationList);
     }
     /// <summary>
     /// 查找最近岗哨
     /// </summary>
     /// <param name="vectors"></param>
     /// <returns></returns>
-    private Vector2 FindClosestSentryStation(List<Vector2> vectors)
+    private Vector2 OnlyState_FindClosestSentryStation(List<Vector2> vectors)
     {
-        Vector2 temp = GetMyTile()._posInWorld;
+        Vector2 temp = Tool_GetMyTileWithOffset(Vector3Int.zero)._posInWorld;
         Vector2 closestVector = vectors[0];
         float closestDistanceSquared = Vector2.Distance(temp, closestVector);
 
@@ -214,35 +216,35 @@ public class ActorManager_NPC_TownPatrol : ActorManager_NPC
     /// 添加岗哨
     /// </summary>
     /// <param name="tile"></param>
-    private void AddSentryStation(TileObj tile)
+    private void OnlyState_AddSentryStation(TileObj tile)
     {
-        sentryStationList.Add(tile.bindTile._posInWorld);
+        onlyState_sentryStationList.Add(tile.bindTile._posInWorld);
     }
     /// <summary>
     /// 轮换岗哨
     /// </summary>
-    private void TurnToNextSentryStation()
+    private void OnlyState_TurnToNextSentryStation()
     {
-        int index = sentryStationList.IndexOf(sentryStationLast) + 1;
-        if (index >= sentryStationList.Count)
+        int index = onlyState_sentryStationList.IndexOf(onlyState_sentryStationLast) + 1;
+        if (index >= onlyState_sentryStationList.Count)
         {
             index = 0;
         }
-        sentryStationLast = sentryStationList[index];
-        MoveToTargetSentryStation(sentryStationLast);
+        onlyState_sentryStationLast = onlyState_sentryStationList[index];
+        OnlyState_MoveToTargetSentryStation(onlyState_sentryStationLast);
     }
     /// <summary>
     /// 前往目的岗哨
     /// </summary>
     /// <param name="target"></param>
-    private void MoveToTargetSentryStation(Vector2 target)
+    private void OnlyState_MoveToTargetSentryStation(Vector2 target)
     {
-        MyTile tile = GetMyTile();
+        MyTile tile = Tool_GetMyTileWithOffset(Vector3Int.zero);
         if (tile)
         {
             if (Vector2.Distance(target, tile._posInWorld) > 5)
             {
-                FindWayToTarget(target);
+                OnlyState_FindWayToTarget(target);
             }
         }
     }

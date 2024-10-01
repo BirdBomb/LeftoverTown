@@ -10,20 +10,9 @@ public class UI_Grid_Refrigerator : UI_Grid
 {
     [SerializeField, Header("格子列表")]
     private List<UI_GridCell> cellList = new List<UI_GridCell>();
-    [HideInInspector]
-    public List<ItemData> itemDataList = new List<ItemData>();
+    private List<ItemData> itemDataList = new List<ItemData>();
 
-    private TileObj cabinet;
-
-    public override void Open(TileObj tileObj)
-    {
-        cabinet = tileObj;
-        base.Open(tileObj);
-    }
-    public override void Close(TileObj tileObj)
-    {
-        base.Open(tileObj);
-    }
+    private TileObj bindTileObj;
     public void Start()
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
@@ -32,6 +21,19 @@ public class UI_Grid_Refrigerator : UI_Grid
         }).AddTo(this);
     }
 
+    #region//打开关闭
+    public override void Open(TileObj tileObj)
+    {
+        bindTileObj = tileObj;
+        base.Open(tileObj);
+    }
+    public override void Close(TileObj tileObj)
+    {
+        base.Open(tileObj);
+    }
+
+    #endregion
+    #region//信息更新与上传
     /// <summary>
     /// 从地块获取更新
     /// </summary>
@@ -67,8 +69,10 @@ public class UI_Grid_Refrigerator : UI_Grid
                 builder.Append("/*I*/" + JsonUtility.ToJson(itemDataList[i]));
             }
         }
-        cabinet.TryToChangeInfo(builder.ToString());
+        bindTileObj.TryToChangeInfo(builder.ToString());
     }
+    #endregion
+    #region//UI绘制
     /// <summary>
     /// 绘制所有格子
     /// </summary>
@@ -87,14 +91,6 @@ public class UI_Grid_Refrigerator : UI_Grid
         }
     }
     /// <summary>
-    /// 重置一个格子
-    /// </summary>
-    /// <param name="cell"></param>
-    private void ResetCell(UI_GridCell cell)
-    {
-        cell.ResetGridCell();
-    }
-    /// <summary>
     /// 绘制一个格子
     /// </summary>
     /// <param name="cell"></param>
@@ -105,6 +101,17 @@ public class UI_Grid_Refrigerator : UI_Grid
         cell.BindClickAction(ClickCellLeft, ClickCellRight);
         cell.BindDragAction(CellDragBegin, CellDragIn, CellDragEnd);
     }
+    /// <summary>
+    /// 重置一个格子
+    /// </summary>
+    /// <param name="cell"></param>
+    private void ResetCell(UI_GridCell cell)
+    {
+        cell.ResetGridCell();
+    }
+
+    #endregion
+    #region//UI交互
     public void ClickCellLeft(UI_GridCell gridCell)
     {
 
@@ -160,6 +167,9 @@ public class UI_Grid_Refrigerator : UI_Grid
         }
         base.ListenDragOn<T>(grid, cell, itemData);
     }
+
+    #endregion
+    #region//取出放入
     /*取出*/
     public override void PutOut(ItemData before, out ItemData after)
     {
@@ -222,4 +232,6 @@ public class UI_Grid_Refrigerator : UI_Grid
         ChangeInfoToTile();
     }
 
+
+    #endregion
 }

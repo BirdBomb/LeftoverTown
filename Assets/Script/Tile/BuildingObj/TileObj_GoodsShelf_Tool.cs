@@ -130,40 +130,18 @@ public class TileObj_GoodsShelf_Tool : TileObj
         return true;
     }
     #endregion
-    #region//更新上传
+    #region//信息更新与上传
     public override void TryToUpdateInfo(string info)
     {
         uI_CabinetSteal.UpdateInfoFromTile(info);
         uI_CabinetBuy.UpdateInfoFromTile(info);
         base.TryToUpdateInfo(info);
     }
-    public override void TryToUpdateHp(int newHp)
-    {
-        if (newHp <= CurHp)
-        {
-            PlayDamagedAnim();
-        }
-        base.TryToUpdateHp(newHp);
-    }
     #endregion
     #region//工具货架
     public void ListenTimeUpdate(int hour)
     {
 
-    }
-
-    public override void TryToDestroyMyObj()
-    {
-        PlayBreakAnim();
-        Invoke("DestroyMyObj", 0.3f);
-    }
-    public override void PlayDamagedAnim()
-    {
-        base.PlayDamagedAnim();
-    }
-    public override void PlayBreakAnim()
-    {
-        base.PlayBreakAnim();
     }
     #endregion
 }

@@ -1128,7 +1128,7 @@ CircleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5344209725395026795}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -1248,6 +1248,7 @@ MonoBehaviour:
   AnimaEventListen_Hand: {fileID: 7893506350998783715}
   Animator_Leg: {fileID: 4111008411581940894}
   AnimaEventListen_Leg: {fileID: 2027835273665219984}
+  faceDir: {x: 0, y: 0}
   Hair: {fileID: 3391440228612806032}
   Eye: {fileID: 9147848508504076562}
 --- !u!114 &8091430848374201477
@@ -1358,12 +1359,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerController: {fileID: 8091430848374201477}
   playerCamera: {fileID: 689959221667614738}
-  _Net_Left_ClickTime: 0
-  _Net_Right_ClickTime: 0
-  _Net_LeftPress: 0
-  _Net_RightPress: 0
-  _Net_PressShift: 0
-  _Net_Face: {x: 0, y: 0, z: 0}
+  _MouseRightPressTimer: 0
+  _MouseLeftPressTimer: 0
+  _MouseLocation: {x: 0, y: 0}
 --- !u!114 &2537916146760977371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1382,13 +1380,9 @@ MonoBehaviour:
   skillSector: {fileID: 3913933913045209471}
   actorUI: {fileID: 7495404599927739563}
   actorState: 0
-  navManager: {fileID: 0}
   isPlayer: 1
   isState: 0
   isInput: 0
-  face: {x: 0, y: 0}
-  tempPath: []
-  targetTile: {fileID: 0}
 --- !u!114 &2382471986505964745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1401,7 +1395,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2466aa7a23d21a4394b30cc41be8dbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetTransform: {fileID: 0}
   networkRigidbody: {fileID: 222430417611897641}
   LocalManager: {fileID: 2537916146760977371}
   _Data_Seed: 0
@@ -1544,7 +1537,7 @@ MonoBehaviour:
   UseRenderSleepThresholds: 1
   RenderThresholds:
     UseEnergy: 1
-    Position: 0.01
+    Position: 0.005
     Rotation: 0.01
     Scale: 0.01
 --- !u!1 &5854869421010315869

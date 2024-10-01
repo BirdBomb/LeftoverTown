@@ -7,9 +7,11 @@ using UniRx;
 
 public class NavManager : MonoBehaviour
 {
-    public Tilemap tilemap;
+    [Header("建筑地图")]
+    public Tilemap tilemap_Building;
+    [Header("地块地图")]
+    public Tilemap tilemap_Floor;
     public Grid grid;
-    //private int maxStep = 16;
     /// <summary>
     /// 未选中列表
     /// </summary>
@@ -20,13 +22,13 @@ public class NavManager : MonoBehaviour
     private List<MyTile> closeList = new List<MyTile>();
     public MyTile FindTileByPos(Vector2 pos)
     {
-        return (MyTile)tilemap.GetTile(grid.WorldToCell(pos));
+        return (MyTile)tilemap_Building.GetTile(grid.WorldToCell(pos));
     }
     public List<MyTile> FindPath(MyTile to, MyTile from)
     {
-        if (to.passType == TilePassType.PassStop)
+        if (to.config_passType == TilePassType.PassStop)
         {
-            Debug.Log("无法前往目标点");
+            //Debug.Log("无法前往目标点");
             from.ResetTilePathInfo();
             return new List<MyTile> { from, from };
         }
@@ -61,7 +63,7 @@ public class NavManager : MonoBehaviour
                     if (newPathG < surroundTile._temp_DistanceToFrom)
                     {
                         surroundTile._temp_DistanceToFrom = newPathG;
-                        surroundTile._temp_DistanceMain = surroundTile._temp_DistanceToFrom + surroundTile.passOffset + surroundTile._temp_DistanceToTarget;
+                        surroundTile._temp_DistanceMain = surroundTile._temp_DistanceToFrom + surroundTile.temp_PassDrag + surroundTile._temp_DistanceToTarget;
                         surroundTile._temp_fatherTile = minTile;
                     }
                 }
@@ -135,67 +137,67 @@ public class NavManager : MonoBehaviour
         MyTile up , down , right , left,
             rightUp , leftUp , rightDown , leftDown;
 
-        up = (MyTile)tilemap.GetTile(from._posInCell + Vector3Int.up);
-        down = (MyTile)tilemap.GetTile(from._posInCell + Vector3Int.down);
-        right = (MyTile)tilemap.GetTile(from._posInCell + Vector3Int.right);
-        left  = (MyTile)tilemap.GetTile(from._posInCell + Vector3Int.left);
-        rightUp = (MyTile)tilemap.GetTile(from._posInCell + Vector3Int.right + Vector3Int.up);
-        leftUp = (MyTile)tilemap.GetTile(from._posInCell + Vector3Int.left + Vector3Int.up);
-        rightDown = (MyTile)tilemap.GetTile(from._posInCell + Vector3Int.right + Vector3Int.down);
-        leftDown = (MyTile)tilemap.GetTile(from._posInCell + Vector3Int.left + Vector3Int.down);
+        up = (MyTile)tilemap_Building.GetTile(from._posInCell + Vector3Int.up);
+        down = (MyTile)tilemap_Building.GetTile(from._posInCell + Vector3Int.down);
+        right = (MyTile)tilemap_Building.GetTile(from._posInCell + Vector3Int.right);
+        left  = (MyTile)tilemap_Building.GetTile(from._posInCell + Vector3Int.left);
+        rightUp = (MyTile)tilemap_Building.GetTile(from._posInCell + Vector3Int.right + Vector3Int.up);
+        leftUp = (MyTile)tilemap_Building.GetTile(from._posInCell + Vector3Int.left + Vector3Int.up);
+        rightDown = (MyTile)tilemap_Building.GetTile(from._posInCell + Vector3Int.right + Vector3Int.down);
+        leftDown = (MyTile)tilemap_Building.GetTile(from._posInCell + Vector3Int.left + Vector3Int.down);
 
         if (up != null)
         {
-            if (up.passType != TilePassType.PassStop)
+            if (up.config_passType != TilePassType.PassStop)
             {
                 list.Add(up);
             }
         }
         if (down != null)
         {
-            if (down.passType != TilePassType.PassStop)
+            if (down.config_passType != TilePassType.PassStop)
             {
                 list.Add(down);
             }
         }
         if (right != null)
         {
-            if (right.passType != TilePassType.PassStop)
+            if (right.config_passType != TilePassType.PassStop)
             {
                 list.Add(right);
             }
         }
         if (left != null)
         {
-            if(left.passType != TilePassType.PassStop)
+            if(left.config_passType != TilePassType.PassStop)
             {
                 list.Add(left);
             }
         }
         if (rightUp != null && right != null && up != null)
         {
-            if (rightUp.passType != TilePassType.PassStop && right.passType != TilePassType.PassStop && up.passType != TilePassType.PassStop)
+            if (rightUp.config_passType != TilePassType.PassStop && right.config_passType != TilePassType.PassStop && up.config_passType != TilePassType.PassStop)
             {
                 list.Add(rightUp);
             }
         }
         if (leftUp != null && left != null && up != null)
         {
-            if (leftUp.passType != TilePassType.PassStop && left.passType != TilePassType.PassStop && up.passType != TilePassType.PassStop)
+            if (leftUp.config_passType != TilePassType.PassStop && left.config_passType != TilePassType.PassStop && up.config_passType != TilePassType.PassStop)
             {
                 list.Add(leftUp);
             }
         }
         if (rightDown != null && right != null && down != null)
         {
-            if (rightDown.passType != TilePassType.PassStop && right.passType != TilePassType.PassStop && down.passType != TilePassType.PassStop)
+            if (rightDown.config_passType != TilePassType.PassStop && right.config_passType != TilePassType.PassStop && down.config_passType != TilePassType.PassStop)
             {
                 list.Add(rightDown);
             }
         }
         if (leftDown != null && left != null && down != null)
         {
-            if (leftDown.passType != TilePassType.PassStop && left.passType != TilePassType.PassStop && down.passType != TilePassType.PassStop)
+            if (leftDown.config_passType != TilePassType.PassStop && left.config_passType != TilePassType.PassStop && down.config_passType != TilePassType.PassStop)
             {
                 list.Add(leftDown);
             }
@@ -226,7 +228,7 @@ public class NavManager : MonoBehaviour
     /// <returns></returns>
     private float CalcG(MyTile surround,MyTile from)
     {
-        return from._temp_DistanceToFrom /*+ from.passOffset*/ + Vector3.Distance(surround._posInCell, from._posInCell);
+        return from._temp_DistanceToFrom + Vector3.Distance(surround._posInCell, from._posInCell);
     }
     /// <summary>
     /// 计算该点到终点F
@@ -246,7 +248,7 @@ public class NavManager : MonoBehaviour
         {
             g = Vector2.Distance(now._posInWorld, now._temp_fatherTile._posInWorld) + now._temp_DistanceToFrom;
         }
-        float f = g + h + now.passOffset;
+        float f = g + h + now.temp_PassDrag;
         now._temp_DistanceMain = f;
         now._temp_DistanceToFrom = g;
         now._temp_DistanceToTarget = h;

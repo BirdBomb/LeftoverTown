@@ -9,13 +9,19 @@ using UnityEngine.UI;
 
 public class UI_Grid_Barbecue : UI_Grid
 {
-    public UI_GridCell cell_Barbecue;
-    public Image image_Bar;
-    private ItemData item_Barbecue;
+    [SerializeField, Header("烧烤格子")]
+    private UI_GridCell cell_Barbecue;
+    [SerializeField, Header("烧烤进度条")]
+    private Image image_Bar;
+    private ItemData itemData_Barbecue;
     private TileObj bindTileObj;
     private short barbecueVal;
-    public Action<ItemData, short> action_AddBarbecue;
-
+    private Action<ItemData, short> action_AddBarbecue;
+    public void BindAction(Action<ItemData, short> action)
+    {
+        action_AddBarbecue = action;
+    }
+    #region//打开关闭
     public override void Open(TileObj tileObj)
     {
         bindTileObj = tileObj;
@@ -26,12 +32,8 @@ public class UI_Grid_Barbecue : UI_Grid
         bindTileObj = tileObj;
         base.Close(tileObj);
     }
-    public void BindAction(Action<ItemData, short> action)
-    {
-        action_AddBarbecue = action;
-    }
-
-    #region//UI操作
+    #endregion
+    #region//UI交互
     public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
 
@@ -102,7 +104,6 @@ public class UI_Grid_Barbecue : UI_Grid
     }
 
     #endregion
-
     #region//放入取出
     public override void PutIn(ItemData before, out ItemData after)
     {
@@ -115,7 +116,7 @@ public class UI_Grid_Barbecue : UI_Grid
             Type type = Type.GetType("Item_" + before.Item_ID.ToString());
             ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(itemData, resData, 1, out ItemData newData, out resData);
             after = resData;
-            item_Barbecue = newData;
+            itemData_Barbecue = newData;
             barbecueVal = barbecue.BarbecueVal;
             ChangeInfoToTile();
         }
@@ -126,7 +127,7 @@ public class UI_Grid_Barbecue : UI_Grid
     }
     public override void PutOut(ItemData before, out ItemData after)
     {
-        item_Barbecue = new ItemData();
+        itemData_Barbecue = new ItemData();
         barbecueVal = 0;
         ChangeInfoToTile();
         base.PutOut(before, out after);
@@ -135,8 +136,8 @@ public class UI_Grid_Barbecue : UI_Grid
     #region//上传更新
     public void UpdateInfoFromTile(short barbecueVal, short barbecueMax, ItemData barbecue)
     {
-        item_Barbecue = barbecue;
-        DrawCell(item_Barbecue, cell_Barbecue);
+        itemData_Barbecue = barbecue;
+        DrawCell(itemData_Barbecue, cell_Barbecue);
         if (barbecueMax != 0)
         {
             image_Bar.transform.DOKill();
@@ -157,7 +158,7 @@ public class UI_Grid_Barbecue : UI_Grid
     {
         if (action_AddBarbecue != null)
         {
-            action_AddBarbecue.Invoke(item_Barbecue, barbecueVal);
+            action_AddBarbecue.Invoke(itemData_Barbecue, barbecueVal);
         };
         bindTileObj.TryToChangeInfo("");
     }

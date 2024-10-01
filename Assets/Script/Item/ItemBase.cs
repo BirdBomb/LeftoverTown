@@ -30,13 +30,21 @@ public class ItemBase
     /// </summary>
     public ItemConfig itemConfig;
     /// <summary>
-    /// 更新数据
+    /// 更新数据(网络更新)
     /// </summary>
     /// <param name="data"></param>
-    public virtual void UpdateData(ItemData data)
+    public virtual void UpdateDataFromNet(ItemData data)
     {
         itemData = data;
         itemConfig = ItemConfigData.GetItemConfig(data.Item_ID);
+    }
+    /// <summary>
+    /// 更新数据(本地模拟)
+    /// </summary>
+    /// <param name="data"></param>
+    public virtual void UpdateDataFromLocal(ItemData data)
+    {
+        itemData = data;
     }
     /// <summary>
     /// 更新时间
@@ -85,65 +93,52 @@ public class ItemBase
     /// </summary>
     public InputData inputData = new InputData();
     /// <summary>
-    /// 右键点击
-    /// </summary>
-    public virtual void ClickRightClick(float dt, bool state, bool input, bool showSI)
-    {
-
-    }
-    /// <summary>
-    /// 右键按压
-    /// </summary>
-    /// <param name="dt"></param>
-    /// <param name="state"></param>
-    /// <param name="input"></param>
-    /// <param name="showSI"></param>
-    /// <returns>达到最大值</returns>
-    public virtual bool PressRightClick(float dt, bool state, bool input, bool showSI)
-    {
-        return true;
-    }
-    /// <summary>
-    /// 右键释放
-    /// </summary>
-    public virtual void ReleaseRightClick(float dt, bool state, bool input, bool showSI)
-    {
-
-    }
-    /// <summary>
-    /// 左键点击
-    /// </summary>
-    public virtual void ClickLeftClick(float dt, bool state, bool input, bool showSI)
-    {
-
-    }
-    /// <summary>
     /// 左键按压
     /// </summary>
-    /// <param name="dt"></param>
+    /// <param name="pressTimer"></param>
     /// <param name="state"></param>
     /// <param name="input"></param>
-    /// <param name="showSI"></param>
-    /// <returns>达到最大值</returns>
-    public virtual bool PressLeftClick(float dt, bool state, bool input, bool showSI)
+    /// <returns>最大值</returns>
+    public virtual bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
     {
         return true;
     }
     /// <summary>
     /// 左键释放
     /// </summary>
-    public virtual void ReleaseLeftClick(float dt, bool state, bool input, bool showSI)
+    /// <param name="state"></param>
+    /// <param name="input"></param>
+    public virtual void ReleaseLeftPress(bool state, bool input, bool player)
     {
 
     }
     /// <summary>
-    /// 鼠标位置
+    /// 右键按压
     /// </summary>
-    public virtual void InputMousePos(Vector3 mouse, float time)
+    /// <param name="pressTimer"></param>
+    /// <param name="state"></param>
+    /// <param name="input"></param>
+    /// <returns>最大值</returns>
+    public virtual bool UpdateRightPress(float pressTimer, bool state, bool input, bool player)
+    {
+        return true;
+    }
+    /// <summary>
+    /// 右键释放
+    /// </summary>
+    /// <param name="state"></param>
+    /// <param name="input"></param>
+    public virtual void ReleaseRightPress(bool state, bool input, bool player)
     {
 
     }
+    /// <summary>
+    /// 更新鼠标位置
+    /// </summary>
+    public virtual void UpdateMousePos(Vector3 mouse)
+    {
 
+    }
     #endregion
     #region//持握方法
     /// <summary>
@@ -334,9 +329,9 @@ public class ItemBase_Ingredient: ItemBase
         baseData.Item_DurabilityPoint = (short)(MapManager.Instance.mapNetManager.Date * 10 + MapManager.Instance.mapNetManager.Hour);
         initData = baseData;
     }
-    public override void UpdateData(ItemData itemData)
+    public override void UpdateDataFromNet(ItemData itemData)
     {
-        base.UpdateData(itemData);
+        base.UpdateDataFromNet(itemData);
         CalculateDurability();
     }
     public override void StaticAction_FillUp(ItemData mainItem, ItemData contentItem, short maxCap, out ItemData newItem, out ItemData resItem)
@@ -465,9 +460,9 @@ public class ItemBase_Food : ItemBase
         baseData.Item_DurabilityPoint = (short)(MapManager.Instance.mapNetManager.Date * 10 + MapManager.Instance.mapNetManager.Hour);
         initData = baseData;
     }
-    public override void UpdateData(ItemData itemData)
+    public override void UpdateDataFromNet(ItemData itemData)
     {
-        base.UpdateData(itemData);
+        base.UpdateDataFromNet(itemData);
         CalculateDurability();
     }
     public override void StaticAction_FillUp(ItemData mainItem, ItemData contentItem, short maxCap, out ItemData newItem, out ItemData resItem)
@@ -685,9 +680,7 @@ public struct ContentData : INetworkStruct
 }
 public class InputData
 {
-    public bool rightPressState = false;
     public float rightPressTimer = 0;
-    public bool leftPressState = false;
     public float leftPressTimer = 0;
     public Vector3 mousePosition = Vector3.zero;
 }

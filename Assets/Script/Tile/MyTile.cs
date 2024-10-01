@@ -13,11 +13,9 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     #region
 
     [Header("瓦片通行类型")]
-    public TilePassType passType;
-    [Header("瓦片交互类型")]
-    public TileInteractiveType interactiveType;
-    [Header("瓦片阻力")]
-    public float passOffset;
+    public TilePassType config_passType;
+    [Header("瓦片阻力系数")]
+    public int config_passDrag;
 
     [HideInInspector]
     public Vector2 _posInWorld;
@@ -28,6 +26,11 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     public GameObject bindObj;
 
     #region//寻路相关
+    /// <summary>
+    /// 瓦片复合阻力
+    /// </summary>
+    [HideInInspector]
+    public int temp_PassDrag;
     /// <summary>
     /// 总权重
     /// </summary>
@@ -82,15 +85,22 @@ public class MyTile : UnityEngine.Tilemaps.Tile
         }
     }
     /// <summary>
+    /// 重设瓦片阻力
+    /// </summary>
+    /// <param name="offset"></param>
+    public void ResetDrag(int offset)
+    {
+        temp_PassDrag = config_passDrag + offset;
+    }
+    /// <summary>
     /// 复制地块
     /// </summary>
     /// <param name="tileScript"></param>
     private void CopyData(MyTile tileScript)
     {
         name = tileScript.name;
-        passType = tileScript.passType;
-        interactiveType = tileScript.interactiveType;
-        passOffset = tileScript.passOffset;
+        config_passType = tileScript.config_passType;
+        config_passDrag = tileScript.config_passDrag;
         color = tileScript.color;
         flags = tileScript.flags;
         colliderType = tileScript.colliderType;
@@ -306,12 +316,6 @@ public class MyTile : UnityEngine.Tilemaps.Tile
         AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<MyTile>(), path);
     }
 # endif
-}
-[System.Serializable]
-public struct MyTileData
-{
-    string TileSprite;
-    string TileScript;
 }
 public enum TilePassType
 {

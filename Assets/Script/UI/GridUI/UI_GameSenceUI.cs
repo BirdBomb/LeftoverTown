@@ -35,6 +35,7 @@ public class UI_GameSenceUI : UI_Grid
     public TextMeshProUGUI Text_Happy;
     [Header("½ð±Ò")]
     public TextMeshProUGUI Text_Coin;
+    private int val_Coin;
     [Header("Éí·Ý")]
     public TextMeshProUGUI Text_Status;
     [Header("ÐüÉÍ")]
@@ -81,7 +82,13 @@ public class UI_GameSenceUI : UI_Grid
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateCoinData>().Subscribe(_ =>
         {
-            Text_Coin.text = _.Coin.ToString();
+            DOTween.To(() => val_Coin, x => val_Coin = x, _.Coin, 1).OnComplete(() => 
+            {
+                Text_Coin.transform.localScale = Vector3.one;
+                Text_Coin.transform.rotation = Quaternion.identity;
+                Text_Coin.transform.DOPunchScale(new Vector3(0.2f, 0.2f, 0), 0.1f);
+                Text_Coin.transform.DOShakeRotation(0.1f, new Vector3(0, 0, 30));
+            });
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateStatus>().Subscribe(_ =>
         {
@@ -92,6 +99,10 @@ public class UI_GameSenceUI : UI_Grid
             Text_Fine.text = _.Fine.ToString();
         }).AddTo(this);
 
+    }
+    private void FixedUpdate()
+    {
+        Text_Coin.text = val_Coin.ToString();
     }
     private void UpdateHandSlot(ItemData item)
     {

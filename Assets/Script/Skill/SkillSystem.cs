@@ -13,7 +13,7 @@ public class Skill_1001 : SkillBase
 {
     public override void ClickSpace()
     {
-        bindActor.NetManager.networkRigidbody.Rigidbody.velocity = bindActor.face * 25;
+        bindActor.NetManager.networkRigidbody.Rigidbody.velocity = bindActor.BodyController.faceDir * 25;
         bindActor.BodyController.SetBodyTrigger("Roll", 2.5f, null);
         bindActor.BodyController.SetHeadTrigger("Roll", 2.5f, null);
         bindActor.BodyController.SetLegTrigger("Roll", 2.5f, null);
@@ -30,7 +30,7 @@ public class Skill_1002 : SkillBase
 {
     public override void ClickSpace()
     {
-        bindActor.NetManager.networkRigidbody.Rigidbody.velocity = bindActor.face * 50;
+        bindActor.NetManager.networkRigidbody.Rigidbody.velocity = bindActor.BodyController.faceDir * 50;
         bindActor.BodyController.SetBodyTrigger("Roll", 2.5f, null);
         bindActor.BodyController.SetHeadTrigger("Roll", 2.5f, null);
         bindActor.BodyController.SetLegTrigger("Roll", 2.5f, null);

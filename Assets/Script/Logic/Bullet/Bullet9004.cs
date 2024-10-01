@@ -7,13 +7,16 @@ using UnityEngine.Rendering.Universal;
 
 public class Bullet9004 : BulletBase
 {
-    [SerializeField]
-    private float speedOffset;
-    [SerializeField]
-    private short damageOffset;
+    [Header("×Óµ¯")]
     public SpriteRenderer spriteRenderer;
+    [Header("ÍÏÎ²")]
     public TrailRenderer trailRenderer;
+    [Header("¹âÔ´")]
     public Light2D bulletLight;
+    /// <summary>
+    /// ºöÂÔ
+    /// </summary>
+    private List<ActorManager> ignoreList = new List<ActorManager>();
     public override void InitBullet(Vector3 dir, float speed, ActorNetManager from)
     {
         transform.DOKill();
@@ -23,7 +26,9 @@ public class Bullet9004 : BulletBase
         bulletLight.enabled = true;
         bulletLight.intensity = 1;
         trailRenderer.Clear();
-        base.InitBullet(dir, speed + speedOffset, from);
+        ignoreList.Clear();
+        ignoreList.Add(from.LocalManager);
+        base.InitBullet(dir, speed, from);
 
         transform.right = moveDir;
     }
@@ -37,7 +42,6 @@ public class Bullet9004 : BulletBase
     {
         lastPos = curPos;
         curPos = transform.position;
-        //Physics2D.Simulate(dt);
         RaycastHit2D[] hit2D = Physics2D.LinecastAll(lastPos, curPos + moveDir * moveSpeed * dt, target);
         for (int i = 0; i < hit2D.Length; i++)
         {
@@ -45,11 +49,11 @@ public class Bullet9004 : BulletBase
             {
                 if (hit2D[i].transform.TryGetComponent(out ActorManager actor))
                 {
-                    if (actor == _from.LocalManager) { continue; }
+                    if (ignoreList.Contains(actor)) { continue; }
                     else
                     {
-                        actor.TakeDamage(1 + damageOffset, _from);
-                        Boom(hit2D[i].point);
+                        ignoreList.Add(actor);
+                        TryAttack(actor);
                     }
                 }
             }
@@ -60,14 +64,31 @@ public class Bullet9004 : BulletBase
         }
         base.Check(dt);
     }
-    public void Boom(Vector2 pos)
+    /// <summary>
+    /// ³¢ÊÔ¹¥»÷
+    /// </summary>
+    private void TryAttack(ActorManager actor)
+    {
+        if (_input)
+        {
+            actor.AllClient_TakeDamage(configDamage, _from);
+        }
+    }
+    /// <summary>
+    /// ±¬Õ¨
+    /// </summary>
+    /// <param name="pos"></param>
+    private void Boom(Vector2 pos)
     {
         GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_BulletBoom105");
         effect.transform.position = pos;
         moveSpeed = 0;
     }
-
-    public void SpeedDown(float dt)
+    /// <summary>
+    /// ¼õËÙ
+    /// </summary>
+    /// <param name="dt"></param>
+    private void SpeedDown(float dt)
     {
         if (bulletLight.intensity > 0)
         {

@@ -97,12 +97,12 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
     {
         if (globalTime == GlobalTime.Morning)
         {
-            DOTween.To(() => temperature, x => temperature = x, -10, 10f).OnUpdate(() =>
-            {
-                _whiteBalance.temperature.Override(temperature);
-            });
-            DOTween.To(() => globalLight.intensity, x => globalLight.intensity = x, 0.75f, 10f);
-            DOTween.To(() => globalLight.color, x => globalLight.color = x, new Color(1, 225f / 255f, 200f / 255f, 1), 10f);
+            //DOTween.To(() => temperature, x => temperature = x, -10, 10f).OnUpdate(() =>
+            //{
+            //    _whiteBalance.temperature.Override(temperature);
+            //});
+            //DOTween.To(() => globalLight.intensity, x => globalLight.intensity = x, 0.75f, 10f);
+            //DOTween.To(() => globalLight.color, x => globalLight.color = x, new Color(1, 225f / 255f, 200f / 255f, 1), 10f);
         }
         if (globalTime == GlobalTime.HighNoon)
         {
@@ -115,57 +115,21 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
         }
         if (globalTime == GlobalTime.Dusk)
         {
-            DOTween.To(() => temperature, x => temperature = x, 20, 10f).OnUpdate(() =>
-            {
-                _whiteBalance.temperature.Override(temperature);
-            });
-            DOTween.To(() => globalLight.intensity, x => globalLight.intensity = x, 0.75f, 10f);
-            DOTween.To(() => globalLight.color, x => globalLight.color = x, new Color(1, 160f / 255f, 70f / 255f, 1), 10f);
+            //DOTween.To(() => temperature, x => temperature = x, 20, 10f).OnUpdate(() =>
+            //{
+            //    _whiteBalance.temperature.Override(temperature);
+            //});
+            //DOTween.To(() => globalLight.intensity, x => globalLight.intensity = x, 0.75f, 10f);
+            //DOTween.To(() => globalLight.color, x => globalLight.color = x, new Color(1, 160f / 255f, 70f / 255f, 1), 10f);
         }
         if (globalTime == GlobalTime.Evening)
         {
-            DOTween.To(() => temperature, x => temperature = x, -20f, 10f).OnUpdate(() =>
-            {
-                _whiteBalance.temperature.Override(temperature);
-            });
-            DOTween.To(() => globalLight.intensity, x => globalLight.intensity = x, 0.5f, 10f);
-            DOTween.To(() => globalLight.color, x => globalLight.color = x, new Color(140f / 255f, 100f / 255f, 170f / 255f, 1), 10f);
-        }
-        GlobalTimeNow = globalTime;
-    }
-    public void SetGlobalTime(GlobalTime globalTime)
-    {
-        MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_TimeChange()
-        {
-            now = globalTime
-        });
-        if (globalTime == GlobalTime.Morning)
-        {
-            temperature = -10;
-            _whiteBalance.temperature.Override(temperature);
-            globalLight.intensity = 0.75f;
-            globalLight.color = new Color(1, 225f / 255f, 200f / 255f, 1);
-        }
-        if (globalTime == GlobalTime.HighNoon)
-        {
-            temperature = 10;
-            _whiteBalance.temperature.Override(temperature);
-            globalLight.intensity = 1f;
-            globalLight.color = new Color(1, 1, 1, 1);
-        }
-        if (globalTime == GlobalTime.Dusk)
-        {
-            temperature = 20;
-            _whiteBalance.temperature.Override(temperature);
-            globalLight.intensity = 0.75f;
-            globalLight.color = new Color(1, 160f / 255f, 70f / 255f, 1);
-        }
-        if (globalTime == GlobalTime.Evening)
-        {
-            temperature = -20f;
-            _whiteBalance.temperature.Override(temperature);
-            globalLight.intensity = 0.5f;
-            globalLight.color = new Color(140f / 255f, 100f / 255f, 170f / 255f, 1);
+            //DOTween.To(() => temperature, x => temperature = x, -20f, 10f).OnUpdate(() =>
+            //{
+            //    _whiteBalance.temperature.Override(temperature);
+            //});
+            //DOTween.To(() => globalLight.intensity, x => globalLight.intensity = x, 0.5f, 10f);
+            //DOTween.To(() => globalLight.color, x => globalLight.color = x, new Color(140f / 255f, 100f / 255f, 170f / 255f, 1), 10f);
         }
         GlobalTimeNow = globalTime;
     }

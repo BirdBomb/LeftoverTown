@@ -5,116 +5,42 @@ using UniRx;
 using UnityEngine.Windows;
 using Fusion.Addons.Physics;
 using System;
+using static UnityEditor.PlayerSettings;
 /// <summary>
 /// 角色网络管理器
 /// </summary>
 public class ActorNetManager : NetworkBehaviour
 {
-    [Header("位置同步组件")]
-    public NetworkTransform NetTransform;
     [Header("物理同步组件")]
     public NetworkRigidbody2D networkRigidbody;
     [Header("本地角色组件")]
     public ActorManager LocalManager;
     public override void Spawned()
     {
-        if (LocalManager.isPlayer)
-        {
-           
-        }
-        else
+        if (!LocalManager.isPlayer)
         {
             if (Object.HasStateAuthority)
             {
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
         }
-        LocalManager.InitByNetManager(Object.HasStateAuthority, Object.HasInputAuthority);
+        LocalManager.AllClient_InitByNetManager(Object.HasStateAuthority, Object.HasInputAuthority);
         base.Spawned();
         InitNetworkData();
     }
     public override void FixedUpdateNetwork()
     {
-        LocalManager.FixedUpdateNetwork(Runner.DeltaTime);
+        LocalManager.AllClient_FixedUpdateNetwork(Runner.DeltaTime);
+        if (Object.HasStateAuthority)
+        {
+            LocalManager.OnlyState_FixedUpdateNetwork(Runner.DeltaTime);
+        }
         base.FixedUpdateNetwork();
     }
-    /// <summary>
-    /// 更新网络位置
-    /// </summary>
-    /// <param name="pos"></param>
-    public void UpdateNetworkTransform(Vector3 pos,float speed)
+    public override void Render()
     {
-        if (networkRigidbody /*&& Object.HasStateAuthority*/)
-        {
-            if (networkRigidbody.Rigidbody.velocity.magnitude <= speed)
-            {
-                networkRigidbody.Rigidbody.velocity = Vector2.zero;
-                networkRigidbody.Rigidbody.position = (pos);
-            }
-            //networkRigidbody.Teleport(pos);
-            //transform.position = pos;
-        }
+        base.Render();
     }
-    /// <summary>
-    /// 更新随机数
-    /// </summary>
-    public void UpdateSeed()
-    {
-        Data_Seed += 1;
-    }
-    #region//周期
-    /// <summary>
-    /// 饥饿计时器
-    /// </summary>
-    private int foodTimer;
-    public void StartLoop()
-    {
-        InvokeRepeating("AddOneSecond", 1, 1);
-    }
-    /// <summary>
-    /// (秒)周期
-    /// </summary>
-    private void AddOneSecond()
-    {
-        UpdateFoodTime();
-        UpdateItemTime();
-    }
-    /// <summary>
-    /// (小时)周期
-    /// </summary>
-    public void AddOneHour(int hour,int date, GlobalTime globalTime)
-    {
-        
-    }
-    private void UpdateFoodTime()
-    {
-        foodTimer++;
-        if (foodTimer >= Data_Water + 5)
-        {
-            foodTimer = 0;
-            if (LocalManager.SubFood(-1) <= 0)
-            {
-                Data_CurHp -= (int)(Data_MaxHp * 0.1f);
-            }
-        }
-
-    }
-    private void UpdateItemTime()
-    {
-        if (LocalManager.holdingByHand != null)
-        {
-            LocalManager.holdingByHand.UpdateTime(1);
-        }
-        if (LocalManager.wearingOnHead != null)
-        {
-            LocalManager.wearingOnHead.UpdateTime(1);
-        }
-        if (LocalManager.wearingOnBody != null)
-        {
-            LocalManager.wearingOnBody.UpdateTime(1);
-        }
-    }
-    #endregion
     #region//Networked
 
     public void InitNetworkData()
@@ -135,14 +61,36 @@ public class ActorNetManager : NetworkBehaviour
         OnSkillUseChange();
     }
 
-    [Networked, OnChangedRender(nameof(OnSeedChange)),HideInInspector]
-    public int Data_Seed { get; set; }
-    public int RandomInRange { get; set; }
+    #region//随机数
+    [Networked, OnChangedRender(nameof(OnSeedChange)), HideInInspector]
+    public short Data_Seed { get; set; }
+    public int GetRandomValInRange(int min,int max,int offset)
+    {
+        Data_Seed++;
+        UnityEngine.Random.InitState(Data_Seed + offset);
+        return UnityEngine.Random.Range(min, max);
+    }
+    /// <summary>
+    /// 0-100随机数
+    /// </summary>
+    public int Data_RandomInRange 
+    {
+        get;
+        set;
+    }
     public void OnSeedChange()
     {
         UnityEngine.Random.InitState(Data_Seed);
-        RandomInRange = UnityEngine.Random.Range(0, 101);
+        Data_RandomInRange = UnityEngine.Random.Range(0, 101);
     }
+    /// <summary>
+    /// 更新随机数
+    /// </summary>
+    public void UpdateSeed()
+    {
+        Data_Seed += 1;
+    }
+    #endregion
 
     #region//外貌和名字
     /// <summary>
@@ -271,7 +219,7 @@ public class ActorNetManager : NetworkBehaviour
         if (Data_CurHp <= 0)
         {
             LocalManager.ActorUI.UpdateHPBar(0 / (float)Data_MaxHp);
-            LocalManager.TryToDead();
+            LocalManager.AllClient_TryToDead();
         }
         else
         {
@@ -429,17 +377,17 @@ public class ActorNetManager : NetworkBehaviour
     public short LocalData_Status;
     public void OnItemInHandChange()
     {
-        LocalManager.AddItem_Hand(Data_ItemInHand);
+        LocalManager.AllClient_HoldItemInHand(Data_ItemInHand);
     }
     public void OnItemOnHeadChange()
     {
-        LocalManager.CheckStatus(Data_ItemOnBody.Item_ID, Data_ItemOnHead.Item_ID, Data_Fine, out LocalData_Status);
-        LocalManager.WearItem_Head(Data_ItemOnHead);
+        LocalManager.Tool_CheckStatus(Data_ItemOnBody.Item_ID, Data_ItemOnHead.Item_ID, Data_Fine, out LocalData_Status);
+        LocalManager.AllClient_WearItemOnHead(Data_ItemOnHead);
     }
     public void OnItemOnBodyChange()
     {
-        LocalManager.CheckStatus(Data_ItemOnBody.Item_ID, Data_ItemOnHead.Item_ID, Data_Fine, out LocalData_Status);
-        LocalManager.WearItem_Body(Data_ItemOnBody);
+        LocalManager.Tool_CheckStatus(Data_ItemOnBody.Item_ID, Data_ItemOnHead.Item_ID, Data_Fine, out LocalData_Status);
+        LocalManager.AllClient_WearItemOnBody(Data_ItemOnBody);
     }
     public void OnItemInBagChange()
     {
@@ -619,17 +567,17 @@ public class ActorNetManager : NetworkBehaviour
     }
     public void OnlyState_ChangeItemInBag(ItemData oldItemData, ItemData newItemData)
     {
-        /*查找到需要修改的物品*/
-        if (Data_ItemInBag.Contains(oldItemData))
+        for(int i = 0; i < Data_ItemInBag.Count; i++)
         {
-            int index = Data_ItemInBag.IndexOf(oldItemData);
-            Data_ItemInBag.Set(index, newItemData);
-            Debug.Log("物品修改成功");
+            if (Data_ItemInBag[i].Equals(oldItemData))
+            {
+                int index = Data_ItemInBag.IndexOf(oldItemData);
+                Data_ItemInBag.Set(index, newItemData);
+                Debug.Log("背包物品修改成功");
+                return;
+            }
         }
-        else
-        {
-            Debug.Log("物品修改失败,未找到目标物品:" + oldItemData);
-        }
+        Debug.Log("物品修改失败,未找到目标物品:" + oldItemData);
     }
     #endregion
     #region//持握操作(手部)
@@ -855,7 +803,7 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_LocalInput_BindSkill(int skillID)
     {
-        LocalManager.FromRPC_BindSkill(skillID);
+        LocalManager.AllClient_BindSkill(skillID);
     }
     /// <summary>
     /// RPC:本地端使用一个技能
@@ -864,7 +812,7 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_LocalInput_InvokeSkill(int skillID, NetworkId networkId)
     {
-        LocalManager.FromRPC_NpcUseSkill(skillID, networkId);
+        LocalManager.AllClient_UseSkill(skillID, networkId);
     }
 
     #endregion
@@ -876,7 +824,7 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     public void RPC_State_NpcChangeAttackState(bool parameter)
     {
-        LocalManager.FromRPC_ChangeAttackState(parameter);
+        LocalManager.AllClientListen_ChangeAttackState(parameter);
     }
     /// <summary>
     /// 更改攻击目标
@@ -885,7 +833,7 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     public void RPC_State_NpcChangeAttackTarget(NetworkId id)
     {
-        LocalManager.FromRPC_ChangeAttackTarget(id);
+        LocalManager.AllClientListen_ChangeAttackTarget(id);
     }
     /// <summary>
     /// 使用技能
@@ -895,18 +843,39 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     public void RPC_State_NpcUseSkill(int parameter, NetworkId networkId)
     {
-        LocalManager.FromRPC_NpcUseSkill(parameter, networkId);
+        LocalManager.AllClient_UseSkill(parameter, networkId);
     }
 
+    #endregion
+    #region//角色位移
+    /// <summary>
+    /// 本地端更改玩家位置
+    /// </summary>
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
+    public void RPC_LocalInput_UpdateNetworkTransform(Vector3 pos, float speed)
+    {
+        OnlyState_UpdateNetworkTransform(pos, speed);
+    }
+    public void OnlyState_UpdateNetworkTransform(Vector3 pos, float speed)
+    {
+        if (networkRigidbody)
+        {
+            if (networkRigidbody.Rigidbody.velocity.magnitude <= speed)
+            {
+                networkRigidbody.Rigidbody.velocity = Vector2.zero;
+                networkRigidbody.Rigidbody.position = (pos);
+            }
+        }
+    }
     #endregion
     #region//其他操作
     /// <summary>
     /// 本地端发送表情
     /// </summary>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
     public void RPC_LocalInput_SendEmoji(int id)
     {
-        LocalManager.FromRPC_SendEmoji(id);
+        LocalManager.AllClient_SendEmoji(id);
     }
     /// <summary>
     /// RPC:本地端拾起物品
@@ -915,24 +884,18 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
     public void RPC_LocalInput_PickItem(NetworkId id)
     {
-        if (Object.HasStateAuthority)
+        void OnlyState_PickItem(string val)
         {
-            LocalManager.PlayPickUp(1, (string name) =>
+            if (Object.HasStateAuthority && val.Equals("PickUp"))
             {
-                if (name == "PickUp")
-                {
-                    NetworkObject networkPlayerObject = Runner.FindObject(id);
-                    networkPlayerObject.GetComponent<ItemNetObj>().PickUp(out ItemData itemData);
-                    Runner.Despawn(networkPlayerObject);
+                NetworkObject networkPlayerObject = Runner.FindObject(id);
+                networkPlayerObject.GetComponent<ItemNetObj>().PickUp(out ItemData itemData);
+                Runner.Despawn(networkPlayerObject);
 
-                    OnlyState_AddItemInBag(itemData);
-                }
-            });
+                OnlyState_AddItemInBag(itemData);
+            }
         }
-        else
-        {
-            LocalManager.PlayPickUp(1, null);
-        }
+        LocalManager.AllClient_PlayPickUp(1, OnlyState_PickItem);
     }
     /// <summary>
     /// RPC:生命值改变
@@ -940,9 +903,9 @@ public class ActorNetManager : NetworkBehaviour
     /// <param name="parameter"></param>
     /// <param name="networkId"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_HpChange(int parameter, NetworkId networkId)
+    public void RPC_AllClient_HpChange(int parameter, NetworkId networkId)
     {
-        LocalManager.Listen_HpChange(parameter, networkId);
+        LocalManager.AllClientListen_MyselfHpChange(parameter, networkId);
         if (Object.HasStateAuthority)
         {
             Data_CurHp += parameter;
@@ -952,11 +915,16 @@ public class ActorNetManager : NetworkBehaviour
     /// RPC:饥饿值改变
     /// </summary>
     /// <param name="val"></param>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_FoodChange(short parameter)
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
+    public void RPC_LocalInput_FoodChange(short parameter)
     {
-        Data_CurFood = parameter;
+        OnlyState_FoodChange(parameter);
     }
+    private void OnlyState_FoodChange(short val)
+    {
+        Data_CurFood = val;
+    }
+
     /// <summary>
     /// 本地端支付
     /// </summary>
@@ -983,6 +951,10 @@ public class ActorNetManager : NetworkBehaviour
     {
         Data_Coin += val;
     }
+    /// <summary>
+    /// 本地端设置赏金
+    /// </summary>
+    /// <param name="val"></param>
     [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
     public void RPC_LocalInput_ChangeFine(short val)
     {

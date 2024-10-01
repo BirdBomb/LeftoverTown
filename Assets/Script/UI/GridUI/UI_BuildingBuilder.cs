@@ -98,12 +98,14 @@ public class UI_BuildingBuilder : UI_Grid
         buildingConfigs = BuildingConfigData.buildConfigs.FindAll((x) => { return x.Building_RawLevel == 0; });
         UpdateBuildingListUI();
     }
+    #region//打开关闭
     public override void Open(TileObj tileObj)
     {
         bindTileObj = tileObj;
         base.Open(tileObj);
     }
-    #region//UI操作
+    #endregion
+    #region//UI交互
     public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {
 
@@ -243,7 +245,7 @@ public class UI_BuildingBuilder : UI_Grid
     }
 
     #endregion
-    #region//UI管理
+    #region//UI绘制
     /// <summary>
     /// 重置建筑UI
     /// </summary>

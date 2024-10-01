@@ -14,6 +14,7 @@ public class PlayerNetController : NetworkBehaviour
     private PlayerController playerController;
     [SerializeField, Header("角色摄像机")]
     private Camera playerCamera;
+    #region//初始化
     public override void Spawned()
     {
         if (Object.HasInputAuthority)
@@ -63,7 +64,7 @@ public class PlayerNetController : NetworkBehaviour
     /// </summary>
     private void InitByStatePlayer()
     {
-        playerController.actorManager.NetManager.StartLoop();
+
     }
     /// <summary>
     /// 初始化本地玩家数据
@@ -71,24 +72,24 @@ public class PlayerNetController : NetworkBehaviour
     public void InitLocalPlayerData()
     {
         GameDataManager.Instance.LoadPlayer(out playerController.localPlayerData);
-        if(playerController.localPlayerData != null)
+        if (playerController.localPlayerData != null)
         {
             Debug.Log("--玩家信息获取成功--");
-            Debug.Log("--初始化玩家背包");
+            //Debug.Log("--初始化玩家背包");
             playerController.actorManager.NetManager.RPC_LocalInput_ChangeBagCapacity(5);
             for (int i = 0; i < playerController.localPlayerData.BagItems.Count; i++)
             {
                 playerController.actorManager.NetManager.RPC_LocalInput_AddItemInBag(playerController.localPlayerData.BagItems[i]);
             }
-            Debug.Log("--初始化玩家手部");
+            //Debug.Log("--初始化玩家手部");
             playerController.actorManager.NetManager.RPC_LocalInput_AddItemOnHand(playerController.localPlayerData.HandItem);
-            Debug.Log("--初始化玩家头部");
+            //Debug.Log("--初始化玩家头部");
             playerController.actorManager.NetManager.RPC_LocalInput_AddItemOnHead(playerController.localPlayerData.HeadItem);
-            Debug.Log("--初始化玩家身体");
+            //Debug.Log("--初始化玩家身体");
             playerController.actorManager.NetManager.RPC_LocalInput_AddItemOnBody(playerController.localPlayerData.BodyItem);
-            Debug.Log("--初始化玩家数据");
+            //Debug.Log("--初始化玩家数据");
             playerController.actorManager.NetManager.RPC_LocalInput_InitPlayerCommonData(CreatePlayerNetData(playerController.localPlayerData));
-            Debug.Log("--初始化玩家Buff与Skill");
+            //Debug.Log("--初始化玩家Buff与Skill");
             for (int i = 0; i < playerController.localPlayerData.BuffList.Count; i++)
             {
                 playerController.actorManager.NetManager.RPC_LocalInput_AddBuff(playerController.localPlayerData.BuffList[i]);
@@ -101,15 +102,14 @@ public class PlayerNetController : NetworkBehaviour
             {
                 playerController.actorManager.NetManager.RPC_LocalInput_AddSkillUse(playerController.localPlayerData.SkillUseList[i]);
             }
-
-            Debug.Log("--初始化玩家位置");
-            playerController.actorManager.NetManager.UpdateNetworkTransform(playerController.localPlayerData.Pos, 999);
-            Debug.Log("--绘制玩家周围地图");
+            //Debug.Log("--初始化玩家位置");
+            playerController.actorManager.NetManager.RPC_LocalInput_UpdateNetworkTransform(playerController.localPlayerData.Pos, 999);
+            //Debug.Log("--绘制玩家周围地图");
             playerController.UpdateMapInView(playerController.localPlayerData.Pos);
         }
         else
         {
-            Debug.Log("--玩家信息获取失败,初始化玩家背包");
+            Debug.Log("--玩家信息获取失败--");
         }
     }
     private PlayerNetData CreatePlayerNetData(PlayerData playerData)
@@ -146,115 +146,70 @@ public class PlayerNetController : NetworkBehaviour
 
         return playerNetData;
     }
+
+    #endregion
+    #region//玩家输入与同步
+    [Networked]
+    public float MouseRightPressTimer { get; set; }
+    [Networked]
+    public float MouseLeftPressTimer { get; set; }
+    [Networked]
+    public Vector2 MouseLocation { get; set; }
     private Vector2 moveDir_temp;
-    private bool left_press = false;
-    private bool right_press = false;
+
     public override void FixedUpdateNetwork()
     {
-        PlayerInputByFix(Runner.DeltaTime);
+        PlayerInput(Runner.DeltaTime);
         base.FixedUpdateNetwork();
     }
-    float lastRender;
     public override void Render()
     {
-        float dt = Runner.LocalRenderTime - lastRender;
-        lastRender = Runner.LocalRenderTime;
-        PlayerInputByRender(dt);
+        PlayerSync();
         base.Render();
     }
-    public void PlayerInputByRender(float dt)
-    {
-        /*服务器*/
-        #region
-        //if (Object.HasStateAuthority)
-        //{
-        //    playerController.State_PlayerInputMove(dt, moveDir_temp, Net_PressShift, Object.HasStateAuthority, Object.HasInputAuthority);
-        //}
-        #endregion
-        /*客户端*/
-        #region
-        playerController.All_PlayerInputFace(dt, Net_Face, Object.HasStateAuthority, Object.HasInputAuthority);
-        playerController.All_PlayerInputMouse(dt, Net_Left_ClickTime, Net_Right_ClickTime, Net_LeftPress, Net_RightPress, Object.HasStateAuthority, Object.HasInputAuthority);
-        #endregion
-        base.Render();
-    }
-    private void PlayerInputByFix(float dt)
+    /// <summary>
+    /// 玩家输入
+    /// </summary>
+    /// <param name="dt"></param>
+    private void PlayerInput(float dt)
     {
         if (playerController.actorManager.actorState == ActorState.Dead) return;
-        if (GetInput(out NetworkInputData data))
+        if (GetInput(out NetworkInputData netPlayerData))
         {
             moveDir_temp = Vector2.zero;
-            if (data.ClickLeftMouse > 0)
-            {
-                Net_Left_ClickTime += data.ClickLeftMouse;
-            }
-            if (data.ClickRightMouse > 0)
-            {
-                Net_Right_ClickTime += data.ClickRightMouse;
-            }
-            if (data.PressLeftMouse)
-            {
-                Net_LeftPress = true;
-            }
-            else
-            {
-                Net_LeftPress = false;
-            }
-            if (data.PressRightMouse)
-            {
-                Net_RightPress = true;
-            }
-            else
-            {
-                Net_RightPress = false;
-            }
-
-            if (data.goRight)
+            if (netPlayerData.PressD)
             {
                 moveDir_temp += new Vector2(1, 0);
             }
-            if (data.goLeft)
+            if (netPlayerData.PressA)
             {
                 moveDir_temp += new Vector2(-1, 0);
             }
-            if (data.goUp)
+            if (netPlayerData.PressW)
             {
                 moveDir_temp += new Vector2(0, 1);
             }
-            if (data.goDown)
+            if (netPlayerData.PressS)
             {
                 moveDir_temp += new Vector2(0, -1);
             }
-            Net_PressShift = data.PressShift;
-            Net_Face = data.faceDir;
 
-            playerController.All_PlayerInputMove(dt, moveDir_temp, Net_PressShift, Object.HasStateAuthority, Object.HasInputAuthority);
+            playerController.AllClient_PlayerInputMove(dt, moveDir_temp, netPlayerData.PressLeftShift, Object.HasStateAuthority, Object.HasInputAuthority);
+            MouseRightPressTimer = netPlayerData.MouseRightPressTimer;
+            MouseLeftPressTimer = netPlayerData.MouseLeftPressTimer;
+            MouseLocation = netPlayerData.MouseLocation;
         }
-        /*服务器*/
-        #region
-        //if (Object.HasStateAuthority)
-        //{
-        //    playerController.State_PlayerInputMove(dt, moveDir_temp, Net_PressShift, Object.HasStateAuthority, Object.HasInputAuthority);
-        //}
-        #endregion
-        /*客户端*/
-        #region
-        //playerController.All_PlayerInputFace(dt, Net_Face, Object.HasStateAuthority, Object.HasInputAuthority);
-        //playerController.All_PlayerInputMouse(dt, Net_Left_ClickTime, Net_Right_ClickTime, Net_LeftPress, Net_RightPress, Object.HasStateAuthority, Object.HasInputAuthority);
-        #endregion
     }
-    [Networked]
-    public int Net_Left_ClickTime { get; set; } = 0;
-    [Networked]
-    public int Net_Right_ClickTime { get; set; } = 0;
-    [Networked]
-    public bool Net_LeftPress { get; set; } = false;
-    [Networked]
-    public bool Net_RightPress { get; set; } = false;
-    [Networked]
-    public bool Net_PressShift { get; set; } = false;
-    [Networked]
-    public Vector3 Net_Face { get; set; } = Vector3.zero;
+    /// <summary>
+    /// 玩家同步
+    /// </summary>
+    private void PlayerSync()
+    {
+        playerController.AllClient_PlayerInputFace(MouseLocation, Object.HasStateAuthority, Object.HasInputAuthority);
+        playerController.AllClient_PlayerInputMouse(MouseLeftPressTimer, MouseRightPressTimer, Object.HasStateAuthority, Object.HasInputAuthority);
+    }
+
+    #endregion
 }
 public struct PlayerNetData : INetworkStruct
 {

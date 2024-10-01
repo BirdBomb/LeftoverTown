@@ -99,6 +99,9 @@ public class ItemConfigData
             Item_Size = ItemSize.AsContainer,Item_MaxCount = 1,Attack_Distance = 20,Item_Type = ItemType.Weapon,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 2017,Item_Name = "AUG",Item_Desc = "制作精良的突击步枪，特殊构造的握把保证了连续射击下枪械的稳定性",
             Item_Size = ItemSize.AsContainer,Item_MaxCount = 1,Attack_Distance = 20,Item_Type = ItemType.Weapon,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 2018,Item_Name = "铁镐",Item_Desc = "用来开采矿物的工具",
+            Item_Size = ItemSize.AsContainer,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Weapon,Average_Value = 1 },
+
 
         #endregion
         #region//3000
@@ -167,6 +170,12 @@ public class ItemConfigData
         new ItemConfig(){ Item_ID = 5005,Item_Name = "抓痕盔",Item_Desc = "三季镇治安队员的套装之一，头盔侧面的红色抓痕是佩戴者抵御丧尸的证明",
             Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
         new ItemConfig(){ Item_ID = 5006,Item_Name = "制式防护衣",Item_Desc = "三季镇治安队员的套装之一，可以抵御一定程度的攻击",
+            Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
+        new ItemConfig(){ Item_ID = 5007,Item_Name = "矿工帽",Item_Desc = "三季镇治安队员的套装之一，可以抵御一定程度的攻击",
+            Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
+        new ItemConfig(){ Item_ID = 5008,Item_Name = "布衣服(褐)",Item_Desc = "褐色的布制衣服",
+            Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
+        new ItemConfig(){ Item_ID = 5009,Item_Name = "面罩",Item_Desc = "哪有好人成天戴着个面罩啊",
             Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
         #endregion
         #region//9000

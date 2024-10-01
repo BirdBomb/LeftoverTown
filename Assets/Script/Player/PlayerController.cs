@@ -140,7 +140,7 @@ public class PlayerController : MonoBehaviour
                 MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                 {
                     buildingID = _.id,
-                    buildingPos = actorManager.GetMyTile()._posInCell
+                    buildingPos = actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInCell
                 });
             }
         }).AddTo(this);
@@ -151,7 +151,7 @@ public class PlayerController : MonoBehaviour
                 MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeFloor()
                 {
                     floorID = _.id,
-                    floorPos = actorManager.GetMyTile()._posInCell
+                    floorPos = actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInCell
                 });
             }
         }).AddTo(this);
@@ -163,7 +163,7 @@ public class PlayerController : MonoBehaviour
                 actorManager.NetManager.RPC_LocalInput_SendEmoji(_.id);
             }
         }).AddTo(this);
-        actorManager.InitByPlayer();
+        actorManager.AllClient_InitByPlayer();
     }
     private void Update()
     {
@@ -198,7 +198,6 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Q))
             {
                 var items = Physics2D.OverlapCircleAll(transform.position, 0.5f, itemLayer);
-                Debug.Log(items.Length + "/" + transform.position + "/" );
                 foreach (Collider2D item in items)
                 {
                     if (item.gameObject.transform.parent.TryGetComponent(out ItemNetObj obj))
@@ -210,39 +209,39 @@ public class PlayerController : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.B))
             {
-                if (actorManager.GetMyTile().name == "Default")
+                if (actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero).name == "Default")
                 {
                     MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                     {
                         buildingID = 1,
-                        buildingPos = actorManager.GetMyTile()._posInCell
+                        buildingPos = actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInCell
                     });
                 }
-                else if (actorManager.GetMyTile().name == "BuildingBuilder")
+                else if (actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero).name == "BuildingBuilder")
                 {
                     MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                     {
                         buildingID = 0,
-                        buildingPos = actorManager.GetMyTile()._posInCell
+                        buildingPos = actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInCell
                     });
                 }
             }
             if (Input.GetKeyDown(KeyCode.V))
             {
-                if (actorManager.GetMyTile().name == "Default")
+                if (actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero).name == "Default")
                 {
                     MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                     {
                         buildingID = 2,
-                        buildingPos = actorManager.GetMyTile()._posInCell
+                        buildingPos = actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInCell
                     });
                 }
-                else if (actorManager.GetMyTile().name == "FloorBuilder")
+                else if (actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero).name == "FloorBuilder")
                 {
                     MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
                     {
                         buildingID = 0,
-                        buildingPos = actorManager.GetMyTile()._posInCell
+                        buildingPos = actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInCell
                     });
                 }
             }
@@ -264,73 +263,20 @@ public class PlayerController : MonoBehaviour
         }
     }
     #region//玩家输入
-    /// <summary>
-    /// 左键点击次数
-    /// </summary>
-    private int lastLeftClickTime = 0;
-    /// <summary>
-    /// 左键按下
-    /// </summary>
-    private bool lastLeftPress = false;
-    /// <summary>
-    /// 右键点击次数
-    /// </summary>
-    private int lastRightClickTime = 0;
-    /// <summary>
-    /// 右键按下
-    /// </summary>
-    private bool lastRightPress = false;
     private float shiftPressTimer = 0;
-    /// <summary>
-    /// 鼠标输入
-    /// </summary>
-    /// <param name="leftClickTime">左键点击次数</param>
-    /// <param name="rightClickTime">右键点击次数</param>
-    /// <param name="leftPress">左键长按</param>
-    /// <param name="rightPress">右键长按</param>
-    public void All_PlayerInputMouse(float dt, int leftClickTime,int rightClickTime,bool leftPress,bool rightPress, bool hasStateAuthority, bool hasInputAuthority)
-    {
-        if (lastLeftClickTime != leftClickTime) 
-        {
-            lastLeftClickTime = leftClickTime;
-            actorManager.holdingByHand.ClickLeftClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
-        }
-        if (lastRightClickTime != rightClickTime) 
-        {
-            lastRightClickTime = rightClickTime;
-            actorManager.holdingByHand.ClickRightClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
-        }
-        if (leftPress) 
-        {
-            lastLeftPress = leftPress;
-            actorManager.holdingByHand.PressLeftClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
-        }
-        else if(lastLeftPress)
-        {
-            lastLeftPress = leftPress;
-            actorManager.holdingByHand.ReleaseLeftClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
-        }
-        if (rightPress) 
-        {
-            lastRightPress = rightPress;
-            actorManager.holdingByHand.PressRightClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
-        }
-        else if (lastRightPress)
-        {
-            lastRightPress = rightPress;
-            actorManager.holdingByHand.ReleaseRightClick(dt, hasStateAuthority, hasInputAuthority, hasInputAuthority);
-        }
-    }
     /// <summary>
     /// 位移输入
     /// </summary>
+    /// <param name="deltaTime">步长</param>
     /// <param name="dir">方向</param>
     /// <param name="speedUp">加速</param>
-    public void All_PlayerInputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
+    /// <param name="hasStateAuthority"></param>
+    /// <param name="hasInputAuthority"></param>
+    public void AllClient_PlayerInputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
     {
         dir = dir.normalized;
-        float commonSpeed = actorManager.NetManager.Data_CommonSpeed / 10f;
-        float maxSpeed = actorManager.NetManager.Data_MaxSpeed / 10f;
+        float commonSpeed = actorManager.NetManager.Data_CommonSpeed * 0.1f;
+        float maxSpeed = actorManager.NetManager.Data_MaxSpeed * 0.1f;
         float speed;
         if (speedUp)
         {
@@ -380,18 +326,46 @@ public class PlayerController : MonoBehaviour
 
         Vector2 velocity = new Vector2(dir.x * speed, dir.y * speed);
         Vector3 newPos = transform.position + new UnityEngine.Vector3(velocity.x * deltaTime, velocity.y * deltaTime, 0);
-        actorManager.NetManager.UpdateNetworkTransform(newPos, velocity.magnitude);
+        actorManager.NetManager.OnlyState_UpdateNetworkTransform(newPos, velocity.magnitude);
+    }
+    /// <summary>
+    /// 鼠标输入
+    /// </summary>
+    /// <param name="leftClickTime"></param>
+    /// <param name="rightClickTime"></param>
+    /// <param name="leftPressTime"></param>
+    /// <param name="rightPressTime"></param>
+    /// <param name="hasStateAuthority"></param>
+    /// <param name="hasInputAuthority"></param>
+    public void AllClient_PlayerInputMouse(float leftPressTime, float rightPressTime, bool hasStateAuthority, bool hasInputAuthority)
+    {
+        if (leftPressTime > 0)
+        {
+            actorManager.itemOnHand.UpdateLeftPress(leftPressTime, hasStateAuthority, hasInputAuthority, true);
+        }
+        else
+        {
+            actorManager.itemOnHand.ReleaseLeftPress(hasStateAuthority, hasInputAuthority, true);
+        }
+        if (rightPressTime > 0)
+        {
+            actorManager.itemOnHand.UpdateRightPress(rightPressTime, hasStateAuthority, hasInputAuthority, true);
+        }
+        else
+        {
+            actorManager.itemOnHand.ReleaseRightPress(hasStateAuthority, hasInputAuthority, true);
+        }
     }
     /// <summary>
     /// 朝向输入
     /// </summary>
     /// <param name="dir">方向</param>
-    public void All_PlayerInputFace(float dt, Vector2 dir, bool hasStateAuthority, bool hasInputAuthority)
+    public void AllClient_PlayerInputFace(Vector2 dir, bool hasStateAuthority, bool hasInputAuthority)
     {
-        actorManager.FaceTo(dir);
-        if (actorManager.holdingByHand != null)
+        actorManager.AllClient_FaceTo(dir);
+        if (actorManager.itemOnHand != null)
         {
-            actorManager.holdingByHand.InputMousePos(dir, dt);
+            actorManager.itemOnHand.UpdateMousePos(dir);
         }
     }
 
@@ -497,13 +471,13 @@ public class PlayerController : MonoBehaviour
     private MyTile holdingTile = null;
     private List<MyTile> tempTiles = new List<MyTile>();
     private Vector3Int mapCenter = new Vector3Int(-99999,-99999);
-    private int mapView = 15;
+    private const int config_MapView = 15;
     /// <summary>
     /// 更新地图绘制
     /// </summary>
     public void UpdateMapInView(Vector3Int pos)
     {
-        if (Mathf.Abs(pos.x - mapCenter.x) > mapView || Mathf.Abs(pos.y - mapCenter.y) > mapView)
+        if (Mathf.Abs(pos.x - mapCenter.x) > config_MapView || Mathf.Abs(pos.y - mapCenter.y) > config_MapView)
         {
             Debug.Log("超出地图绘制范围,绘制新区域" + "当前位置(" + pos + ")" + "地图锚点(" + mapCenter + ")");
             mapCenter = new Vector3Int((int)Math.Round(pos.x / 20f) * 20, (int)Math.Round(pos.y / 20f) * 20, 0);
@@ -520,7 +494,7 @@ public class PlayerController : MonoBehaviour
     private void UpdateNearByTile()
     {
         /*周围地块*/
-        tempTiles = actorManager.GetNearbyTiles();
+        tempTiles = actorManager.Tool_GetNearbyTiles();
         /*剔除上次检测的地块*/
         for (int i = 0; i < nearbyTiles.Count; i++)
         {
@@ -567,5 +541,7 @@ public class PlayerController : MonoBehaviour
         holdingTile?.ReleaseTileByPlayer(this);
         holdingTile = tile;
     }
+    #endregion
+    #region//镜头控制
     #endregion
 }

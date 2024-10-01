@@ -9,8 +9,10 @@ public class ActorUI : MonoBehaviour
 {
     public Transform HpPanel;
     public Transform HPBar;
+    public SpriteRenderer HPColor;
     public Transform EnPanel;
     public Transform EnBar;
+    public SpriteRenderer EnColor;
     public Transform EnReleaseBar;
 
     public SpriteRenderer Emoji;
@@ -30,6 +32,7 @@ public class ActorUI : MonoBehaviour
     public void UpdateENBar(float val)
     {
         EnBar.localScale = new Vector3(val, 1, 1);
+        EnColor.color = new Color(1 - val, 1, 0, 1);
     }
     public void UpdateENReleaseBar(float val)
     {

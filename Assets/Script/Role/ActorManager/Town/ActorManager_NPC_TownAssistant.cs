@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class ActorManager_NPC_TownAssistant : ActorManager_NPC
 {
-    protected TileObj safeTile = null;
-    protected TileObj workTile = null;
-    protected TileObj restTile = null;
+    protected TileObj onlyState_safeTile = null;
+    protected TileObj onlyState_workTile = null;
+    protected TileObj onlyState_restTile = null;
     GlobalTime lastGlobalTime;
 
     #region//小镇店主专有方法
@@ -25,63 +25,65 @@ public class ActorManager_NPC_TownAssistant : ActorManager_NPC
             {
                 emojiID = 0;
             }
-            TryToSendEmoji(0.5f, emojiID);
+            AllClient_TryToSendEmoji(0.5f, emojiID);
         }
         base.OnlyState_TryUnderstand(who, id, look, hear);
     }
-    public override void ListenRoleCommit(ActorManager who, short val)
+    public override void AllClientListen_RoleCommit(ActorManager who, short val)
     {
-        if (OnlyState_TryLookAt(who))
+        if (Tool_TryLookAt(who))
         {
-            who.SetFine(val);
+            who.AllClient_SetFine(val);
         }
-        TryToSendEmoji(0.2f, 16);
-        base.ListenRoleCommit(who, val);
+        AllClient_TryToSendEmoji(0.2f, 16);
+        base.AllClientListen_RoleCommit(who, val);
     }
-    public override void Listen_OtherMove(ActorManager actor, MyTile where)
+    public override void OnlyStateListen_MoveOther(ActorManager actor, MyTile where)
+    {
+        if (!onlyState_RememberTarget.Contains(actor))
+        {
+            if (Tool_TryLookAt(actor))
+            {
+                onlyState_RememberTarget.Add(actor);
+                Tool_CheckOutSomeone(actor, out short handItemID, out short headItemID, out short bodyItemID, out short fine);
+                Tool_CheckStatus(bodyItemID, headItemID, fine, out short id);
+                OnlyState_MeetSomeone(id, fine);
+            }
+        }
+        base.OnlyStateListen_MoveOther(actor, where);
+    }
+    public override void AllClientListen_WorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
     {
         if (isState)
         {
-            if (!rememberTarget.Contains(actor))
+            if (lastGlobalTime != globalTime)
             {
-                if (OnlyState_TryLookAt(actor))
+                lastGlobalTime = globalTime;
+                if (globalTime == GlobalTime.Morning || globalTime == GlobalTime.Forenoon || globalTime == GlobalTime.HighNoon || globalTime == GlobalTime.Afternoon)
                 {
-                    rememberTarget.Add(actor);
-                    CheckOutSomeone(actor, out short handItemID, out short headItemID, out short bodyItemID, out short fine);
-                    CheckStatus(bodyItemID, headItemID, fine, out short id);
-                    MeetSomeone(id, fine);
+                    OnlyState_GoToWork();
+                }
+                else if (globalTime == GlobalTime.Evening)
+                {
+                    OnlyState_GoToRest();
                 }
             }
         }
-        base.Listen_OtherMove(actor, where);
+        base.AllClientListen_WorldGlobalTimeChange(hour, date, globalTime);
     }
-    public override void Listen_WorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
+    public override void AllClientListen_MyselfHpChange(int parameter, NetworkId networkId)
     {
-        if (lastGlobalTime != globalTime)
+        if(isState)
         {
-            lastGlobalTime = globalTime;
-            if (globalTime == GlobalTime.Morning || globalTime == GlobalTime.Forenoon || globalTime == GlobalTime.HighNoon || globalTime == GlobalTime.Afternoon)
+            ActorManager who = NetManager.Runner.FindObject(networkId).GetComponent<ActorManager>();
+            if (who.isPlayer && Tool_TryLookAt(who))
             {
-                GoToWork();
+                who.AllClient_SetFine(500);
+                AllClient_TryToSendEmoji(0.1f, 16);
             }
-            else if (globalTime == GlobalTime.Evening)
-            {
-                GoToRest();
-            }
+            OnlyState_GoToSafe();
         }
-        base.Listen_WorldGlobalTimeChange(hour, date, globalTime);
-    }
-
-    public override void Listen_HpChange(int parameter, NetworkId networkId)
-    {
-        ActorManager who = NetManager.Runner.FindObject(networkId).GetComponent<ActorManager>();
-        if (who.isPlayer && OnlyState_TryLookAt(who))
-        {
-            who.SetFine(500);
-            TryToSendEmoji(0.1f, 16);
-        }
-        GoToSafe();
-        base.Listen_HpChange(parameter, networkId);
+        base.AllClientListen_MyselfHpChange(parameter, networkId);
     }
 
     /// <summary>
@@ -90,7 +92,7 @@ public class ActorManager_NPC_TownAssistant : ActorManager_NPC
     /// <param name="tile"></param>
     public virtual void BindWorkTile(TileObj tile)
     {
-        workTile = tile;
+        onlyState_workTile = tile;
     }
     /// <summary>
     /// 绑定休息tile
@@ -98,7 +100,7 @@ public class ActorManager_NPC_TownAssistant : ActorManager_NPC
     /// <param name="tile"></param>
     public virtual void BindRestTile(TileObj tile)
     {
-        restTile = tile;
+        onlyState_restTile = tile;
     }
     /// <summary>
     /// 绑定安全tile
@@ -106,29 +108,29 @@ public class ActorManager_NPC_TownAssistant : ActorManager_NPC
     /// <param name="tile"></param>
     public virtual void BindSafeTile(TileObj tile)
     {
-        safeTile = tile;
+        onlyState_safeTile = tile;
     }
     /// <summary>
     /// 去工作
     /// </summary>
-    public void GoToWork()
+    public void OnlyState_GoToWork()
     {
-        if (workTile != null)
+        if (onlyState_workTile != null)
         {
-            FindWayToTarget(workTile.bindTile._posInWorld + Vector2.up);
+            OnlyState_FindWayToTarget(onlyState_workTile.bindTile._posInWorld + Vector2.up);
         }
     }
     /// <summary>
     /// 去休息
     /// </summary>
-    public void GoToRest()
+    public void OnlyState_GoToRest()
     {
-        rememberTarget.Clear();
-        lookTarget.Clear();
-        attackTarget = null;
-        if (restTile != null)
+        onlyState_RememberTarget.Clear();
+        onlyState_LookTarget.Clear();
+        allClient_AttackTarget = null;
+        if (onlyState_restTile != null)
         {
-            FindWayToTarget(restTile.bindTile._posInWorld);
+            OnlyState_FindWayToTarget(onlyState_restTile.bindTile._posInWorld);
         }
         else
         {
@@ -140,18 +142,18 @@ public class ActorManager_NPC_TownAssistant : ActorManager_NPC
                 distance = 10,
                 action = BindRestTile
             });
-            if (restTile)
+            if (onlyState_restTile)
             {
-                FindWayToTarget(restTile.bindTile._posInWorld);
+                OnlyState_FindWayToTarget(onlyState_restTile.bindTile._posInWorld);
             }
         }
     }
     /// <summary>
     /// 避险
     /// </summary>
-    public void GoToSafe()
+    public void OnlyState_GoToSafe()
     {
-        if (!safeTile)
+        if (!onlyState_safeTile)
         {
             MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneFindTargetTile
             {
@@ -162,23 +164,23 @@ public class ActorManager_NPC_TownAssistant : ActorManager_NPC
                 action = BindSafeTile
             });
         }
-        if (safeTile)
+        if (onlyState_safeTile)
         {
-            if (Vector2.Distance(safeTile.transform.position, transform.position) > 5)
+            if (Vector2.Distance(onlyState_safeTile.transform.position, transform.position) > 5)
             {
-                FindWayToTarget(safeTile.bindTile._posInWorld);
+                OnlyState_FindWayToTarget(onlyState_safeTile.bindTile._posInWorld);
                 return;
             }
         }
         NetManager.UpdateSeed();
-        UnityEngine.Random.InitState(NetManager.RandomInRange);
+        UnityEngine.Random.InitState(NetManager.Data_RandomInRange);
         Vector2 pos = UnityEngine.Random.insideUnitCircle * 4;
-        FindWayToTarget(GetMyTile()._posInWorld + pos);
+        OnlyState_FindWayToTarget(Tool_GetMyTileWithOffset(Vector3Int.zero)._posInWorld + pos);
     }
     /// <summary>
     /// 遇见某人
     /// </summary>
-    public void MeetSomeone(int id, int fine)
+    public void OnlyState_MeetSomeone(int id, int fine)
     {
         int emoji;
         if (id == 1001 || id == 1002)
@@ -189,7 +191,7 @@ public class ActorManager_NPC_TownAssistant : ActorManager_NPC
         {
             emoji = 4;
         }
-        TryToSendEmoji(0.2f, emoji);
+        AllClient_TryToSendEmoji(0.2f, emoji);
     }
 
 

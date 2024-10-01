@@ -1,3 +1,4 @@
+using Fusion;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,90 +31,116 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     public MapNetManager mapNetManager;
     [HideInInspector]
     public int mapSeed;
-    private List<Vector3Int> buildingAreaList = new List<Vector3Int>();
-    private List<Vector3Int> floorAreaList = new List<Vector3Int>();
+
+    /// <summary>
+    /// 所有玩家的位置
+    /// </summary>
+    private Dictionary<PlayerRef,Vector3Int> playerCenterDic = new Dictionary<PlayerRef,Vector3Int>();
+    /// <summary>
+    /// 所有玩家
+    /// </summary>
+    private List<PlayerRef> playerRefs = new List<PlayerRef>();
+    /// <summary>
+    /// 已经加载的建筑区域
+    /// </summary>
+    private List<Vector3Int> areaList_Building = new List<Vector3Int>();
+    /// <summary>
+    /// 已经加载的地块区域
+    /// </summary>
+    private List<Vector3Int> areaList_Floor = new List<Vector3Int>();
     private Dictionary<int, MyTile> FloorTilePool = new Dictionary<int, MyTile>();
     private Dictionary<int, MyTile> BuildTilePool = new Dictionary<int, MyTile>();
     private Dictionary<int, GameObject> BuildObjPool = new Dictionary<int, GameObject>();
     private Dictionary<int, GameObject> FloorObjPool = new Dictionary<int, GameObject>();
-
+    /// <summary>
+    /// 最大视野距离
+    /// </summary>
+    private const float config_MaxView = 60f;
     public void Init()
     {
 
     }
+    /*调整玩家中心*/
+    #region
     /// <summary>
-    /// 更新地图中心
+    /// 更新地图里的玩家中心
     /// </summary>
-    public void UpdateMapCenter(Vector3Int center, int width, int height, int seed)
+    public void UpdatePlayerCenterInMap(PlayerRef player, Vector3Int center, int width, int height, int seed)
     {
-        Debug.Log("初始化地图种子" + seed);
         mapSeed = seed;
-        List<Vector3Int> cullingBuildingList = new List<Vector3Int>();
-        List<Vector3Int> cullingFloorList = new List<Vector3Int>();
-        /*遍历所有已经绘制的区域并记录离中心过远的区域*/
-        for (int i = 0; i < buildingAreaList.Count; i++)
-        {
-            if (Vector3Int.Distance(buildingAreaList[i], center) > 60)
-            {
-                Vector3Int temp = buildingAreaList[i];
-                SubNewAreaInMap(temp, width, height);
-                cullingBuildingList.Add(temp);
-            }
-        }
-        /*遍历所有已经绘制的区域并剔除已经记录的区域*/
-        for (int i = 0; i < cullingBuildingList.Count; i++)
-        {
-            buildingAreaList.Remove(cullingBuildingList[i]);
-        }
-        /*遍历所有已经绘制的区域并记录离中心过远的区域*/
-        for (int i = 0; i < floorAreaList.Count; i++)
-        {
-            if (Vector3Int.Distance(floorAreaList[i], center) > 60)
-            {
-                Vector3Int temp = floorAreaList[i];
-                SubNewAreaInMap(temp, width, height);
-                cullingFloorList.Add(temp);
-            }
-        }
-        /*遍历所有已经绘制的区域并剔除已经记录的区域*/
-        for (int i = 0; i < cullingFloorList.Count; i++)
-        {
-            floorAreaList.Remove(cullingFloorList[i]);
-        }
-
-    }
-    public bool AddNewAreaInBuildingMap(Vector3Int center,int widht,int height)
-    {
-        if (!buildingAreaList.Contains(center))
-        {
-            buildingAreaList.Add(center);
-            return true;
+        if (playerCenterDic.ContainsKey(player)) 
+        { 
+            ChangePlayerCenter(player, center); 
         }
         else
         {
-            return false;
+            AddPlayerCenter(player, center);
         }
+        CheckPlayerCenter(width, height);
     }
-    public bool AddNewAreaInFloorMap(Vector3Int center, int widht, int height)
+    /// <summary>
+    /// 添加一个玩家中心
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="center"></param>
+    private void AddPlayerCenter(PlayerRef player,Vector3Int center)
     {
-        if (!floorAreaList.Contains(center))
+        Debug.Log("地图里添加一个玩家中心" + player + "pos" + center);
+        playerCenterDic.Add(player, center);
+        playerRefs.Add(player);
+    }
+    /// <summary>
+    /// 修改一个玩家中心
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="center"></param>
+    private void ChangePlayerCenter(PlayerRef player, Vector3Int center)
+    {
+        playerCenterDic[player] = center;
+    }
+    /// <summary>
+    /// 检查所有玩家中心
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="center"></param>
+    private void CheckPlayerCenter(int width, int height)
+    {
+        List<Vector3Int> cullingList = new List<Vector3Int>();
+        /*遍历所有已经绘制的区域并记录不靠近任何玩家的区域*/
+        for (int i = 0; i < areaList_Floor.Count; i++)
         {
-            floorAreaList.Add(center);
-            return true;
+            bool culling = true;
+            for (int j = 0; j < playerRefs.Count; j++)
+            {
+                if (Vector3Int.Distance(areaList_Floor[i], playerCenterDic[playerRefs[j]]) <= config_MaxView)
+                {
+                    culling = false;    
+                }
+            }
+            if (culling)
+            {
+                Vector3Int temp = areaList_Building[i];
+                SubAreaInMap(temp, width, height);
+                cullingList.Add(temp);
+            }
         }
-        else
+        /*遍历所有已经绘制的区域并剔除已经记录的区域*/
+        for (int i = 0; i < cullingList.Count; i++)
         {
-            return false;
+            areaList_Floor.Remove(cullingList[i]);
+            areaList_Building.Remove(cullingList[i]);
         }
     }
-
+    #endregion
+    /*去除一个区域*/
+    #region
     /// <summary>
     /// 去除一个绘制好的区域
     /// </summary>
     /// <param name="center"></param>
     /// <param name="widht"></param>
     /// <param name="height"></param>
-    public void SubNewAreaInMap(Vector3Int center,int widht,int height)
+    public void SubAreaInMap(Vector3Int center, int widht, int height)
     {
         int index = 0;
         for (int x = -widht / 2; x < widht / 2; x++)
@@ -163,6 +190,39 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         }
         floorMap.SetTile(tilePos, null);
     }
+
+    #endregion
+    /*增加一个区域*/
+    #region
+    /// <summary>
+    /// 尝试增加一个未绘制的区域
+    /// </summary>
+    /// <param name="center"></param>
+    /// <returns>可以绘制</returns>
+    public bool AddBuildingAreaInMap(Vector3Int center)
+    {
+        if (!areaList_Building.Contains(center))
+        {
+            areaList_Building.Add(center);
+            return true;
+        }
+        return false;
+    }
+    /// <summary>
+    /// 尝试增加一个未绘制的区域
+    /// </summary>
+    /// <param name="center"></param>
+    /// <returns>可以绘制</returns>
+    public bool AddFloorAreaInMap(Vector3Int center)
+    {
+        if (!areaList_Floor.Contains(center))
+        {
+            areaList_Floor.Add(center);
+            return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// 生成地板
     /// </summary>
@@ -194,6 +254,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         /*创建实例*/
         MyTile tileBase = ScriptableObject.CreateInstance<MyTile>();
         tileBase.InitTile(floorGrid.CellToWorld(tilePos), tilePos, GetBuildingObj(tileID), GetBuildingScript(tileID), buildPool);
+        tileBase.ResetDrag(((MyTile)floorMap.GetTile(tilePos)).config_passDrag);
         /*将瓦片置于正确位置*/
         if (buildingMap.HasTile(tilePos))
         {
@@ -206,11 +267,23 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         }
     }
     /// <summary>
-    /// 获得瓦片
+    /// 重绘建筑
+    /// </summary>
+    /// <param name="tilePos"></param>
+    public void ReDrawBuilding(Vector3Int tilePos)
+    {
+        GetBuildingObj(tilePos,out TileObj tileObj);
+        if (tileObj) { tileObj.Draw(); }
+    }
+    #endregion
+    /*获得地图信息*/
+    #region
+    /// <summary>
+    /// 获得建筑
     /// </summary>
     /// <param name="tilePos"></param>
     /// <param name="tileObj"></param>
-    public bool GetBuildObj(Vector3Int tilePos,out TileObj tileObj)
+    public bool GetBuildingObj(Vector3Int tilePos, out TileObj tileObj)
     {
         tileObj = null;
         MyTile tile = buildingMap.GetTile<MyTile>(tilePos);
@@ -223,64 +296,6 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
             }
         }
         return false;
-    }
-    /// <summary>
-    /// 修改瓦片
-    /// </summary>
-    public void ChangeTileObj(Vector3Int tilePos)
-    {
-
-    }
-    /// <summary>
-    /// 根据名字获取地块tile
-    /// </summary>
-    /// <param name="Name"></param>
-    /// <returns></returns>
-    private MyTile GetFloorScript(int id)
-    {
-        if (FloorTilePool.ContainsKey(id))
-        {
-            return FloorTilePool[id];
-        }
-        else
-        {
-            MyTile config = Resources.Load<MyTile>("TileScript/Floor/" + FloorConfigData.GetItemConfig(id).Floor_FileName);
-            if (config != null)
-            {
-                FloorTilePool.Add(id, config);
-                return config;
-            }
-            else
-            {
-                return config;
-            }
-        }
-    }
-    /// <summary>
-    /// 根据名字获取建筑tile
-    /// </summary>
-    /// <param name="Name"></param>
-    /// <returns></returns>
-    private MyTile GetBuildingScript(int id)
-    {
-        if (BuildTilePool.ContainsKey(id))
-        {
-            return BuildTilePool[id];
-        }
-        else
-        {
-            MyTile config = Resources.Load<MyTile>("TileScript/Block/" + BuildingConfigData.GetItemConfig(id).Building_FileName);
-            if (config != null)
-            {
-                BuildTilePool.Add(id, config);
-                return config;
-            }
-            else
-            {
-                return config;
-            }
-        }
-
     }
     /// <summary>
     /// 根据ID获取建筑obj
@@ -339,4 +354,57 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         }
 
     }
+    /// <summary>
+    /// 根据名字获取地块tile
+    /// </summary>
+    /// <param name="Name"></param>
+    /// <returns></returns>
+    private MyTile GetFloorScript(int id)
+    {
+        if (FloorTilePool.ContainsKey(id))
+        {
+            return FloorTilePool[id];
+        }
+        else
+        {
+            MyTile config = Resources.Load<MyTile>("TileScript/Floor/" + FloorConfigData.GetItemConfig(id).Floor_FileName);
+            if (config != null)
+            {
+                FloorTilePool.Add(id, config);
+                return config;
+            }
+            else
+            {
+                return config;
+            }
+        }
+    }
+    /// <summary>
+    /// 根据名字获取建筑tile
+    /// </summary>
+    /// <param name="Name"></param>
+    /// <returns></returns>
+    private MyTile GetBuildingScript(int id)
+    {
+        if (BuildTilePool.ContainsKey(id))
+        {
+            return BuildTilePool[id];
+        }
+        else
+        {
+            MyTile config = Resources.Load<MyTile>("TileScript/Block/" + BuildingConfigData.GetItemConfig(id).Building_FileName);
+            if (config != null)
+            {
+                BuildTilePool.Add(id, config);
+                return config;
+            }
+            else
+            {
+                return config;
+            }
+        }
+
+    }
+
+    #endregion
 }

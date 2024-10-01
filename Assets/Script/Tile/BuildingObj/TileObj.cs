@@ -5,6 +5,8 @@ using UniRx;
 using System;
 using Random = UnityEngine.Random;
 using UnityEditor;
+using static UnityEditor.Progress;
+using DG.Tweening;
 /// <summary>
 /// 场景物品基类
 /// </summary>
@@ -22,6 +24,10 @@ public class TileObj : MonoBehaviour
     public string info;
     private bool breaking = false;
     #region//基本逻辑
+    private void Start()
+    {
+        Draw();
+    }
     /// <summary>
     /// 初始化
     /// </summary>
@@ -46,7 +52,6 @@ public class TileObj : MonoBehaviour
     {
         json = info;
     }
-
     /// <summary>
     /// 交互
     /// </summary>
@@ -55,24 +60,69 @@ public class TileObj : MonoBehaviour
 
     }
     /// <summary>
-    /// 尝试改变生命值
+    /// 绘制
     /// </summary>
-    /// <param name="newHp"></param>
-    public virtual void TryToChangeHp(int val)
+    public virtual void Draw()
+    {
+
+    }
+    /// <summary>
+    /// 尝试对地块造成伤害
+    /// </summary>
+    /// <param name="damage"></param>
+    public void TryToTakeDamage(int damage)
     {
         MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_TakeDamage()
         {
             tileObj = this,
-            damage = val
+            damage = damage
         });
     }
     /// <summary>
     /// 尝试更新生命值
     /// </summary>
     /// <param name="newHp"></param>
-    public virtual void TryToUpdateHp(int newHp)
+    public void TryToUpdateHp(int newHp)
     {
+        if (newHp <= 0) { Broken(); }
+        if (newHp < CurHp)
+        {
+            HpDown(CurHp - newHp);
+        }
+        else
+        {
+            HpUp(newHp - CurHp);
+        }
         CurHp = newHp;
+    }
+    /// <summary>
+    /// 生命值提升
+    /// </summary>
+    /// <param name="val"></param>
+    public virtual void HpUp(int val)
+    {
+
+    }
+    /// <summary>
+    /// 生命值下降
+    /// </summary>
+    /// <param name="val"></param>
+    public virtual void HpDown(int val)
+    {
+        PlayDamaged();
+    }
+    /// <summary>
+    /// 损坏
+    /// </summary>
+    public virtual void Broken()
+    {
+        Loot();
+        PlayBroken();
+        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuilding()
+        {
+            buildingID = 0,
+            buildingPos = bindTile._posInCell
+        });
     }
     /// <summary>
     /// 尝试改变地块信息
@@ -113,7 +163,7 @@ public class TileObj : MonoBehaviour
     /// 玩家持有
     /// </summary>
     /// <param name="player"></param>
-    /// <returns></returns>
+    /// <returns>被持有</returns>
     public virtual bool PlayerHolding(PlayerController player)
     {
         return false;
@@ -122,25 +172,10 @@ public class TileObj : MonoBehaviour
     /// 玩家释放
     /// </summary>
     /// <param name="player"></param>
-    /// <returns></returns>
+    /// <returns>被释放</returns>
     public virtual bool PlayerRelease(PlayerController player)
     {
         return false;
-    }
-
-    /// <summary>
-    /// 监听破坏后尝试销毁
-    /// </summary>
-    public virtual void TryToDestroyMyObj()
-    {
-        DestroyMyObj();
-    }
-    /// <summary>
-    /// 销毁
-    /// </summary>
-    public virtual void DestroyMyObj()
-    {
-        Destroy(gameObject);
     }
     #endregion
     #region//瓦片连接
@@ -156,7 +191,7 @@ public class TileObj : MonoBehaviour
         bool right = false;
         bool up = false;
         bool down = false;
-        if (MapManager.Instance.GetBuildObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
         {
             if (tileObjUp.bindTile.name.Equals(targetBuilding))
             {
@@ -167,7 +202,7 @@ public class TileObj : MonoBehaviour
                 }
             }
         }
-        if (MapManager.Instance.GetBuildObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
         {
             if (tileObjDown.bindTile.name.Equals(targetBuilding))
             {
@@ -178,7 +213,7 @@ public class TileObj : MonoBehaviour
                 }
             }
         }
-        if (MapManager.Instance.GetBuildObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
         {
             if (tileObjLeft.bindTile.name.Equals(targetBuilding))
             {
@@ -189,7 +224,7 @@ public class TileObj : MonoBehaviour
                 }
             }
         }
-        if (MapManager.Instance.GetBuildObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
         {
             if (tileObjRight.bindTile.name.Equals(targetBuilding))
             {
@@ -230,16 +265,17 @@ public class TileObj : MonoBehaviour
     /// <summary>
     /// 受伤动画
     /// </summary>
-    public virtual void PlayDamagedAnim()
+    public virtual void PlayDamaged()
     {
-
+        transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
     }
     /// <summary>
     /// 销毁动画
     /// </summary>
-    public virtual void PlayBreakAnim()
+    public virtual void PlayBroken()
     {
-
+        GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_BombSmoke");
+        effect.transform.position = transform.position;
     }
     #endregion
     #region//掉落

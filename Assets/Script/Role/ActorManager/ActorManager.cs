@@ -5,289 +5,474 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
+using static GameEvent;
+using static Unity.Collections.Unicode;
 /// <summary>
 /// 角色管理器
 /// </summary>
 public class ActorManager : MonoBehaviour
 {
-    [Header("物理")]
-    public Rigidbody2D myRigidbody;
+    [SerializeField, Header("物理刚体")]
+    private Rigidbody2D myRigidbody;
+    public Rigidbody2D MyRigidbody
+    {
+        get { return myRigidbody; }
+    }
     [SerializeField, Header("网络控制器")]
     private ActorNetManager netManager;
     public ActorNetManager NetManager
     {
         get { return netManager; }
-        set { netManager = value; }
     }
     [SerializeField, Header("身体控制器")]
     private BaseBodyController bodyController;
     public BaseBodyController BodyController
     {
         get { return bodyController; }
-        set { bodyController = value; }
     }
     [SerializeField, Header("范围指示器")]
     private SI_Sector skillSector;
     public SI_Sector SkillSector
     {
         get { return skillSector; }
-        set { skillSector = value; }
     }
     [SerializeField, Header("UI管理器")]
     private ActorUI actorUI;
-    [HideInInspector]
-    public ActorState actorState;
     public ActorUI ActorUI
     {
         get { return actorUI; }
-        set { actorUI = value; }
     }
     [HideInInspector]
-    public ItemBase holdingByHand = new ItemBase();
-    [HideInInspector]
-    public ItemBase wearingOnHead = new ItemBase();
-    [HideInInspector]
-    public ItemBase wearingOnBody = new ItemBase();
-    [HideInInspector]
-    public List<ItemBase> itemInBag = new List<ItemBase>();
-    [HideInInspector]
-    public SkillBase bindSkill = new SkillBase();
-    [HideInInspector]
-    public NavManager navManager;
+    public ActorState actorState;
     [HideInInspector]
     public bool isPlayer = false;
     [HideInInspector]
     public bool isState = false;
     [HideInInspector]
     public bool isInput = false;
-    public const float customUpdateTime = 0.1f;
-    protected LayerMask tileLayer;
+    /// <summary>
+    /// 层级(墙)
+    /// </summary>
+    protected LayerMask layerMask_Wall;
+    /*初始化*/
+    #region
     private void Awake()
     {
-        tileLayer = LayerMask.GetMask("TileObj_Wall");
+        layerMask_Wall = LayerMask.GetMask("TileObj_Wall");
         myRigidbody.gravityScale = 0;
     }
-    public virtual void FixedUpdateNetwork(float dt)
+    /// <summary>
+    /// 作为网络对象初始化
+    /// </summary>
+    /// <param name="hasStateAuthority"></param>
+    /// <param name="hasInputAuthority"></param>
+    public virtual void AllClient_InitByNetManager(bool hasStateAuthority, bool hasInputAuthority)
     {
-        UpdatePath(dt);
-    }
-    public virtual void CustomUpdate()
-    {
-        UpdateAnima(customUpdateTime);
-        CheckMyTile();
-    }
-    public virtual void InitByNetManager(bool hasStateAuthority,bool hasInputAuthority)
-    {
+        navManager = MapManager.Instance.navManager;
         isState = hasStateAuthority;
         isInput = hasInputAuthority;
-        InvokeRepeating("CustomUpdate", 1f, customUpdateTime);
-        navManager = GameObject.Find("Map").GetComponent<NavManager>();
-        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneMove>().Subscribe(_ =>
-        {
-            Listen_RoleMove(_.moveActor, _.moveTile);
-        }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneSendEmoji>().Subscribe(_ =>
-        {
-            Listen_RoleSendEmoji(_.actor, _.id, _.distance);
-        }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneDoSomething>().Subscribe(_ =>
-        {
-            ListenRoleDoSamething(_.actor, _.action);
-        }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneCommit>().Subscribe(_ =>
-        {
-            ListenRoleCommit(_.actor, _.fine);
-        }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
-        {
-            Listen_WorldGlobalTimeChange(_.hour, _.date, _.now);
-        }).AddTo(this);
+        AllClient_StatrLoop();
+        AllClient_AddListener();
     }
-    public void InitByPlayer()
+    /// <summary>
+    /// 作为玩家初始化
+    /// </summary>
+    public virtual void AllClient_InitByPlayer()
     {
         isPlayer = true;
     }
+    #endregion
     /*监听*/
     #region
     /// <summary>
-    /// 监听时间改变
+    /// 开始监听
     /// </summary>
-    /// <param name="globalTime"></param>
-    public virtual void Listen_WorldGlobalTimeChange(int hour,int date,GlobalTime globalTime)
+    private void AllClient_AddListener()
     {
-        netManager.AddOneHour(hour, date, globalTime);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneMove>().Subscribe(_ =>
+        {
+            AllClientListen_RoleMove(_.moveActor, _.moveTile);
+        }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneSendEmoji>().Subscribe(_ =>
+        {
+            AllClientListen_RoleSendEmoji(_.actor, _.id, _.distance);
+        }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneDoSomething>().Subscribe(_ =>
+        {
+            AllClientListen_RoleDoSomething(_.actor, _.action);
+        }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneCommit>().Subscribe(_ =>
+        {
+            AllClientListen_RoleCommit(_.actor, _.fine);
+        }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
+        {
+            AllClientListen_WorldGlobalTimeChange(_.hour, _.date, _.now);
+        }).AddTo(this);
     }
     /// <summary>
-    /// 监听某人移动
+    /// 监听时间改变(客户端)
+    /// </summary>
+    /// <param name="globalTime"></param>
+    public virtual void AllClientListen_WorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
+    {
+        if (isState)
+        {
+            OnlyStateListen_WorldGlobalTimeChange(hour, date, globalTime);
+        }
+    }
+    /// <summary>
+    /// 监听时间改变(服务器)
+    /// </summary>
+    /// <param name="hour"></param>
+    /// <param name="date"></param>
+    /// <param name="globalTime"></param>
+    public virtual void OnlyStateListen_WorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
+    {
+
+    }
+    /// <summary>
+    /// 监听某人移动(客户端)
     /// </summary>
     /// <param name="who"></param>
     /// <param name="where"></param>
-    public virtual void Listen_RoleMove(ActorManager who, MyTile where)
+    public virtual void AllClientListen_RoleMove(ActorManager who, MyTile where)
+    {
+        if (who == this)
+        {
+            if (isState)
+            {
+                OnlyStateListen_MoveMyself(who, where);
+            }
+            else
+            {
+                AllClientListen_MoveMyself(who, where);
+            }
+        }
+        else
+        {
+            if (isState)
+            {
+                OnlyStateListen_MoveOther(who, where);
+            }
+            else
+            {
+                AllClientListen_MoveOther(who, where);
+            }
+        }
+    }
+    /// <summary>
+    /// 监听其他人移动(客户端)
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="where"></param>
+    public virtual void AllClientListen_MoveOther(ActorManager who, MyTile where)
     {
 
     }
     /// <summary>
-    /// 监听某人做了什么事情
+    /// 监听其他人移动(服务器)
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="where"></param>
+    public virtual void OnlyStateListen_MoveOther(ActorManager who, MyTile where)
+    {
+
+    }
+    /// <summary>
+    /// 监听我自己移动(客户端)
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="where"></param>
+    public virtual void AllClientListen_MoveMyself(ActorManager who, MyTile where)
+    {
+
+    }
+    /// <summary>
+    /// 监听我自己移动(服务器)
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="where"></param>
+    public virtual void OnlyStateListen_MoveMyself(ActorManager who, MyTile where)
+    {
+
+    }
+    /// <summary>
+    /// 监听某人做了什么事情(客户端)
     /// </summary>
     /// <param name="who"></param>
     /// <param name="actorAction"></param>
-    public virtual void ListenRoleDoSamething(ActorManager who, GameEvent.ActorAction actorAction)
+    public virtual void AllClientListen_RoleDoSomething(ActorManager who, GameEvent.ActorAction actorAction)
     {
-
+        if (isState)
+        {
+            OnlyStateListen_RoleDoSomething(who, actorAction);
+        }
     }
     /// <summary>
-    /// 监听某人犯法
+    /// 监听某人做了什么事情(服务器)
     /// </summary>
     /// <param name="who"></param>
     /// <param name="actorAction"></param>
-    public virtual void ListenRoleCommit(ActorManager who, short val)
+    public virtual void OnlyStateListen_RoleDoSomething(ActorManager who, GameEvent.ActorAction actorAction)
     {
 
     }
     /// <summary>
-    /// 监听某人发送emoji
+    /// 监听某人犯法(客户端)
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="actorAction"></param>
+    public virtual void AllClientListen_RoleCommit(ActorManager who, short val)
+    {
+        if (isState)
+        {
+            OnlyStateListen_RoleCommit(who, val);
+        }
+    }
+    /// <summary>
+    /// 监听某人犯法(服务器)
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="val"></param>
+    public virtual void OnlyStateListen_RoleCommit(ActorManager who, short val)
+    {
+
+    }
+    /// <summary>
+    /// 监听某人发送emoji(客户端)
     /// </summary>
     /// <param name="actor">谁</param>
     /// <param name="id">什么</param>
     /// <param name="distance">距离</param>
-    public virtual void Listen_RoleSendEmoji(ActorManager actor, int id, float distance)
+    public virtual void AllClientListen_RoleSendEmoji(ActorManager actor, int id, float distance)
+    {
+        if (isState)
+        {
+            OnlyStateListen_RoleSendEmoji(actor, id, distance);
+        }
+    }
+    /// <summary>
+    /// 监听某人发送emoji(服务器)
+    /// </summary>
+    /// <param name="actor"></param>
+    /// <param name="id"></param>
+    /// <param name="distance"></param>
+    public virtual void OnlyStateListen_RoleSendEmoji(ActorManager actor, int id, float distance)
+    {
+
+    }
+    /// <summary>
+    /// 监听生命值改变(客户端)
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="id"></param>
+    public virtual void AllClientListen_MyselfHpChange(int parameter, Fusion.NetworkId id)
+    {
+        if (parameter <= 0)
+        {
+            GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position + new Vector2(0, 1));
+            obj_num.GetComponent<UI_DamageNum>().Play(parameter, new Color32(255, 50, 50, 255));
+            AllClient_PlayTakeDamage(1);
+        }
+        if (isState)
+        {
+            OnlyStateListen_MyselfHpChange(parameter, id);
+        }
+    }
+    /// <summary>
+    ///  监听生命值改变(服务器)
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="id"></param>
+    public virtual void OnlyStateListen_MyselfHpChange(int parameter, Fusion.NetworkId id)
+    {
+
+    }
+    /// <summary>
+    /// 监听攻击状态变化(客户端)
+    /// </summary>
+    /// <param name="state"></param>
+    public virtual void AllClientListen_ChangeAttackState(bool state)
+    {
+        allClient_AttackState = state;
+        if (isState)
+        {
+            OnlyStateListen_ChangeAttackState(state);
+        }
+    }
+    /// <summary>
+    /// 监听攻击状态变化(服务器)
+    /// </summary>
+    /// <param name="state"></param>
+    public virtual void OnlyStateListen_ChangeAttackState(bool state)
+    {
+       
+    }
+    /// <summary>
+    /// 监听攻击目标变化(客户端)
+    /// </summary>
+    /// <param name="id"></param>
+    public virtual void AllClientListen_ChangeAttackTarget(NetworkId id)
+    {
+        if (id != new NetworkId())
+        {
+            allClient_AttackTarget = netManager.Runner.FindObject(id).GetComponent<ActorManager>();
+        }
+        else
+        {
+            allClient_AttackTarget = null;
+        }
+        if (isState)
+        {
+            OnlyStateListen_ChangeAttackTarget(id);
+        }
+    }
+    /// <summary>
+    /// 监听攻击目标变化(服务器)
+    /// </summary>
+    /// <param name="id"></param>
+    public virtual void OnlyStateListen_ChangeAttackTarget(NetworkId id)
     {
 
     }
     #endregion
-    /*动画*/
+    /*计时*/
     #region
-    private float curPos_X;
-    private float curPos_Y;
-    private float rigSpeed;
-    private float lastPos_X;
-    private float lastPos_Y;
-    private bool turnRight = false;
-    private bool turnLeft = false;
     [HideInInspector]
-    public Vector2 face;
-    /*检查动画播放状态*/
-    public virtual void UpdateAnima(float dt)
+    public const float customUpdateTime = 0.1f;
+    /// <summary>
+    /// 开始自定义循环(客户端)
+    /// </summary>
+    private void AllClient_StatrLoop()
     {
-        curPos_X = transform.position.x;
-        curPos_Y = transform.position.y;
-        rigSpeed = netManager.networkRigidbody.Rigidbody.velocity.magnitude;
+        InvokeRepeating("AllClient_CustomUpdate", 1f, customUpdateTime);
+        InvokeRepeating("AllClient_AddOneSecond", 1, 1);
+    }
+    /// <summary>
+    /// 物理更新(客户端)
+    /// </summary>
+    public virtual void FixedUpdate()
+    {
+        
+    }
+    /// <summary>
+    /// 网络更新(服务器)
+    /// </summary>
+    /// <param name="dt"></param>
+    public virtual void OnlyState_FixedUpdateNetwork(float dt)
+    {
+        OnlyState_RunningPath(dt);
+    }
+    /// <summary>
+    /// 网络更新(客户端)
+    /// </summary>
+    /// <param name="dt"></param>
+    public virtual void AllClient_FixedUpdateNetwork(float dt)
+    {
+    }
+    /// <summary>
+    /// 网络更新(服务器)
+    /// </summary>
+    /// <param name="dt"></param>
+    public virtual void OnlyState_Render(float dt)
+    {
 
-        float distance = Vector2.Distance(new Vector2(curPos_X, curPos_Y), new Vector2(lastPos_X, lastPos_Y));
-        float speed = distance / dt;
-        if (rigSpeed <= 0.1f)
+    }
+    /// <summary>
+    /// 网络更新(客户端)
+    /// </summary>
+    /// <param name="dt"></param>
+    public virtual void AllClient_Render(float dt)
+    {
+
+    }
+    /// <summary>
+    /// 自定义更新(客户端)
+    /// </summary>
+    public virtual void AllClient_CustomUpdate()
+    {
+        AllClient_UpdateBody(customUpdateTime);
+        AllClient_CheckMyTile();
+    }
+    /// <summary>
+    /// 秒更新(客户端)
+    /// </summary>
+    public virtual void AllClient_AddOneSecond()
+    {
+        AllClient_GetHungry(1);
+        AllClient_UpdateItemTime(1);
+    }
+    #endregion
+    /*身体状态*/
+    #region
+    private Vector2 temp_lastPos;
+    private Vector2 temp_curPos;
+    private float temp_rigSpeed;
+    /// <summary>
+    /// 更新身体状态(客户端)
+    /// </summary>
+    /// <param name="dt"></param>
+    public virtual void AllClient_UpdateBody(float dt)
+    {
+        temp_curPos = transform.position;
+        temp_rigSpeed = netManager.networkRigidbody.Rigidbody.velocity.magnitude;
+
+        float distance = Vector2.Distance(temp_lastPos, temp_curPos);
+        float speed = distance * 10;
+        if (temp_rigSpeed <= 0.1f)
         {
             if (speed > 0.1f)
             {
-                PlayMove(speed);
+                AllClient_PlayMove(speed);
+                AllClient_TurnTo(temp_curPos - temp_lastPos);
             }
             else
             {
-                PlayStop(1);
+                AllClient_PlayStop(1);
             }
+        }
+        temp_lastPos = temp_curPos;
+    }
+    /// <summary>
+    /// 面向某处(客户端)
+    /// </summary>
+    public virtual void AllClient_FaceTo(Vector2 dir)
+    {
+        bodyController.faceDir = dir.normalized;
+        if (dir.x > 0)
+        {
+            bodyController.FaceRight();
         }
         else
         {
-
-        }
-
-        if (curPos_X > lastPos_X)
-        {
-            if (!turnRight)
-            {
-                if (!isPlayer)
-                {
-                    FaceRight();
-                }
-                TurnRight();
-            }
-        }
-        else
-        {
-            if (!turnLeft)
-            {
-                if (!isPlayer)
-                {
-                    FaceLeft();
-                }
-                TurnLeft();
-            }
-        }
-
-        lastPos_X = curPos_X;
-        lastPos_Y = curPos_Y;
-    }
-    /// <summary>
-    /// 面向某处
-    /// </summary>
-    public virtual void FaceTo(Vector3 face)
-    {
-        this.face = new Vector2(face.x, face.y).normalized;
-        if (face.x > 0)
-        {
-            FaceRight();
-        }
-        else
-        {
-            FaceLeft();
+            bodyController.FaceLeft();
         }
     }
     /// <summary>
-    /// 面向左边
-    /// </summary>
-    public virtual void FaceLeft()
-    {
-        BodyController.Head.localScale = new Vector3(-1, 1, 1);
-        BodyController.Body.localScale = new Vector3(-1, 1, 1);
-        BodyController.Hand.localScale = new Vector3(-1, 1, 1);
-    }
-    /// <summary>
-    /// 面向右边
-    /// </summary>
-    public virtual void FaceRight()
-    {
-        BodyController.Head.localScale = new Vector3(1, 1, 1);
-        BodyController.Body.localScale = new Vector3(1, 1, 1);
-        BodyController.Hand.localScale = new Vector3(1, 1, 1);
-    }
-    /// <summary>
-    /// 转向某处
+    /// 转向某处(客户端)
     /// </summary>
     /// <param name="turn"></param>
-    public virtual void TurnTo(Vector3 turn)
+    public virtual void AllClient_TurnTo(Vector3 turn)
     {
         if (turn.x > 0)
         {
-            TurnRight();
+            bodyController.TurnRight();
         }
         if (turn.x < 0)
         {
-            TurnLeft();
+            bodyController.TurnLeft();
         }
     }
     /// <summary>
-    /// 转向左边
+    /// 播放行走(客户端)
     /// </summary>
-    public virtual void TurnLeft()
-    {
-        turnLeft = true;
-        turnRight = false;
-        BodyController.Leg.localScale = new Vector3(-1, 1, 1);
-    }
-    /// <summary>
-    /// 转向右边
-    /// </summary>
-    public virtual void TurnRight()
-    {
-        turnRight = true;
-        turnLeft = false;
-        BodyController.Leg.localScale = new Vector3(1, 1, 1);
-    }
-
-    public virtual void PlayMove(float speed)
+    /// <param name="speed"></param>
+    public virtual void AllClient_PlayMove(float speed)
     {
         bodyController.SetHeadFloat("MoveSpeed", speed);
         bodyController.SetHeadBool("Step", true, 1, null);
@@ -305,7 +490,11 @@ public class ActorManager : MonoBehaviour
         bodyController.SetLegBool("Step", true, 1, null);
         bodyController.SetLegBool("Idle", false, 1, null);
     }
-    public virtual void PlayStop(float speed)
+    /// <summary>
+    /// 播放停下(客户端)
+    /// </summary>
+    /// <param name="speed"></param>
+    public virtual void AllClient_PlayStop(float speed)
     {
         bodyController.SetHeadFloat("MoveSpeed", speed);
         bodyController.SetHeadBool("Step", false, 1, null);
@@ -323,25 +512,33 @@ public class ActorManager : MonoBehaviour
         bodyController.SetLegBool("Step", false, 1, null);
         bodyController.SetLegBool("Idle", true, 1, null);
     }
-    public virtual void PlayDead(float speed)
+    /// <summary>
+    /// 播放死亡(客户端)
+    /// </summary>
+    /// <param name="speed"></param>
+    /// <param name="action"></param>
+    public virtual void AllClient_PlayDead(float speed,Action<string> action)
     {
-        bodyController.SetHeadTrigger("Dead", 1, (str) =>
-        {
-            if (str == "Dead")
-            {
-                Dead();
-            }
-        });
+        bodyController.SetHeadTrigger("Dead", 1, action);
         bodyController.SetBodyTrigger("Dead", 1, null);
         bodyController.SetHandTrigger("Dead", 1, null);
         bodyController.SetLegTrigger("Dead", 1, null);
         bodyController.locking = true;
     }
-    public virtual void PlayTakeDamage(float speed)
+    /// <summary>
+    /// 播放受伤(客户端)
+    /// </summary>
+    /// <param name="speed"></param>
+    public virtual void AllClient_PlayTakeDamage(float speed)
     {
         bodyController.SetHeadTrigger("TakeDamage", 1, null);
     }
-    public virtual void PlayPickUp(float speed, Action<string> action)
+    /// <summary>
+    /// 播放捡起(客户端)
+    /// </summary>
+    /// <param name="speed"></param>
+    /// <param name="action"></param>
+    public virtual void AllClient_PlayPickUp(float speed, Action<string> action)
     {
         bodyController.SetHeadTrigger("LowerHead", 1, null);
         bodyController.SetHandTrigger("PickUp", 1, action);
@@ -349,83 +546,74 @@ public class ActorManager : MonoBehaviour
     #endregion
     /*位置*/
     #region
-    private List<MyTile> tempTiles = new List<MyTile>();
-    private MyTile curTile;
-    private MyTile lastTile;
-    public MyTile GetMyTile()
+    private List<MyTile> temp_TilesList = new List<MyTile>();
+    private MyTile temp_lastTile = null;
+    private MyTile temp_curTile = null;
+    /// <summary>
+    /// 检查当前地块(客户端)
+    /// </summary>
+    public void AllClient_CheckMyTile()
+    {
+        temp_curTile = Tool_GetMyTileWithOffset(Vector3Int.zero);
+        if (temp_lastTile != temp_curTile)
+        {
+            temp_lastTile = temp_curTile;
+            MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneMove
+            {
+                moveActor = this,
+                moveTile = temp_curTile
+            });
+        }
+    }
+    /// <summary>
+    /// 通用方法(获得以我基准的一个地块)
+    /// </summary>
+    /// <param name="offset">偏移</param>
+    /// <returns>地块</returns>
+    public MyTile Tool_GetMyTileWithOffset(Vector3Int offset)
     {
         if (navManager != null)
         {
             Vector3Int vector3Int = navManager.grid.WorldToCell(transform.position);
-            return (MyTile)navManager.tilemap.GetTile(vector3Int);
+            return (MyTile)navManager.tilemap_Building.GetTile(vector3Int + offset);
         }
         else
         {
             return null;
         }
     }
-    public MyTile GetMyTileWithOffset(Vector3Int offset)
-    {
-        if (navManager != null)
-        {
-            Vector3Int vector3Int = navManager.grid.WorldToCell(transform.position);
-            return (MyTile)navManager.tilemap.GetTile(vector3Int + offset);
-        }
-        else
-        {
-            return null;
-        }
-
-    }
-    public List<MyTile> GetNearbyTiles()
-    {
-        tempTiles.Clear();
-        MyTile tile = GetMyTile();
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.up));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.right));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.left));
-        tempTiles.Add((MyTile)navManager.tilemap.GetTile(tile._posInCell + Vector3Int.down));
-        return tempTiles;
-    }
-    public void CheckMyTile()
-    {
-        curTile = GetMyTile();
-        if (!curTile) { return; }
-        if (lastTile == null) { lastTile = curTile; }
-        if (lastTile._posInWorld != curTile._posInWorld)
-        {
-            ListenMyself_InNewTile();
-        }
-    }
     /// <summary>
-    /// 到达新地块
+    /// 通用方法(获得周围地块)
     /// </summary>
-    public virtual void ListenMyself_InNewTile()
+    /// <returns></returns>
+    public List<MyTile> Tool_GetNearbyTiles()
     {
-        lastTile = curTile;
-        MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneMove
-        {
-            moveActor = this,
-            moveTile = curTile
-        });
-    }
-    /// <summary>
-    /// 到达终点
-    /// </summary>
-    public virtual void ListenMyself_InDestinationTile()
-    {
-
+        temp_TilesList.Clear();
+        MyTile tile = Tool_GetMyTileWithOffset(Vector3Int.zero);
+        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell));
+        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.up));
+        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.right));
+        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.left));
+        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.down));
+        return temp_TilesList;
     }
     #endregion
     /*物品*/
     #region
+    [HideInInspector]
+    public ItemBase itemOnHand = new ItemBase();
+    [HideInInspector]
+    public ItemBase itemOnHead = new ItemBase();
+    [HideInInspector]
+    public ItemBase itemOnBody = new ItemBase();
+    [HideInInspector]
+    public List<ItemBase> itemInBag = new List<ItemBase>();
     /// <summary>
-    /// 拿到手上
+    /// 拿到手上(客户端)
     /// </summary>
     /// <param name="data"></param>
     /// <param name="showInUI"></param>
-    public void AddItem_Hand(ItemData data)
+    public void AllClient_HoldItemInHand(ItemData data)
     {
         /*更新UI*/
         if (isPlayer && netManager.Object.HasInputAuthority)
@@ -439,32 +627,35 @@ public class ActorManager : MonoBehaviour
         {
             if (netManager.Last_ItemInHand.Item_ID != data.Item_ID)
             {
-                ResetItem_Hand();
+                AllClient_ResetItemInHand();
                 Type type = Type.GetType("Item_" + data.Item_ID.ToString());
-                holdingByHand = (ItemBase)Activator.CreateInstance(type);
-                holdingByHand.UpdateData(data);
-                holdingByHand.Holding_Start(this, BodyController);
-                holdingByHand.Holding_UpdateLook();
+                itemOnHand = (ItemBase)Activator.CreateInstance(type);
+                itemOnHand.UpdateDataFromNet(data);
+                itemOnHand.Holding_Start(this, BodyController);
+                itemOnHand.Holding_UpdateLook();
             }
             else
             {
-                if (holdingByHand != null)
+                if (itemOnHand != null)
                 {
-                    holdingByHand.UpdateData(data);
-                    holdingByHand.Holding_UpdateLook();
+                    itemOnHand.UpdateDataFromNet(data);
+                    itemOnHand.Holding_UpdateLook();
                 }
             }
         }
         else
         {
-            ResetItem_Hand();
+            AllClient_ResetItemInHand();
         }
         netManager.Last_ItemInHand = data;
     }
-    public void ResetItem_Hand()
+    /// <summary>
+    /// 重置手上物体(客户端)
+    /// </summary>
+    public void AllClient_ResetItemInHand()
     {
-        if (holdingByHand != null) { holdingByHand.Holding_Over(this); }
-        holdingByHand = new ItemBase();
+        if (itemOnHand != null) { itemOnHand.Holding_Over(this); }
+        itemOnHand = new ItemBase();
         if (bodyController.Hand_LeftItem.childCount > 0)
         {
             for (int i = 0; i < bodyController.Hand_LeftItem.childCount; i++)
@@ -504,12 +695,12 @@ public class ActorManager : MonoBehaviour
         bodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sortingOrder = 4;
     }
     /// <summary>
-    /// 戴到头上
+    /// 戴到头上(客户端)
     /// </summary>
     /// <param name="data"></param>
-    public void WearItem_Head(ItemData data)
+    public void AllClient_WearItemOnHead(ItemData data)
     {
-        ResetItem_Head();
+        AllClient_ResetItemOnHead();
         /*更新UI*/
         if (isPlayer && netManager.Object.HasInputAuthority)
         {
@@ -525,14 +716,17 @@ public class ActorManager : MonoBehaviour
         if (data.Item_ID != 0)
         {
             Type type = Type.GetType("Item_" + data.Item_ID.ToString());
-            wearingOnHead = (ItemBase)Activator.CreateInstance(type);
-            wearingOnHead.UpdateData(data);
-            wearingOnHead.BeWearingOnHead(this, BodyController);
+            itemOnHead = (ItemBase)Activator.CreateInstance(type);
+            itemOnHead.UpdateDataFromNet(data);
+            itemOnHead.BeWearingOnHead(this, BodyController);
         }
     }
-    public void ResetItem_Head()
+    /// <summary>
+    /// 重置头上物体(客户端)
+    /// </summary>
+    public void AllClient_ResetItemOnHead()
     {
-        wearingOnHead = new ItemBase();
+        itemOnHead = new ItemBase();
         if (bodyController.Head_Item.childCount > 0)
         {
             for (int i = 0; i < bodyController.Head_Item.childCount; i++)
@@ -548,12 +742,12 @@ public class ActorManager : MonoBehaviour
         bodyController.Head_Item.GetComponent<SpriteRenderer>().sortingOrder = 3;
     }
     /// <summary>
-    /// 穿到身上
+    /// 穿到身上(客户端)
     /// </summary>
     /// <param name="data"></param>
-    public void WearItem_Body(ItemData data)
+    public void AllClient_WearItemOnBody(ItemData data)
     {
-        ResetItem_Body();
+        AllClient_ResetItemOnBody();
         /*更新UI*/
         if (isPlayer && netManager.Object.HasInputAuthority)
         {
@@ -569,14 +763,17 @@ public class ActorManager : MonoBehaviour
         if (data.Item_ID != 0)
         {
             Type type = Type.GetType("Item_" + data.Item_ID.ToString());
-            wearingOnBody = (ItemBase)Activator.CreateInstance(type);
-            wearingOnBody.UpdateData(data);
-            wearingOnBody.BeWearingOnBody(this, BodyController);
+            itemOnBody = (ItemBase)Activator.CreateInstance(type);
+            itemOnBody.UpdateDataFromNet(data);
+            itemOnBody.BeWearingOnBody(this, BodyController);
         }
     }
-    public void ResetItem_Body()
+    /// <summary>
+    /// 重置身上物体(客户端)
+    /// </summary>
+    public void AllClient_ResetItemOnBody()
     {
-        wearingOnHead = new ItemBase();
+        itemOnHead = new ItemBase();
         if (bodyController.Body_Item.childCount > 0)
         {
             for (int i = 0; i < bodyController.Body_Item.childCount; i++)
@@ -591,17 +788,50 @@ public class ActorManager : MonoBehaviour
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
         bodyController.Body_Item.GetComponent<SpriteRenderer>().sortingOrder = 2;
     }
+    /// <summary>
+    /// 更新物品时间戳(客户端)
+    /// </summary>
+    /// <param name="val"></param>
+    public void AllClient_UpdateItemTime(int val)
+    {
+        if (itemOnHand != null)
+        {
+            itemOnHand.UpdateTime(val);
+        }
+        if (itemOnHead != null)
+        {
+            itemOnHead.UpdateTime(val);
+        }
+        if (itemOnBody != null)
+        {
+            itemOnBody.UpdateTime(val);
+        }
+    }
     #endregion
     /*身份*/
     #region
     /// <summary>
-    /// 检查身份
+    /// 通用方法(审视某人)
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="handItemID"></param>
+    /// <param name="headItemID"></param>
+    /// <param name="bodyItemID"></param>
+    public void Tool_CheckOutSomeone(ActorManager who, out short handItemID, out short headItemID, out short bodyItemID, out short fine)
+    {
+        handItemID = who.NetManager.Data_ItemInHand.Item_ID;
+        headItemID = who.NetManager.Data_ItemOnHead.Item_ID;
+        bodyItemID = who.NetManager.Data_ItemOnBody.Item_ID;
+        fine = who.NetManager.Data_Fine;
+    }
+    /// <summary>
+    /// 通用方法(检查身份)
     /// </summary>
     /// <param name="clothes"></param>
     /// <param name="hat"></param>
-    /// <param name="id"></param>
     /// <param name="fine"></param>
-    public void CheckStatus(short clothes,short hat,short fine,out short id)
+    /// <param name="id"></param>
+    public void Tool_CheckStatus(short clothes,short hat,short fine,out short id)
     {
         id = 0;
         StatusConfig status;
@@ -629,66 +859,67 @@ public class ActorManager : MonoBehaviour
     #endregion
     /*寻路*/
     #region
-    [HideInInspector]
-    public List<MyTile> tempPath = new List<MyTile>();
-    [HideInInspector]
-    public MyTile targetTile = null;
-    public void UpdatePath(float dt)
+    private NavManager navManager;
+    /// <summary>
+    /// 目标路径(服务器)
+    /// </summary>
+    private List<MyTile> onlyState_TargetPath = new List<MyTile>();
+    /// <summary>
+    /// 目标地块(服务器)
+    /// </summary>
+    private MyTile onlyState_TargetTile = null;
+    /// <summary>
+    /// 执行路径(服务器)
+    /// </summary>
+    /// <param name="dt"></param>
+    private void OnlyState_RunningPath(float dt)
     {
-        if (targetTile)
+        if (onlyState_TargetTile)
         {
-            if (Vector2.Distance(targetTile._posInWorld, transform.position) <= 0.1f)
+            if (Vector2.Distance(onlyState_TargetTile._posInWorld, transform.position) <= 0.1f)
             {
                 /*到达路径点，检查*/
-                targetTile = null;
-                if (tempPath.Count > 0)
+                if (onlyState_TargetPath.Count > 0)
                 {
                     /*路径还未结束*/
-                    targetTile = tempPath[0];
-                    tempPath.RemoveAt(0);
-
-                    //tempPath.RemoveAt(0);
-                    //if (tempPath.Count > 0)
-                    //{
-                    //    targetTile = tempPath[0];
-                    //}
+                    OnlyState_UpdateTargetTile(onlyState_TargetPath[0]);
+                    onlyState_TargetPath.RemoveAt(0);
                 }
                 else
                 {
-                    ListenMyself_InDestinationTile();
                     /*路径已经结束*/
+                    OnlyState_UpdateTargetTile(null);
                 }
-                CheckMyTile();
                 return;
             }
             else
             {
                 /*还未到达路径点，前往路径点*/
                 Vector2 temp = Vector2.zero;
-                if (transform.position.x > targetTile._posInWorld.x)
+                if (transform.position.x > onlyState_TargetTile._posInWorld.x)
                 {
-                    if ((transform.position.x - targetTile._posInWorld.x) > 0.05f)
+                    if ((transform.position.x - onlyState_TargetTile._posInWorld.x) > 0.05f)
                     {
                         temp += new Vector2(-1, 0);
                     }
                 }
                 else
                 {
-                    if ((transform.position.x - targetTile._posInWorld.x) < -0.05f)
+                    if ((transform.position.x - onlyState_TargetTile._posInWorld.x) < -0.05f)
                     {
                         temp += new Vector2(1, 0);
                     }
                 }
-                if (transform.position.y > targetTile._posInWorld.y)
+                if (transform.position.y > onlyState_TargetTile._posInWorld.y)
                 {
-                    if ((transform.position.y - targetTile._posInWorld.y) > 0.05f)
+                    if ((transform.position.y - onlyState_TargetTile._posInWorld.y) > 0.05f)
                     {
                         temp += new Vector2(0, -1);
                     }
                 }
                 else
                 {
-                    if ((transform.position.y - targetTile._posInWorld.y) < -0.05f)
+                    if ((transform.position.y - onlyState_TargetTile._posInWorld.y) < -0.05f)
                     {
                         temp += new Vector2(0, 1);
                     }
@@ -698,115 +929,168 @@ public class ActorManager : MonoBehaviour
                 float commonSpeed = NetManager.Data_CommonSpeed / 10f;
                 Vector2 velocity = new Vector2(temp.x * commonSpeed, temp.y * commonSpeed);
                 Vector3 newPos = transform.position + new UnityEngine.Vector3(velocity.x * dt, velocity.y * dt, 0);
-                netManager.UpdateNetworkTransform(newPos, velocity.magnitude);
+                netManager.OnlyState_UpdateNetworkTransform(newPos, velocity.magnitude);
             }
         }
     }
     /// <summary>
-    /// 找到一条路径
+    /// 更新目标地块
+    /// </summary>
+    public virtual void OnlyState_UpdateTargetTile(MyTile myTile)
+    {
+        onlyState_TargetTile = myTile;
+    }
+    /// <summary>
+    /// 找到一条路径(服务器)
     /// </summary>
     /// <param name="targetPos"></param>
-    public virtual void FindWayToTarget(Vector2 targetPos)
+    public void OnlyState_FindWayToTarget(Vector2 targetPos)
     {
-        tempPath.Clear();
-        tempPath = navManager.FindPath(navManager.FindTileByPos(targetPos), GetMyTile());
-        if (tempPath.Count > 1)
+        onlyState_TargetPath.Clear();
+        onlyState_TargetPath = navManager.FindPath(navManager.FindTileByPos(targetPos), Tool_GetMyTileWithOffset(Vector3Int.zero));
+        if (onlyState_TargetPath.Count > 1)
         {
-            targetTile = tempPath[0];
-            tempPath.RemoveAt(0);
+            OnlyState_UpdateTargetTile(onlyState_TargetPath[0]);
+            onlyState_TargetPath.RemoveAt(0);
         }
     }
     #endregion
     /*基本属性变化*/
     #region
+    #region//饥饿系统
     /// <summary>
-    /// 受伤
+    /// 饥饿计时器(服务器专有)
     /// </summary>
-    /// <param name="val"></param>
-    /// <param name="id"></param>
-    public void TakeDamage(int val,ActorNetManager from)
+    private int onlyState_hungryTimer;
+    /// <summary>
+    /// 感到饥饿(客户端)
+    /// </summary>
+    private void AllClient_GetHungry(int val)
     {
-        if (actorState != ActorState.Dead && from.HasInputAuthority)
+        onlyState_hungryTimer += val;
+        if (onlyState_hungryTimer >= netManager.Data_Water + 5)
         {
-            val -= netManager.Data_Armor;
-            if (val > 0)
+            onlyState_hungryTimer = 0;
+            if (AllClient_SubFood(-1) <= 0)
             {
-                netManager.RPC_HpChange(-val, from.Object.Id);
-            }
-            else
-            {
-                netManager.RPC_HpChange(0, from.Object.Id);
+
             }
         }
     }
-    public void TryToDead()
+    /// <summary>
+    /// 减少食物值(客户端)
+    /// </summary>
+    /// <param name="val"></param>
+    /// <returns></returns>
+    public int AllClient_SubFood(int val)
+    {
+        if (actorState != ActorState.Dead && isInput)
+        {
+            if (netManager.Data_CurFood + val > 0)
+            {
+                netManager.RPC_LocalInput_FoodChange((short)(netManager.Data_CurFood + val));
+            }
+            else
+            {
+                netManager.RPC_LocalInput_FoodChange(0);
+            }
+        }
+        return netManager.Data_CurFood;
+    }
+    /// <summary>
+    /// 增加食物值(客户端)
+    /// </summary>
+    /// <param name="val"></param>
+    /// <returns></returns>
+    public int AllClient_AddFood(int val)
+    {
+        if (actorState != ActorState.Dead && isInput)
+        {
+            if (netManager.Data_CurFood + val <= netManager.Data_MaxFood)
+            {
+                netManager.RPC_LocalInput_FoodChange((short)(netManager.Data_CurFood + val));
+            }
+            else
+            {
+                netManager.RPC_LocalInput_FoodChange(netManager.Data_MaxFood);
+            }
+        }
+        return netManager.Data_CurFood;
+    }
+    #endregion
+    #region//受伤系统
+    /// <summary>
+    /// 受到伤害(客户端)
+    /// </summary>
+    /// <param name="val"></param>
+    /// <param name="id"></param>
+    public void AllClient_TakeDamage(int val, ActorNetManager from)
+    {
+        if (actorState != ActorState.Dead)
+        {
+            NetworkId networkId = new NetworkId();
+            if (from) { networkId = from.Object.Id; }
+            val -= netManager.Data_Armor;
+            if (val > 0)
+            {
+                netManager.RPC_AllClient_HpChange(-val, networkId);
+            }
+            else
+            {
+                netManager.RPC_AllClient_HpChange(0, networkId);
+            }
+        }
+    }
+    #endregion
+    #region//死亡系统
+    /// <summary>
+    /// 尝试死亡(客户端)
+    /// </summary>
+    public void AllClient_TryToDead()
     {
         if (actorState != ActorState.Dead)
         {
             actorState = ActorState.Dead;
-            PlayDead(1);
+            AllClient_PlayDead(1, (string str) =>
+            {
+                if (str.Equals("Dead"))
+                {
+                    AllClient_AlreadyDead();
+                    if (isState) { OnlyState_AlreadyDead(); }
+                }
+            });
         }
     }
     /// <summary>
-    /// 死亡
+    /// 已经死亡(客户端)
     /// </summary>
-    public virtual void Dead()
+    public virtual void AllClient_AlreadyDead()
     {
-        if (isState)
-        {
-            if (!isPlayer)
-            {
-                netManager.Runner.Despawn(netManager.Object);
-            }
-        }
+
     }
     /// <summary>
-    /// 减少食物值
+    /// 已经死亡(服务器)
     /// </summary>
-    /// <param name="val"></param>
-    /// <returns></returns>
-    public int SubFood(int val)
+    public virtual void OnlyState_AlreadyDead()
     {
-        if (actorState != ActorState.Dead && isState)
+        if (isPlayer)
         {
-            if (netManager.Data_CurFood + val > 0)
-            {
-                netManager.RPC_FoodChange((short)(netManager.Data_CurFood + val));
-            }
-            else
-            {
-                netManager.RPC_FoodChange(0);
-            }
+
         }
-        return netManager.Data_CurFood;
-    }
-    /// <summary>
-    /// 增加食物值
-    /// </summary>
-    /// <param name="val"></param>
-    /// <returns></returns>
-    public int AddFood(int val)
-    {
-        if (actorState != ActorState.Dead && isState)
+        else
         {
-            if (netManager.Data_CurFood + val <= netManager.Data_MaxFood)
-            {
-                netManager.RPC_FoodChange((short)(netManager.Data_CurFood + val));
-            }
-            else
-            {
-                netManager.RPC_FoodChange(netManager.Data_MaxFood);
-            }
+            netManager.Runner.Despawn(netManager.Object);
         }
-        return netManager.Data_CurFood;
     }
+    #endregion
+    #region//货币系统
     /// <summary>
-    /// 支付
+    /// 尝试支付(客户端)
     /// </summary>
     /// <returns></returns>
-    public bool PayCoin(int coin)
+    public bool AllClient_PayCoin(int coin)
     {
-        if (netManager.Data_Coin >= coin)
+        if (netManager.Data_Coin >= coin && isInput)
         {
             netManager.RPC_LocalInput_PayCoin(coin);
             return true;
@@ -817,84 +1101,72 @@ public class ActorManager : MonoBehaviour
         }
     }
     /// <summary>
-    /// 赚钱
+    /// 尝试赚钱(客户端)
     /// </summary>
     /// <returns></returns>
-    public int EarnCoin(int coin)
+    public int AllClient_EarnCoin(int coin)
     {
-        netManager.RPC_LocalInput_EarnCoin(coin);
+        if (isInput)
+        {
+            netManager.RPC_LocalInput_EarnCoin(coin);
+        }
         return netManager.Data_Coin;
     }
+    #endregion
+    #region//赏金系统
     /// <summary>
-    /// 设置罚金
+    /// 设置罚金(客户端)
     /// </summary>
-    public void SetFine(short val)
+    public void AllClient_SetFine(short val)
     {
-        if (NetManager.Data_Fine < val)
+        if (NetManager.Data_Fine < val && isInput)
         {
             NetManager.RPC_LocalInput_ChangeFine(val);
         }
     }
     /// <summary>
-    /// 清空罚金
+    /// 清空罚金(客户端)
     /// </summary>
-    public void ClearFine()
+    public void AllClient_ClearFine()
     {
-        NetManager.RPC_LocalInput_ChangeFine(0);
+        if (isInput)
+        {
+            NetManager.RPC_LocalInput_ChangeFine(0);
+        }
     }
     #endregion
-    /*RPC*/
+    #endregion
+    /*技能*/
     #region
+    [HideInInspector]
+    public SkillBase bindSkill = new SkillBase();
     /// <summary>
-    /// 攻击状态
+    /// 绑定一个技能(客户端)
     /// </summary>
-    protected bool attackState = false;
-    /// <summary>
-    /// 攻击目标
-    /// </summary>
-    protected ActorManager attackTarget;
-    /// <summary>
-    /// 注视目标
-    /// </summary>
-    protected List<ActorManager> lookTarget = new List<ActorManager>();
-    /// <summary>
-    /// 记忆目标
-    /// </summary>
-    protected List<ActorManager> rememberTarget = new List<ActorManager>();
-    /// <summary>
-    /// 更改攻击状态
-    /// </summary>
-    /// <param name="state"></param>
-    public virtual void FromRPC_ChangeAttackState(bool state)
-    {
-        attackState = state;
-    }
-    /// <summary>
-    /// 更改攻击目标
-    /// </summary>
-    /// <param name="id"></param>
-    public virtual void FromRPC_ChangeAttackTarget(Fusion.NetworkId id)
-    {
-        if (id != new NetworkId())
-        {
-            attackTarget = netManager.Runner.FindObject(id).GetComponent<ActorManager>();
-        }
-        else
-        {
-            attackTarget = null;
-        }
-    }
-    public virtual void FromRPC_BindSkill(int skillID)
+    /// <param name="skillID"></param>
+    public virtual void AllClient_BindSkill(int skillID)
     {
         Type type = Type.GetType("Skill_" + skillID.ToString());
         bindSkill = (SkillBase)Activator.CreateInstance(type);
         bindSkill.Init(this);
     }
-    public virtual void FromRPC_NpcUseSkill(int parameter, Fusion.NetworkId id)
+    /// <summary>
+    /// 释放一个技能(客户端)
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="id"></param>
+    public virtual void AllClient_UseSkill(int parameter, Fusion.NetworkId id)
     {
         bindSkill.ClickSpace();
     }
-    public virtual void FromRPC_SendEmoji(int emojiID)
+    #endregion
+    /*表情*/
+    #region
+    /// <summary>
+    /// 发送一个表情(客户端)
+    /// </summary>
+    /// <param name="emojiID"></param>
+    public virtual void AllClient_SendEmoji(int emojiID)
     {
         MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneSendEmoji
         {
@@ -904,16 +1176,127 @@ public class ActorManager : MonoBehaviour
         });
         ActorUI.SendEmoji(EmojiConfigData.GetEmojiConfig(emojiID));
     }
-    public virtual void Listen_HpChange(int parameter, Fusion.NetworkId id)
+    #endregion
+    /*AI攻击*/
+    #region
+    /// <summary>
+    /// 注视目标(服务器)
+    /// </summary>
+    protected List<ActorManager> onlyState_LookTarget = new List<ActorManager>();
+    /// <summary>
+    /// 记忆目标(服务器)
+    /// </summary>
+    protected List<ActorManager> onlyState_RememberTarget = new List<ActorManager>();
+    /// <summary>
+    /// 攻击目标(客户端)
+    /// </summary>
+    protected ActorManager allClient_AttackTarget;
+    /// <summary>
+    /// 攻击状态(客户端)
+    /// </summary>
+    protected bool allClient_AttackState { get; set; } = false;
+    protected float onlyState_AttackCD;
+    protected float onlyState_AttackCDTimer;
+
+    /// <summary>
+    /// 检查是否开始下一次攻击(服务器)
+    /// </summary>
+    /// <param name="dt"></param>
+    /// <returns>可以下一次攻击</returns>
+    public bool OnlyState_Update_CheckingAttackingTimer(float dt)
     {
-        if (parameter <= 0)
+        if (onlyState_AttackCDTimer > 0)
         {
-            GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position + new Vector2(0, 1));
-            obj_num.GetComponent<UI_DamageNum>().Play(parameter, new Color32(255, 50, 50, 255));
-            PlayTakeDamage(1);
+            onlyState_AttackCDTimer -= dt;
+            return false;
+        }
+        else
+        {
+            onlyState_AttackCDTimer = onlyState_AttackCD;
+            return true;
+        }
+
+    }
+    /// <summary>
+    /// 检查是否达到攻击距离(服务器)
+    /// </summary>
+    /// <param name="dt"></param>
+    /// <returns>达到攻击距离</returns>
+    public bool OnlyState_Update_CheckingAttackingDistance(float dt)
+    {
+        if (Vector3.Distance(allClient_AttackTarget.transform.position, transform.position) < itemOnHand.itemConfig.Attack_Distance + 0.5f)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
+
     #endregion
+    /*模拟玩家输入*/
+    #region
+    /// <summary>
+    /// 模拟右键按压时长
+    /// </summary>
+    private float mouseRightPressTimer;
+    /// <summary>
+    /// 模拟左键按压时长
+    /// </summary>
+    private float mouseLeftPressTimer;
+    /// <summary>
+    /// 模拟鼠标位置
+    /// </summary>
+    private Vector3 mouseLocation;
+    /// <summary>
+    /// 模拟鼠标按键
+    /// </summary>
+    /// <param name="dt"></param>
+    /// <param name="inputType"></param>
+    /// <returns>模拟结束</returns>
+    public bool AllClient_Simulate_InputMousePress(float dt, MouseInputType inputType)
+    {
+        if (inputType == MouseInputType.PressRightThenPressLeft)
+        {
+            mouseRightPressTimer += dt;
+            if (itemOnHand.UpdateRightPress(mouseRightPressTimer, isState, isInput, false))
+            {
+                mouseLeftPressTimer += dt;
+                if (itemOnHand.UpdateLeftPress(mouseLeftPressTimer, isState, isInput, false))
+                {
+                    mouseRightPressTimer = 0;
+                    mouseLeftPressTimer = 0;
+                    itemOnHand.ReleaseLeftPress(isState, isInput, false);
+                    itemOnHand.ReleaseRightPress(isState, isInput, false);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    /// <summary>
+    /// 模拟鼠标位置
+    /// </summary>
+    /// <param name="dt"></param>
+    public void AllClient_Simulate_InputMousePos(Vector3 pos)
+    {
+        mouseLocation = pos;
+        AllClient_FaceTo(mouseLocation - transform.position);
+        itemOnHand.UpdateMousePos(mouseLocation - transform.position);
+    }
+    /// <summary>
+    /// 鼠标按键按下方法
+    /// </summary>
+    public enum MouseInputType
+    {
+        /// <summary>
+        /// 先按压右键再按压左键
+        /// </summary>
+        PressRightThenPressLeft
+    }
+    #endregion
+
 }
 public enum ActorState
 {

@@ -13,20 +13,8 @@ public class UI_Grid_CabinetBuy : UI_Grid
     private List<UI_GridCell> cellList = new List<UI_GridCell>();
     [SerializeField, Header("价格列表")]
     private List<TextMeshProUGUI> priceList = new List<TextMeshProUGUI>();
-    [HideInInspector]
-    public List<ItemData> itemDataList = new List<ItemData>();
-
-    private TileObj cabinet;
-
-    public override void Open(TileObj tileObj)
-    {
-        cabinet = tileObj;
-        base.Open(tileObj);
-    }
-    public override void Close(TileObj tileObj)
-    {
-        base.Open(tileObj);
-    }
+    private List<ItemData> itemDataList = new List<ItemData>();
+    private TileObj bindTileObj;
     public void Start()
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
@@ -35,6 +23,18 @@ public class UI_Grid_CabinetBuy : UI_Grid
         }).AddTo(this);
     }
 
+    #region//打开关闭
+    public override void Open(TileObj tileObj)
+    {
+        bindTileObj = tileObj;
+        base.Open(tileObj);
+    }
+    public override void Close(TileObj tileObj)
+    {
+        base.Open(tileObj);
+    }
+    #endregion
+    #region//信息更新与上传
     /// <summary>
     /// 从地块获取更新
     /// </summary>
@@ -70,8 +70,11 @@ public class UI_Grid_CabinetBuy : UI_Grid
                 builder.Append("/*I*/" + JsonUtility.ToJson(itemDataList[i]));
             }
         }
-        cabinet.TryToChangeInfo(builder.ToString());
+        bindTileObj.TryToChangeInfo(builder.ToString());
     }
+
+    #endregion
+    #region//UI绘制
     /// <summary>
     /// 绘制所有格子
     /// </summary>
@@ -90,26 +93,16 @@ public class UI_Grid_CabinetBuy : UI_Grid
         }
     }
     /// <summary>
-    /// 重置一个格子
-    /// </summary>
-    /// <param name="cell"></param>
-    private void ResetCell(UI_GridCell cell, TextMeshProUGUI price)
-    {
-        cell.ResetGridCell();
-        price.transform.parent.gameObject.SetActive(false);
-        price.text = "";
-    }
-    /// <summary>
     /// 绘制一个格子
     /// </summary>
     /// <param name="cell"></param>
     /// <param name="config"></param>
-    private void DrawCell(ItemData data, UI_GridCell cell,TextMeshProUGUI price)
+    private void DrawCell(ItemData data, UI_GridCell cell, TextMeshProUGUI price)
     {
         cell.UpdateGridCell(data);
         cell.BindClickAction(ClickCellLeft, ClickCellRight);
         cell.BindDragAction(CellDragBegin, CellDragIn, CellDragEnd);
-        if(data.Item_ID == 0)
+        if (data.Item_ID == 0)
         {
             price.transform.parent.gameObject.SetActive(false);
             price.text = "";
@@ -129,6 +122,19 @@ public class UI_Grid_CabinetBuy : UI_Grid
             }
         }
     }
+    /// <summary>
+    /// 重置一个格子
+    /// </summary>
+    /// <param name="cell"></param>
+    private void ResetCell(UI_GridCell cell, TextMeshProUGUI price)
+    {
+        cell.ResetGridCell();
+        price.transform.parent.gameObject.SetActive(false);
+        price.text = "";
+    }
+
+    #endregion
+    #region//UI交互
     public void ClickCellLeft(UI_GridCell gridCell)
     {
 
@@ -184,11 +190,14 @@ public class UI_Grid_CabinetBuy : UI_Grid
         }
         base.ListenDragOn<T>(grid, cell, itemData);
     }
+
+    #endregion
+    #region//取出放入
     /*取出*/
     public override void PutOut(ItemData before, out ItemData after)
     {
         int price = (int)(ItemConfigData.GetItemConfig(before.Item_ID).Average_Value * before.Item_Count);
-        if (GameLocalManager.Instance.localPlayer.actorManager.PayCoin(price))
+        if (GameLocalManager.Instance.localPlayer.actorManager.AllClient_PayCoin(price))
         {
             itemDataList.Remove(before);
             after = before;
@@ -199,4 +208,6 @@ public class UI_Grid_CabinetBuy : UI_Grid
         }
         ChangeInfoToTile();
     }
+
+    #endregion
 }
