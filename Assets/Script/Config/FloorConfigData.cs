@@ -26,6 +26,9 @@ public class FloorConfigData : MonoBehaviour
         new FloorConfig(){ Floor_ID = 1005,Floor_Name ="ºìÈÞµØÌº",
             Floor_SpriteName ="RedPlushCarpet",Floor_FileName ="RedPlushCarpet",Floor_RawLevel = 1,
             Floor_Raw=new List<FloorRaw>(){ new FloorRaw(1001,2),new FloorRaw(2001,1) } },
+        new FloorConfig(){ Floor_ID = 1006,Floor_Name ="Ë®ÄàÂ·",
+            Floor_SpriteName ="Concrete",Floor_FileName ="Concrete",Floor_RawLevel = 1,
+            Floor_Raw=new List<FloorRaw>(){ new FloorRaw(1001,2),new FloorRaw(2001,1) } },
     };
 
 }

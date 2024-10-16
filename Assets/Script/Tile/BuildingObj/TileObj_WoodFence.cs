@@ -7,37 +7,39 @@ public class TileObj_WoodFence : TileObj
 {
     #region//»æÖÆ
     [SerializeField]
-    private GameObject NoneSide;
+    private SpriteRenderer spriteRenderer;
     [SerializeField]
-    private GameObject FourSide;
+    public Sprite FourSide;
     [SerializeField]
-    private GameObject OneSide_Up;
+    public Sprite NoneSide;
     [SerializeField]
-    private GameObject OneSide_Down;
+    public Sprite OneSide_Down;
     [SerializeField]
-    private GameObject OneSide_Left;
+    public Sprite OneSide_Left;
     [SerializeField]
-    private GameObject OneSide_Right;
+    public Sprite OneSide_Right;
     [SerializeField]
-    private GameObject TwoSide_UpDown;
+    public Sprite OneSide_Up;
     [SerializeField]
-    private GameObject TwoSide_LeftRight;
+    public Sprite ThreeSide_DownMissing;
     [SerializeField]
-    private GameObject TwoSide_UpLeft;
+    public Sprite ThreeSide_LeftMissing;
     [SerializeField]
-    private GameObject TwoSide_UpRight;
+    public Sprite ThreeSide_RightMissing;
     [SerializeField]
-    private GameObject TwoSide_DownLeft;
+    public Sprite ThreeSide_UpMissing;
     [SerializeField]
-    private GameObject TwoSide_DownRight;
+    public Sprite TwoSide_DownLeft;
     [SerializeField]
-    private GameObject ThreeSide_LeftMissing;
+    public Sprite TwoSide_DownRight;
     [SerializeField]
-    private GameObject ThreeSide_RightMissing;
+    public Sprite TwoSide_LeftRight;
     [SerializeField]
-    private GameObject ThreeSide_UpMissing;
+    public Sprite TwoSide_UpDown;
     [SerializeField]
-    private GameObject ThreeSide_DownMissing;
+    public Sprite TwoSide_UpLeft;
+    [SerializeField]
+    public Sprite TwoSide_UpRight;
     public override void Draw()
     {
         CheckAround(bindTile.name, true);
@@ -45,71 +47,55 @@ public class TileObj_WoodFence : TileObj
     }
     public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
     {
-        NoneSide.SetActive(false);
-        FourSide.SetActive(false);
-        OneSide_Up.SetActive(false);
-        OneSide_Down.SetActive(false);
-        OneSide_Left.SetActive(false);
-        OneSide_Right.SetActive(false);
-        TwoSide_UpDown.SetActive(false);
-        TwoSide_LeftRight.SetActive(false);
-        TwoSide_DownLeft.SetActive(false);
-        TwoSide_DownRight.SetActive(false);
-        TwoSide_UpLeft.SetActive(false);
-        TwoSide_UpRight.SetActive(false);
-        ThreeSide_LeftMissing.SetActive(false);
-        ThreeSide_RightMissing.SetActive(false);
-        ThreeSide_UpMissing.SetActive(false);
-        ThreeSide_DownMissing.SetActive(false);
         switch (linkState)
         {
             case LinkState.FourSide:
-                FourSide.SetActive(true);
+                spriteRenderer.sprite = FourSide;
                 break;
             case LinkState.NoneSide:
-                NoneSide.SetActive(true);
+                spriteRenderer.sprite = NoneSide;
                 break;
             case LinkState.OneSide_Up:
-                OneSide_Up.SetActive(true);
+                spriteRenderer.sprite = OneSide_Up;
                 break;
             case LinkState.OneSide_Down:
-                OneSide_Down.SetActive(true);
+                spriteRenderer.sprite = OneSide_Down;
                 break;
             case LinkState.OneSide_Left:
-                OneSide_Left.SetActive(true);
+                spriteRenderer.sprite = OneSide_Left;
                 break;
             case LinkState.OneSide_Right:
-                OneSide_Right.SetActive(true);
+                spriteRenderer.sprite = OneSide_Right;
                 break;
             case LinkState.TwoSide_UpDown:
-                TwoSide_UpDown.SetActive(true);
+                spriteRenderer.sprite = TwoSide_UpDown;
                 break;
             case LinkState.TwoSide_LeftRight:
-                TwoSide_LeftRight.SetActive(true);
+                spriteRenderer.sprite = TwoSide_LeftRight;
                 break;
             case LinkState.TwoSide_DownLeft:
-                TwoSide_DownLeft.SetActive(true);
+                spriteRenderer.sprite = TwoSide_DownLeft;
                 break;
             case LinkState.TwoSide_DownRight:
-                TwoSide_DownRight.SetActive(true);
+                spriteRenderer.sprite = TwoSide_DownRight;
                 break;
             case LinkState.TwoSide_UpRight:
-                TwoSide_UpRight.SetActive(true);
+                spriteRenderer.sprite = TwoSide_UpRight;
                 break;
             case LinkState.TwoSide_UpLeft:
-                TwoSide_UpLeft.SetActive(true);
+                spriteRenderer.sprite = TwoSide_UpLeft;
                 break;
             case LinkState.ThreeSide_UpMissing:
-                ThreeSide_UpMissing.SetActive(true);
+                spriteRenderer.sprite = ThreeSide_UpMissing;
                 break;
             case LinkState.ThreeSide_DownMissing:
-                ThreeSide_DownMissing.SetActive(true);
+                spriteRenderer.sprite = ThreeSide_DownMissing;
                 break;
             case LinkState.ThreeSide_LeftMissing:
-                ThreeSide_LeftMissing.SetActive(true);
+                spriteRenderer.sprite = ThreeSide_LeftMissing;
                 break;
             case LinkState.ThreeSide_RightMissing:
-                ThreeSide_RightMissing.SetActive(true);
+                spriteRenderer.sprite = ThreeSide_RightMissing;
                 break;
         }
         base.LinkAround(linkState, linkToUp, linkToDown, linkToLeft, linkToRight);

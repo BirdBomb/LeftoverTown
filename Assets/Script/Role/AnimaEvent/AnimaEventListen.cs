@@ -6,11 +6,19 @@ using UnityEngine;
 public class AnimaEventListen : MonoBehaviour
 {
     private Action<string> tempEvent;
-    public void BindEvent(Action<string> action)
+    private Action<string> commonEvent;
+    public void BindTempEvent(Action<string> action)
     {
         if (action != null)
         {
             tempEvent = action;
+        }
+    }
+    public void BindCommonEvent(Action<string> action)
+    {
+        if (action != null)
+        {
+            commonEvent = action;
         }
     }
     public void InvokeEvent(string name)
@@ -19,6 +27,10 @@ public class AnimaEventListen : MonoBehaviour
         {
             tempEvent.Invoke(name);
             tempEvent = null;
+        }
+        if (commonEvent != null)
+        {
+            commonEvent.Invoke(name);
         }
     }
 }

@@ -7,6 +7,7 @@ using Random = UnityEngine.Random;
 using UnityEditor;
 using static UnityEditor.Progress;
 using DG.Tweening;
+using System.Linq;
 /// <summary>
 /// 场景物品基类
 /// </summary>
@@ -22,40 +23,24 @@ public class TileObj : MonoBehaviour
     public int Armor;
     [SerializeField, Header("地块信息")]
     public string info;
-    private bool breaking = false;
-    #region//基本逻辑
-    private void Start()
+    #region//瓦片生命周期
+    public virtual void Start()
     {
+        Init();
         Draw();
     }
     /// <summary>
-    /// 初始化
+    /// 绑定
     /// </summary>
     /// <param name="json"></param>
-    public virtual void Init(MyTile tile)
+    public void Bind(MyTile tile)
     {
         bindTile = tile;
     }
     /// <summary>
-    /// 读取
+    /// 初始化
     /// </summary>
-    /// <param name="json"></param>
-    public virtual void Load(string json)
-    {
-        info = json;
-    }
-    /// <summary>
-    /// 保存
-    /// </summary>
-    /// <param name="json"></param>
-    public virtual void Save(out string json)
-    {
-        json = info;
-    }
-    /// <summary>
-    /// 交互
-    /// </summary>
-    public virtual void Invoke(PlayerController player,KeyCode code)
+    public virtual void Init()
     {
 
     }
@@ -66,6 +51,9 @@ public class TileObj : MonoBehaviour
     {
 
     }
+
+    #endregion
+    #region//瓦片逻辑
     /// <summary>
     /// 尝试对地块造成伤害
     /// </summary>
@@ -142,7 +130,15 @@ public class TileObj : MonoBehaviour
     {
         this.info = info;
     }
+    #endregion
+    #region//瓦片交互
+    /// <summary>
+    /// 玩家输入
+    /// </summary>
+    public virtual void PlayerInput(PlayerController player, KeyCode code)
+    {
 
+    }
     /// <summary>
     /// 玩家靠近
     /// </summary>
@@ -177,14 +173,17 @@ public class TileObj : MonoBehaviour
     {
         return false;
     }
+
     #endregion
     #region//瓦片连接
     [HideInInspector]
     public bool linkAlready = false;
     /// <summary>
-    /// 检查四周
+    /// 检查周围
     /// </summary>
-    public virtual void CheckAround(string targetBuilding,bool updateTargetBuilding)
+    /// <param name="targetTileNames">目标格子名字</param>
+    /// <param name="updateTargetTile">是否更新周围格子</param>
+    public virtual void CheckAround(List<string> targetTileNames, bool updateTargetTile)
     {
         int linkState = 0;
         bool left = false;
@@ -193,45 +192,45 @@ public class TileObj : MonoBehaviour
         bool down = false;
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
         {
-            if (tileObjUp.bindTile.name.Equals(targetBuilding))
+            if (targetTileNames.Contains(tileObjUp.bindTile.name))
             {
                 up = true;
-                if (updateTargetBuilding)
+                if (updateTargetTile)
                 {
-                    tileObjUp.CheckAround(targetBuilding, false);
+                    tileObjUp.CheckAround(targetTileNames, false);
                 }
             }
         }
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
         {
-            if (tileObjDown.bindTile.name.Equals(targetBuilding))
+            if (targetTileNames.Contains(tileObjDown.bindTile.name))
             {
                 down = true;
-                if (updateTargetBuilding)
+                if (updateTargetTile)
                 {
-                    tileObjDown.CheckAround(targetBuilding, false);
+                    tileObjDown.CheckAround(targetTileNames, false);
                 }
             }
         }
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
         {
-            if (tileObjLeft.bindTile.name.Equals(targetBuilding))
+            if (targetTileNames.Contains(tileObjLeft.bindTile.name))
             {
                 left = true;
-                if (updateTargetBuilding)
+                if (updateTargetTile)
                 {
-                    tileObjLeft.CheckAround(targetBuilding, false);
+                    tileObjLeft.CheckAround(targetTileNames, false);
                 }
             }
         }
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
         {
-            if (tileObjRight.bindTile.name.Equals(targetBuilding))
+            if (targetTileNames.Contains(tileObjRight.bindTile.name))
             {
                 right = true;
-                if (updateTargetBuilding)
+                if (updateTargetTile)
                 {
-                    tileObjRight.CheckAround(targetBuilding, false);
+                    tileObjRight.CheckAround(targetTileNames, false);
                 }
             }
         }
@@ -246,22 +245,95 @@ public class TileObj : MonoBehaviour
         LinkAround((LinkState)linkState, tileObjUp, tileObjDown, tileObjLeft, tileObjRight);
     }
     /// <summary>
-    /// 更新连接状态
+    /// 检查周围
     /// </summary>
-    /// <param name="linkState"></param>
-    public virtual void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
+    /// <param name="targetTileName"></param>
+    /// <param name="updateTargetTile"></param>
+    public virtual void CheckAround(string targetTileName, bool updateTargetTile)
+    {
+        int linkState = 0;
+        bool left = false;
+        bool right = false;
+        bool up = false;
+        bool down = false;
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
+        {
+            if (tileObjUp.bindTile.name.Equals(targetTileName))
+            {
+                up = true;
+                if (updateTargetTile)
+                {
+                    tileObjUp.CheckAround(targetTileName, false);
+                }
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
+        {
+            if (tileObjDown.bindTile.name.Equals(targetTileName))
+            {
+                down = true;
+                if (updateTargetTile)
+                {
+                    tileObjDown.CheckAround(targetTileName, false);
+                }
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
+        {
+            if (tileObjLeft.bindTile.name.Equals(targetTileName))
+            {
+                left = true;
+                if (updateTargetTile)
+                {
+                    tileObjLeft.CheckAround(targetTileName, false);
+                }
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
+        {
+            if (tileObjRight.bindTile.name.Equals(targetTileName))
+            {
+                right = true;
+                if (updateTargetTile)
+                {
+                    tileObjRight.CheckAround(targetTileName, false);
+                }
+            }
+        }
+        if (up) { linkState += 8; }
+        else { linkState += 0; }
+        if (down) { linkState += 4; }
+        else { linkState += 0; }
+        if (left) { linkState += 2; }
+        else { linkState += 0; }
+        if (right) { linkState += 1; }
+        else { linkState += 0; }
+        LinkAround((LinkState)linkState, tileObjUp, tileObjDown, tileObjLeft, tileObjRight);
+
+    }
+    /// <summary>
+    /// 连接周围
+    /// </summary>
+    /// <param name="linkState">连接状态</param>
+    /// <param name="UpTile">上瓦片</param>
+    /// <param name="DownTile">下瓦片</param>
+    /// <param name="LeftTile">左瓦片</param>
+    /// <param name="RightTile">右瓦片</param>
+    public virtual void LinkAround(LinkState linkState, TileObj UpTile, TileObj DownTile, TileObj LeftTile, TileObj RightTile)
     {
 
     }
     /// <summary>
     /// 被连接
     /// </summary>
-    public virtual bool BeLink(Vector2Int from)
+    /// <param name="from"></param>
+    /// <returns></returns>
+    public virtual bool LinkFrom(Vector2Int from)
     {
         return false;
     }
     #endregion
-    #region//播放动画
+    #region//瓦片动画
     /// <summary>
     /// 受伤动画
     /// </summary>
@@ -278,7 +350,7 @@ public class TileObj : MonoBehaviour
         effect.transform.position = transform.position;
     }
     #endregion
-    #region//掉落
+    #region//瓦片掉落
     [SerializeField, Header("掉落列表")]
     public List<LootInfo> LootList = new List<LootInfo>();
     [SerializeField, Header("掉落数量")]

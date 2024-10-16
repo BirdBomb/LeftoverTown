@@ -80,7 +80,7 @@ public class MyTile : UnityEngine.Tilemaps.Tile
             bindObj.transform.position = posInWorld + new Vector2(0.5f, 0.5f);
             if (bindObj.TryGetComponent(out TileObj tile))
             {
-                tile.Init(this);
+                tile.Bind(this);
             }
         }
     }
@@ -113,7 +113,7 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     {
         if (bindObj && bindObj.TryGetComponent(out TileObj obj))
         {
-            obj.Invoke(player, code);
+            obj.PlayerInput(player, code);
         }
     }
     /// <summary>

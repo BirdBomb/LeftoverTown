@@ -6,7 +6,8 @@ using UnityEngine;
 public class TileObj_SentryStation : TileObj
 {
     private ActorManager owner;
-    private void Start()
+    #region//ÍßÆ¬ÉúÃüÖÜÆÚ
+    public override void Init()
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SomeoneFindTargetTile>().Subscribe(_ =>
         {
@@ -19,12 +20,13 @@ public class TileObj_SentryStation : TileObj
             }
         }).AddTo(this);
         CreateNPC();
+        base.Init();
     }
     private void OnDestroy()
     {
         DestroyNPC();
     }
-
+    #endregion
     #region//¸ÚÉÚ
     private void CreateNPC()
     {
@@ -47,5 +49,4 @@ public class TileObj_SentryStation : TileObj
         owner = actor;
     }
     #endregion
-
 }

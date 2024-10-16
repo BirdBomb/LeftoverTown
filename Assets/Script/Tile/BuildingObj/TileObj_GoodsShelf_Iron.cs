@@ -3,23 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
-public class TileObj_BuildingBuilder : TileObj
+public class TileObj_GoodsShelf_Iron : TileObj
 {
     [SerializeField, Header("SingalF")]
     private GameObject obj_singalF;
-    [SerializeField, Header("Build")]
-    private GameObject obj_build;
-    [SerializeField, Header("建造UI")]
-    private UI_BuildingBuilder uI_BuildingBuilder;
+    [SerializeField, Header("Cabinet")]
+    private GameObject obj_cabinet;
+    [SerializeField, Header("容器UI")]
+    private UI_Grid_Cabinet uI_Grid_Cabinet;
     #region//瓦片交互
     public override void PlayerInput(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
         {
-            OpenOrCloseSingal(obj_build.activeSelf);
-            OpenOrCloseBuildUI(!obj_build.activeSelf);
+            OpenOrCloseSingal(obj_cabinet.activeSelf);
+            OpenOrCloseCabinetUI(!obj_cabinet.activeSelf);
         }
         base.PlayerInput(player, code);
     }
@@ -40,23 +39,23 @@ public class TileObj_BuildingBuilder : TileObj
             });
         }
     }
-    private void OpenOrCloseBuildUI(bool open)
+    private void OpenOrCloseCabinetUI(bool open)
     {
         if (open)
         {
-            obj_build.transform.localScale = Vector3.one;
-            obj_build.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-            obj_build.SetActive(true);
-            uI_BuildingBuilder.Open(this);
-            uI_BuildingBuilder.UpdateInfoFromTile(info);
+            obj_cabinet.transform.localScale = Vector3.one;
+            obj_cabinet.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_cabinet.SetActive(true);
+            uI_Grid_Cabinet.Open(this);
+            uI_Grid_Cabinet.UpdateInfoFromTile(info);
         }
         else
         {
-            obj_build.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
+            obj_cabinet.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
             {
-                obj_build.SetActive(false);
+                obj_cabinet.SetActive(false);
             });
-            uI_BuildingBuilder.Close(this);
+            uI_Grid_Cabinet.Close(this);
         }
     }
     public override bool PlayerHolding(PlayerController player)
@@ -75,17 +74,39 @@ public class TileObj_BuildingBuilder : TileObj
         if (player.thisPlayerIsMe)
         {
             OpenOrCloseSingal(false);
-            OpenOrCloseBuildUI(false);
+            OpenOrCloseCabinetUI(false);
             return true;
         }
         return false;
     }
+
     #endregion
     #region//信息更新与上传
     public override void TryToUpdateInfo(string info)
     {
-        uI_BuildingBuilder.UpdateInfoFromTile(info);
+        uI_Grid_Cabinet.UpdateInfoFromTile(info);
         base.TryToUpdateInfo(info);
+        Draw();
+    }
+    #endregion
+    #region//绘制
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
+    [SerializeField]
+    private Sprite[] GoodsShelf_Group;
+    [SerializeField]
+    private Sprite GoodsShelf_Empty;
+    public override void Draw()
+    {
+        if (info == null || info == "")
+        {
+            spriteRenderer.sprite = GoodsShelf_Empty;
+        }
+        else
+        {
+            spriteRenderer.sprite = GoodsShelf_Group[new System.Random().Next(0, GoodsShelf_Group.Length)];
+        }
+        base.Draw();
     }
     #endregion
 }

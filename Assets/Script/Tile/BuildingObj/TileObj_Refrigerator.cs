@@ -12,15 +12,15 @@ public class TileObj_Refrigerator : TileObj
     private GameObject obj_cabinet;
     [SerializeField, Header("冰箱UI")]
     private UI_Grid_Refrigerator uI_Grid_Refrigerator;
-    #region//玩家交互
-    public override void Invoke(PlayerController player, KeyCode code)
+    #region//瓦片交互
+    public override void PlayerInput(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseSingal(obj_cabinet.activeSelf);
             OpenOrCloseCabinetUI(!obj_cabinet.activeSelf);
         }
-        base.Invoke(player, code);
+        base.PlayerInput(player, code);
     }
     private void OpenOrCloseSingal(bool open)
     {
@@ -80,7 +80,7 @@ public class TileObj_Refrigerator : TileObj
         return true;
     }
     #endregion
-    #region//更新上传
+    #region//信息更新与上传
     public override void TryToUpdateInfo(string info)
     {
         uI_Grid_Refrigerator.UpdateInfoFromTile(info);

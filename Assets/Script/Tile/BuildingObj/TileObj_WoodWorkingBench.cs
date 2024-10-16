@@ -11,15 +11,15 @@ public class TileObj_WoodWorkingBench : TileObj
     private GameObject obj_build;
     [SerializeField, Header("建造UI")]
     private UI_CreateItem uI_CreateItem;
-    #region//玩家交互
-    public override void Invoke(PlayerController player, KeyCode code)
+    #region//瓦片交互
+    public override void PlayerInput(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseSingal(obj_build.activeSelf);
             OpenOrCloseCreateUI(!obj_build.activeSelf);
         }
-        base.Invoke(player, code);
+        base.PlayerInput(player, code);
     }
     private void OpenOrCloseSingal(bool open)
     {
@@ -79,7 +79,7 @@ public class TileObj_WoodWorkingBench : TileObj
         return true;
     }
     #endregion
-    #region//更新与上传
+    #region//信息更新与上传
     public override void TryToUpdateInfo(string info)
     {
         uI_CreateItem.UpdateInfoFromTile(info);

@@ -8,38 +8,32 @@ using UnityEngine;
 public class TileObj_CashDesk : TileObj
 {
     private ActorManager onlyState_owner;
-    [SerializeField]
-    private GameObject Single;
-    [SerializeField]
-    private GameObject Left;
-    [SerializeField]
-    private GameObject Right;
-    [SerializeField]
-    private GameObject Middle;
     [SerializeField, Header("SingalF")]
     private GameObject obj_singalF;
     [SerializeField, Header("CabinetSell")]
     private GameObject obj_CabinetSell;
     [SerializeField, Header("出售UI")]
     private UI_Grid_CabinetSell uI_CabinetSell;
-
-    private void Start()
+    #region//瓦片生命周期
+    public override void Init()
     {
         CreateNPC();
+        base.Init();
     }
     private void OnDestroy()
     {
         DestroyNPC();
     }
-    #region//玩家交互
-    public override void Invoke(PlayerController player, KeyCode code)
+    #endregion
+    #region//瓦片交互
+    public override void PlayerInput(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseSingal(obj_CabinetSell.activeSelf);
             OpenOrCloseCabinetSell(!obj_CabinetSell.activeSelf);
         }
-        base.Invoke(player, code);
+        base.PlayerInput(player, code);
     }
     private void OpenOrCloseSingal(bool open)
     {
@@ -131,32 +125,39 @@ public class TileObj_CashDesk : TileObj
     }
     #endregion
     #region//绘制
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
+    [SerializeField]
+    private Sprite CashDesk_Single;
+    [SerializeField]
+    private Sprite CashDesk_Middle;
+    [SerializeField]
+    private Sprite CashDesk_Left;
+    [SerializeField]
+    private Sprite CashDesk_Right;
+
     public override void Draw()
     {
-        CheckAround("Desk", true);
+        CheckAround(new List<string>() { "Desk", "CashDesk" }, true);
         base.Draw();
     }
     public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
     {
-        Single.SetActive(false);
-        Left.SetActive(false);
-        Right.SetActive(false);
-        Middle.SetActive(false);
-        if (linkToLeft && linkToRight)
+        if (linkState == LinkState.NoneSide || linkState == LinkState.OneSide_Down || linkState == LinkState.OneSide_Up || linkState == LinkState.TwoSide_UpDown)
         {
-            Middle.SetActive(true);
+            spriteRenderer.sprite = CashDesk_Middle;
         }
-        else if (linkToLeft != null)
+        else if (linkState == LinkState.ThreeSide_LeftMissing || linkState == LinkState.OneSide_Right || linkState == LinkState.TwoSide_DownRight || linkState == LinkState.TwoSide_UpRight)
         {
-            Right.SetActive(true);
+            spriteRenderer.sprite = CashDesk_Right;
         }
-        else if (linkToRight != null)
+        else if (linkState == LinkState.ThreeSide_RightMissing || linkState == LinkState.OneSide_Left || linkState == LinkState.TwoSide_DownLeft || linkState == LinkState.TwoSide_UpLeft)
         {
-            Left.SetActive(true);
+            spriteRenderer.sprite = CashDesk_Left;
         }
         else
         {
-            Single.SetActive(true);
+            spriteRenderer.sprite = CashDesk_Single;
         }
         base.LinkAround(linkState, linkToUp, linkToDown, linkToLeft, linkToRight);
     }

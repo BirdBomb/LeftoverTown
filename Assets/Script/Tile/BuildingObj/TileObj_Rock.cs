@@ -93,8 +93,7 @@ public class TileObj_Rock : TileObj
         bitsParticle.Play();
     }
     #endregion
-
-    #region//¼Ì³Ð·½·¨
+    #region//ÍßÆ¬¶¯»­
     public override void PlayDamaged()
     {
         PlayBitsParticle();

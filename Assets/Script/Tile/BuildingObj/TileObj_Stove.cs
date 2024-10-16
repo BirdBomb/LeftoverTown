@@ -36,14 +36,12 @@ public class TileObj_Stove : TileObj
     private short cookMax;
 
     private short fuelMax = 100;
-
-    private void Awake()
+    #region//瓦片生命周期
+    public override void Init()
     {
         itemAtlas = Resources.Load<SpriteAtlas>("Atlas/ItemSprite");
-    }
-    private void Start()
-    {
         InvokeRepeating("AddSecond", 1, 1);
+        base.Init();
     }
     private void AddSecond()
     {
@@ -52,9 +50,9 @@ public class TileObj_Stove : TileObj
             Burn();
         }
     }
-
-    #region//玩家交互
-    public override void Invoke(PlayerController player, KeyCode code)
+    #endregion
+    #region//瓦片交互
+    public override void PlayerInput(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
         {
@@ -68,7 +66,7 @@ public class TileObj_Stove : TileObj
             OpenOrCloseBarbecue(!obj_cookPanel.activeSelf);
             OpenOrCloseFuel(false);
         }
-        base.Invoke(player, code);
+        base.PlayerInput(player, code);
     }
     private void OpenOrCloseSingal(bool open)
     {
@@ -208,7 +206,6 @@ public class TileObj_Stove : TileObj
         if (fuelVal > fuelMax) { fuelVal = fuelMax; }
     }
     #endregion
-
     #region//信息更新与上传
     /// <summary>
     /// 信息更新

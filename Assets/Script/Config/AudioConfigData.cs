@@ -13,6 +13,7 @@ public class AudioConfigData
         new AudioConfig(){ Audio_ID = 1004,Audio_Name = "HitRock",Audio_MaxDistance = 10},
         new AudioConfig(){ Audio_ID = 1005,Audio_Name = "BombRock",Audio_MaxDistance = 10},
         new AudioConfig(){ Audio_ID = 1006,Audio_Name = "Coins",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 1007,Audio_Name = "Step",Audio_MaxDistance = 20},
     };
 }
 [Serializable]

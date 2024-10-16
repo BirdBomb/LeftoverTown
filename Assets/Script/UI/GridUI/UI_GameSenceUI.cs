@@ -19,14 +19,20 @@ public class UI_GameSenceUI : UI_Grid
     public Text Text_Hp;
     [Header("最大生命值")]
     public Text Text_HpMax;
+    [Header("生命条")]
+    public Transform Bar_Hp;
     [Header("饥饿值")]
     public Text Text_Food;
     [Header("最大饥饿值")]
     public Text Text_FoodMax;
+    [Header("饥饿条")]
+    public Transform Bar_Food;
     [Header("精神值")]
     public Text Text_San;
     [Header("最大精神值")]
     public Text Text_SanMax;
+    [Header("精神条")]
+    public Transform Bar_San;
     [Header("护甲")]
     public TextMeshProUGUI Text_Armor;
     [Header("缺水")]
@@ -39,7 +45,7 @@ public class UI_GameSenceUI : UI_Grid
     [Header("身份")]
     public TextMeshProUGUI Text_Status;
     [Header("悬赏")]
-    public TextMeshProUGUI Text_Fine;
+    public Text Text_Fine;
 
     private int _hp;
     private int _food;
@@ -55,18 +61,24 @@ public class UI_GameSenceUI : UI_Grid
             Text_Hp.text = _.HP.ToString();
             Text_Hp.transform.DOShakePosition(0.1f,5);
             Text_HpMax.text = _.MaxHP.ToString();
+            Bar_Hp.DOKill();
+            Bar_Hp.DOScaleY((float)_.HP/ (float)_.MaxHP,0.1f);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateFoodData>().Subscribe(_ =>
         {
             Text_Food.text = _.Food.ToString();
             Text_Food.transform.DOShakePosition(0.1f, 5);
             Text_FoodMax.text = _.MaxFood.ToString();
+            Bar_Food.DOKill();
+            Bar_Food.DOScaleY((float)_.Food / (float)_.MaxFood, 0.1f);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateSanData>().Subscribe(_ =>
         {
             Text_San.text = _.San.ToString();
             Text_San.transform.DOShakePosition(0.1f, 5);
             Text_SanMax.text = _.MaxSan.ToString();
+            Bar_San.DOKill();
+            Bar_San.DOScaleY((float)_.San / (float)_.MaxSan, 0.1f);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateArmorData>().Subscribe(_ =>
         {

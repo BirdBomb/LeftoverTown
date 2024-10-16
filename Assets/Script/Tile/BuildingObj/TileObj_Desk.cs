@@ -5,43 +5,42 @@ using UnityEngine;
 
 public class TileObj_Desk : TileObj
 {
+    #region//ªÊ÷∆
     [SerializeField]
-    private GameObject Single;
+    private SpriteRenderer spriteRenderer;
     [SerializeField]
-    private GameObject Left;
+    private Sprite Desk_Single;
     [SerializeField]
-    private GameObject Right;
+    private Sprite Desk_Middle;
     [SerializeField]
-    private GameObject Middle;
-    private void Start()
+    private Sprite Desk_Left;
+    [SerializeField]
+    private Sprite Desk_Right;
+
+    public override void Draw()
     {
-        CheckAround(bindTile.name, true);
+        CheckAround(new List<string>() { "Desk", "CashDesk" }, true);
+        base.Draw();
     }
-    #region//ºÃ≥–∑Ω∑®
     public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
     {
-        Single.SetActive(false);
-        Left.SetActive(false);
-        Right.SetActive(false);
-        Middle.SetActive(false);
-        if (linkToLeft && linkToRight)
+        if (linkState == LinkState.NoneSide || linkState == LinkState.OneSide_Down || linkState == LinkState.OneSide_Up || linkState == LinkState.TwoSide_UpDown)
         {
-            Middle.SetActive(true);
+            spriteRenderer.sprite = Desk_Middle;
         }
-        else if (linkToLeft != null)
+        else if (linkState == LinkState.ThreeSide_LeftMissing || linkState == LinkState.OneSide_Right || linkState == LinkState.TwoSide_DownRight || linkState == LinkState.TwoSide_UpRight)
         {
-            Right.SetActive(true);
+            spriteRenderer.sprite = Desk_Right;
         }
-        else if (linkToRight != null)
+        else if (linkState == LinkState.ThreeSide_RightMissing || linkState == LinkState.OneSide_Left || linkState == LinkState.TwoSide_DownLeft || linkState == LinkState.TwoSide_UpLeft)
         {
-            Left.SetActive(true);
+            spriteRenderer.sprite = Desk_Left;
         }
         else
         {
-            Single.SetActive(true);
+            spriteRenderer.sprite = Desk_Single;
         }
         base.LinkAround(linkState, linkToUp, linkToDown, linkToLeft, linkToRight);
     }
-
     #endregion
 }

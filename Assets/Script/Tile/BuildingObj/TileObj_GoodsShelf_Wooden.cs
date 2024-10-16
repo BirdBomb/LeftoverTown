@@ -1,10 +1,12 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UniRx;
 using UnityEngine;
 
-public class TileObj_GoodsShelf_Tool : TileObj
+public class TileObj_GoodsShelf_Wooden : TileObj
 {
     [SerializeField, Header("SingalF")]
     private GameObject obj_singalF;
@@ -18,16 +20,18 @@ public class TileObj_GoodsShelf_Tool : TileObj
     private UI_Grid_CabinetBuy uI_CabinetBuy;
     [SerializeField, Header("偷窃UI")]
     private UI_Grid_CabinetSteal uI_CabinetSteal;
-
-    private void Start()
+    #region//瓦片生命周期
+    public override void Init()
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
         {
             ListenTimeUpdate(_.hour);
         }).AddTo(this);
+        base.Init();
     }
-    #region//玩家交互
-    public override void Invoke(PlayerController player, KeyCode code)
+    #endregion
+    #region//瓦片交互
+    public override void PlayerInput(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
         {
@@ -41,7 +45,7 @@ public class TileObj_GoodsShelf_Tool : TileObj
             OpenOrCloseCabinetBuy(!obj_CabinetBuy.activeSelf);
             OpenOrCloseCabinetSteal(false);
         }
-        base.Invoke(player, code);
+        base.PlayerInput(player, code);
     }
     private void OpenOrCloseSingal(bool open)
     {
@@ -130,12 +134,87 @@ public class TileObj_GoodsShelf_Tool : TileObj
         return true;
     }
     #endregion
+    #region//绘制
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
+    [SerializeField]
+    private Sprite[] GoodsShelf_Single_Group;
+    [SerializeField]
+    private Sprite GoodsShelf_Single_Empty;
+    [SerializeField]
+    private Sprite[] GoodsShelf_Middle_Group;
+    [SerializeField]
+    private Sprite GoodsShelf_Middle_Empty;
+    [SerializeField]
+    private Sprite[] GoodsShelf_Left_Group;
+    [SerializeField]
+    private Sprite GoodsShelf_Left_Empty;
+    [SerializeField]
+    private Sprite[] GoodsShelf_Right_Group;
+    [SerializeField]
+    private Sprite GoodsShelf_Right_Empty;
+    public override void Draw()
+    {
+        CheckAround("GoodsShelf_Wooden", true);
+        base.Draw();
+    }
+    public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
+    {
+        if (linkState == LinkState.NoneSide || linkState == LinkState.OneSide_Down || linkState == LinkState.OneSide_Up || linkState == LinkState.TwoSide_UpDown)
+        {
+            if (info == null || info == "")
+            {
+                spriteRenderer.sprite = GoodsShelf_Middle_Empty;
+            }
+            else
+            {
+                spriteRenderer.sprite = GoodsShelf_Middle_Group[new System.Random().Next(0, GoodsShelf_Middle_Group.Length)];
+            }
+        }
+        else if (linkState == LinkState.ThreeSide_LeftMissing || linkState == LinkState.OneSide_Right || linkState == LinkState.TwoSide_DownRight || linkState == LinkState.TwoSide_UpRight)
+        {
+            if (info == null || info == "")
+            {
+                spriteRenderer.sprite = GoodsShelf_Right_Empty;
+            }
+            else
+            {
+                spriteRenderer.sprite = GoodsShelf_Right_Group[new System.Random().Next(0, GoodsShelf_Right_Group.Length)];
+            }
+        }
+        else if (linkState == LinkState.ThreeSide_RightMissing || linkState == LinkState.OneSide_Left || linkState == LinkState.TwoSide_DownLeft || linkState == LinkState.TwoSide_UpLeft)
+        {
+            if (info == null || info == "")
+            {
+                spriteRenderer.sprite = GoodsShelf_Left_Empty;
+            }
+            else
+            {
+                spriteRenderer.sprite = GoodsShelf_Left_Group[new System.Random().Next(0, GoodsShelf_Left_Group.Length)];
+            }
+        }
+        else
+        {
+            if (info == null || info == "")
+            {
+                spriteRenderer.sprite = GoodsShelf_Single_Empty;
+            }
+            else
+            {
+                spriteRenderer.sprite = GoodsShelf_Single_Group[new System.Random().Next(0, GoodsShelf_Single_Group.Length)];
+            }
+        }
+        base.LinkAround(linkState, linkToUp, linkToDown, linkToLeft, linkToRight);
+    }
+
+    #endregion
     #region//信息更新与上传
     public override void TryToUpdateInfo(string info)
     {
         uI_CabinetSteal.UpdateInfoFromTile(info);
         uI_CabinetBuy.UpdateInfoFromTile(info);
         base.TryToUpdateInfo(info);
+        Draw();
     }
     #endregion
     #region//工具货架

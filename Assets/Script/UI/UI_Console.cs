@@ -15,6 +15,7 @@ public class UI_Console : MonoBehaviour
         inputField.onValueChanged.AddListener(OnInputFieldValueChanged);
         // 添加输入框点击的监听器
         inputField.onEndEdit.AddListener(OnInputFieldEndEdit);
+        btn_hideOrShow.onClick.AddListener(() => { HidePanel(!panel_Main.gameObject.activeSelf); });
         btn_changeItemType_1000.onClick.AddListener(() => { ChangeItemType(1); });
         btn_changeItemType_2000.onClick.AddListener(() => { ChangeItemType(2); });
         btn_changeItemType_3000.onClick.AddListener(() => { ChangeItemType(3); });
@@ -60,8 +61,12 @@ public class UI_Console : MonoBehaviour
     }
     #endregion
     #region//图鉴
+    [SerializeField, Header("主面板")]
+    private Transform panel_Main;
     [SerializeField, Header("按钮列表")]
-    private List<Button> btn_list = new List<Button>(10);
+    private List<Button> btn_list = new List<Button>(20);
+    [SerializeField, Header("显示隐藏")]
+    private Button btn_hideOrShow;
     [SerializeField, Header("切换材料")]
     private Button btn_changeItemType_1000;
     [SerializeField, Header("切换工具")]
@@ -82,6 +87,10 @@ public class UI_Console : MonoBehaviour
     private Button btn_lastPage;
     [SerializeField, Header("下一页")]
     private Button btn_nextPage;
+    private void HidePanel(bool hide)
+    {
+        panel_Main.gameObject.SetActive(hide);
+    }
     /// <summary>
     /// 更改目标物体种类
     /// </summary>

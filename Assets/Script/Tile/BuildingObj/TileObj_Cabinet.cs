@@ -14,15 +14,15 @@ public class TileObj_Cabinet : TileObj
     private GameObject obj_cabinet;
     [SerializeField, Header("ÈÝÆ÷UI")]
     private UI_Grid_Cabinet uI_Grid_Cabinet;
-    #region//Íæ¼Ò½»»¥
-    public override void Invoke(PlayerController player, KeyCode code)
+    #region//ÍßÆ¬½»»¥
+    public override void PlayerInput(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseSingal(obj_cabinet.activeSelf);
             OpenOrCloseCabinetUI(!obj_cabinet.activeSelf);
         }
-        base.Invoke(player, code);
+        base.PlayerInput(player, code);
     }
     private void OpenOrCloseSingal(bool open)
     {

@@ -26,9 +26,8 @@ public class TileObj_Door : TileObj
     private int lockPro;
     private bool _open = false;
     private bool _lock = false;
-
-    #region//Íæ¼Ò½»»¥
-    public override void Invoke(PlayerController player, KeyCode code)
+    #region//ÍßÆ¬½»»¥
+    public override void PlayerInput(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
         {
@@ -46,7 +45,7 @@ public class TileObj_Door : TileObj
                 }
             }
         }
-        base.Invoke(player, code);
+        base.PlayerInput(player, code);
     }
     public override bool PlayerNearby(PlayerController player)
     {

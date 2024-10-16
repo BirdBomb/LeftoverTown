@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
-using UniRx;
 
-public class TileObj_Wall : TileObj
+public class TileObj_BrickWall : TileObj
 {
     #region//»æÖÆ
     public SpriteRenderer WallSprite;
@@ -26,7 +24,7 @@ public class TileObj_Wall : TileObj
     public Sprite[] TwoSide_UpRight;
     public override void Draw()
     {
-        CheckAround(bindTile.name, true);
+        CheckAround(new List<string>() { "BrickWall", "BrickWindow" }, true);
         base.Draw();
     }
     public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)

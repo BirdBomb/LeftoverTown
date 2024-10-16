@@ -6,8 +6,8 @@ public class TileObj_Billboard : TileObj
 {
     [SerializeField, Header("SingalF")]
     private GameObject obj_singalF;
-    #region//Íæ¼Ò½»»¥
-    public override void Invoke(PlayerController player, KeyCode code)
+    #region//ÍßÆ¬½»»¥
+    public override void PlayerInput(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
         {
@@ -17,7 +17,7 @@ public class TileObj_Billboard : TileObj
             });
             OpenOrCloseSingal(false);
         }
-        base.Invoke(player, code);
+        base.PlayerInput(player, code);
     }
     public override bool PlayerHolding(PlayerController player)
     {

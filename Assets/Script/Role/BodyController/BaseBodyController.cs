@@ -44,7 +44,18 @@ public class BaseBodyController : MonoBehaviour
     public AnimaEventListen AnimaEventListen_Hand;
     public Animator Animator_Leg;
     public AnimaEventListen AnimaEventListen_Leg;
-
+    #region//初始化
+    private void Start()
+    {
+        AnimaEventListen_Leg.BindCommonEvent((str) =>
+        {
+            if (str == "LegStep")
+            {
+                AudioManager.Instance.PlayEffect(1007,transform.position);
+            }
+        });
+    }
+    #endregion
     #region//脸部
     /// <summary>
     /// 绘制脸庞
@@ -64,7 +75,7 @@ public class BaseBodyController : MonoBehaviour
         {
             Animator_Head.SetTrigger(name);
             Animator_Head.speed = speed;
-            AnimaEventListen_Head.BindEvent(action);
+            AnimaEventListen_Head.BindTempEvent(action);
         }
     }
     public virtual void SetHeadBool(string name, bool p, float speed, Action<string> action)
@@ -73,7 +84,7 @@ public class BaseBodyController : MonoBehaviour
         {
             Animator_Head.SetBool(name, p);
             Animator_Head.speed = speed;
-            AnimaEventListen_Head.BindEvent(action);
+            AnimaEventListen_Head.BindTempEvent(action);
         }
     }
     public virtual void SetHeadFloat(string name, float p)
@@ -91,7 +102,7 @@ public class BaseBodyController : MonoBehaviour
         {
             Animator_Body.SetTrigger(name);
             Animator_Body.speed = speed;
-            AnimaEventListen_Body.BindEvent(action);
+            AnimaEventListen_Body.BindTempEvent(action);
         }
     }
     public virtual void SetBodyBool(string name, bool p, float speed, Action<string> action)
@@ -100,7 +111,7 @@ public class BaseBodyController : MonoBehaviour
         {
             Animator_Body.SetBool(name, p);
             Animator_Body.speed = speed;
-            AnimaEventListen_Body.BindEvent(action);
+            AnimaEventListen_Body.BindTempEvent(action);
         }
     }
     public virtual void SetBodyFloat(string name, float p)
@@ -118,7 +129,7 @@ public class BaseBodyController : MonoBehaviour
         {
             Animator_Hand.SetTrigger(name);
             Animator_Hand.speed = speed;
-            AnimaEventListen_Hand.BindEvent(action);
+            AnimaEventListen_Hand.BindTempEvent(action);
         }
     }
     public virtual void SetHandBool(string name, bool p, float speed, Action<string> action)
@@ -127,7 +138,7 @@ public class BaseBodyController : MonoBehaviour
         {
             Animator_Hand.SetBool(name, p);
             Animator_Hand.speed = speed;
-            AnimaEventListen_Hand.BindEvent(action);
+            AnimaEventListen_Hand.BindTempEvent(action);
         }
     }
     public virtual void SetHandFloat(string name, float p)
@@ -145,7 +156,7 @@ public class BaseBodyController : MonoBehaviour
         {
             Animator_Leg.SetTrigger(name);
             Animator_Leg.speed = speed;
-            AnimaEventListen_Leg.BindEvent(action);
+            AnimaEventListen_Leg.BindTempEvent(action);
         }
     }
     public virtual void SetLegBool(string name, bool p, float speed, Action<string> action)
@@ -154,7 +165,7 @@ public class BaseBodyController : MonoBehaviour
         {
             Animator_Leg.SetBool(name, p);
             Animator_Leg.speed = speed;
-            AnimaEventListen_Leg.BindEvent(action);
+            AnimaEventListen_Leg.BindTempEvent(action);
         }
     }
     public virtual void SetLegFloat(string name, float p)

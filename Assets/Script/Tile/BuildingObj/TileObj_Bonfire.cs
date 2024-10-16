@@ -54,13 +54,12 @@ public class TileObj_Bonfire : TileObj
     /// </summary>
     private short cookMax;
 
-    private void Awake()
+    #region//瓦片生命周期
+    public override void Init()
     {
         itemAtlas = Resources.Load<SpriteAtlas>("Atlas/ItemSprite");
-    }
-    private void Start()
-    {
-        InvokeRepeating("AddSecond",1,1);
+        InvokeRepeating("AddSecond", 1, 1);
+        base.Init();
     }
     private void AddSecond()
     {
@@ -69,8 +68,9 @@ public class TileObj_Bonfire : TileObj
             Burn();
         }
     }
-    #region//玩家交互
-    public override void Invoke(PlayerController player, KeyCode code)
+    #endregion
+    #region//瓦片交互
+    public override void PlayerInput(PlayerController player, KeyCode code)
     {
         if (code == KeyCode.F)
         {
@@ -84,7 +84,7 @@ public class TileObj_Bonfire : TileObj
             OpenOrCloseBarbecue(!obj_barbecue.activeSelf);
             OpenOrCloseFuel(false);
         }
-        base.Invoke(player, code);
+        base.PlayerInput(player, code);
     }
     private void OpenOrCloseSingal(bool open)
     {
