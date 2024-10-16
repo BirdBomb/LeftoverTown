@@ -92,7 +92,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8637668071232632331}
   - component: {fileID: 1955886713940544425}
-  - component: {fileID: 7751551707082280365}
+  - component: {fileID: 2503628172511788139}
   m_Layer: 11
   m_Name: Lamp
   m_TagString: Untagged
@@ -168,7 +168,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &7751551707082280365
+--- !u!114 &2503628172511788139
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -177,7 +177,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5583601482797118212}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afeb7cbd54a6e3d4eab7db7393419a56, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a9d884e6e0bf154b99fbe8f14be838a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bindTile: {fileID: 0}

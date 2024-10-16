@@ -56,6 +56,16 @@ MonoBehaviour:
   tileSprite: {fileID: 1866573514880042664}
   randomSprites:
   - {fileID: 21300000, guid: b9ee93b244756434a9aadc3c6434f86f, type: 3}
+  - {fileID: 21300000, guid: 11d57f20d4e17804abde057c423633f4, type: 3}
+  - {fileID: 21300000, guid: c7eaca57fb7a67f4fa9fdc8c25dac753, type: 3}
+  - {fileID: 21300000, guid: c2d89def4b6f184479ea11598107825e, type: 3}
+  - {fileID: 21300000, guid: 773d1a83f6d68314c98ec64fe0bc6bb1, type: 3}
+  - {fileID: 21300000, guid: e1c5415573da0ba448e09c17d81645c8, type: 3}
+  - {fileID: 21300000, guid: 8a72650e89e0a49468382f36ae65b2cc, type: 3}
+  - {fileID: 21300000, guid: 14a13199e19062445afc5be7cf932b41, type: 3}
+  - {fileID: 21300000, guid: 0242d278a4431ea46b8a9e10aeeebb16, type: 3}
+  - {fileID: 21300000, guid: 26baeec3b9d852147b5dfdcfd0bfbdca, type: 3}
+  - {fileID: 21300000, guid: 26baeec3b9d852147b5dfdcfd0bfbdca, type: 3}
 --- !u!1 &2827206392725221152
 GameObject:
   m_ObjectHideFlags: 0

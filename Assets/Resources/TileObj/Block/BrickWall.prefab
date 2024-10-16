@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8721843472562826823}
-  - component: {fileID: 7207421581844431240}
   - component: {fileID: 2538139231883781556}
+  - component: {fileID: 5002377114718556373}
   m_Layer: 10
-  m_Name: WoodWall
+  m_Name: BrickWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,75 +34,6 @@ Transform:
   - {fileID: 3484029768704581068}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7207421581844431240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 223198607764510710}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90a3d08399b6cef40984d0f98733be0e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindTile: {fileID: 11400000, guid: c68ed7b9155967940a5574f2cf02051c, type: 2}
-  CurHp: 15
-  MaxHp: 15
-  Armor: 0
-  info: 
-  linkAlready: 0
-  LootList: []
-  LootCount: 0
-  WallSprite: {fileID: 5057389670396274364}
-  FourSide:
-  - {fileID: 21300000, guid: f287ad7c51eb9594dab0f521366397c2, type: 3}
-  - {fileID: 21300000, guid: 304fbba55e5ac564ba9ffa19521220b4, type: 3}
-  NoneSide:
-  - {fileID: 21300000, guid: ff0e2a9510725d9478de9d7b9e32f57d, type: 3}
-  - {fileID: 21300000, guid: b3760bba9f430e14c95d3ba670a9ea7e, type: 3}
-  OneSide_Down:
-  - {fileID: 21300000, guid: 0537dcf4b1cd9554b81431d1fae60c7e, type: 3}
-  - {fileID: 21300000, guid: fbc6ad84def097e48b5927cb0f737321, type: 3}
-  OneSide_Left:
-  - {fileID: 21300000, guid: 0761cdad848bbe3448abe0bbd768e1fe, type: 3}
-  - {fileID: 21300000, guid: 303908d5f12691c41841b55c7618a3e5, type: 3}
-  OneSide_Right:
-  - {fileID: 21300000, guid: cc3b5f20fa0f98147823c21f7400969e, type: 3}
-  - {fileID: 21300000, guid: 98b5c6ce95cba984e82b1693f1a90e74, type: 3}
-  OneSide_Up:
-  - {fileID: 21300000, guid: 4dac40004e7539d44a0da85d2b8a6d5c, type: 3}
-  - {fileID: 21300000, guid: 695b2bb793b03c3428e433384c6d7553, type: 3}
-  ThreeSide_DownMissing:
-  - {fileID: 21300000, guid: d7f29a1eeadbc2e4fa455f8dc58f9b4b, type: 3}
-  - {fileID: 21300000, guid: 8e5fd2479a2dc3e44806a3fb07f40aab, type: 3}
-  ThreeSide_LeftMissing:
-  - {fileID: 21300000, guid: 3d71d6a6ac9382043a042c6010f754fb, type: 3}
-  - {fileID: 21300000, guid: aebfcdcc8ce3b6e4689dfbaa172d66ba, type: 3}
-  ThreeSide_RightMissing:
-  - {fileID: 21300000, guid: 9eade49bde087d045980dc4cfd400e4d, type: 3}
-  - {fileID: 21300000, guid: f7c439028b8539f4588bf7a0afe4ba30, type: 3}
-  ThreeSide_UpMissing:
-  - {fileID: 21300000, guid: b12c8a03aefc14041a7d1ebdbd27c876, type: 3}
-  - {fileID: 21300000, guid: 93981487cc2b2074bb6f7d38395739ff, type: 3}
-  TwoSide_DownLeft:
-  - {fileID: 21300000, guid: 34f2e6caad450914998a7a44bcd0e27c, type: 3}
-  - {fileID: 21300000, guid: ae0f12b145645a94bb53308c0b9c2c31, type: 3}
-  TwoSide_DownRight:
-  - {fileID: 21300000, guid: 71fb7d2de8d8aca44823e3b6e0004675, type: 3}
-  - {fileID: 21300000, guid: 4c8e388957ef5fc41ac76f718f96a552, type: 3}
-  TwoSide_LeftRight:
-  - {fileID: 21300000, guid: 58bf658d19df24b4fad31d84d72c9646, type: 3}
-  - {fileID: 21300000, guid: 1ff106fdc00bafd4584d433afcc6b126, type: 3}
-  TwoSide_UpDown:
-  - {fileID: 21300000, guid: 2e5c7b4426adea24885758a44fc75714, type: 3}
-  - {fileID: 21300000, guid: 72e374ba7bb269a418734303a3dbb771, type: 3}
-  TwoSide_UpLeft:
-  - {fileID: 21300000, guid: e39c8e1fff6a92445b37c1709e7df4a2, type: 3}
-  - {fileID: 21300000, guid: 2592fb8e925a0b6499f79145e96927a5, type: 3}
-  TwoSide_UpRight:
-  - {fileID: 21300000, guid: 7205b99d6360d0248be6ce9e1da4079e, type: 3}
-  - {fileID: 21300000, guid: 0448a158f3d352246904e1fede4cd5e7, type: 3}
 --- !u!61 &2538139231883781556
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -148,6 +79,60 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &5002377114718556373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 223198607764510710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f00b2c9e0986e49bc29f5896c2c4aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bindTile: {fileID: 0}
+  CurHp: 15
+  MaxHp: 15
+  Armor: 0
+  info: 
+  linkAlready: 0
+  LootList: []
+  LootCount: 0
+  WallSprite: {fileID: 5057389670396274364}
+  FourSide:
+  - {fileID: 21300000, guid: c6154d00562a90d47a63dad96a2feb83, type: 3}
+  NoneSide:
+  - {fileID: 21300000, guid: 8c53fddb20bcd704cba050b76050ee59, type: 3}
+  OneSide_Down:
+  - {fileID: 21300000, guid: ecd14dcef230cb74a84d301ae22fd4c8, type: 3}
+  OneSide_Left:
+  - {fileID: 21300000, guid: a037e4e4d158a5b45a568e1413fff98e, type: 3}
+  OneSide_Right:
+  - {fileID: 21300000, guid: 82ac04180065b0549bcc832170817af1, type: 3}
+  OneSide_Up:
+  - {fileID: 21300000, guid: 4362e1693cd15cf4e92ca42868ebc10a, type: 3}
+  ThreeSide_DownMissing:
+  - {fileID: 21300000, guid: 55914c5dbadcd6b498e36cb761cd6c2b, type: 3}
+  ThreeSide_LeftMissing:
+  - {fileID: 21300000, guid: 878a882be4266f94399d4725d7e0b438, type: 3}
+  ThreeSide_RightMissing:
+  - {fileID: 21300000, guid: 93e4e3e38abe3f641b29d0a707e897fe, type: 3}
+  ThreeSide_UpMissing:
+  - {fileID: 21300000, guid: db5a89b895e90c1489fa7a4791dccf26, type: 3}
+  TwoSide_DownLeft:
+  - {fileID: 21300000, guid: a5002dbb2a2b1764eaf5fcfbad5c823c, type: 3}
+  TwoSide_DownRight:
+  - {fileID: 21300000, guid: e8581efa8c1b35b44a00fe736367198b, type: 3}
+  TwoSide_LeftRight:
+  - {fileID: 21300000, guid: 26cc8344d2228d14eaf8de51ce4d54b7, type: 3}
+  - {fileID: 21300000, guid: 810ef548a6f01dc489fb82518694963e, type: 3}
+  TwoSide_UpDown:
+  - {fileID: 21300000, guid: 604a11b8cb82e284f8261cd1702b3de1, type: 3}
+  TwoSide_UpLeft:
+  - {fileID: 21300000, guid: dffd26314f91e374e953b611a5004e3e, type: 3}
+  TwoSide_UpRight:
+  - {fileID: 21300000, guid: ad56fba85d0d7724fa42a401a70fc2ce, type: 3}
 --- !u!1 &1760960171347560352
 GameObject:
   m_ObjectHideFlags: 0
@@ -221,7 +206,7 @@ SpriteRenderer:
   m_SortingLayerID: 680613467
   m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: f23804695a836bc40a4a31eed2a6c14c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c6154d00562a90d47a63dad96a2feb83, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

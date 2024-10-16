@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8721843472562826823}
   - component: {fileID: 4144484893173947887}
-  - component: {fileID: 9055992711773481651}
+  - component: {fileID: 3714574077319229710}
   m_Layer: 11
   m_Name: WoodWindow
   m_TagString: Untagged
@@ -79,7 +79,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &9055992711773481651
+--- !u!114 &3714574077319229710
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -88,7 +88,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 223198607764510710}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a9d884e6e0bf154b99fbe8f14be838a, type: 3}
+  m_Script: {fileID: 11500000, guid: ce3cbc2e4d077994d95a772028ae3ca8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bindTile: {fileID: 0}
@@ -99,6 +99,39 @@ MonoBehaviour:
   linkAlready: 0
   LootList: []
   LootCount: 0
+  WallSprite: {fileID: 6024144065244634463}
+  FourSide:
+  - {fileID: 21300000, guid: 150a2f4aa55f7b24cb9cb7d8ebd7b11e, type: 3}
+  NoneSide:
+  - {fileID: 21300000, guid: 13bc39229f3cb064a87b7c3e92f94d43, type: 3}
+  OneSide_Down:
+  - {fileID: 21300000, guid: 3cfe1472e025f794c9b76a226cfc86e1, type: 3}
+  OneSide_Left:
+  - {fileID: 21300000, guid: 006330326e3da474c9f1724e83ca36bf, type: 3}
+  OneSide_Right:
+  - {fileID: 21300000, guid: f03d4bbbe9765bc47857d13d65ab3480, type: 3}
+  OneSide_Up:
+  - {fileID: 21300000, guid: 13d2b1f4cb84e3d4dae612db235fbf3d, type: 3}
+  ThreeSide_DownMissing:
+  - {fileID: 21300000, guid: 9c59561d6226a3148839f5365af88ac0, type: 3}
+  ThreeSide_LeftMissing:
+  - {fileID: 21300000, guid: 1c2429a8be59e1244b1454dffad8bd07, type: 3}
+  ThreeSide_RightMissing:
+  - {fileID: 21300000, guid: 77e283c98e8caa24abcc6c2a9268d7ff, type: 3}
+  ThreeSide_UpMissing:
+  - {fileID: 21300000, guid: 8abf3a6168ff6fe4586d1044785005da, type: 3}
+  TwoSide_DownLeft:
+  - {fileID: 21300000, guid: 0497a6a7662b57d4aa326e9d32f64c9b, type: 3}
+  TwoSide_DownRight:
+  - {fileID: 21300000, guid: e95c32d5700766b45acdb28eb17c0489, type: 3}
+  TwoSide_LeftRight:
+  - {fileID: 21300000, guid: f142104c433bf4b4bb30c7abc3726a16, type: 3}
+  TwoSide_UpDown:
+  - {fileID: 21300000, guid: 3adf294c84ec08a4b86e8a126f215fd0, type: 3}
+  TwoSide_UpLeft:
+  - {fileID: 21300000, guid: a92cfa523f13ee14f90d330f069ce879, type: 3}
+  TwoSide_UpRight:
+  - {fileID: 21300000, guid: ccd7e2f86bd0ec042a4c58d1cef82643, type: 3}
 --- !u!1 &8522617163006449548
 GameObject:
   m_ObjectHideFlags: 0
@@ -125,7 +158,7 @@ Transform:
   m_GameObject: {fileID: 8522617163006449548}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.01, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

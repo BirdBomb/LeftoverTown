@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 841fd20310c2ba74b887a80fe62be4a8, type: 3}
-  m_Name: Cabinet
+  m_Name: Plowland
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 21300000, guid: 9a9ca035250d3ac4f8dc304fdced6d1e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 68dfe915427a0f04395c6ee5f5a2628c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1
@@ -33,7 +33,7 @@ MonoBehaviour:
     e33: 1
   m_InstancedGameObject: {fileID: 0}
   m_Flags: 1
-  m_ColliderType: 2
+  m_ColliderType: 0
   config_passType: 0
   config_passDrag: 1
   _posInWorld: {x: 0, y: 0}

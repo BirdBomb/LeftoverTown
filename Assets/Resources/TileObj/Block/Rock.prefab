@@ -99,7 +99,7 @@ MonoBehaviour:
   info: 
   linkAlready: 0
   LootList:
-  - ID: 1003
+  - ID: 1018
     Weight: 100
   LootCount: 1
   mainRockSprite: {fileID: 5057389670396274364}
@@ -108,6 +108,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 2767482003af9d84fa4a96c79c4a7398, type: 3}
   NoneSide:
   - {fileID: 21300000, guid: 6d44fb2226cd50e4a9d0d20cb98b0e72, type: 3}
+  - {fileID: 21300000, guid: 9ebd50ea7759e4d45950897e3ba2097a, type: 3}
+  - {fileID: 21300000, guid: c7cca2f2a60bc964592a58d372af312f, type: 3}
+  - {fileID: 21300000, guid: c733979273e3c394091ae85479f6d0c1, type: 3}
+  - {fileID: 21300000, guid: 0aaa0d99107cfb64bbc45c86d33e89db, type: 3}
+  - {fileID: 21300000, guid: fb361d7c283a8414d83351f0c2875e06, type: 3}
   OneSide_Down:
   - {fileID: 21300000, guid: d651353a3d5a52c42ae3c312d7677f11, type: 3}
   - {fileID: 21300000, guid: 3a7f31ae12c8d3547863d84f1e632bdf, type: 3}
@@ -162,7 +167,7 @@ GameObject:
   - component: {fileID: 3484029768704581068}
   - component: {fileID: 5057389670396274364}
   m_Layer: 10
-  m_Name: MainRock
+  m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

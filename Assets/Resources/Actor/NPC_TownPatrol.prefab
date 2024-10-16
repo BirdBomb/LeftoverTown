@@ -1109,7 +1109,7 @@ MonoBehaviour:
     Config_Endurance: 100
     Config_Hat: 5002
     Config_Clothes: 5001
-    Config_BagList: d507d407
+    Config_BagList: dd07d407
     Config_LootCount: 0
     Config_LootList: []
     Config_AttackCD: 2
