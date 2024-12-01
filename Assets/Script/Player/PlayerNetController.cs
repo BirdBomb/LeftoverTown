@@ -76,7 +76,7 @@ public class PlayerNetController : NetworkBehaviour
         {
             Debug.Log("--玩家信息获取成功--");
             //Debug.Log("--初始化玩家背包");
-            playerController.actorManager.NetManager.RPC_LocalInput_ChangeBagCapacity(5);
+            playerController.actorManager.NetManager.RPC_LocalInput_ChangeBagCapacity(10);
             for (int i = 0; i < playerController.localPlayerData.BagItems.Count; i++)
             {
                 playerController.actorManager.NetManager.RPC_LocalInput_AddItemInBag(playerController.localPlayerData.BagItems[i]);
@@ -92,7 +92,7 @@ public class PlayerNetController : NetworkBehaviour
             //Debug.Log("--初始化玩家Buff与Skill");
             for (int i = 0; i < playerController.localPlayerData.BuffList.Count; i++)
             {
-                playerController.actorManager.NetManager.RPC_LocalInput_AddBuff(playerController.localPlayerData.BuffList[i]);
+                playerController.actorManager.NetManager.RPC_LocalInput_AddBuff(playerController.localPlayerData.BuffList[i],"");
             }
             for (int i = 0; i < playerController.localPlayerData.SkillKnowList.Count; i++)
             {

@@ -16,7 +16,12 @@ using Image = UnityEngine.UI.Image;
 
 public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler,IPointerExitHandler
 {
-    #region//物体图标
+    [Header("图标图集")]
+    public SpriteAtlas atlas_ItemIcon;
+    [Header("背景图集")]
+    public SpriteAtlas atlas_ItemBG;
+    [Header("图标背景")]
+    public Image image_BackGround;
     [Header("图标主要")]
     public Image image_MainIcon;
     [Header("图标次要")]
@@ -25,34 +30,21 @@ public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public Image image_IceMask;
     [Header("信息文本")]
     public Text text_Info;
-    #endregion
-    #region//物体名字
-    [Header("名字面板")]
-    public Transform panel_Name;
-    [Header("名字文本")]
-    public TextMeshProUGUI text_Name;
-    #endregion
-    #region//功能UI
     [Header("UI按钮")]
     public Button btn_Main;
     [Header("UI子集")]
     public UI_Grid_Child grid_Child;
-    #endregion
-    #region//滑动条
     [Header("滑动条背景")]
     public Transform panel_Bar;
     [Header("滑动条填充")]
     public Image image_Bar;
-    #endregion
-    #region//状态
-    private bool _sleep = false;
-    #endregion
+    private bool _sleeping = false;
+    private bool _pointing = false;
     private void Awake()
     {
         Bind();
     }
 
-    #region//绑定
     public ItemBase _bindItem;
     public int BindID
     {
@@ -80,6 +72,10 @@ public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private Action<UI_GridCell, ItemData, PointerEventData> _bindDragBegin;
     private Action<UI_GridCell, ItemData, PointerEventData> _bindDraging;
     private Action<UI_GridCell, ItemData, PointerEventData> _bindDragEnd;
+    private string str_itemName = "";
+    private string str_itemDesc = "";
+    private string str_itemInfoDesc = "";
+    #region//UI绑定
     private void Bind()
     {
         btn_Main.onClick.AddListener(ClickLeft);
@@ -97,30 +93,40 @@ public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     }
     #endregion
     #region//UI交互
+    public void OnDisable()
+    {
+        if (_pointing)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
+            {
+
+            });
+        }
+    }
     public void ClickLeft()
     {
-        if (_bindClickLeft != null && !_sleep)
+        if (_bindClickLeft != null && !_sleeping)
         {
             _bindClickLeft.Invoke(this);
         }
     }
     public void ClickRight()
     {
-        if (_bindClickRight != null && !_sleep)
+        if (_bindClickRight != null && !_sleeping)
         {
 
         }
     }
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (_bindDragBegin != null && !_sleep)
+        if (_bindDragBegin != null && !_sleeping)
         {
             _bindDragBegin.Invoke(this, _bindItem.itemData, eventData);
         }
     }
     public void OnDrag(PointerEventData eventData)
     {
-        if (_bindDraging != null && !_sleep)
+        if (_bindDraging != null && !_sleeping)
         {
             _bindDraging.Invoke(this, _bindItem.itemData, eventData);
         }
@@ -128,84 +134,117 @@ public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnEndDrag(PointerEventData eventData)
     {
         image_MainIcon.transform.localPosition = Vector3.zero;
-        if (_bindDragEnd != null && !_sleep)
+        if (_bindDragEnd != null && !_sleeping)
         {
             _bindDragEnd.Invoke(this, _bindItem.itemData, new PointerEventData(EventSystem.current));
         }
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!_sleep)
+        _pointing = true;
+        if (!_sleeping)
         {
             transform.DOKill();
             transform.localScale = Vector3.one;
-            transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
+            transform.DOScale(new Vector3(1.1f, 1.1f, 1.1f), 0.2f);
+
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_ShowInfoTextUI()
+            {
+                anchor = eventData.position,
+                text = str_itemInfoDesc
+            });
         }
-        ShowNamePanel();
     }
     public void OnPointerExit(PointerEventData eventData)
     {
-        HideNamePanel();
+        _pointing = false;
+        if (!_sleeping)
+        {
+            transform.DOKill();
+            transform.localScale = Vector3.one;
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
+            {
+
+            });
+        }
     }
     #endregion
-    #region//更新清空格子
+    #region//更新格子
     /// <summary>
     /// 更新物品格子
     /// </summary>
     public virtual ItemBase UpdateGridCell(ItemData data)
     {
-        ResetGridCell();
-        BindID = data.Item_ID;
-        if (data.Item_ID != 0)
+        if (data.Item_ID == 0)
         {
-            _bindItem.UpdateDataFromNet(data);
-            _bindItem.DrawGridCell(this);
+            BindID = data.Item_ID;
+            ResetGridCell();
+        }
+        else
+        {
+            if (BindID != data.Item_ID)
+            {
+                ResetGridCell();
+                BindID = data.Item_ID;
+                _bindItem.UpdateDataFromNet(data);
+                _bindItem.DrawGridCell(this);
+                Colour(_bindItem.itemConfig.Item_Name, _bindItem.itemConfig.Item_Desc, _bindItem.itemConfig.ItemRarity);
+                str_itemInfoDesc = str_itemName + "\n" + str_itemDesc;
+            }
+            else
+            {
+                BindID = data.Item_ID;
+                _bindItem.UpdateDataFromNet(data);
+                _bindItem.DrawGridCell(this);
+            }
         }
         return _bindItem;
     }
     /// <summary>
-    /// 清空物品格子
+    /// 重设物品格子
     /// </summary>
     public void ResetGridCell()
     {
         FreezeCell(false);
         SleepCell(false);
-        image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        text_Info.text = "";
-        text_Name.text = "";
-        panel_Name.gameObject.SetActive(false);
-        panel_Bar.gameObject.SetActive(false);
-        image_Bar.transform.localScale = Vector3.one;
-        _bindClickLeft = null;
-        _bindClickRight = null;
-        if (grid_Child)
+        CleanCell();
+    }
+    private void Colour(string nameStr, string descStr, int rarity)
+    {
+        str_itemName = nameStr;
+        str_itemDesc = descStr;
+
+        if (rarity == 0)
         {
-            grid_Child.Close();
+            str_itemName = "<color=#9A9A9A>" + str_itemName + "</color>";
+        }
+        else if (rarity == 1)
+        {
+            str_itemName = "<color=#43C743>" + str_itemName + "</color>";
+        }
+        else if (rarity == 2)
+        {
+            str_itemName = "<color=#4487C7>" + str_itemName + "</color>";
+        }
+        else if (rarity == 3)
+        {
+            str_itemName = "<color=#d507c6>" + str_itemName + "</color>";
+        }
+        else if (rarity == 4)
+        {
+            str_itemName = "<color=#FF9D09>" + str_itemName + "</color>";
+        }
+        else if (rarity == 5)
+        {
+            str_itemName = "<color=#FF090E>" + str_itemName + "</color>";
+        }
+        else if (rarity == 6)
+        {
+            str_itemName = "<color=#D59DD6>" + str_itemName + "</color>";
         }
     }
     #endregion
-    #region//显示隐藏名字
-    private void ShowNamePanel()
-    {
-        if (text_Name.text != "")
-        {
-            panel_Name.DOKill();
-            panel_Name.transform.localScale = Vector3.zero;
-            panel_Name.DOScale(Vector3.one, 0.1f).SetEase(Ease.OutBack);
-            panel_Name.gameObject.SetActive(true);
-        }
-    }
-    private void HideNamePanel()
-    {
-        panel_Name.DOKill();
-        panel_Name.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-        {
-            panel_Name.gameObject.SetActive(false);
-        });
-    }
-    #endregion
-    #region//格子特殊状态
+    #region//格子状态
     /// <summary>
     /// 冰冻
     /// </summary>
@@ -236,7 +275,54 @@ public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             image_ChildIcon.color = new Color(1, 1, 1, 1);
             text_Info.color = new Color(1, 1, 1, 1);
         }
-        _sleep = sleep;
+        _sleeping = sleep;
+    }
+    /// <summary>
+    /// 清空
+    /// </summary>
+    public void CleanCell()
+    {
+        text_Info.text = "";
+        str_itemName = "";
+        str_itemDesc = "";
+        str_itemInfoDesc = "";
+        image_MainIcon.sprite = atlas_ItemIcon.GetSprite("Item_Default");
+        image_ChildIcon.sprite = atlas_ItemIcon.GetSprite("Item_Default");
+        image_BackGround.gameObject.SetActive(false);
+        panel_Bar.gameObject.SetActive(false);
+        image_Bar.transform.localScale = Vector3.one;
+        _bindClickLeft = null;
+        _bindClickRight = null;
+        _bindDragBegin = null;
+        _bindDraging = null;
+        _bindDragEnd = null;
+        if (_pointing)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
+            {
+
+            });
+        }
+        if (grid_Child)
+        {
+            grid_Child.CloseGrid();
+        }
+    }
+    /// <summary>
+    /// 绘制
+    /// </summary>
+    /// <param name="mainIcon"></param>
+    /// <param name="childIcon"></param>
+    /// <param name="backGround"></param>
+    /// <param name="name"></param>
+    /// <param name="info"></param>
+    public void DrawCell(string mainIcon, string childIcon, string backGround, string name, string info)
+    {
+        image_BackGround.gameObject.SetActive(true);
+        image_MainIcon.sprite = atlas_ItemIcon.GetSprite(mainIcon);
+        image_ChildIcon.sprite = atlas_ItemIcon.GetSprite(childIcon);
+        image_BackGround.sprite = atlas_ItemBG.GetSprite(backGround);
+        text_Info.text = info;
     }
     #endregion
 }

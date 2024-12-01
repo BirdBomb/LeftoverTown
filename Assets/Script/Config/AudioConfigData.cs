@@ -14,7 +14,11 @@ public class AudioConfigData
         new AudioConfig(){ Audio_ID = 1005,Audio_Name = "BombRock",Audio_MaxDistance = 10},
         new AudioConfig(){ Audio_ID = 1006,Audio_Name = "Coins",Audio_MaxDistance = 10},
         new AudioConfig(){ Audio_ID = 1007,Audio_Name = "Step",Audio_MaxDistance = 20},
-    };
+        new AudioConfig(){ Audio_ID = 1008,Audio_Name = "TryUnlock",Audio_MaxDistance = 20},
+        new AudioConfig(){ Audio_ID = 1009,Audio_Name = "DoorClose",Audio_MaxDistance = 20},
+        new AudioConfig(){ Audio_ID = 1010,Audio_Name = "Shake",Audio_MaxDistance = 20},
+        new AudioConfig(){ Audio_ID = 1011,Audio_Name = "DoorOpen",Audio_MaxDistance = 20},
+};
 }
 [Serializable]
 public struct AudioConfig

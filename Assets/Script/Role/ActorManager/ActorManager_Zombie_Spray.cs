@@ -127,7 +127,7 @@ public class ActorManager_Zombie_Spray : ActorManager
                 if(str == "HeadSpray")
                 {
                     GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_100");
-                    Vector3 from = BodyController.Head.position;
+                    Vector3 from = BodyController.Tran_Head.position;
                     Vector3 to = NetManager.Runner.FindObject(id).transform.position;
 
                     obj.transform.position = from;

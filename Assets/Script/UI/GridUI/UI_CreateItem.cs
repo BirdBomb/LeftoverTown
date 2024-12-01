@@ -9,52 +9,54 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.U2D;
 using UnityEngine.UI;
+using TMPro;
 using static Fusion.Allocator;
+using UnityEditor;
 
 public class UI_CreateItem : UI_Grid
 {
-    #region//合成预览
+    [SerializeField, Header("合成清单")]
+    private RectTransform panel_CreateList;
+    [SerializeField, Header("合成清单_可制造物品列表")]
+    private List<UI_ItemCell> itemCells_CreateList = new List<UI_ItemCell>();
+    [SerializeField, Header("合成清单_可制造物品等级")]
+    private TextMeshProUGUI text_CreateLevel;
+    [SerializeField, Header("合成清单_上一难度按钮")]
+    private Button btn_LastCreateLevel;
+    [SerializeField, Header("合成清单_下一难度按钮")]
+    private Button btn_NextCreateLevel;
+    [SerializeField, Header("合成清单_上一页按钮")]
+    private Button btn_LastCreateListPage;
+    [SerializeField, Header("合成清单_下一页按钮")]
+    private Button btn_NextCreateListPage;
     [SerializeField, Header("合成预览")]
-    private RectTransform panel_createPanel;
-    [SerializeField, Header("物体名字")]
-    private Text text_itemName;
-    [SerializeField, Header("物体描述")]
-    private TextMeshProUGUI text_itemDesc;
-    [SerializeField, Header("物体图片")]
-    private Image image_itemSprite;
-    [SerializeField, Header("合成栏图片")]
-    private List<Image> imageList_itemRawSprite = new List<Image>();
-    [SerializeField, Header("合成栏数量")]
-    private List<Text> textList_itemRawText = new List<Text>();
-    [SerializeField, Header("制造按钮")]
+    private RectTransform panel_CreateShow;
+    [SerializeField, Header("合成预览_物体名字")]
+    private TextMeshProUGUI text_TargetItemName;
+    [SerializeField, Header("合成预览_物体描述")]
+    private TextMeshProUGUI text_TargetItemDesc;
+    [SerializeField, Header("合成预览_合成目标物体")]
+    private UI_ItemCell itemCell_TargetItem;
+    [SerializeField, Header("合成预览_合成栏物品列表")]
+    private List<UI_ItemCell> itemCells_TargetItemRawList = new List<UI_ItemCell>();
+    [SerializeField, Header("合成预览_制造按钮")]
     private Button btn_Create;
-    [SerializeField, Header("制造进度条")]
-    private Image bar_Create;
-    private SpriteAtlas itemAtlas;
-    #endregion
-    #region//合成列表
-    [SerializeField, Header("合成列表")]
-    private RectTransform panel_createList;
-    [SerializeField, Header("建筑等级")]
-    private Text text_buildingLevel;
-    [SerializeField, Header("建筑按钮列表")]
-    private List<Button> btns_itemNameBtn = new List<Button>();
-    [SerializeField, Header("上一难度按钮")]
-    private Button btn_LastLevel;
-    [SerializeField, Header("下一难度按钮")]
-    private Button btn_NextLevel;
-    [SerializeField, Header("上一页按钮")]
-    private Button btn_LastPage;
-    [SerializeField, Header("下一页按钮")]
-    private Button btn_NextPage;
-    /// <summary>
-    /// 物品列表
-    /// </summary>
-    private List<CreateConfig> createItemConfigs = new List<CreateConfig>();
-    /// <summary>
-    /// 选中的物品
-    /// </summary>
-    private CreateConfig targetCreateItem;
+    [SerializeField, Header("工作台池子")]
+    private List<UI_GridCell> gridCells_WorkbenchPool = new List<UI_GridCell>();
+    [SerializeField, Header("工作台池子_成品")]
+    private UI_GridCell gridCell_TargetItem;
+    [SerializeField, Header("工作台池子_制造进度条")]
+    private Image bar_CreateProgressBar;
+    [Header("物品图标图集")]
+    public SpriteAtlas spriteAtlas_ItemIcon;
+    [Header("物品图标图集")]
+    public SpriteAtlas spriteAtlas_ItemBG;
+    private TileObj bindTileObj;
+    private List<ItemData> itemDatas_WorkbenchPool = new List<ItemData>();
+    private ItemData itemData_TargetItem;
+    private List<CreateConfig> createConfigs_TempList = new List<CreateConfig>();
+    private CreateConfig createConfig_TargetCreateItem;
+
     private int curPage;
     private int CurPage
     {
@@ -73,7 +75,7 @@ public class UI_CreateItem : UI_Grid
         {
             if (curLevel != value)
             {
-                createItemConfigs = CreateConfigData.createConfigs.FindAll((x) => { return x.Create_Level == value; });
+                createConfigs_TempList = CreateConfigData.createConfigs.FindAll((x) => { return x.Create_Level == value; });
                 curLevel = value;
                 CurPage = 0;
                 UpdateCreateListUI();
@@ -81,29 +83,14 @@ public class UI_CreateItem : UI_Grid
         }
     }
 
-    #endregion
-    #region//合成池
-    [SerializeField, Header("材料格子")]
-    private List<UI_GridCell> cell_RawList = new List<UI_GridCell>();
-    [SerializeField, Header("成品格子")]
-    private UI_GridCell cell_Item;
-    private List<ItemData> rawDataList = new List<ItemData>();
-    private ItemData itemData;
-    #endregion
-
-    private TileObj bindTileObj;
-    private void Awake()
-    {
-        itemAtlas = Resources.Load<SpriteAtlas>("Atlas/ItemSprite");
-    }
     private void Start()
     {
         btn_Create.onClick.AddListener(ClickCreateBtn);
-        btn_LastLevel.onClick.AddListener(ClickLastLevelBtn);
-        btn_NextLevel.onClick.AddListener(ClickNextLevelBtn);
-        btn_LastPage.onClick.AddListener(ClickLastPageBtn);
-        btn_NextPage.onClick.AddListener(ClickNextPageBtn);
-        createItemConfigs = CreateConfigData.createConfigs.FindAll((x) => { return x.Create_Level == 0; });
+        btn_LastCreateLevel.onClick.AddListener(ClickLastLevelBtn);
+        btn_NextCreateLevel.onClick.AddListener(ClickNextLevelBtn);
+        btn_LastCreateListPage.onClick.AddListener(ClickLastPageBtn);
+        btn_NextCreateListPage.onClick.AddListener(ClickNextPageBtn);
+        createConfigs_TempList = CreateConfigData.createConfigs.FindAll((x) => { return x.Create_Level == 0; });
         UpdateCreateListUI();
     }
     #region//打开关闭
@@ -204,7 +191,7 @@ public class UI_CreateItem : UI_Grid
     /// </summary>
     private void ClickNextPageBtn()
     {
-        if (CurPage * btns_itemNameBtn.Count < createItemConfigs.Count)
+        if (CurPage * itemCells_CreateList.Count < createConfigs_TempList.Count)
         {
             CurPage++;
         }
@@ -231,20 +218,20 @@ public class UI_CreateItem : UI_Grid
     /// <param name="buildingConfig"></param>
     private void ClickItemShowBtn(CreateConfig createConfig)
     {
-        targetCreateItem = createConfig;
-        UpdateCreatePanel(targetCreateItem);
+        createConfig_TargetCreateItem = createConfig;
+        UpdateCreatePanel(createConfig_TargetCreateItem);
     }
     /// <summary>
     /// 制造按钮点击
     /// </summary>
     private void ClickCreateBtn()
     {
-        if(itemData.Item_ID == 0)
+        if(itemData_TargetItem.Item_ID == 0)
         {
-            bar_Create.DOKill();
-            bar_Create.transform.DOScaleX(1, 1).OnComplete(() =>
+            bar_CreateProgressBar.DOKill();
+            bar_CreateProgressBar.transform.DOScaleX(1, 1).OnComplete(() =>
             {
-                CreateItem(targetCreateItem);
+                CreateItem(createConfig_TargetCreateItem);
             });
         }
     }
@@ -255,17 +242,13 @@ public class UI_CreateItem : UI_Grid
     /// </summary>
     private void ResetCreateItemUI()
     {
-        text_itemName.text = "";
-        text_itemDesc.text = "";
-        image_itemSprite.gameObject.SetActive(false);
-        bar_Create.transform.localScale = new Vector3(0, 1, 1);
-        for (int i = 0; i < imageList_itemRawSprite.Count; i++)
+        text_TargetItemName.text = "";
+        text_TargetItemDesc.text = "";
+        bar_CreateProgressBar.transform.localScale = new Vector3(0, 1, 1);
+        itemCell_TargetItem.Clean();
+        for (int i = 0; i < itemCells_TargetItemRawList.Count; i++)
         {
-            imageList_itemRawSprite[i].gameObject.SetActive(false);
-        }
-        for (int i = 0; i < textList_itemRawText.Count; i++)
-        {
-            textList_itemRawText[i].text = "";
+            itemCells_TargetItemRawList[i].Clean();
         }
     }
     /// <summary>
@@ -273,23 +256,28 @@ public class UI_CreateItem : UI_Grid
     /// </summary>
     private void UpdateCreateListUI()
     {
-        for (int i = 0; i < btns_itemNameBtn.Count; i++)
+        for (int i = 0; i < itemCells_CreateList.Count; i++)
         {
-            btns_itemNameBtn[i].onClick.RemoveAllListeners();
-            if (i + CurPage * btns_itemNameBtn.Count < createItemConfigs.Count)
+            itemCells_CreateList[i].btn_ItemCell.onClick.RemoveAllListeners();
+            if (i + CurPage * itemCells_CreateList.Count < createConfigs_TempList.Count)
             {
-                CreateConfig createConfig = createItemConfigs[i + CurPage * btns_itemNameBtn.Count];
-                btns_itemNameBtn[i].gameObject.SetActive(true);
-                btns_itemNameBtn[i].onClick.AddListener(() => { ClickItemShowBtn(createConfig); });
-                btns_itemNameBtn[i].transform.Find("Text").GetComponent<TextMeshProUGUI>().text = ItemConfigData.GetItemConfig(createConfig.Create_ID).Item_Name;
+                CreateConfig createConfig = createConfigs_TempList[i + CurPage * itemCells_CreateList.Count];
+                ItemConfig itemConfig = ItemConfigData.GetItemConfig(createConfig.Create_ID);
+                itemCells_CreateList[i].btn_ItemCell.onClick.AddListener(() => { ClickItemShowBtn(createConfig); });
+                itemCells_CreateList[i].Draw
+                    (spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString()), 
+                    spriteAtlas_ItemBG.GetSprite("ItemBG_" + itemConfig.ItemRarity),
+                    itemConfig.ItemRarity,
+                    "", 
+                    itemConfig.Item_Name,
+                    itemConfig.Item_Desc);
             }
             else
             {
-                btns_itemNameBtn[i].gameObject.SetActive(false);
-                btns_itemNameBtn[i].transform.Find("Text").GetComponent<TextMeshProUGUI>().text = "";
+                itemCells_CreateList[i].Clean();
             }
         }
-        text_buildingLevel.text = "难度等级" + CurLevel;
+        text_CreateLevel.text = "Lv" + CurLevel;
     }
     /// <summary>
     /// 更新制造预览
@@ -309,59 +297,60 @@ public class UI_CreateItem : UI_Grid
     {
         if (config.Create_ID > 0)
         {
-            image_itemSprite.gameObject.SetActive(true);
-            image_itemSprite.sprite = itemAtlas.GetSprite("Item_" + config.Create_ID);
-            text_itemName.text = ItemConfigData.GetItemConfig(config.Create_ID).Item_Name;
-            text_itemDesc.text = ItemConfigData.GetItemConfig(config.Create_ID).Item_Desc;
+            ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Create_ID);
+            itemCell_TargetItem.Draw
+                (spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString()), 
+                spriteAtlas_ItemBG.GetSprite("ItemBG_" + itemConfig.ItemRarity),
+                itemConfig.ItemRarity,
+                "", 
+                itemConfig.Item_Name,
+                itemConfig.Item_Desc);
+            text_TargetItemName.text = ItemConfigData.GetItemConfig(config.Create_ID).Item_Name;
+            text_TargetItemDesc.text = ItemConfigData.GetItemConfig(config.Create_ID).Item_Desc;
         }
         else
         {
-            image_itemSprite.gameObject.SetActive(false);
-            text_itemName.text = "";
-            text_itemDesc.text = "";
+            itemCell_TargetItem.Clean();
+            text_TargetItemName.text = "";
+            text_TargetItemDesc.text = "";
         }
-
     }
     /// <summary>
     /// 绘制制造材料界面
     /// </summary>
     private void DrawCreateRaw(CreateConfig config)
     {
-        for (int i = 0; i < imageList_itemRawSprite.Count; i++)
-        {
-            imageList_itemRawSprite[i].gameObject.SetActive(false);
-        }
-        for (int i = 0; i < textList_itemRawText.Count; i++)
-        {
-            textList_itemRawText[i].text = "";
-        }
-
         if (config.Create_ID == 0)
         {
-            for (int i = 0; i < config.Create_Raw.Count; i++)
+            for (int i = 0; i < itemCells_TargetItemRawList.Count; i++)
             {
-                imageList_itemRawSprite[i].gameObject.SetActive(true);
-                imageList_itemRawSprite[i].sprite = itemAtlas.GetSprite("Item_" + config.Create_Raw[i].ID.ToString());
-                textList_itemRawText[i].text = "0/" + config.Create_Raw[i].Count.ToString();
+                itemCells_TargetItemRawList[i].Clean();
             }
         }
         else
         {
             for (int i = 0; i < config.Create_Raw.Count; i++)
             {
-                imageList_itemRawSprite[i].gameObject.SetActive(true);
-                imageList_itemRawSprite[i].sprite = itemAtlas.GetSprite("Item_" + config.Create_Raw[i].ID.ToString());
-
-                int tempIndex = rawDataList.FindIndex((x) => { return x.Item_ID == config.Create_Raw[i].ID; });
+                ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Create_Raw[i].ID);
+                string info="";
+                int tempIndex = itemDatas_WorkbenchPool.FindIndex((x) => { return x.Item_ID == config.Create_Raw[i].ID; });
 
                 if (tempIndex >= 0)
                 {
-                    textList_itemRawText[i].text = rawDataList[tempIndex].Item_Count.ToString() + "/" + config.Create_Raw[i].Count.ToString();
+                    info = itemDatas_WorkbenchPool[tempIndex].Item_Count.ToString() + "/" + config.Create_Raw[i].Count.ToString();
                 }
                 else
                 {
-                    textList_itemRawText[i].text = "0/" + config.Create_Raw[i].Count.ToString();
+                    info = "0/" + config.Create_Raw[i].Count.ToString();
                 }
+
+                itemCells_TargetItemRawList[i].Draw
+                    (spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString()), 
+                    spriteAtlas_ItemBG.GetSprite("ItemBG_" + itemConfig.ItemRarity),
+                    itemConfig.ItemRarity,
+                    info, 
+                    itemConfig.Item_Name,
+                    itemConfig.Item_Desc);
             }
         }
     }
@@ -370,17 +359,23 @@ public class UI_CreateItem : UI_Grid
     /// </summary>
     private void DrawCreatePool()
     {
-        ResetCell(cell_Item);
-        DrawCell(itemData, cell_Item);
-        for (int i = 0; i < cell_RawList.Count; i++)
+        if (itemData_TargetItem.Item_ID != 0)
         {
-            if (i < rawDataList.Count)
+            DrawCell(itemData_TargetItem, gridCell_TargetItem);
+        }
+        else 
+        {
+            ResetCell(gridCell_TargetItem);
+        }
+        for (int i = 0; i < gridCells_WorkbenchPool.Count; i++)
+        {
+            if (i < itemDatas_WorkbenchPool.Count && itemDatas_WorkbenchPool[i].Item_ID != 0)
             {
-                DrawCell(rawDataList[i], cell_RawList[i]);
+                DrawCell(itemDatas_WorkbenchPool[i], gridCells_WorkbenchPool[i]);
             }
             else
             {
-                ResetCell(cell_RawList[i]);
+                ResetCell(gridCells_WorkbenchPool[i]);
             }
         }
     }
@@ -408,14 +403,11 @@ public class UI_CreateItem : UI_Grid
     #region//拿出放入
     public override void PutOut(ItemData before, out ItemData after)
     {
-        if (itemData.Equals(before))
+        if (itemData_TargetItem.Equals(before))
         {
-            itemData = new ItemData();
+            itemData_TargetItem = new ItemData();
         }
-        else
-        {
-            rawDataList.Remove(before);
-        }
+        itemDatas_WorkbenchPool.Remove(before);
         after = before;
         ChangeInfoToTile();
     }
@@ -425,15 +417,15 @@ public class UI_CreateItem : UI_Grid
         ItemData resData = before;
         if (config.Item_Size == ItemSize.AsGroup)
         {
-            for (int i = 0; i < cell_RawList.Count; i++)
+            for (int i = 0; i < gridCells_WorkbenchPool.Count; i++)
             {
-                if (rawDataList.Count > i)
+                if (itemDatas_WorkbenchPool.Count > i)
                 {
-                    if (rawDataList[i].Item_ID == resData.Item_ID)
+                    if (itemDatas_WorkbenchPool[i].Item_ID == resData.Item_ID)
                     {
-                        Type type = Type.GetType("Item_" + rawDataList[i].Item_ID.ToString());
-                        ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(rawDataList[i], resData, config.Item_MaxCount, out ItemData newData, out resData);
-                        rawDataList[i] = newData;
+                        Type type = Type.GetType("Item_" + itemDatas_WorkbenchPool[i].Item_ID.ToString());
+                        ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(itemDatas_WorkbenchPool[i], resData, config.Item_MaxCount, out ItemData newData, out resData);
+                        itemDatas_WorkbenchPool[i] = newData;
                     }
                 }
                 else
@@ -444,20 +436,20 @@ public class UI_CreateItem : UI_Grid
                         emptyData.Item_Count = 0;
                         Type type = Type.GetType("Item_" + resData.Item_ID.ToString());
                         ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(emptyData, resData, config.Item_MaxCount, out ItemData newData, out resData);
-                        rawDataList.Add(newData);
+                        itemDatas_WorkbenchPool.Add(newData);
                     }
                 }
             }
         }
         else
         {
-            if (rawDataList.Count < cell_RawList.Count)
+            if (itemDatas_WorkbenchPool.Count < gridCells_WorkbenchPool.Count)
             {
                 ItemData emptyData = resData;
                 emptyData.Item_Count = 0;
                 Type type = Type.GetType("Item_" + resData.Item_ID.ToString());
                 ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(emptyData, resData, config.Item_MaxCount, out ItemData newData, out resData);
-                rawDataList.Add(newData);
+                itemDatas_WorkbenchPool.Add(newData);
             }
         }
         after = resData;
@@ -471,8 +463,8 @@ public class UI_CreateItem : UI_Grid
     /// <param name="info"></param>
     public void UpdateInfoFromTile(string info)
     {
-        rawDataList.Clear();
-        itemData = new ItemData();
+        itemDatas_WorkbenchPool.Clear();
+        itemData_TargetItem = new ItemData();
         string[] strings = info.Split("/*I*/");
         for (int i = 0; i < strings.Length; i++)
         {
@@ -481,18 +473,21 @@ public class UI_CreateItem : UI_Grid
                 /*第一位是待建建筑id*/
                 if (strings[i] != "")
                 {
-                    itemData = JsonUtility.FromJson<ItemData>(strings[i]);
+                    itemData_TargetItem = JsonUtility.FromJson<ItemData>(strings[i]);
                 }
             }
             else if (strings[i] != "")
             {
                 ItemData data = JsonUtility.FromJson<ItemData>(strings[i]);
-                rawDataList.Add(data);
+                if(data.Item_ID != 0)
+                {
+                    itemDatas_WorkbenchPool.Add(data);
+                }
             }
         }
-        if (targetCreateItem.Create_ID != 0)
+        if (createConfig_TargetCreateItem.Create_ID != 0)
         {
-            UpdateCreatePanel(targetCreateItem);
+            UpdateCreatePanel(createConfig_TargetCreateItem);
         }
         DrawCreatePool();
     }
@@ -502,10 +497,10 @@ public class UI_CreateItem : UI_Grid
     public void ChangeInfoToTile()
     {
         StringBuilder builder = new StringBuilder();
-        builder.Append(JsonUtility.ToJson(itemData));
-        for (int i = 0; i < rawDataList.Count; i++)
+        builder.Append(JsonUtility.ToJson(itemData_TargetItem));
+        for (int i = 0; i < itemDatas_WorkbenchPool.Count; i++)
         {
-            builder.Append("/*I*/" + JsonUtility.ToJson(rawDataList[i]));
+            builder.Append("/*I*/" + JsonUtility.ToJson(itemDatas_WorkbenchPool[i]));
         }
         bindTileObj.TryToChangeInfo(builder.ToString());
     }
@@ -517,14 +512,14 @@ public class UI_CreateItem : UI_Grid
     private void CheckRawList()
     {
         btn_Create.gameObject.SetActive(false);
-        if (targetCreateItem.Create_ID != 0 && itemData.Item_ID == 0)
+        if (createConfig_TargetCreateItem.Create_ID != 0 && itemData_TargetItem.Item_ID == 0)
         {
-            for (int i = 0; i < targetCreateItem.Create_Raw.Count; i++)
+            for (int i = 0; i < createConfig_TargetCreateItem.Create_Raw.Count; i++)
             {
-                int index = rawDataList.FindIndex((x) => { return x.Item_ID == targetCreateItem.Create_Raw[i].ID; });
+                int index = itemDatas_WorkbenchPool.FindIndex((x) => { return x.Item_ID == createConfig_TargetCreateItem.Create_Raw[i].ID; });
                 if (index >= 0)
                 {
-                    if (rawDataList[index].Item_Count < targetCreateItem.Create_Raw[i].Count)
+                    if (itemDatas_WorkbenchPool[index].Item_Count < createConfig_TargetCreateItem.Create_Raw[i].Count)
                     {
                         /*这个材料数量不足*/
                         return;
@@ -547,12 +542,12 @@ public class UI_CreateItem : UI_Grid
         for (int i = 0; i < createConfig.Create_Raw.Count; i++)
         {
             CreateRaw raw = createConfig.Create_Raw[i];
-            for(int j = 0; j < rawDataList.Count; j++)
+            for(int j = 0; j < itemDatas_WorkbenchPool.Count; j++)
             {
-                if (rawDataList[j].Item_ID == raw.ID)
+                if (itemDatas_WorkbenchPool[j].Item_ID == raw.ID)
                 {
-                    ItemData temp = rawDataList[j];
-                    if (rawDataList[j].Item_Count > raw.Count)
+                    ItemData temp = itemDatas_WorkbenchPool[j];
+                    if (itemDatas_WorkbenchPool[j].Item_Count > raw.Count)
                     {
                         temp.Item_Count -= raw.Count;
                         raw.Count = 0;
@@ -564,11 +559,11 @@ public class UI_CreateItem : UI_Grid
                     }
                     if (temp.Item_Count == 0)
                     {
-                        rawDataList[j] = new ItemData();
+                        itemDatas_WorkbenchPool[j] = new ItemData();
                     }
                     else
                     {
-                        rawDataList[j] = temp;
+                        itemDatas_WorkbenchPool[j] = temp;
                     }
                 }
             }
@@ -583,7 +578,7 @@ public class UI_CreateItem : UI_Grid
              0,
              new ContentData());
         ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(tempData, out ItemData initData);
-        itemData = initData;
+        itemData_TargetItem = initData;
         ChangeInfoToTile();
     }
     #endregion

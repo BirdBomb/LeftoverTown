@@ -153,14 +153,14 @@ public class TileObj_GoodsShelf_Wooden : TileObj
     private Sprite[] GoodsShelf_Right_Group;
     [SerializeField]
     private Sprite GoodsShelf_Right_Empty;
-    public override void Draw()
+    public override void Draw(int seed)
     {
-        CheckAround("GoodsShelf_Wooden", true);
-        base.Draw();
+        CheckAroundBuilding_FourSide("GoodsShelf_Wooden");
+        base.Draw(seed);
     }
-    public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
+    public override void LinkAround(AroundState_FourSide aroundState)
     {
-        if (linkState == LinkState.NoneSide || linkState == LinkState.OneSide_Down || linkState == LinkState.OneSide_Up || linkState == LinkState.TwoSide_UpDown)
+        if (aroundState.Left && aroundState.Right)
         {
             if (info == null || info == "")
             {
@@ -171,7 +171,7 @@ public class TileObj_GoodsShelf_Wooden : TileObj
                 spriteRenderer.sprite = GoodsShelf_Middle_Group[new System.Random().Next(0, GoodsShelf_Middle_Group.Length)];
             }
         }
-        else if (linkState == LinkState.ThreeSide_LeftMissing || linkState == LinkState.OneSide_Right || linkState == LinkState.TwoSide_DownRight || linkState == LinkState.TwoSide_UpRight)
+        else if (aroundState.Right)
         {
             if (info == null || info == "")
             {
@@ -182,7 +182,7 @@ public class TileObj_GoodsShelf_Wooden : TileObj
                 spriteRenderer.sprite = GoodsShelf_Right_Group[new System.Random().Next(0, GoodsShelf_Right_Group.Length)];
             }
         }
-        else if (linkState == LinkState.ThreeSide_RightMissing || linkState == LinkState.OneSide_Left || linkState == LinkState.TwoSide_DownLeft || linkState == LinkState.TwoSide_UpLeft)
+        else if (aroundState.Left)
         {
             if (info == null || info == "")
             {
@@ -204,9 +204,8 @@ public class TileObj_GoodsShelf_Wooden : TileObj
                 spriteRenderer.sprite = GoodsShelf_Single_Group[new System.Random().Next(0, GoodsShelf_Single_Group.Length)];
             }
         }
-        base.LinkAround(linkState, linkToUp, linkToDown, linkToLeft, linkToRight);
+        base.LinkAround(aroundState);
     }
-
     #endregion
     #region//信息更新与上传
     public override void TryToUpdateInfo(string info)
@@ -214,7 +213,7 @@ public class TileObj_GoodsShelf_Wooden : TileObj
         uI_CabinetSteal.UpdateInfoFromTile(info);
         uI_CabinetBuy.UpdateInfoFromTile(info);
         base.TryToUpdateInfo(info);
-        Draw();
+        Draw(0);
     }
     #endregion
     #region//工具货架

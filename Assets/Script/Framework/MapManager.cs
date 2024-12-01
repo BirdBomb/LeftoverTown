@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
+using static UnityEngine.Rendering.DebugUI;
 using Object = UnityEngine.Object;
 
 public class MapManager : SingleTon<MapManager>,ISingleTon
@@ -55,7 +56,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     /// <summary>
     /// 最大视野距离
     /// </summary>
-    private const float config_MaxView = 60f;
+    private const float config_MaxView = 200f;
     public void Init()
     {
 
@@ -152,7 +153,6 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
                 index++;
             }
         }
-
     }
     /// <summary>
     /// 删除建筑
@@ -266,14 +266,31 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
             buildingMap.SetTile(tilePos, tileBase);
         }
     }
-    /// <summary>
-    /// 重绘建筑
-    /// </summary>
-    /// <param name="tilePos"></param>
-    public void ReDrawBuilding(Vector3Int tilePos)
+    public void DrawBuilding(Vector3Int center, int widht, int height)
     {
-        GetBuildingObj(tilePos,out TileObj tileObj);
-        if (tileObj) { tileObj.Draw(); }
+        for (int x = -widht / 2; x <= widht / 2; x++)
+        {
+            for (int y = -height / 2; y <= height / 2; y++)
+            {
+                int posX = center.x + x;
+                int posY = center.y + y;
+                GetBuildingObj(new Vector3Int(posX, posY, 0), out TileObj tileObj);
+                if (tileObj) { tileObj.Draw(posX + posY); }
+            }
+        }
+    }
+    public void DrawFloor(Vector3Int center, int widht, int height)
+    {
+        for (int x = -(widht / 2); x <= (widht / 2); x++)
+        {
+            for (int y = -(height / 2); y <= (height / 2); y++)
+            {
+                int posX = center.x + x;
+                int posY = center.y + y;
+                GetFloorObj(new Vector3Int(posX, posY, 0), out TileObj tileObj);
+                if (tileObj) { tileObj.Draw(posX + posY); }
+            }
+        }
     }
     #endregion
     /*获得地图信息*/
@@ -287,6 +304,26 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     {
         tileObj = null;
         MyTile tile = buildingMap.GetTile<MyTile>(tilePos);
+        if (tile && tile.bindObj)
+        {
+            if (tile.bindObj.TryGetComponent(out TileObj obj))
+            {
+                tileObj = obj;
+                return true;
+            }
+        }
+        return false;
+    }
+    /// <summary>
+    /// 获得地板
+    /// </summary>
+    /// <param name="tilePos"></param>
+    /// <param name="tileObj"></param>
+    /// <returns></returns>
+    public bool GetFloorObj(Vector3Int tilePos, out TileObj tileObj)
+    {
+        tileObj = null;
+        MyTile tile = floorMap.GetTile<MyTile>(tilePos);
         if (tile && tile.bindObj)
         {
             if (tile.bindObj.TryGetComponent(out TileObj obj))

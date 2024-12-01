@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -72,10 +73,12 @@ public class UI_Grid_CabinetSell : UI_Grid
     {
         if (itemData_InSell.Item_ID != 0)
         {
+            ShowSellBtn();
             DrawCell(itemData_InSell, cell_Sell);
         }
         else
         {
+            HideSellBtn();
             ResetCell(cell_Sell);
         }
     }
@@ -98,7 +101,23 @@ public class UI_Grid_CabinetSell : UI_Grid
     {
         cell.ResetGridCell();
     }
-
+    /// <summary>
+    /// 显示售卖按钮
+    /// </summary>
+    private void ShowSellBtn()
+    {
+        btn_Sell.gameObject.SetActive(true);
+        btn_Sell.transform.DOKill();
+        btn_Sell.transform.localScale = Vector3.one;
+        btn_Sell.transform.DOScale(new Vector3(1.1f, 1.1f, 1.1f), 0.2f);
+    }
+    /// <summary>
+    /// 隐藏售卖按钮
+    /// </summary>
+    private void HideSellBtn()
+    {
+        btn_Sell.gameObject.SetActive(false);
+    }
     #endregion
     #region//UI交互
     public void ClickCellLeft(UI_GridCell gridCell)

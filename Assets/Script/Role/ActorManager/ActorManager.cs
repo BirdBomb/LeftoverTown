@@ -144,44 +144,12 @@ public class ActorManager : MonoBehaviour
     {
         if (who == this)
         {
-            if (isState)
-            {
-                OnlyStateListen_MoveMyself(who, where);
-            }
-            else
-            {
-                AllClientListen_MoveMyself(who, where);
-            }
+            AllClientListen_MoveMyself(who, where);
         }
         else
         {
-            if (isState)
-            {
-                OnlyStateListen_MoveOther(who, where);
-            }
-            else
-            {
-                AllClientListen_MoveOther(who, where);
-            }
+            AllClientListen_MoveOther(who, where);
         }
-    }
-    /// <summary>
-    /// 监听其他人移动(客户端)
-    /// </summary>
-    /// <param name="who"></param>
-    /// <param name="where"></param>
-    public virtual void AllClientListen_MoveOther(ActorManager who, MyTile where)
-    {
-
-    }
-    /// <summary>
-    /// 监听其他人移动(服务器)
-    /// </summary>
-    /// <param name="who"></param>
-    /// <param name="where"></param>
-    public virtual void OnlyStateListen_MoveOther(ActorManager who, MyTile where)
-    {
-
     }
     /// <summary>
     /// 监听我自己移动(客户端)
@@ -190,7 +158,15 @@ public class ActorManager : MonoBehaviour
     /// <param name="where"></param>
     public virtual void AllClientListen_MoveMyself(ActorManager who, MyTile where)
     {
-
+        for (int i = 0; i < bindBuffEntity.Count; i++)
+        {
+            bindBuffEntity[i].Listen_MyselfMove(this);
+        }
+        if (isState)
+        {
+            OnlyStateListen_MoveMyself(who, where);
+        }
+        AllClient_UpdateNearByTile();
     }
     /// <summary>
     /// 监听我自己移动(服务器)
@@ -198,6 +174,27 @@ public class ActorManager : MonoBehaviour
     /// <param name="who"></param>
     /// <param name="where"></param>
     public virtual void OnlyStateListen_MoveMyself(ActorManager who, MyTile where)
+    {
+
+    }
+    /// <summary>
+    /// 监听其他人移动(客户端)
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="where"></param>
+    public virtual void AllClientListen_MoveOther(ActorManager who, MyTile where)
+    {
+        if (isState)
+        {
+            OnlyStateListen_MoveOther(who, where);
+        }
+    }
+    /// <summary>
+    /// 监听其他人移动(服务器)
+    /// </summary>
+    /// <param name="who"></param>
+    /// <param name="where"></param>
+    public virtual void OnlyStateListen_MoveOther(ActorManager who, MyTile where)
     {
 
     }
@@ -275,8 +272,7 @@ public class ActorManager : MonoBehaviour
     {
         if (parameter <= 0)
         {
-            GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position + new Vector2(0, 1));
-            obj_num.GetComponent<UI_DamageNum>().Play(parameter, new Color32(255, 50, 50, 255));
+            ShowText(parameter.ToString(), new Color32(255, 50, 50, 255), 64, Vector2.up);
             AllClient_PlayTakeDamage(1);
         }
         if (isState)
@@ -546,23 +542,65 @@ public class ActorManager : MonoBehaviour
     #endregion
     /*位置*/
     #region
-    private List<MyTile> temp_TilesList = new List<MyTile>();
-    private MyTile temp_lastTile = null;
-    private MyTile temp_curTile = null;
+    /// <summary>
+    /// 上个地块
+    /// </summary>
+    public MyTile record_lastTile = null;
+    /// <summary>
+    /// 这个地块
+    /// </summary>
+    public MyTile record_curTile = null;
+
     /// <summary>
     /// 检查当前地块(客户端)
     /// </summary>
     public void AllClient_CheckMyTile()
     {
-        temp_curTile = Tool_GetMyTileWithOffset(Vector3Int.zero);
-        if (temp_lastTile != temp_curTile)
+        record_curTile = Tool_GetMyTileWithOffset(Vector3Int.zero);
+        if (record_lastTile != record_curTile)
         {
-            temp_lastTile = temp_curTile;
+            record_lastTile = record_curTile;
             MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneMove
             {
                 moveActor = this,
-                moveTile = temp_curTile
+                moveTile = record_curTile
             });
+        }
+    }
+    /// <summary>
+    /// 周围地块
+    /// </summary>
+    private List<MyTile> record_NearbyTiles = new List<MyTile>();
+    private List<MyTile> temp_NearbyTiles = new List<MyTile>();
+    /// <summary>
+    /// 更新附近的地块
+    /// </summary>
+    private void AllClient_UpdateNearByTile()
+    {
+        /*周围地块*/
+        temp_NearbyTiles = Tool_GetNearbyTiles(NearByMean.EightSide);
+        temp_NearbyTiles[0].StandOnTileByActor(this);
+        /*剔除上次检测的地块*/
+        for (int i = 0; i < record_NearbyTiles.Count; i++)
+        {
+            if (record_NearbyTiles[i] == null) { continue; }
+            if (!temp_NearbyTiles.Contains(record_NearbyTiles[i]))
+            {
+                record_NearbyTiles[i].FarawayTileByActor(this);
+                record_NearbyTiles.RemoveAt(i);
+            }
+        }
+        /*添加本次加入的地块*/
+        for (int i = 0; i < temp_NearbyTiles.Count; i++)
+        {
+            if (temp_NearbyTiles[i] == null) { continue; }
+            if (temp_NearbyTiles[i].NearbyTileByActor(this))
+            {
+                if (!record_NearbyTiles.Contains(temp_NearbyTiles[i]))
+                {
+                    record_NearbyTiles.Add(temp_NearbyTiles[i]);
+                }
+            }
         }
     }
     /// <summary>
@@ -582,20 +620,37 @@ public class ActorManager : MonoBehaviour
             return null;
         }
     }
+    private List<MyTile> temp_TilesList = new List<MyTile>();
     /// <summary>
-    /// 通用方法(获得周围地块)
+    /// 获得周围地块
     /// </summary>
+    /// <param name="radiu">半径</param>
     /// <returns></returns>
-    public List<MyTile> Tool_GetNearbyTiles()
+    public List<MyTile> Tool_GetNearbyTiles(NearByMean type)
     {
         temp_TilesList.Clear();
         MyTile tile = Tool_GetMyTileWithOffset(Vector3Int.zero);
         temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell));
         temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.up));
+        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.up + Vector3Int.right));
         temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.right));
-        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.left));
+        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.right + Vector3Int.down));
         temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.down));
+        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.down + Vector3Int.left));
+        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.left));
+        temp_TilesList.Add((MyTile)navManager.tilemap_Building.GetTile(tile._posInCell + Vector3Int.left + Vector3Int.up));
         return temp_TilesList;
+    }
+    public enum NearByMean
+    {
+        /// <summary>
+        /// 四方向
+        /// </summary>
+        FourSide,
+        /// <summary>
+        /// 八方向
+        /// </summary>
+        EightSide,
     }
     #endregion
     /*物品*/
@@ -656,43 +711,43 @@ public class ActorManager : MonoBehaviour
     {
         if (itemOnHand != null) { itemOnHand.Holding_Over(this); }
         itemOnHand = new ItemBase();
-        if (bodyController.Hand_LeftItem.childCount > 0)
+        if (bodyController.Tran_LeftItemInHand.childCount > 0)
         {
-            for (int i = 0; i < bodyController.Hand_LeftItem.childCount; i++)
+            for (int i = 0; i < bodyController.Tran_LeftItemInHand.childCount; i++)
             {
-                Destroy(bodyController.Hand_LeftItem.GetChild(i).gameObject);
+                Destroy(bodyController.Tran_LeftItemInHand.GetChild(i).gameObject);
             }
         }
-        if (bodyController.Hand_RightItem.childCount > 0)
+        if (bodyController.Tran_RightItemInHand.childCount > 0)
         {
-            for (int i = 0; i < bodyController.Hand_RightItem.childCount; i++)
+            for (int i = 0; i < bodyController.Tran_RightItemInHand.childCount; i++)
             {
-                Destroy(bodyController.Hand_RightItem.GetChild(i).gameObject);
+                Destroy(bodyController.Tran_RightItemInHand.GetChild(i).gameObject);
             }
         }
 
-        bodyController.Hand_Left.GetComponent<SpriteRenderer>().enabled = true;
-        bodyController.Hand_Right.GetComponent<SpriteRenderer>().enabled = true;
+        bodyController.Tran_LeftHand.GetComponent<SpriteRenderer>().enabled = true;
+        bodyController.Tran_RightHand.GetComponent<SpriteRenderer>().enabled = true;
 
         bodyController.SetBodyBool("Idle", true, 1, null);
         bodyController.SetHeadBool("Idle", true, 1, null);
         bodyController.SetHandBool("Idle", true, 1, null);
         bodyController.SetHandBool("Idle", true, 1, null);
 
-        bodyController.Hand_RightItem.localScale = Vector3.one;
-        bodyController.Hand_LeftItem.localScale = Vector3.one;
-        bodyController.Hand_RightItem.localScale = Vector3.one;
-        bodyController.Hand_LeftItem.localPosition = Vector3.zero;
-        bodyController.Hand_LeftItem.localRotation = Quaternion.identity;
-        bodyController.Hand_RightItem.localPosition = Vector3.zero;
-        bodyController.Hand_RightItem.localRotation = Quaternion.identity;
-        bodyController.Hand_LeftItem.GetComponent<SpriteRenderer>().sprite
+        bodyController.Tran_RightItemInHand.localScale = Vector3.one;
+        bodyController.Tran_LeftItemInHand.localScale = Vector3.one;
+        bodyController.Tran_RightItemInHand.localScale = Vector3.one;
+        bodyController.Tran_LeftItemInHand.localPosition = Vector3.zero;
+        bodyController.Tran_LeftItemInHand.localRotation = Quaternion.identity;
+        bodyController.Tran_RightItemInHand.localPosition = Vector3.zero;
+        bodyController.Tran_RightItemInHand.localRotation = Quaternion.identity;
+        bodyController.Tran_LeftItemInHand.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        bodyController.Hand_LeftItem.GetComponent<SpriteRenderer>().sortingOrder = 1;
+        bodyController.Tran_LeftItemInHand.GetComponent<SpriteRenderer>().sortingOrder = 1;
 
-        bodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+        bodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        bodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sortingOrder = 4;
+        bodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sortingOrder = 4;
     }
     /// <summary>
     /// 戴到头上(客户端)
@@ -727,19 +782,19 @@ public class ActorManager : MonoBehaviour
     public void AllClient_ResetItemOnHead()
     {
         itemOnHead = new ItemBase();
-        if (bodyController.Head_Item.childCount > 0)
+        if (bodyController.Tran_ItemOnHead.childCount > 0)
         {
-            for (int i = 0; i < bodyController.Head_Item.childCount; i++)
+            for (int i = 0; i < bodyController.Tran_ItemOnHead.childCount; i++)
             {
-                Destroy(bodyController.Head_Item.GetChild(i).gameObject);
+                Destroy(bodyController.Tran_ItemOnHead.GetChild(i).gameObject);
             }
         }
-        bodyController.Head_Item.localScale = Vector3.one;
-        bodyController.Head_Item.localPosition = new Vector3(0, 0.25f, 0);
-        bodyController.Head_Item.localRotation = Quaternion.identity;
-        bodyController.Head_Item.GetComponent<SpriteRenderer>().sprite
+        bodyController.Tran_ItemOnHead.localScale = Vector3.one;
+        bodyController.Tran_ItemOnHead.localPosition = new Vector3(0, 0.25f, 0);
+        bodyController.Tran_ItemOnHead.localRotation = Quaternion.identity;
+        bodyController.Tran_ItemOnHead.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        bodyController.Head_Item.GetComponent<SpriteRenderer>().sortingOrder = 3;
+        bodyController.Tran_ItemOnHead.GetComponent<SpriteRenderer>().sortingOrder = 3;
     }
     /// <summary>
     /// 穿到身上(客户端)
@@ -774,19 +829,19 @@ public class ActorManager : MonoBehaviour
     public void AllClient_ResetItemOnBody()
     {
         itemOnHead = new ItemBase();
-        if (bodyController.Body_Item.childCount > 0)
+        if (bodyController.Tran_ItemOnBody.childCount > 0)
         {
-            for (int i = 0; i < bodyController.Body_Item.childCount; i++)
+            for (int i = 0; i < bodyController.Tran_ItemOnBody.childCount; i++)
             {
-                Destroy(bodyController.Body_Item.GetChild(i).gameObject);
+                Destroy(bodyController.Tran_ItemOnBody.GetChild(i).gameObject);
             }
         }
-        bodyController.Body_Item.localScale = Vector3.one;
-        bodyController.Body_Item.localPosition = Vector3.zero;
-        bodyController.Body_Item.localRotation = Quaternion.identity;
-        bodyController.Body_Item.GetComponent<SpriteRenderer>().sprite
+        bodyController.Tran_ItemOnBody.localScale = Vector3.one;
+        bodyController.Tran_ItemOnBody.localPosition = Vector3.zero;
+        bodyController.Tran_ItemOnBody.localRotation = Quaternion.identity;
+        bodyController.Tran_ItemOnBody.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        bodyController.Body_Item.GetComponent<SpriteRenderer>().sortingOrder = 2;
+        bodyController.Tran_ItemOnBody.GetComponent<SpriteRenderer>().sortingOrder = 2;
     }
     /// <summary>
     /// 更新物品时间戳(客户端)
@@ -1136,6 +1191,61 @@ public class ActorManager : MonoBehaviour
     }
     #endregion
     #endregion
+    /*Buff*/
+    #region
+    [HideInInspector]
+    Dictionary<short, BuffBase> bindBuffDic = new Dictionary<short, BuffBase>();
+    [HideInInspector]
+    public List<short> bindBuffID = new List<short>();
+    [HideInInspector]
+    public List<BuffBase> bindBuffEntity = new List<BuffBase>();
+    public virtual void AllClient_UpdateBuff(NetworkLinkedList<short> buffs)
+    {
+        foreach(short buff in buffs)
+        {
+            AllClient_TryToBindBuff(buff);
+        }
+    }
+    public virtual void AllClient_TryToBindBuff(short id)
+    {
+        if (!bindBuffID.Contains(id))
+        {
+            Type type = Type.GetType("Buff" + id.ToString());
+            BuffBase buff = (BuffBase)Activator.CreateInstance(type);
+            bindBuffDic.Add(id, buff);
+            bindBuffEntity.Add(buff);
+            bindBuffID.Add(id);
+            buff.Listen_AddOnActor(this);
+
+            if (isPlayer && isInput)
+            {
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_AddBuff()
+                {
+                    buffConfig = BuffConfigData.GetBuffConfig(id),
+                });
+            }
+        }
+    }
+    public virtual void AllClient_RemoveBuff(short id)
+    {
+        if (bindBuffID.Contains(id))
+        {
+            BuffBase buff = bindBuffDic[id];
+            bindBuffEntity.Remove(buff);
+            bindBuffID.Remove(id);
+            bindBuffDic.Remove(id);
+            buff.Listen_SubFromActor(this);
+
+            if (isPlayer && isInput)
+            {
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_SubBuff()
+                {
+                    buffConfig = BuffConfigData.GetBuffConfig(id),
+                });
+            }
+        }
+    }
+    #endregion
     /*技能*/
     #region
     [HideInInspector]
@@ -1148,7 +1258,7 @@ public class ActorManager : MonoBehaviour
     {
         Type type = Type.GetType("Skill_" + skillID.ToString());
         bindSkill = (SkillBase)Activator.CreateInstance(type);
-        bindSkill.Init(this);
+        bindSkill.Init(skillID, this);
     }
     /// <summary>
     /// 释放一个技能(客户端)
@@ -1168,6 +1278,7 @@ public class ActorManager : MonoBehaviour
     /// <param name="emojiID"></param>
     public virtual void AllClient_SendEmoji(int emojiID)
     {
+        Debug.Log("Emoji" + emojiID);
         MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SomeoneSendEmoji
         {
             actor = this,
@@ -1234,6 +1345,14 @@ public class ActorManager : MonoBehaviour
         }
     }
 
+    #endregion
+    /*UI*/
+    #region
+    public void ShowText(string val,Color32 color,int size,Vector2 offset)
+    {
+        GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position + offset);
+        obj_num.GetComponent<UI_DamageNum>().Play(val, color, size);
+    }
     #endregion
     /*模拟玩家输入*/
     #region

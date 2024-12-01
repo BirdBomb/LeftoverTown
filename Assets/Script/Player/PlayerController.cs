@@ -160,6 +160,7 @@ public class PlayerController : MonoBehaviour
         {
             if (thisPlayerIsMe)
             {
+                Debug.Log(_.id);
                 actorManager.NetManager.RPC_LocalInput_SendEmoji(_.id);
             }
         }).AddTo(this);
@@ -183,16 +184,16 @@ public class PlayerController : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.F))
             {
-                if (holdingTile)
+                if (record_holdingTile)
                 {
-                    holdingTile.InvokeTile(this, KeyCode.F);
+                    record_holdingTile.InvokeTile(this, KeyCode.F);
                 }
             }
             if (Input.GetKeyDown(KeyCode.E))
             {
-                if (holdingTile)
+                if (record_holdingTile)
                 {
-                    holdingTile.InvokeTile(this, KeyCode.E);
+                    record_holdingTile.InvokeTile(this, KeyCode.E);
                 }
             }
             if (Input.GetKeyDown(KeyCode.Q))
@@ -234,6 +235,11 @@ public class PlayerController : MonoBehaviour
                     {
                         buildingID = 2,
                         buildingPos = actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInCell
+                    });
+                    MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeFloor()
+                    {
+                        floorID = 1004,
+                        floorPos = actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero)._posInCell
                     });
                 }
                 else if (actorManager.Tool_GetMyTileWithOffset(Vector3Int.zero).name == "FloorBuilder")
@@ -467,11 +473,10 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
     #region//地图绘制
-    private List<MyTile> nearbyTiles = new List<MyTile>();
-    private MyTile holdingTile = null;
-    private List<MyTile> tempTiles = new List<MyTile>();
+    private List<MyTile> temp_NearbyTiles = new List<MyTile>();
+    private MyTile record_holdingTile = null;
     private Vector3Int mapCenter = new Vector3Int(-99999,-99999);
-    private const int config_MapView = 15;
+    private const float config_MapView = 12;
     /// <summary>
     /// 更新地图绘制
     /// </summary>
@@ -480,11 +485,12 @@ public class PlayerController : MonoBehaviour
         if (Mathf.Abs(pos.x - mapCenter.x) > config_MapView || Mathf.Abs(pos.y - mapCenter.y) > config_MapView)
         {
             Debug.Log("超出地图绘制范围,绘制新区域" + "当前位置(" + pos + ")" + "地图锚点(" + mapCenter + ")");
-            mapCenter = new Vector3Int((int)Math.Round(pos.x / 20f) * 20, (int)Math.Round(pos.y / 20f) * 20, 0);
+            mapCenter = new Vector3Int((int)(Math.Round(pos.x / config_MapView) * config_MapView), (int)(Math.Round(pos.y / config_MapView) * config_MapView), 0);
             MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_RequestMapData()
             {
                 playerPos = mapCenter,
-                playerRef = localPlayerRef
+                playerRef = localPlayerRef,
+                mapSize = (int)config_MapView
             });
         }
     }
@@ -494,43 +500,22 @@ public class PlayerController : MonoBehaviour
     private void UpdateNearByTile()
     {
         /*周围地块*/
-        tempTiles = actorManager.Tool_GetNearbyTiles();
-        /*剔除上次检测的地块*/
-        for (int i = 0; i < nearbyTiles.Count; i++)
-        {
-            if (nearbyTiles[i] == null) { continue; }
-            if (!tempTiles.Contains(nearbyTiles[i]))
-            {
-                nearbyTiles[i].FarawayTileByPlayer(this);
-                nearbyTiles.RemoveAt(i);
-            }
-        }
-        /*添加本次加入的地块*/
-        for (int i = 0; i < tempTiles.Count; i++)
-        {
-            if (tempTiles[i] == null) { continue; }
-            if (tempTiles[i].NearbyTileByPlayer(this))
-            {
-                if (!nearbyTiles.Contains(tempTiles[i]))
-                {
-                    nearbyTiles.Add(tempTiles[i]);
-                }
-            }
-        }
+        temp_NearbyTiles = actorManager.Tool_GetNearbyTiles(ActorManager.NearByMean.FourSide);
         /*更新持有地块*/
-        for (int i = 0; i < tempTiles.Count; i++)
+        for (int i = 0; i < temp_NearbyTiles.Count; i++)
         {
-            if (tempTiles[i] == null) { continue; }
-            if (holdingTile != tempTiles[i])
+            if (temp_NearbyTiles[i] == null) { continue; }
+            if (record_holdingTile != temp_NearbyTiles[i])
             {
-                if (tempTiles[i].HoldingTileByPlayer(this))
+                if (temp_NearbyTiles[i].HoldingTileByPlayer(this))
                 {
-                    UpdateHoldingTile(tempTiles[i]);
+                    UpdateHoldingTile(temp_NearbyTiles[i]);
                     return;
                 }
             }
             else
             {
+                record_holdingTile.HoldingTileByPlayer(this);
                 return;
             }
         }
@@ -538,8 +523,8 @@ public class PlayerController : MonoBehaviour
     }
     private void UpdateHoldingTile(MyTile tile)
     {
-        holdingTile?.ReleaseTileByPlayer(this);
-        holdingTile = tile;
+        record_holdingTile?.ReleaseTileByPlayer(this);
+        record_holdingTile = tile;
     }
     #endregion
     #region//镜头控制

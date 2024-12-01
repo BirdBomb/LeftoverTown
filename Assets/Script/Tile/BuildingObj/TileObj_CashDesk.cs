@@ -136,30 +136,30 @@ public class TileObj_CashDesk : TileObj
     [SerializeField]
     private Sprite CashDesk_Right;
 
-    public override void Draw()
+    public override void Draw(int seed)
     {
-        CheckAround(new List<string>() { "Desk", "CashDesk" }, true);
-        base.Draw();
+        CheckAroundBuilding_FourSide(new List<string>() { "Desk", "CashDesk" });
+        base.Draw(seed);
     }
-    public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
+    public override void LinkAround(AroundState_FourSide aroundState)
     {
-        if (linkState == LinkState.NoneSide || linkState == LinkState.OneSide_Down || linkState == LinkState.OneSide_Up || linkState == LinkState.TwoSide_UpDown)
+        if (aroundState.Left && aroundState.Right)
         {
             spriteRenderer.sprite = CashDesk_Middle;
         }
-        else if (linkState == LinkState.ThreeSide_LeftMissing || linkState == LinkState.OneSide_Right || linkState == LinkState.TwoSide_DownRight || linkState == LinkState.TwoSide_UpRight)
-        {
-            spriteRenderer.sprite = CashDesk_Right;
-        }
-        else if (linkState == LinkState.ThreeSide_RightMissing || linkState == LinkState.OneSide_Left || linkState == LinkState.TwoSide_DownLeft || linkState == LinkState.TwoSide_UpLeft)
+        else if (aroundState.Left)
         {
             spriteRenderer.sprite = CashDesk_Left;
+        }
+        else if (aroundState.Right)
+        {
+            spriteRenderer.sprite = CashDesk_Right;
         }
         else
         {
             spriteRenderer.sprite = CashDesk_Single;
         }
-        base.LinkAround(linkState, linkToUp, linkToDown, linkToLeft, linkToRight);
+        base.LinkAround(aroundState);
     }
     #endregion
 }

@@ -86,7 +86,7 @@ public class TileObj_GoodsShelf_Iron : TileObj
     {
         uI_Grid_Cabinet.UpdateInfoFromTile(info);
         base.TryToUpdateInfo(info);
-        Draw();
+        Draw(0);
     }
     #endregion
     #region//»æÖÆ
@@ -96,7 +96,7 @@ public class TileObj_GoodsShelf_Iron : TileObj
     private Sprite[] GoodsShelf_Group;
     [SerializeField]
     private Sprite GoodsShelf_Empty;
-    public override void Draw()
+    public override void Draw(int seed)
     {
         if (info == null || info == "")
         {
@@ -106,7 +106,7 @@ public class TileObj_GoodsShelf_Iron : TileObj
         {
             spriteRenderer.sprite = GoodsShelf_Group[new System.Random().Next(0, GoodsShelf_Group.Length)];
         }
-        base.Draw();
+        base.Draw(seed);
     }
     #endregion
 }

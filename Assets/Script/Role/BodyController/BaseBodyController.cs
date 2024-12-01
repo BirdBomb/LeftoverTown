@@ -12,28 +12,28 @@ public class BaseBodyController : MonoBehaviour
     [HideInInspector]
     public bool locking = false;
     [SerializeField, Header("根节点")]
-    public Transform Root;
+    public Transform Tran_Root;
     [SerializeField, Header("头部节点")]
-    public Transform Head;
+    public Transform Tran_Head;
     [SerializeField, Header("身体节点")]
-    public Transform Body;
+    public Transform Tran_Body;
     [SerializeField, Header("上肢节点")]
-    public Transform Hand;
+    public Transform Tran_BothHand;
     [SerializeField, Header("下肢节点")]
-    public Transform Leg;
+    public Transform Tran_BothLeg;
     [SerializeField, Header("右手节点")]
-    public Transform Hand_Right;
+    public Transform Tran_RightHand;
     [SerializeField, Header("左手节点")]
-    public Transform Hand_Left;
+    public Transform Tran_LeftHand;
 
     [SerializeField, Header("右手物品")]
-    public Transform Hand_RightItem;
+    public Transform Tran_RightItemInHand;
     [SerializeField, Header("左手物品")]
-    public Transform Hand_LeftItem;
+    public Transform Tran_LeftItemInHand;
     [SerializeField, Header("头部物品")]
-    public Transform Head_Item;
+    public Transform Tran_ItemOnHead;
     [SerializeField, Header("身体物品")]
-    public Transform Body_Item;
+    public Transform Tran_ItemOnBody;
 
 
     public Animator Animator_Head;
@@ -51,6 +51,8 @@ public class BaseBodyController : MonoBehaviour
         {
             if (str == "LegStep")
             {
+                //GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_BombSmoke");
+                //effect.transform.position = Leg.position;
                 AudioManager.Instance.PlayEffect(1007,transform.position);
             }
         });
@@ -194,9 +196,9 @@ public class BaseBodyController : MonoBehaviour
         {
             faceLeft = true;
             faceRight = false;
-            Head.localScale = new Vector3(-1, 1, 1);
-            Body.localScale = new Vector3(-1, 1, 1);
-            Hand.localScale = new Vector3(-1, 1, 1);
+            Tran_Head.localScale = new Vector3(-1, 1, 1);
+            Tran_Body.localScale = new Vector3(-1, 1, 1);
+            Tran_BothHand.localScale = new Vector3(-1, 1, 1);
         }
     }
     /// <summary>
@@ -208,9 +210,9 @@ public class BaseBodyController : MonoBehaviour
         {
             faceLeft = false;
             faceRight = true;
-            Head.localScale = new Vector3(1, 1, 1);
-            Body.localScale = new Vector3(1, 1, 1);
-            Hand.localScale = new Vector3(1, 1, 1);
+            Tran_Head.localScale = new Vector3(1, 1, 1);
+            Tran_Body.localScale = new Vector3(1, 1, 1);
+            Tran_BothHand.localScale = new Vector3(1, 1, 1);
         }
     }
     /// <summary>
@@ -222,7 +224,7 @@ public class BaseBodyController : MonoBehaviour
         {
             turnLeft = true;
             turnRight = false;
-            Leg.localScale = new Vector3(-1, 1, 1);
+            Tran_BothLeg.localScale = new Vector3(-1, 1, 1);
         }
     }
     /// <summary>
@@ -234,10 +236,26 @@ public class BaseBodyController : MonoBehaviour
         {
             turnRight = true;
             turnLeft = false;
-            Leg.localScale = new Vector3(1, 1, 1);
+            Tran_BothLeg.localScale = new Vector3(1, 1, 1);
         }
     }
 
+    #endregion
+    #region//预设
+    /// <summary>
+    /// 隐藏角色
+    /// </summary>
+    public virtual void HideActor()
+    {
+
+    }
+    /// <summary>
+    /// 显示角色
+    /// </summary>
+    public virtual void ShowActor()
+    {
+
+    }
     #endregion
 }
 public enum BodyAction

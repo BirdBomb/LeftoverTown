@@ -22,7 +22,7 @@ public class Item_2001 : ItemBase_Tool
     {
         this.owner = owner;
         itemLocalObj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2001");
-        itemLocalObj.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj.transform.localPosition = Vector3.zero;
         itemLocalObj.transform.localRotation = Quaternion.identity;
         itemLocalObj.transform.localScale = Vector3.one;
@@ -156,7 +156,7 @@ public class Item_2002 : ItemBase_Tool
     {
         this.owner = owner;
         itemLocalObj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2002");
-        itemLocalObj.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj.transform.localPosition = Vector3.zero;
         itemLocalObj.transform.localRotation = Quaternion.identity;
         itemLocalObj.transform.localScale = Vector3.one;
@@ -290,13 +290,13 @@ public class Item_2003 : ItemBase_Gun
     {
         this.owner = owner;
         itemLocalObj_Bow = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2003").GetComponent<ItemLocalObj_Bow>();
-        itemLocalObj_Bow.transform.SetParent(body.Hand_LeftItem);
+        itemLocalObj_Bow.transform.SetParent(body.Tran_LeftItemInHand);
         itemLocalObj_Bow.transform.localRotation = Quaternion.identity;
         itemLocalObj_Bow.transform.localPosition = new Vector3(0.1f, 0, 0);
         itemLocalObj_Bow.transform.localScale = Vector3.one;
 
-        itemLocalObj_Bow.leftHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Right.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj_Bow.leftHand.GetComponent<SpriteRenderer>().sprite = body.Tran_RightHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
     }
     public override void Holding_Over(ActorManager who)
     {
@@ -314,23 +314,9 @@ public class Item_2003 : ItemBase_Gun
         }
         base.Holding_Over(who);
     }
-    public override void DrawGridCell(UI_GridCell gridCell)
-    {
-        gridCell.image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID.ToString());
-        gridCell.text_Name.text = itemConfig.Item_Name.ToString();
-        gridCell.text_Info.text = itemData.Item_Content.Item_Count.ToString();
-        if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
-        {
-            gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_Content.Item_ID.ToString());
-        }
-        else
-        {
-            gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        }
-    }
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
-        gridCell.grid_Child.OpenGrid(itemData, TryInPut);
+        gridCell.grid_Child.OpenOrCloseGrid(itemData, TryInPut);
         base.LeftClickGridCell(gridCell, itemData);
     }
     public ItemData TryInPut(ItemData putInItemData)
@@ -481,28 +467,28 @@ public class Item_2003 : ItemBase_Gun
         {
             if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
             {
-                owner.BodyController.Hand_RightItem.localPosition = new Vector3(0.5f, 0, 0);
-                owner.BodyController.Hand_RightItem.localRotation = Quaternion.Euler(0, 0, -45);
-                owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+                owner.BodyController.Tran_RightItemInHand.localPosition = new Vector3(0.5f, 0, 0);
+                owner.BodyController.Tran_RightItemInHand.localRotation = Quaternion.Euler(0, 0, -45);
+                owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
                     = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_Content.Item_ID);
             }
             else
             {
-                owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+                owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
                     = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
             }
         }
         else
         {
-            owner.BodyController.Hand_RightItem.localPosition = new Vector3(0.5f, 0, 0);
-            owner.BodyController.Hand_RightItem.localRotation = Quaternion.Euler(0, 0, -45);
-            owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+            owner.BodyController.Tran_RightItemInHand.localPosition = new Vector3(0.5f, 0, 0);
+            owner.BodyController.Tran_RightItemInHand.localRotation = Quaternion.Euler(0, 0, -45);
+            owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
                 = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + 9003);
         }
     }
     private void SubArrow()
     {
-        owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+        owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
     }
     /// <summary>
@@ -551,9 +537,9 @@ public class Item_2003 : ItemBase_Gun
     /// </summary>
     private void Shot(short bulletID, Vector3 dir, ActorManager actor)
     {
-        owner.BodyController.Hand_RightItem.DOKill();
-        owner.BodyController.Hand_RightItem.localPosition = new Vector3(0.5f, 0, 0);
-        owner.BodyController.Hand_RightItem.DOPunchPosition(new Vector3(-0.2f, 0, 0), 0.1f);
+        owner.BodyController.Tran_RightItemInHand.DOKill();
+        owner.BodyController.Tran_RightItemInHand.localPosition = new Vector3(0.5f, 0, 0);
+        owner.BodyController.Tran_RightItemInHand.DOPunchPosition(new Vector3(-0.2f, 0, 0), 0.1f);
         GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + bulletID);
         obj.transform.position = owner.SkillSector.CenterPos;
         obj.GetComponent<BulletBase>().InitBullet(dir, 10, actor.NetManager);
@@ -638,7 +624,7 @@ public class Item_2004 : ItemBase_Tool
     {
         this.owner = owner;
         itemLocalObj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2004");
-        itemLocalObj.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj.transform.localPosition = Vector3.zero;
         itemLocalObj.transform.localRotation = Quaternion.identity;
         itemLocalObj.transform.localScale = Vector3.one;
@@ -724,13 +710,13 @@ public class Item_2005 : ItemBase_Gun
     {
         this.owner = owner;
         itemLocalObj_Bow = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2005").GetComponent<ItemLocalObj_Bow>();
-        itemLocalObj_Bow.transform.SetParent(body.Hand_LeftItem);
+        itemLocalObj_Bow.transform.SetParent(body.Tran_LeftItemInHand);
         itemLocalObj_Bow.transform.localRotation = Quaternion.identity;
         itemLocalObj_Bow.transform.localPosition = new Vector3(0.1f, 0, 0);
         itemLocalObj_Bow.transform.localScale = Vector3.one;
 
-        itemLocalObj_Bow.leftHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Right.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj_Bow.leftHand.GetComponent<SpriteRenderer>().sprite = body.Tran_RightHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
     }
     public override void Holding_Over(ActorManager who)
     {
@@ -748,23 +734,9 @@ public class Item_2005 : ItemBase_Gun
         }
         base.Holding_Over(who);
     }
-    public override void DrawGridCell(UI_GridCell gridCell)
-    {
-        gridCell.image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID.ToString());
-        gridCell.text_Name.text = itemConfig.Item_Name.ToString();
-        gridCell.text_Info.text = itemData.Item_Content.Item_Count.ToString();
-        if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
-        {
-            gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_Content.Item_ID.ToString());
-        }
-        else
-        {
-            gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        }
-    }
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
-        gridCell.grid_Child.OpenGrid(itemData, TryInPut);
+        gridCell.grid_Child.OpenOrCloseGrid(itemData, TryInPut);
         base.LeftClickGridCell(gridCell, itemData);
     }
     public ItemData TryInPut(ItemData putInItemData)
@@ -915,28 +887,28 @@ public class Item_2005 : ItemBase_Gun
         {
             if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
             {
-                owner.BodyController.Hand_RightItem.localPosition = new Vector3(0.5f, 0, 0);
-                owner.BodyController.Hand_RightItem.localRotation = Quaternion.Euler(0, 0, -45);
-                owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+                owner.BodyController.Tran_RightItemInHand.localPosition = new Vector3(0.5f, 0, 0);
+                owner.BodyController.Tran_RightItemInHand.localRotation = Quaternion.Euler(0, 0, -45);
+                owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
                     = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_Content.Item_ID);
             }
             else
             {
-                owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+                owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
                     = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
             }
         }
         else
         {
-            owner.BodyController.Hand_RightItem.localPosition = new Vector3(0.5f, 0, 0);
-            owner.BodyController.Hand_RightItem.localRotation = Quaternion.Euler(0, 0, -45);
-            owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+            owner.BodyController.Tran_RightItemInHand.localPosition = new Vector3(0.5f, 0, 0);
+            owner.BodyController.Tran_RightItemInHand.localRotation = Quaternion.Euler(0, 0, -45);
+            owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
                 = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + 9003);
         }
     }
     private void SubArrow()
     {
-        owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+        owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
     }
     /// <summary>
@@ -985,9 +957,9 @@ public class Item_2005 : ItemBase_Gun
     /// </summary>
     private void Shot(short bulletID, Vector3 dir, ActorManager actor)
     {
-        owner.BodyController.Hand_RightItem.DOKill();
-        owner.BodyController.Hand_RightItem.localPosition = new Vector3(0.5f, 0, 0);
-        owner.BodyController.Hand_RightItem.DOPunchPosition(new Vector3(-0.2f, 0, 0), 0.1f);
+        owner.BodyController.Tran_RightItemInHand.DOKill();
+        owner.BodyController.Tran_RightItemInHand.localPosition = new Vector3(0.5f, 0, 0);
+        owner.BodyController.Tran_RightItemInHand.DOPunchPosition(new Vector3(-0.2f, 0, 0), 0.1f);
         GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + bulletID);
         obj.transform.position = owner.SkillSector.CenterPos;
         obj.GetComponent<BulletBase>().InitBullet(dir, 10, actor.NetManager);
@@ -1072,23 +1044,23 @@ public class Item_2006 : ItemBase_Weapon
     {
         this.owner = owner;
         itemLocalObj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2007");
-        itemLocalObj.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj.transform.localRotation = Quaternion.identity;
         itemLocalObj.transform.localPosition = Vector3.zero;
         itemLocalObj.transform.localScale = Vector3.one;
-        itemLocalObj.transform.Find("Hand").GetComponent<SpriteRenderer>().sprite = body.Hand_Left.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj.transform.Find("Hand").GetComponent<SpriteRenderer>().sprite = body.Tran_LeftHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
     }
     public override void UpdateMousePos(Vector3 mouse)
     {
         inputData.mousePosition = mouse;
         if (mouse.x >= 0)
         {
-            owner.BodyController.Hand_RightItem.right = mouse;
+            owner.BodyController.Tran_RightItemInHand.right = mouse;
         }
         if (mouse.x < 0)
         {
-            owner.BodyController.Hand_RightItem.right = -mouse;
+            owner.BodyController.Tran_RightItemInHand.right = -mouse;
         }
         base.UpdateMousePos(mouse);
     }
@@ -1149,23 +1121,23 @@ public class Item_2007 : ItemBase_Weapon
     {
         this.owner = owner;
         itemLocalObj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2007");
-        itemLocalObj.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj.transform.localRotation = Quaternion.identity;
         itemLocalObj.transform.localPosition = Vector3.zero;
         itemLocalObj.transform.localScale = Vector3.one;
-        itemLocalObj.transform.Find("Hand").GetComponent<SpriteRenderer>().sprite = body.Hand_Left.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj.transform.Find("Hand").GetComponent<SpriteRenderer>().sprite = body.Tran_LeftHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
     }
     public override void UpdateMousePos(Vector3 mouse)
     {
         inputData.mousePosition = mouse;
         if (mouse.x >= 0)
         {
-            owner.BodyController.Hand_RightItem.right = mouse;
+            owner.BodyController.Tran_RightItemInHand.right = mouse;
         }
         if (mouse.x < 0)
         {
-            owner.BodyController.Hand_RightItem.right = -mouse;
+            owner.BodyController.Tran_RightItemInHand.right = -mouse;
         }
         base.UpdateMousePos(mouse);
     }
@@ -1226,7 +1198,7 @@ public class Item_2008 : ItemBase_Weapon
     {
         this.owner = owner;
         itemLocalObj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2008");
-        itemLocalObj.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj.transform.localPosition = Vector3.zero;
         itemLocalObj.transform.localRotation = Quaternion.identity;
         itemLocalObj.transform.localScale = Vector3.one;
@@ -1301,13 +1273,13 @@ public class Item_2009 : ItemBase_Gun
     {
         this.owner = owner;
         itemLocalObj_2009 = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2009").GetComponent<ItemLocalObj_2009>();
-        itemLocalObj_2009.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj_2009.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj_2009.transform.localRotation = Quaternion.identity;
         itemLocalObj_2009.transform.localPosition = Vector3.zero;
         itemLocalObj_2009.transform.localScale = Vector3.one;
 
-        itemLocalObj_2009.rightHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Right.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Right.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj_2009.rightHand.GetComponent<SpriteRenderer>().sprite = body.Tran_RightHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_RightHand.GetComponent<SpriteRenderer>().enabled = false;
 
     }
     public override void Holding_Over(ActorManager who)
@@ -1325,7 +1297,7 @@ public class Item_2009 : ItemBase_Gun
     }
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
-        gridCell.grid_Child.OpenGrid(itemData, TryInPut);
+        gridCell.grid_Child.OpenOrCloseGrid(itemData, TryInPut);
         base.LeftClickGridCell(gridCell, itemData);
     }
     /// <summary>
@@ -1479,11 +1451,11 @@ public class Item_2009 : ItemBase_Gun
         inputData.mousePosition = mouse;
         if (mouse.x >= 0)
         {
-            owner.BodyController.Hand_RightItem.right = mouse;
+            owner.BodyController.Tran_RightItemInHand.right = mouse;
         }
         if (mouse.x < 0)
         {
-            owner.BodyController.Hand_RightItem.right = -mouse;
+            owner.BodyController.Tran_RightItemInHand.right = -mouse;
         }
 
         base.UpdateMousePos(mouse);
@@ -1618,13 +1590,13 @@ public class Item_2010 : ItemBase_Gun
     {
         this.owner = owner;
         itemLocalObj_Bow = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2010").GetComponent<ItemLocalObj_Bow>();
-        itemLocalObj_Bow.transform.SetParent(body.Hand_LeftItem);
+        itemLocalObj_Bow.transform.SetParent(body.Tran_LeftItemInHand);
         itemLocalObj_Bow.transform.localRotation = Quaternion.identity;
         itemLocalObj_Bow.transform.localPosition = new Vector3(0.1f, 0, 0);
         itemLocalObj_Bow.transform.localScale = Vector3.one;
 
-        itemLocalObj_Bow.leftHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Right.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj_Bow.leftHand.GetComponent<SpriteRenderer>().sprite = body.Tran_RightHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
     }
     public override void Holding_Over(ActorManager who)
     {
@@ -1642,23 +1614,9 @@ public class Item_2010 : ItemBase_Gun
         }
         base.Holding_Over(who);
     }
-    public override void DrawGridCell(UI_GridCell gridCell)
-    {
-        gridCell.image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID.ToString());
-        gridCell.text_Name.text = itemConfig.Item_Name.ToString();
-        gridCell.text_Info.text = itemData.Item_Content.Item_Count.ToString();
-        if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
-        {
-            gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_Content.Item_ID.ToString());
-        }
-        else
-        {
-            gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        }
-    }
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
-        gridCell.grid_Child.OpenGrid(itemData, TryInPut);
+        gridCell.grid_Child.OpenOrCloseGrid(itemData, TryInPut);
         base.LeftClickGridCell(gridCell, itemData);
     }
     public ItemData TryInPut(ItemData putInItemData)
@@ -1809,28 +1767,28 @@ public class Item_2010 : ItemBase_Gun
         {
             if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
             {
-                owner.BodyController.Hand_RightItem.localPosition = new Vector3(0.5f, 0, 0);
-                owner.BodyController.Hand_RightItem.localRotation = Quaternion.Euler(0, 0, -45);
-                owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+                owner.BodyController.Tran_RightItemInHand.localPosition = new Vector3(0.5f, 0, 0);
+                owner.BodyController.Tran_RightItemInHand.localRotation = Quaternion.Euler(0, 0, -45);
+                owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
                     = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_Content.Item_ID);
             }
             else
             {
-                owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+                owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
                     = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
             }
         }
         else
         {
-            owner.BodyController.Hand_RightItem.localPosition = new Vector3(0.5f, 0, 0);
-            owner.BodyController.Hand_RightItem.localRotation = Quaternion.Euler(0, 0, -45);
-            owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+            owner.BodyController.Tran_RightItemInHand.localPosition = new Vector3(0.5f, 0, 0);
+            owner.BodyController.Tran_RightItemInHand.localRotation = Quaternion.Euler(0, 0, -45);
+            owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
                 = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + 9003);
         }
     }
     private void SubArrow()
     {
-        owner.BodyController.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+        owner.BodyController.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
     }
     /// <summary>
@@ -1879,9 +1837,9 @@ public class Item_2010 : ItemBase_Gun
     /// </summary>
     private void Shot(short bulletID, Vector3 dir, ActorManager actor)
     {
-        owner.BodyController.Hand_RightItem.DOKill();
-        owner.BodyController.Hand_RightItem.localPosition = new Vector3(0.5f, 0, 0);
-        owner.BodyController.Hand_RightItem.DOPunchPosition(new Vector3(-0.2f, 0, 0), 0.1f);
+        owner.BodyController.Tran_RightItemInHand.DOKill();
+        owner.BodyController.Tran_RightItemInHand.localPosition = new Vector3(0.5f, 0, 0);
+        owner.BodyController.Tran_RightItemInHand.DOPunchPosition(new Vector3(-0.2f, 0, 0), 0.1f);
         GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + bulletID);
         obj.transform.position = owner.SkillSector.CenterPos;
         obj.GetComponent<BulletBase>().InitBullet(dir, 10, actor.NetManager);
@@ -1966,7 +1924,7 @@ public class Item_2011 : ItemBase_Weapon
     {
         this.owner = owner;
         itemLocalObj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2011");
-        itemLocalObj.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj.transform.localPosition = Vector3.zero;
         itemLocalObj.transform.localRotation = Quaternion.identity;
         itemLocalObj.transform.localScale = Vector3.one;
@@ -2041,13 +1999,13 @@ public class Item_2012 : ItemBase_Gun
     {
         this.owner = owner;
         itemLocalObj_2012 = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2012").GetComponent<ItemLocalObj_2012>();
-        itemLocalObj_2012.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj_2012.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj_2012.transform.localRotation = Quaternion.identity;
         itemLocalObj_2012.transform.localPosition = Vector3.zero;
         itemLocalObj_2012.transform.localScale = Vector3.one;
 
-        itemLocalObj_2012.rightHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Right.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Right.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj_2012.rightHand.GetComponent<SpriteRenderer>().sprite = body.Tran_RightHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_RightHand.GetComponent<SpriteRenderer>().enabled = false;
 
     }
     public override void Holding_Over(ActorManager who)
@@ -2065,7 +2023,7 @@ public class Item_2012 : ItemBase_Gun
     }
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
-        gridCell.grid_Child.OpenGrid(itemData, TryInPut);
+        gridCell.grid_Child.OpenOrCloseGrid(itemData, TryInPut);
         base.LeftClickGridCell(gridCell, itemData);
     }
     /// <summary>
@@ -2219,11 +2177,11 @@ public class Item_2012 : ItemBase_Gun
         inputData.mousePosition = mouse;
         if (mouse.x >= 0)
         {
-            owner.BodyController.Hand_RightItem.right = mouse;
+            owner.BodyController.Tran_RightItemInHand.right = mouse;
         }
         if (mouse.x < 0)
         {
-            owner.BodyController.Hand_RightItem.right = -mouse;
+            owner.BodyController.Tran_RightItemInHand.right = -mouse;
         }
 
         base.UpdateMousePos(mouse);
@@ -2363,14 +2321,14 @@ public class Item_2013 : ItemBase_Gun
     {
         this.owner = owner;
         itemLocalObj_2013 = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2013").GetComponent<ItemLocalObj_2013>();
-        itemLocalObj_2013.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj_2013.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj_2013.transform.localPosition = Vector3.zero;
         itemLocalObj_2013.transform.localRotation = Quaternion.identity;
         itemLocalObj_2013.transform.localScale = Vector3.one;
-        itemLocalObj_2013.rightHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Right.GetComponent<SpriteRenderer>().sprite;
-        itemLocalObj_2013.leftHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Left.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
-        body.Hand_Right.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj_2013.rightHand.GetComponent<SpriteRenderer>().sprite = body.Tran_RightHand.GetComponent<SpriteRenderer>().sprite;
+        itemLocalObj_2013.leftHand.GetComponent<SpriteRenderer>().sprite = body.Tran_LeftHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
+        body.Tran_RightHand.GetComponent<SpriteRenderer>().enabled = false;
     }
     public override void Holding_Over(ActorManager who)
     {
@@ -2387,7 +2345,7 @@ public class Item_2013 : ItemBase_Gun
     }
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
-        gridCell.grid_Child.OpenGrid(itemData, TryInPut);
+        gridCell.grid_Child.OpenOrCloseGrid(itemData, TryInPut);
         base.LeftClickGridCell(gridCell, itemData);
     }
     public ItemData TryInPut(ItemData putInItemData)
@@ -2537,11 +2495,11 @@ public class Item_2013 : ItemBase_Gun
         inputData.mousePosition = mouse;
         if (mouse.x >= 0)
         {
-            owner.BodyController.Hand_RightItem.right = mouse;
+            owner.BodyController.Tran_RightItemInHand.right = mouse;
         }
         if (mouse.x < 0)
         {
-            owner.BodyController.Hand_RightItem.right = -mouse;
+            owner.BodyController.Tran_RightItemInHand.right = -mouse;
         }
 
         base.UpdateMousePos(mouse);
@@ -2680,13 +2638,13 @@ public class Item_2014 : ItemBase_Gun
     {
         this.owner = owner;
         itemLocalObj_2014 = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2014").GetComponent<ItemLocalObj_2014>();
-        itemLocalObj_2014.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj_2014.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj_2014.transform.localRotation = Quaternion.identity;
         itemLocalObj_2014.transform.localPosition = Vector3.zero;
         itemLocalObj_2014.transform.localScale = Vector3.one;
 
-        itemLocalObj_2014.rightHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Right.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Right.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj_2014.rightHand.GetComponent<SpriteRenderer>().sprite = body.Tran_RightHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_RightHand.GetComponent<SpriteRenderer>().enabled = false;
 
     }
     public override void Holding_Over(ActorManager who)
@@ -2704,7 +2662,7 @@ public class Item_2014 : ItemBase_Gun
     }
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
-        gridCell.grid_Child.OpenGrid(itemData, TryInPut);
+        gridCell.grid_Child.OpenOrCloseGrid(itemData, TryInPut);
         base.LeftClickGridCell(gridCell, itemData);
     }
     /// <summary>
@@ -2858,11 +2816,11 @@ public class Item_2014 : ItemBase_Gun
         inputData.mousePosition = mouse;
         if (mouse.x >= 0)
         {
-            owner.BodyController.Hand_RightItem.right = mouse;
+            owner.BodyController.Tran_RightItemInHand.right = mouse;
         }
         if (mouse.x < 0)
         {
-            owner.BodyController.Hand_RightItem.right = -mouse;
+            owner.BodyController.Tran_RightItemInHand.right = -mouse;
         }
 
         base.UpdateMousePos(mouse);
@@ -3001,15 +2959,15 @@ public class Item_2015 : ItemBase_Gun
     {
         this.owner = owner;
         itemLocalObj_2015 = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2015").GetComponent<ItemLocalObj_2015>();
-        itemLocalObj_2015.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj_2015.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj_2015.transform.localRotation = Quaternion.identity;
         itemLocalObj_2015.transform.localPosition = Vector3.zero;
         itemLocalObj_2015.transform.localScale = Vector3.one;
 
-        itemLocalObj_2015.rightHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Right.GetComponent<SpriteRenderer>().sprite;
-        itemLocalObj_2015.leftHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Left.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
-        body.Hand_Right.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj_2015.rightHand.GetComponent<SpriteRenderer>().sprite = body.Tran_RightHand.GetComponent<SpriteRenderer>().sprite;
+        itemLocalObj_2015.leftHand.GetComponent<SpriteRenderer>().sprite = body.Tran_LeftHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
+        body.Tran_RightHand.GetComponent<SpriteRenderer>().enabled = false;
     }
     public override void Holding_Over(ActorManager who)
     {
@@ -3026,7 +2984,7 @@ public class Item_2015 : ItemBase_Gun
     }
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
-        gridCell.grid_Child.OpenGrid(itemData, TryInPut);
+        gridCell.grid_Child.OpenOrCloseGrid(itemData, TryInPut);
         base.LeftClickGridCell(gridCell, itemData);
     }
     public ItemData TryInPut(ItemData putInItemData)
@@ -3181,11 +3139,11 @@ public class Item_2015 : ItemBase_Gun
         inputData.mousePosition = mouse;
         if (mouse.x >= 0)
         {
-            owner.BodyController.Hand_RightItem.right = mouse;
+            owner.BodyController.Tran_RightItemInHand.right = mouse;
         }
         if (mouse.x < 0)
         {
-            owner.BodyController.Hand_RightItem.right = -mouse;
+            owner.BodyController.Tran_RightItemInHand.right = -mouse;
         }
 
         base.UpdateMousePos(mouse);
@@ -3329,14 +3287,14 @@ public class Item_2016 : ItemBase_Gun
     {
         this.owner = owner;
         itemLocalObj_2016 = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2016").GetComponent<ItemLocalObj_2016>();
-        itemLocalObj_2016.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj_2016.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj_2016.transform.localPosition = Vector3.zero;
         itemLocalObj_2016.transform.localRotation = Quaternion.identity;
         itemLocalObj_2016.transform.localScale = Vector3.one;
-        itemLocalObj_2016.rightHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Right.GetComponent<SpriteRenderer>().sprite;
-        itemLocalObj_2016.leftHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Left.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
-        body.Hand_Right.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj_2016.rightHand.GetComponent<SpriteRenderer>().sprite = body.Tran_RightHand.GetComponent<SpriteRenderer>().sprite;
+        itemLocalObj_2016.leftHand.GetComponent<SpriteRenderer>().sprite = body.Tran_LeftHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
+        body.Tran_RightHand.GetComponent<SpriteRenderer>().enabled = false;
     }
     public override void Holding_Over(ActorManager who)
     {
@@ -3353,7 +3311,7 @@ public class Item_2016 : ItemBase_Gun
     }
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
-        gridCell.grid_Child.OpenGrid(itemData, TryInPut);
+        gridCell.grid_Child.OpenOrCloseGrid(itemData, TryInPut);
         base.LeftClickGridCell(gridCell, itemData);
     }
     /// <summary>
@@ -3507,11 +3465,11 @@ public class Item_2016 : ItemBase_Gun
         inputData.mousePosition = mouse;
         if (mouse.x >= 0)
         {
-            owner.BodyController.Hand_RightItem.right = mouse;
+            owner.BodyController.Tran_RightItemInHand.right = mouse;
         }
         if (mouse.x < 0)
         {
-            owner.BodyController.Hand_RightItem.right = -mouse;
+            owner.BodyController.Tran_RightItemInHand.right = -mouse;
         }
 
         base.UpdateMousePos(mouse);
@@ -3651,14 +3609,14 @@ public class Item_2017 : ItemBase_Gun
     {
         this.owner = owner;
         itemLocalObj_2017 = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2017").GetComponent<ItemLocalObj_2017>();
-        itemLocalObj_2017.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj_2017.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj_2017.transform.localPosition = Vector3.zero;
         itemLocalObj_2017.transform.localRotation = Quaternion.identity;
         itemLocalObj_2017.transform.localScale = Vector3.one;
-        itemLocalObj_2017.rightHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Right.GetComponent<SpriteRenderer>().sprite;
-        itemLocalObj_2017.leftHand.GetComponent<SpriteRenderer>().sprite = body.Hand_Left.GetComponent<SpriteRenderer>().sprite;
-        body.Hand_Left.GetComponent<SpriteRenderer>().enabled = false;
-        body.Hand_Right.GetComponent<SpriteRenderer>().enabled = false;
+        itemLocalObj_2017.rightHand.GetComponent<SpriteRenderer>().sprite = body.Tran_RightHand.GetComponent<SpriteRenderer>().sprite;
+        itemLocalObj_2017.leftHand.GetComponent<SpriteRenderer>().sprite = body.Tran_LeftHand.GetComponent<SpriteRenderer>().sprite;
+        body.Tran_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
+        body.Tran_RightHand.GetComponent<SpriteRenderer>().enabled = false;
     }
     public override void Holding_Over(ActorManager who)
     {
@@ -3675,7 +3633,7 @@ public class Item_2017 : ItemBase_Gun
     }
     public override void LeftClickGridCell(UI_GridCell gridCell, ItemData itemData)
     {
-        gridCell.grid_Child.OpenGrid(itemData, TryInPut);
+        gridCell.grid_Child.OpenOrCloseGrid(itemData, TryInPut);
         base.LeftClickGridCell(gridCell, itemData);
     }
     public ItemData TryInPut(ItemData putInItemData)
@@ -3825,11 +3783,11 @@ public class Item_2017 : ItemBase_Gun
         inputData.mousePosition = mouse;
         if (mouse.x >= 0)
         {
-            owner.BodyController.Hand_RightItem.right = mouse;
+            owner.BodyController.Tran_RightItemInHand.right = mouse;
         }
         if (mouse.x < 0)
         {
-            owner.BodyController.Hand_RightItem.right = -mouse;
+            owner.BodyController.Tran_RightItemInHand.right = -mouse;
         }
 
         base.UpdateMousePos(mouse);
@@ -3964,7 +3922,7 @@ public class Item_2018 : ItemBase_Tool
     {
         this.owner = owner;
         itemLocalObj = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2018");
-        itemLocalObj.transform.SetParent(body.Hand_RightItem);
+        itemLocalObj.transform.SetParent(body.Tran_RightItemInHand);
         itemLocalObj.transform.localPosition = Vector3.zero;
         itemLocalObj.transform.localRotation = Quaternion.identity;
         itemLocalObj.transform.localScale = Vector3.one;

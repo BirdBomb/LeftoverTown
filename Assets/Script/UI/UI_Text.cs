@@ -12,7 +12,7 @@ public class UI_Text : MonoBehaviour
     bool show = false;
     private void Start()
     {
-        MessageBroker.Default.Receive<UIEvent.UIEvent_ShowTextUI>().Subscribe(_ =>
+        MessageBroker.Default.Receive<UIEvent.UIEvent_ShowGlobalTextUI>().Subscribe(_ =>
         {
             ShowText(_.text);
         }).AddTo(this);

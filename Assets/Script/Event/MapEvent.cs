@@ -14,6 +14,10 @@ public class MapEvent : MonoBehaviour
         /// </summary>
         public Vector3Int playerPos;
         /// <summary>
+        /// 地图尺寸
+        /// </summary>
+        public int mapSize;
+        /// <summary>
         /// 角色引用
         /// </summary>
         public PlayerRef playerRef;

@@ -3,23 +3,28 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class UI_Grid_Bag : UI_Grid
 {
     [SerializeField, Header("±³°ü²ÛÎ»")]
     private List<UI_GridCell> _bagCellList = new List<UI_GridCell>();
-    private List<ItemData> _bagItemDataList = new List<ItemData>();
-
+    [SerializeField, Header("±³°üËø")]
+    private List<Image> images_bagLockList = new List<Image>();
+    private List<ItemData> itemDatas_bagItemDataList = new List<ItemData>();
+    private int _bagCapacity;
     private void Start()
     {
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
         {
-            _bagItemDataList.Clear();
+            _bagCapacity = _.bagCapacity;
+            itemDatas_bagItemDataList.Clear();
             for (int i = 0; i < _.itemDatas.Count; i++)
             {
-                _bagItemDataList.Add(_.itemDatas[i]);
+                itemDatas_bagItemDataList.Add(_.itemDatas[i]);
             }
             BagUpdateItem();
+            BagDrawEveryLock();
 
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
@@ -38,15 +43,30 @@ public class UI_Grid_Bag : UI_Grid
     {
         for (int i = 0; i < _bagCellList.Count; i++)
         {
-            if (i < _bagItemDataList.Count)
+            if (i < itemDatas_bagItemDataList.Count)
             {
-                DrawCell(_bagCellList[i], _bagItemDataList[i]);
+                DrawCell(_bagCellList[i], itemDatas_bagItemDataList[i]);
             }
             else
             {
                 ResetCell(_bagCellList[i]);
             }
         }
+    }
+    private void BagDrawEveryLock()
+    {
+        for (int i = 0; i < images_bagLockList.Count; i++)
+        {
+            if (i < _bagCapacity)
+            {
+                images_bagLockList[i].enabled = false;
+            }
+            else
+            {
+                images_bagLockList[i].enabled = true;
+            }
+        }
+
     }
     private void ResetCell(UI_GridCell cell)
     {

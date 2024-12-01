@@ -101,10 +101,40 @@ public static class UIEvent
         public int Fine;
     }
     /// <summary>
-    /// 显示文字
+    /// 添加buff
     /// </summary>
-    public class UIEvent_ShowTextUI
+    public class UIEvent_AddBuff
+    {
+        public BuffConfig buffConfig;
+    }
+    /// <summary>
+    /// 移除buff
+    /// </summary>
+    public class UIEvent_SubBuff
+    {
+        public BuffConfig buffConfig;
+    }
+    /// <summary>
+    /// 显示信息文字
+    /// </summary>
+    public class UIEvent_ShowInfoTextUI
+    {
+        public Vector2 anchor;
+        public string text;
+    }
+    /// <summary>
+    /// 隐藏文字信息
+    /// </summary>
+    public class UIEvent_HidenfoTextUI
+    {
+
+    }
+    /// <summary>
+    /// 显示全局文字
+    /// </summary>
+    public class UIEvent_ShowGlobalTextUI
     {
         public string text;
     }
+
 }

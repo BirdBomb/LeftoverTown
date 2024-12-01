@@ -7,13 +7,13 @@ public class TileObj_Painting : TileObj
     public SpriteRenderer tileSprite;
     public Sprite[] randomSprites;
     #region//»æÖÆ
-    public override void Draw()
+    public override void Draw(int seed)
     {
         if (randomSprites.Length > 0)
         {
             tileSprite.sprite = randomSprites[new System.Random().Next(0, randomSprites.Length)];
         }
-        base.Draw();
+        base.Draw(seed);
     }
     #endregion
 }

@@ -2,23 +2,202 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public partial class BuffSystem 
+public partial class BuffSystem
 {
 }
+/// <summary>
+/// 睡觉
+/// </summary>
+public class Buff100 : BuffBase 
+{
+    public override void Listen_AddOnActor(ActorManager actor)
+    {
+        Debug.Log("睡觉");
+        actor.BodyController.HideActor();
+        base.Listen_AddOnActor(actor);
+    }
+    public override void Listen_SubFromActor(ActorManager actor)
+    {
+        Debug.Log("醒来");
+        actor.BodyController.ShowActor();
+        foreach(MyTile tile in actor.Tool_GetNearbyTiles(ActorManager.NearByMean.EightSide))
+        {
+            if (tile.bindObj)
+            {
+                if (tile.bindObj.TryGetComponent(out TileObj_Bed bed))
+                {
+                    bed.GetUpOnBed(actor);
+                }
+            }
+            else
+            {
+
+            }
+        };
+        base.Listen_SubFromActor(actor);
+    }
+    public override void Listen_MyselfMove(ActorManager actor)
+    {
+        actor.NetManager.RPC_LocalInput_SubBuff(100);
+        base.Listen_MyselfMove(actor);
+    }
+}
+/// <summary>
+/// 坐下
+/// </summary>
+public class Buff101 : BuffBase
+{
+
+}
+/// <summary>
+/// 体弱无力
+/// </summary>
+public class Buff8000 : BuffBase
+{
+    public override void Listen_AddOnPlayerCreation(ref PlayerData data)
+    {
+        data.Point_Strength -= 1;
+        base.Listen_AddOnPlayerCreation(ref data);
+    }
+    public override void Listen_SubOnPlayerCreation(ref PlayerData data)
+    {
+        data.Point_Strength += 1;
+        base.Listen_SubOnPlayerCreation(ref data);
+    }
+}
+/// <summary>
+/// 小个子
+/// </summary>
+public class Buff8001 : BuffBase
+{
+    public override void Listen_AddOnPlayerCreation(ref PlayerData data)
+    {
+        data.Point_Strength -= 2;
+        data.Point_Agility += 1;
+        base.Listen_AddOnPlayerCreation(ref data);
+    }
+    public override void Listen_SubOnPlayerCreation(ref PlayerData data)
+    {
+        data.Point_Strength += 2;
+        data.Point_Agility -= 1;
+        base.Listen_SubOnPlayerCreation(ref data);
+    }
+}
+/// <summary>
+/// 发散思维
+/// </summary>
+public class Buff8002 : BuffBase
+{
+    public override void Listen_AddOnPlayerCreation(ref PlayerData data)
+    {
+        data.Point_Focus -= 2;
+        data.Point_Intelligence += 1;
+        base.Listen_AddOnPlayerCreation(ref data);
+    }
+    public override void Listen_SubOnPlayerCreation(ref PlayerData data)
+    {
+        data.Point_Focus += 2;
+        data.Point_Intelligence -= 1;
+        base.Listen_SubOnPlayerCreation(ref data);
+    }
+}
+/// <summary>
+/// 笨手笨脚
+/// </summary>
+public class Buff8003 : BuffBase
+{
+    public override void Listen_AddOnPlayerCreation(ref PlayerData data)
+    {
+        data.Point_Agility -= 2;
+        base.Listen_AddOnPlayerCreation(ref data);
+    }
+    public override void Listen_SubOnPlayerCreation(ref PlayerData data)
+    {
+        data.Point_Agility += 2;
+        base.Listen_SubOnPlayerCreation(ref data);
+    }
+}
+/// <summary>
+/// 高代谢
+/// </summary>
+public class Buff8004 : BuffBase
+{
+}
+/// <summary>
+/// 抑郁症
+/// </summary>
+public class Buff8005 : BuffBase
+{
+}
+/// <summary>
+/// 挑食
+/// </summary>
+public class Buff8006 : BuffBase
+{
+}
+/// <summary>
+/// 味觉失灵
+/// </summary>
+public class Buff8007 : BuffBase
+{
+}
+/// <summary>
+/// 悲天悯人
+/// </summary>
+public class Buff8008 : BuffBase
+{
+}
+/// <summary>
+/// 喷嚏王
+/// </summary>
+public class Buff8009 : BuffBase
+{
+}
+/// <summary>
+/// 不像好人
+/// </summary>
+public class Buff8010 : BuffBase
+{
+}
+/// <summary>
+/// 通缉犯
+/// </summary>
+public class Buff8011 : BuffBase
+{
+}
+/// <summary>
+/// 小笨嘴
+/// </summary>
+public class Buff8012 : BuffBase
+{
+}
+/// <summary>
+/// 负债累累
+/// </summary>
+public class Buff8013 : BuffBase
+{
+}
+/// <summary>
+/// 铁公鸡
+/// </summary>
+public class Buff8014 : BuffBase
+{
+}
+
 /// <summary>
 /// 身强力壮
 /// </summary>
 public class Buff9000:BuffBase
 {
-    public override void AddWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_AddOnPlayerCreation(ref PlayerData data)
     {
         data.Point_Strength += 1;
-        base.AddWhenCreatePlayer(ref data);
+        base.Listen_AddOnPlayerCreation(ref data);
     }
-    public override void SubWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_SubOnPlayerCreation(ref PlayerData data)
     {
         data.Point_Strength -= 1;
-        base.SubWhenCreatePlayer(ref data);
+        base.Listen_SubOnPlayerCreation(ref data);
     }
 }
 /// <summary>
@@ -26,17 +205,17 @@ public class Buff9000:BuffBase
 /// </summary>
 public class Buff9001 : BuffBase
 {
-    public override void AddWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_AddOnPlayerCreation(ref PlayerData data)
     {
         data.Point_Strength += 2;
         data.Point_Agility -= 1;
-        base.AddWhenCreatePlayer(ref data);
+        base.Listen_AddOnPlayerCreation(ref data);
     }
-    public override void SubWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_SubOnPlayerCreation(ref PlayerData data)
     {
         data.Point_Strength -= 2;
         data.Point_Agility += 1;
-        base.SubWhenCreatePlayer(ref data);
+        base.Listen_SubOnPlayerCreation(ref data);
     }
 }
 /// <summary>
@@ -44,15 +223,15 @@ public class Buff9001 : BuffBase
 /// </summary>
 public class Buff9002 : BuffBase
 {
-    public override void AddWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_AddOnPlayerCreation(ref PlayerData data)
     {
         data.Point_Focus += 1;
-        base.AddWhenCreatePlayer(ref data);
+        base.Listen_AddOnPlayerCreation(ref data);
     }
-    public override void SubWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_SubOnPlayerCreation(ref PlayerData data)
     {
         data.Point_Focus -= 1;
-        base.SubWhenCreatePlayer(ref data);
+        base.Listen_SubOnPlayerCreation(ref data);
     }
 }
 /// <summary>
@@ -60,17 +239,17 @@ public class Buff9002 : BuffBase
 /// </summary>
 public class Buff9003 : BuffBase
 {
-    public override void AddWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_AddOnPlayerCreation(ref PlayerData data)
     {
         data.Point_Intelligence += 2;
         data.Point_Focus -= 1;
-        base.AddWhenCreatePlayer(ref data);
+        base.Listen_AddOnPlayerCreation(ref data);
     }
-    public override void SubWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_SubOnPlayerCreation(ref PlayerData data)
     {
         data.Point_Intelligence -= 2;
         data.Point_Focus += 1;
-        base.SubWhenCreatePlayer(ref data);
+        base.Listen_SubOnPlayerCreation(ref data);
     }
 }
 /// <summary>
@@ -78,15 +257,15 @@ public class Buff9003 : BuffBase
 /// </summary>
 public class Buff9004 : BuffBase
 {
-    public override void AddWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_AddOnPlayerCreation(ref PlayerData data)
     {
         data.Point_Agility += 1;
-        base.AddWhenCreatePlayer(ref data);
+        base.Listen_AddOnPlayerCreation(ref data);
     }
-    public override void SubWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_SubOnPlayerCreation(ref PlayerData data)
     {
         data.Point_Agility -= 1;
-        base.SubWhenCreatePlayer(ref data);
+        base.Listen_SubOnPlayerCreation(ref data);
     }
 }
 /// <summary>
@@ -108,10 +287,10 @@ public class Buff9006 : BuffBase
 /// </summary>
 public class Buff9007 : BuffBase
 {
-    public override void AddWhenCreatePlayer(ref PlayerData data)
+    public override void Listen_AddOnPlayerCreation(ref PlayerData data)
     {
         data.Armor += 1;
-        base.AddWhenCreatePlayer(ref data);
+        base.Listen_AddOnPlayerCreation(ref data);
     }
 }
 /// <summary>
@@ -189,137 +368,3 @@ public class Buff9019 : BuffBase
 }
 
 
-/// <summary>
-/// 体弱无力
-/// </summary>
-public class Buff8000 : BuffBase
-{
-    public override void AddWhenCreatePlayer(ref PlayerData data)
-    {
-        data.Point_Strength -= 1;
-        base.AddWhenCreatePlayer(ref data);
-    }
-    public override void SubWhenCreatePlayer(ref PlayerData data)
-    {
-        data.Point_Strength += 1;
-        base.SubWhenCreatePlayer(ref data);
-    }
-}
-/// <summary>
-/// 小个子
-/// </summary>
-public class Buff8001 : BuffBase
-{
-    public override void AddWhenCreatePlayer(ref PlayerData data)
-    {
-        data.Point_Strength -= 2;
-        data.Point_Agility += 1;
-        base.AddWhenCreatePlayer(ref data);
-    }
-    public override void SubWhenCreatePlayer(ref PlayerData data)
-    {
-        data.Point_Strength += 2;
-        data.Point_Agility -= 1;
-        base.SubWhenCreatePlayer(ref data);
-    }
-}
-/// <summary>
-/// 发散思维
-/// </summary>
-public class Buff8002 : BuffBase
-{
-    public override void AddWhenCreatePlayer(ref PlayerData data)
-    {
-        data.Point_Focus -= 2;
-        data.Point_Intelligence += 1;
-        base.AddWhenCreatePlayer(ref data);
-    }
-    public override void SubWhenCreatePlayer(ref PlayerData data)
-    {
-        data.Point_Focus += 2;
-        data.Point_Intelligence -= 1;
-        base.SubWhenCreatePlayer(ref data);
-    }
-}
-/// <summary>
-/// 笨手笨脚
-/// </summary>
-public class Buff8003 : BuffBase
-{
-    public override void AddWhenCreatePlayer(ref PlayerData data)
-    {
-        data.Point_Agility -= 2;
-        base.AddWhenCreatePlayer(ref data);
-    }
-    public override void SubWhenCreatePlayer(ref PlayerData data)
-    {
-        data.Point_Agility += 2;
-        base.SubWhenCreatePlayer(ref data);
-    }
-}
-/// <summary>
-/// 高代谢
-/// </summary>
-public class Buff8004 : BuffBase
-{
-}
-/// <summary>
-/// 抑郁症
-/// </summary>
-public class Buff8005 : BuffBase
-{
-}
-/// <summary>
-/// 挑食
-/// </summary>
-public class Buff8006 : BuffBase
-{
-}
-/// <summary>
-/// 味觉失灵
-/// </summary>
-public class Buff8007 : BuffBase
-{
-}
-/// <summary>
-/// 悲天悯人
-/// </summary>
-public class Buff8008 : BuffBase
-{
-}
-/// <summary>
-/// 喷嚏王
-/// </summary>
-public class Buff8009 : BuffBase
-{
-}
-/// <summary>
-/// 不像好人
-/// </summary>
-public class Buff8010 : BuffBase
-{
-}
-/// <summary>
-/// 通缉犯
-/// </summary>
-public class Buff8011 : BuffBase
-{
-}
-/// <summary>
-/// 小笨嘴
-/// </summary>
-public class Buff8012 : BuffBase
-{
-}
-/// <summary>
-/// 负债累累
-/// </summary>
-public class Buff8013 : BuffBase
-{
-}
-/// <summary>
-/// 铁公鸡
-/// </summary>
-public class Buff8014 : BuffBase
-{
-}

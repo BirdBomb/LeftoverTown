@@ -20,7 +20,7 @@ public class FloorConfigData : MonoBehaviour
         new FloorConfig(){ Floor_ID = 1003,Floor_Name ="石砖路",
             Floor_SpriteName ="RockRoad",Floor_FileName ="RockRoad",Floor_RawLevel = 1,
             Floor_Raw=new List<FloorRaw>(){ new FloorRaw(1001,2),new FloorRaw(2001,1) } },
-        new FloorConfig(){ Floor_ID = 1004,Floor_Name ="荒地RedPlushCarpet",
+        new FloorConfig(){ Floor_ID = 1004,Floor_Name ="荒地",
             Floor_SpriteName ="Ground",Floor_FileName ="Ground",Floor_RawLevel = 1,
             Floor_Raw=new List<FloorRaw>(){ new FloorRaw(1001,2),new FloorRaw(2001,1) } },
         new FloorConfig(){ Floor_ID = 1005,Floor_Name ="红绒地毯",
@@ -28,6 +28,9 @@ public class FloorConfigData : MonoBehaviour
             Floor_Raw=new List<FloorRaw>(){ new FloorRaw(1001,2),new FloorRaw(2001,1) } },
         new FloorConfig(){ Floor_ID = 1006,Floor_Name ="水泥路",
             Floor_SpriteName ="Concrete",Floor_FileName ="Concrete",Floor_RawLevel = 1,
+            Floor_Raw=new List<FloorRaw>(){ new FloorRaw(1001,2),new FloorRaw(2001,1) } },
+        new FloorConfig(){ Floor_ID = 1007,Floor_Name ="水",
+            Floor_SpriteName ="Water",Floor_FileName ="Water",Floor_RawLevel = 1,
             Floor_Raw=new List<FloorRaw>(){ new FloorRaw(1001,2),new FloorRaw(2001,1) } },
     };
 

@@ -11,6 +11,7 @@ using UnityEngine.EventSystems;
 public class UI_Grid_Child : UI_Grid
 {
     public UI_GridCell cell;
+    public bool _open;
     /// <summary>
     /// ¾ÉÈÝÆ÷
     /// </summary>
@@ -20,18 +21,31 @@ public class UI_Grid_Child : UI_Grid
     /// </summary>
     private ItemData newContainerData;
     private Func<ItemData, ItemData> tryToPutIn;
+    public void OpenOrCloseGrid(ItemData oldContainer, Func<ItemData, ItemData> cal)
+    {
+        if (_open)
+        {
+            CloseGrid();
+        }
+        else
+        {
+            OpenGrid(oldContainer, cal);
+        }
+    }
     public void OpenGrid(ItemData oldContainer, Func<ItemData,ItemData> cal)
     {
-        gameObject.SetActive(true);
         oldContainerData = oldContainer;
+        _open = true;
+        gameObject.SetActive(true);
         tryToPutIn = cal;
-        DrawCell();
+        DrawCell(oldContainerData);
     }
-    public void Close()
+    public void CloseGrid()
     {
+        _open = false;
         gameObject.SetActive(false);
-        cell.ResetGridCell();
         tryToPutIn = null;
+        ResetCell();
     }
     public override void PutIn(ItemData putInItem, out ItemData residueItem)
     {
@@ -45,9 +59,9 @@ public class UI_Grid_Child : UI_Grid
         }
     }
 
-    public void DrawCell()
+    public void DrawCell(ItemData itemData)
     {
-        ItemData itemInContainer = new ItemData(oldContainerData.Item_Content);
+        ItemData itemInContainer = new ItemData(itemData.Item_Content);
         if (itemInContainer.Item_ID != 0 && itemInContainer.Item_Count > 0)
         {
             cell.UpdateGridCell(itemInContainer);
@@ -57,6 +71,10 @@ public class UI_Grid_Child : UI_Grid
         {
             cell.ResetGridCell();
         }
+    }
+    public void ResetCell()
+    {
+        cell.ResetGridCell();
     }
     public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
     {

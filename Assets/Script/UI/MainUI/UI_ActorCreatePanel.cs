@@ -216,7 +216,7 @@ public class UI_ActorCreatePanel : MonoBehaviour
     {
         Type type = Type.GetType("Buff" + buff.Buff_ID.ToString());
         BuffBase buffLogic = (BuffBase)Activator.CreateInstance(type);
-        buffLogic.AddWhenCreatePlayer(ref playerData);
+        buffLogic.Listen_AddOnPlayerCreation(ref playerData);
         UpdatePointPanel();
 
         playerData.BuffList.Add(buff.Buff_ID);
@@ -235,7 +235,7 @@ public class UI_ActorCreatePanel : MonoBehaviour
     {
         Type type = Type.GetType("Buff" + buff.Buff_ID.ToString());
         BuffBase buffLogic = (BuffBase)Activator.CreateInstance(type);
-        buffLogic.SubWhenCreatePlayer(ref playerData);
+        buffLogic.Listen_SubOnPlayerCreation(ref playerData);
         UpdatePointPanel();
 
 

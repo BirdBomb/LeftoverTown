@@ -119,23 +119,34 @@ public class MyTile : UnityEngine.Tilemaps.Tile
     /// <summary>
     /// ¿¿½üÍßÆ¬
     /// </summary>
-    public virtual bool NearbyTileByPlayer(PlayerController who)
+    public virtual bool NearbyTileByActor(ActorManager who)
     {
         if (bindObj && bindObj.TryGetComponent(out TileObj obj))
         {
-            return obj.PlayerNearby(who);
+            return obj.ActorNearby(who);
         }
         return false;
+    }
+    /// <summary>
+    /// Õ¾ÔÚÍßÆ¬ÉÏ
+    /// </summary>
+    /// <param name="who"></param>
+    public virtual void StandOnTileByActor(ActorManager who)
+    {
+        if (bindObj && bindObj.TryGetComponent(out TileObj obj))
+        {
+            obj.ActorStandOn(who);
+        }
     }
     /// <summary>
     /// Ô¶ÀëÍßÆ¬
     /// </summary>
     /// <returns></returns>
-    public virtual bool FarawayTileByPlayer(PlayerController who)
+    public virtual bool FarawayTileByActor(ActorManager who)
     {
         if (bindObj && bindObj.TryGetComponent(out TileObj obj))
         {
-            return obj.PlayerFaraway(who);
+            return obj.ActorFaraway(who);
         }
         return false;
     }

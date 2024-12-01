@@ -419,7 +419,7 @@ public class ActorNetManager : NetworkBehaviour
     public NetworkLinkedList<short> Data_SkillUse { get; }
     public void OnBuffsChange()
     {
-
+        LocalManager.AllClient_UpdateBuff(Data_Buffs);
     }
     public void OnSkillKnowChange()
     {
@@ -771,9 +771,15 @@ public class ActorNetManager : NetworkBehaviour
     #endregion
     #region//Buff操作
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_LocalInput_AddBuff(short buffID)
+    public void RPC_LocalInput_AddBuff(short buffID,string param)
     {
         Data_Buffs.Add(buffID);
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_LocalInput_SubBuff(short buffID)
+    {
+        Data_Buffs.Remove(buffID);
+        LocalManager.AllClient_RemoveBuff(buffID);
     }
 
     #endregion
@@ -872,7 +878,7 @@ public class ActorNetManager : NetworkBehaviour
     /// <summary>
     /// 本地端发送表情
     /// </summary>
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_LocalInput_SendEmoji(int id)
     {
         LocalManager.AllClient_SendEmoji(id);
@@ -881,7 +887,7 @@ public class ActorNetManager : NetworkBehaviour
     /// RPC:本地端拾起物品
     /// </summary>
     /// <param name="id"></param>
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_LocalInput_PickItem(NetworkId id)
     {
         void OnlyState_PickItem(string val)

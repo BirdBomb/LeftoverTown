@@ -10,7 +10,7 @@ using UnityEngine.EventSystems;
 public class UI_Grid_Cabinet : UI_Grid
 {
     [SerializeField,Header("格子列表")]
-    private List<UI_GridCell> cellList = new List<UI_GridCell>();
+    private List<UI_GridCell> gridCell_List = new List<UI_GridCell>();
     private List<ItemData> itemDataList = new List<ItemData>();
     private TileObj bindTileObj;
     public void Start()
@@ -136,15 +136,15 @@ public class UI_Grid_Cabinet : UI_Grid
     /// </summary>
     private void DrawEveryCell()
     {
-        for (int i = 0; i < cellList.Count; i++)
+        for (int i = 0; i < gridCell_List.Count; i++)
         {
             if (i < itemDataList.Count)
             {
-                DrawCell(itemDataList[i], cellList[i]);
+                DrawCell(itemDataList[i], gridCell_List[i]);
             }
             else
             {
-                ResetCell(cellList[i]);
+                ResetCell(gridCell_List[i]);
             }
         }
     }
@@ -183,7 +183,7 @@ public class UI_Grid_Cabinet : UI_Grid
         ItemData resData = before;
         if (config.Item_Size == ItemSize.AsGroup)
         {
-            for (int i = 0; i < cellList.Count; i++)
+            for (int i = 0; i < gridCell_List.Count; i++)
             {
                 if (itemDataList.Count > i)
                 {
@@ -209,7 +209,7 @@ public class UI_Grid_Cabinet : UI_Grid
         }
         else
         {
-            if (itemDataList.Count < cellList.Count)
+            if (itemDataList.Count < gridCell_List.Count)
             {
                 ItemData emptyData = resData;
                 emptyData.Item_Count = 0;

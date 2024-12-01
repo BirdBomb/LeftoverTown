@@ -11,7 +11,7 @@ public class TileObj_Billboard : TileObj
     {
         if (code == KeyCode.F)
         {
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_ShowTextUI()
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_ShowGlobalTextUI()
             {
                 text = info
             });

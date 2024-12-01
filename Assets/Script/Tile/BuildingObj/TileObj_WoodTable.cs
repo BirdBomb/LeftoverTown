@@ -9,38 +9,38 @@ public class TileObj_WoodTable : TileObj
     [SerializeField]
     private SpriteRenderer spriteRenderer;
     [SerializeField]
-    private Sprite Desk_Single;
+    private Sprite Table_Single;
     [SerializeField]
-    private Sprite Desk_Middle;
+    private Sprite Table_Middle;
     [SerializeField]
-    private Sprite Desk_Left;
+    private Sprite Table_Left;
     [SerializeField]
-    private Sprite Desk_Right;
+    private Sprite Table_Right;
 
-    public override void Draw()
+    public override void Draw(int seed)
     {
-        CheckAround("WoodTable", true);
-        base.Draw();
+        CheckAroundBuilding_FourSide("WoodTable");
+        base.Draw(seed);
     }
-    public override void LinkAround(LinkState linkState, TileObj linkToUp, TileObj linkToDown, TileObj linkToLeft, TileObj linkToRight)
+    public override void LinkAround(AroundState_FourSide aroundState)
     {
-        if (linkState == LinkState.NoneSide || linkState == LinkState.OneSide_Down || linkState == LinkState.OneSide_Up || linkState == LinkState.TwoSide_UpDown)
+        if (aroundState.Left && aroundState.Right)
         {
-            spriteRenderer.sprite = Desk_Middle;
+            spriteRenderer.sprite = Table_Middle;
         }
-        else if (linkState == LinkState.ThreeSide_LeftMissing || linkState == LinkState.OneSide_Right || linkState == LinkState.TwoSide_DownRight || linkState == LinkState.TwoSide_UpRight)
+        else if (aroundState.Left)
         {
-            spriteRenderer.sprite = Desk_Right;
+            spriteRenderer.sprite = Table_Left;
         }
-        else if (linkState == LinkState.ThreeSide_RightMissing || linkState == LinkState.OneSide_Left || linkState == LinkState.TwoSide_DownLeft || linkState == LinkState.TwoSide_UpLeft)
+        else if (aroundState.Right)
         {
-            spriteRenderer.sprite = Desk_Left;
+            spriteRenderer.sprite = Table_Right;
         }
         else
         {
-            spriteRenderer.sprite = Desk_Single;
+            spriteRenderer.sprite = Table_Single;
         }
-        base.LinkAround(linkState, linkToUp, linkToDown, linkToLeft, linkToRight);
+        base.LinkAround(aroundState);
     }
     #endregion
 }

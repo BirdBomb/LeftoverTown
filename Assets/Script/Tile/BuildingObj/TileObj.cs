@@ -27,7 +27,6 @@ public class TileObj : MonoBehaviour
     public virtual void Start()
     {
         Init();
-        Draw();
     }
     /// <summary>
     /// 绑定
@@ -47,7 +46,7 @@ public class TileObj : MonoBehaviour
     /// <summary>
     /// 绘制
     /// </summary>
-    public virtual void Draw()
+    public virtual void Draw(int seed)
     {
 
     }
@@ -140,18 +139,25 @@ public class TileObj : MonoBehaviour
 
     }
     /// <summary>
-    /// 玩家靠近
+    /// 角色靠近
     /// </summary>
     /// <returns></returns>
-    public virtual bool PlayerNearby(PlayerController player)
+    public virtual bool ActorNearby(ActorManager actor)
     {
         return false;
     }
     /// <summary>
-    /// 玩家远离
+    /// 角色站在
+    /// </summary>
+    public virtual void ActorStandOn(ActorManager actor)
+    {
+
+    }
+    /// <summary>
+    /// 角色远离
     /// </summary>
     /// <returns></returns>
-    public virtual bool PlayerFaraway(PlayerController player)
+    public virtual bool ActorFaraway(ActorManager actor)
     {
         return false;
     }
@@ -178,159 +184,432 @@ public class TileObj : MonoBehaviour
     #region//瓦片连接
     [HideInInspector]
     public bool linkAlready = false;
+
     /// <summary>
-    /// 检查周围
+    /// 检查周围同名建筑(八方向)
     /// </summary>
-    /// <param name="targetTileNames">目标格子名字</param>
-    /// <param name="updateTargetTile">是否更新周围格子</param>
-    public virtual void CheckAround(List<string> targetTileNames, bool updateTargetTile)
+    /// <param name="targetName"></param>
+    public virtual void CheckAroundBuilding_EightSide(string targetName)
     {
-        int linkState = 0;
-        bool left = false;
-        bool right = false;
-        bool up = false;
-        bool down = false;
+        AroundState_EightSide aroundState = new AroundState_EightSide();
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
         {
-            if (targetTileNames.Contains(tileObjUp.bindTile.name))
+            if (tileObjUp.bindTile.name.Equals(targetName))
             {
-                up = true;
-                if (updateTargetTile)
-                {
-                    tileObjUp.CheckAround(targetTileNames, false);
-                }
+                aroundState.Up = true;
             }
         }
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
         {
-            if (targetTileNames.Contains(tileObjDown.bindTile.name))
+            if (tileObjDown.bindTile.name.Equals(targetName))
             {
-                down = true;
-                if (updateTargetTile)
-                {
-                    tileObjDown.CheckAround(targetTileNames, false);
-                }
+                aroundState.Down = true;
             }
         }
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
         {
-            if (targetTileNames.Contains(tileObjLeft.bindTile.name))
+            if (tileObjLeft.bindTile.name.Equals(targetName))
             {
-                left = true;
-                if (updateTargetTile)
-                {
-                    tileObjLeft.CheckAround(targetTileNames, false);
-                }
+                aroundState.Left = true;
             }
         }
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
         {
-            if (targetTileNames.Contains(tileObjRight.bindTile.name))
+            if (tileObjRight.bindTile.name.Equals(targetName))
             {
-                right = true;
-                if (updateTargetTile)
-                {
-                    tileObjRight.CheckAround(targetTileNames, false);
-                }
+                aroundState.Right = true;
             }
         }
-        if (up) { linkState += 8; }
-        else { linkState += 0; }
-        if (down) { linkState += 4; }
-        else { linkState += 0; }
-        if (left) { linkState += 2; }
-        else { linkState += 0; }
-        if (right) { linkState += 1; }
-        else { linkState += 0; }
-        LinkAround((LinkState)linkState, tileObjUp, tileObjDown, tileObjLeft, tileObjRight);
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up + Vector3Int.left, out TileObj tileObjUpLeft))
+        {
+            if (tileObjUpLeft.bindTile.name.Equals(targetName))
+            {
+                aroundState.UpLeft = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up + Vector3Int.right, out TileObj tileObjUpRight))
+        {
+            if (tileObjUpRight.bindTile.name.Equals(targetName))
+            {
+                aroundState.UpRight = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down + Vector3Int.left, out TileObj tileObjDownLeft))
+        {
+            if (tileObjDownLeft.bindTile.name.Equals(targetName))
+            {
+                aroundState.DownLeft = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down + Vector3Int.right, out TileObj tileObjDownRight))
+        {
+            if (tileObjDownRight.bindTile.name.Equals(targetName))
+            {
+                aroundState.DownRight = true;
+            }
+        }
+        LinkAround(aroundState);
     }
     /// <summary>
-    /// 检查周围
+    /// 检查周围同名建筑(八方向)
     /// </summary>
-    /// <param name="targetTileName"></param>
-    /// <param name="updateTargetTile"></param>
-    public virtual void CheckAround(string targetTileName, bool updateTargetTile)
+    /// <param name="targetNames"></param>
+    public virtual void CheckAroundBuilding_EightSide(List<string> targetNames)
     {
-        int linkState = 0;
-        bool left = false;
-        bool right = false;
-        bool up = false;
-        bool down = false;
+        AroundState_EightSide aroundState = new AroundState_EightSide();
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
         {
-            if (tileObjUp.bindTile.name.Equals(targetTileName))
+            if (targetNames.Contains(tileObjUp.bindTile.name))
             {
-                up = true;
-                if (updateTargetTile)
-                {
-                    tileObjUp.CheckAround(targetTileName, false);
-                }
+                aroundState.Up = true;
             }
         }
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
         {
-            if (tileObjDown.bindTile.name.Equals(targetTileName))
+            if (targetNames.Contains(tileObjDown.bindTile.name))
             {
-                down = true;
-                if (updateTargetTile)
-                {
-                    tileObjDown.CheckAround(targetTileName, false);
-                }
+                aroundState.Down = true;
             }
         }
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
         {
-            if (tileObjLeft.bindTile.name.Equals(targetTileName))
+            if (targetNames.Contains(tileObjLeft.bindTile.name))
             {
-                left = true;
-                if (updateTargetTile)
-                {
-                    tileObjLeft.CheckAround(targetTileName, false);
-                }
+                aroundState.Left = true;
             }
         }
         if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
         {
-            if (tileObjRight.bindTile.name.Equals(targetTileName))
+            if (targetNames.Contains(tileObjRight.bindTile.name))
             {
-                right = true;
-                if (updateTargetTile)
-                {
-                    tileObjRight.CheckAround(targetTileName, false);
-                }
+                aroundState.Right = true;
             }
         }
-        if (up) { linkState += 8; }
-        else { linkState += 0; }
-        if (down) { linkState += 4; }
-        else { linkState += 0; }
-        if (left) { linkState += 2; }
-        else { linkState += 0; }
-        if (right) { linkState += 1; }
-        else { linkState += 0; }
-        LinkAround((LinkState)linkState, tileObjUp, tileObjDown, tileObjLeft, tileObjRight);
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up + Vector3Int.left, out TileObj tileObjUpLeft))
+        {
+            if (targetNames.Contains(tileObjUpLeft.bindTile.name))
+            {
+                aroundState.UpLeft = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up + Vector3Int.right, out TileObj tileObjUpRight))
+        {
+            if (targetNames.Contains(tileObjUpRight.bindTile.name))
+            {
+                aroundState.UpRight = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down + Vector3Int.left, out TileObj tileObjDownLeft))
+        {
+            if (targetNames.Contains(tileObjDownLeft.bindTile.name))
+            {
+                aroundState.DownLeft = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down + Vector3Int.right, out TileObj tileObjDownRight))
+        {
+            if (targetNames.Contains(tileObjDownRight.bindTile.name))
+            {
+                aroundState.DownRight = true;
+            }
+        }
+        LinkAround(aroundState);
+    }
+    /// <summary>
+    /// 检查周围同名建筑(四方向)
+    /// </summary>
+    /// <param name="targetName"></param>
+    public virtual void CheckAroundBuilding_FourSide(string targetName)
+    {
+        AroundState_FourSide aroundState = new AroundState_FourSide();
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
+        {
+            if (tileObjUp.bindTile.name.Equals(targetName))
+            {
+                aroundState.Up = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
+        {
+            if (tileObjDown.bindTile.name.Equals(targetName))
+            {
+                aroundState.Down = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
+        {
+            if (tileObjLeft.bindTile.name.Equals(targetName))
+            {
+                aroundState.Left = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
+        {
+            if (tileObjRight.bindTile.name.Equals(targetName))
+            {
+                aroundState.Right = true;
+            }
+        }
+        LinkAround(aroundState);
+    }
+    /// <summary>
+    /// 检查周围同名建筑(四方向)
+    /// </summary>
+    /// <param name="targetNames"></param>
+    public virtual void CheckAroundBuilding_FourSide(List<string> targetNames)
+    {
+        AroundState_FourSide aroundState = new AroundState_FourSide();
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
+        {
+            if (targetNames.Contains(tileObjUp.bindTile.name))
+            {
+                aroundState.Up = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
+        {
+            if (targetNames.Contains(tileObjDown.bindTile.name))
+            {
+                aroundState.Down = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
+        {
+            if (targetNames.Contains(tileObjLeft.bindTile.name))
+            {
+                aroundState.Left = true;
+            }
+        }
+        if (MapManager.Instance.GetBuildingObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
+        {
+            if (targetNames.Contains(tileObjRight.bindTile.name))
+            {
+                aroundState.Right = true;
+            }
+        }
+        LinkAround(aroundState);
+    }
+    /// <summary>
+    /// 检查周围同名地板(八方向)
+    /// </summary>
+    /// <param name="targetName"></param>
+    public virtual void CheckAroundFloor_EightSide(string targetName)
+    {
+        AroundState_EightSide aroundState = new AroundState_EightSide();
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
+        {
+            if (tileObjUp.bindTile.name.Equals(targetName))
+            {
+                aroundState.Up = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
+        {
+            if (tileObjDown.bindTile.name.Equals(targetName))
+            {
+                aroundState.Down = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
+        {
+            if (tileObjLeft.bindTile.name.Equals(targetName))
+            {
+                aroundState.Left = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
+        {
+            if (tileObjRight.bindTile.name.Equals(targetName))
+            {
+                aroundState.Right = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.up + Vector3Int.left, out TileObj tileObjUpLeft))
+        {
+            if (tileObjUpLeft.bindTile.name.Equals(targetName))
+            {
+                aroundState.UpLeft = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.up + Vector3Int.right, out TileObj tileObjUpRight))
+        {
+            if (tileObjUpRight.bindTile.name.Equals(targetName))
+            {
+                aroundState.UpRight = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.down + Vector3Int.left, out TileObj tileObjDownLeft))
+        {
+            if (tileObjDownLeft.bindTile.name.Equals(targetName))
+            {
+                aroundState.DownLeft = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.down + Vector3Int.right, out TileObj tileObjDownRight))
+        {
+            if (tileObjDownRight.bindTile.name.Equals(targetName))
+            {
+                aroundState.DownRight = true;
+            }
+        }
+        LinkAround(aroundState);
+    }
+    /// <summary>
+    /// 检查周围同名地板(八方向)
+    /// </summary>
+    /// <param name="targetNames"></param>
+    public virtual void CheckAroundFloor_EightSide(List<string> targetNames)
+    {
+        AroundState_EightSide aroundState = new AroundState_EightSide();
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
+        {
+            if (targetNames.Contains(tileObjUp.bindTile.name))
+            {
+                aroundState.Up = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
+        {
+            if (targetNames.Contains(tileObjDown.bindTile.name))
+            {
+                aroundState.Down = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
+        {
+            if (targetNames.Contains(tileObjLeft.bindTile.name))
+            {
+                aroundState.Left = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
+        {
+            if (targetNames.Contains(tileObjRight.bindTile.name))
+            {
+                aroundState.Right = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.up + Vector3Int.left, out TileObj tileObjUpLeft))
+        {
+            if (targetNames.Contains(tileObjUpLeft.bindTile.name))
+            {
+                aroundState.UpLeft = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.up + Vector3Int.right, out TileObj tileObjUpRight))
+        {
+            if (targetNames.Contains(tileObjUpRight.bindTile.name))
+            {
+                aroundState.UpRight = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.down + Vector3Int.left, out TileObj tileObjDownLeft))
+        {
+            if (targetNames.Contains(tileObjDownLeft.bindTile.name))
+            {
+                aroundState.DownLeft = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.down + Vector3Int.right, out TileObj tileObjDownRight))
+        {
+            if (targetNames.Contains(tileObjDownRight.bindTile.name))
+            {
+                aroundState.DownRight = true;
+            }
+        }
+        LinkAround(aroundState);
+
+    }
+    /// <summary>
+    /// 检查周围同名地板(四方向)
+    /// </summary>
+    /// <param name="targetName"></param>
+    public virtual void CheckAroundFloor_FourSide(string targetName)
+    {
+        AroundState_FourSide aroundState = new AroundState_FourSide();
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
+        {
+            if (tileObjUp.bindTile.name.Equals(targetName))
+            {
+                aroundState.Up = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
+        {
+            if (tileObjDown.bindTile.name.Equals(targetName))
+            {
+                aroundState.Down = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
+        {
+            if (tileObjLeft.bindTile.name.Equals(targetName))
+            {
+                aroundState.Left = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
+        {
+            if (tileObjRight.bindTile.name.Equals(targetName))
+            {
+                aroundState.Right = true;
+            }
+        }
+        LinkAround(aroundState);
+    }
+    /// <summary>
+    /// 检查周围同名地板(四方向)
+    /// </summary>
+    /// <param name="targetNames"></param>
+    public virtual void CheckAroundFloor_FourSide(List<string> targetNames)
+    {
+        AroundState_FourSide aroundState = new AroundState_FourSide();
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.up, out TileObj tileObjUp))
+        {
+            if (targetNames.Contains(tileObjUp.bindTile.name))
+            {
+                aroundState.Up = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.down, out TileObj tileObjDown))
+        {
+            if (targetNames.Contains(tileObjDown.bindTile.name))
+            {
+                aroundState.Down = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.left, out TileObj tileObjLeft))
+        {
+            if (targetNames.Contains(tileObjLeft.bindTile.name))
+            {
+                aroundState.Left = true;
+            }
+        }
+        if (MapManager.Instance.GetFloorObj(bindTile._posInCell + Vector3Int.right, out TileObj tileObjRight))
+        {
+            if (targetNames.Contains(tileObjRight.bindTile.name))
+            {
+                aroundState.Right = true;
+            }
+        }
+        LinkAround(aroundState);
+    }
+
+    /// <summary>
+    /// 连接周围
+    /// </summary>
+    /// <param name="aroundState">周围状态</param>
+    public virtual void LinkAround(AroundState_EightSide aroundState)
+    {
 
     }
     /// <summary>
     /// 连接周围
     /// </summary>
-    /// <param name="linkState">连接状态</param>
-    /// <param name="UpTile">上瓦片</param>
-    /// <param name="DownTile">下瓦片</param>
-    /// <param name="LeftTile">左瓦片</param>
-    /// <param name="RightTile">右瓦片</param>
-    public virtual void LinkAround(LinkState linkState, TileObj UpTile, TileObj DownTile, TileObj LeftTile, TileObj RightTile)
+    /// <param name="aroundState">周围状态</param>
+    public virtual void LinkAround(AroundState_FourSide aroundState)
     {
 
-    }
-    /// <summary>
-    /// 被连接
-    /// </summary>
-    /// <param name="from"></param>
-    /// <returns></returns>
-    public virtual bool LinkFrom(Vector2Int from)
-    {
-        return false;
     }
     #endregion
     #region//瓦片动画
@@ -439,4 +718,22 @@ public enum LinkState
     OneSide_Left,
     OneSide_Right,
     NoneSide,
+}
+public struct AroundState_EightSide
+{
+    public bool Left;
+    public bool Right;
+    public bool Up;
+    public bool Down;
+    public bool UpLeft;
+    public bool UpRight;
+    public bool DownLeft;
+    public bool DownRight;
+}
+public struct AroundState_FourSide
+{
+    public bool Left;
+    public bool Right;
+    public bool Up;
+    public bool Down;
 }

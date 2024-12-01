@@ -61,10 +61,7 @@ public class ItemBase
     /// </summary>
     public virtual void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID.ToString());
-        gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        gridCell.text_Name.text = itemConfig.Item_Name.ToString();
-        gridCell.text_Info.text = itemData.Item_Count.ToString();
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
         gridCell.panel_Bar.gameObject.SetActive(false);
     }
     /// <summary>
@@ -149,7 +146,7 @@ public class ItemBase
     public virtual void Holding_Start(ActorManager owner, BaseBodyController body)
     {
         this.owner = owner;
-        body.Hand_RightItem.GetComponent<SpriteRenderer>().sprite
+        body.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID);
     }
     /// <summary>
@@ -207,7 +204,7 @@ public class ItemBase
     public virtual void BeWearingOnHead(ActorManager owner, BaseBodyController body)
     {
         this.owner = owner;
-        body.Head_Item.GetComponent<SpriteRenderer>().sprite
+        body.Tran_ItemOnHead.GetComponent<SpriteRenderer>().sprite
            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID);
     }
     /// <summary>
@@ -218,7 +215,7 @@ public class ItemBase
     public virtual void BeWearingOnBody(ActorManager owner, BaseBodyController body)
     {
         this.owner = owner;
-        body.Body_Item.GetComponent<SpriteRenderer>().sprite
+        body.Tran_ItemOnBody.GetComponent<SpriteRenderer>().sprite
            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID);
     }
 
@@ -310,10 +307,7 @@ public class ItemBase_Materials : ItemBase
 {
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID.ToString());
-        gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        gridCell.text_Name.text = itemConfig.Item_Name.ToString();
-        gridCell.text_Info.text = itemData.Item_Count.ToString();
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
         gridCell.panel_Bar.gameObject.SetActive(false);
     }
 }
@@ -405,10 +399,7 @@ public class ItemBase_Ingredient: ItemBase
     }
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID.ToString());
-        gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        gridCell.text_Name.text = itemConfig.Item_Name.ToString();
-        gridCell.text_Info.text = itemData.Item_Count.ToString();
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
         gridCell.panel_Bar.gameObject.SetActive(true);
         gridCell.image_Bar.transform.localScale = new Vector3(itemData.Item_Durability / 100f, 1, 1);
         if (itemData.Item_Info == 0)
@@ -535,10 +526,7 @@ public class ItemBase_Food : ItemBase
     }
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID.ToString());
-        gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        gridCell.text_Name.text = itemConfig.Item_Name.ToString();
-        gridCell.text_Info.text = itemData.Item_Count.ToString();
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
         gridCell.panel_Bar.gameObject.SetActive(true);
         gridCell.image_Bar.transform.localScale = new Vector3(itemData.Item_Durability / 100f, 1, 1);
         if (itemData.Item_Info == 0)
@@ -566,10 +554,7 @@ public class ItemBase_Weapon : ItemBase
     }
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID.ToString());
-        gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        gridCell.text_Name.text = itemConfig.Item_Name.ToString();
-        gridCell.text_Info.text = itemData.Item_Durability.ToString() + "%";
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Durability.ToString() + "%");
         gridCell.panel_Bar.gameObject.SetActive(false);
     }
 }
@@ -586,10 +571,7 @@ public class ItemBase_Tool : ItemBase
     }
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID.ToString());
-        gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        gridCell.text_Name.text = itemConfig.Item_Name.ToString();
-        gridCell.text_Info.text = itemData.Item_Durability.ToString() + "%";
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Durability.ToString() + "%");
         gridCell.panel_Bar.gameObject.SetActive(false);
     }
 }
@@ -600,10 +582,15 @@ public class ItemBase_Gun : ItemBase
 {
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.image_MainIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID.ToString());
-        gridCell.image_ChildIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        gridCell.text_Name.text = itemConfig.Item_Name.ToString();
-        gridCell.text_Info.text = itemData.Item_Content.Item_Count.ToString();
+        if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
+        {
+            gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_" + itemData.Item_Content.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Content.Item_Count.ToString());
+            gridCell.grid_Child.DrawCell(itemData);
+        }
+        else
+        {
+            gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Content.Item_Count.ToString());
+        }
         gridCell.panel_Bar.gameObject.SetActive(false);
     }
 }

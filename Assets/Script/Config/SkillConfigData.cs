@@ -11,6 +11,7 @@ public class SkillConfigData
     }
     public readonly static List<SkillConfig> skillConfigs = new List<SkillConfig>()
     {
+        new SkillConfig(){ Skill_ID = 100,Skill_Name = "隐藏",Skill_Desc = "隐藏角色贴图但是不影响物理碰撞",Skill_Strength = 0,Skill_Intelligence = 0,Skill_Focus = 0, Skill_Agility = 0},
         new SkillConfig(){ Skill_ID = 1001,Skill_Name = "闪避步伐",Skill_Desc = "能够快速短距离移动的招式。无论什么阵营，是所有拿起武器保卫家园的人类士兵学会的第一个技能",Skill_Strength = 0,Skill_Intelligence = 0,Skill_Focus = 0, Skill_Agility = 0},
         new SkillConfig(){ Skill_ID = 1002,Skill_Name = "断式步伐",Skill_Desc = "改良后的闪避步伐，可以在冲刺结束后再次释放，以便达到出其不意的效果",Skill_Strength = 0,Skill_Intelligence = 0,Skill_Focus = 0, Skill_Agility = 0},
         //new SkillConfig(){ Skill_ID = 1002,Skill_Name = "闪烁术",Skill_Desc = "对使用者的造诣需求极高，来源已无从考究。究竟是瞬间完成的传送，还是使用者在目的地创造了新的自己然后杀死了过去的自己，仍有争论",Skill_Strength = 0,Skill_Intelligence = 0,Skill_Focus = 0, Skill_Agility = 0},
