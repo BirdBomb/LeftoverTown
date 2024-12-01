@@ -100,10 +100,10 @@ MonoBehaviour:
   LootList: []
   LootCount: 0
   spriteRenderer: {fileID: 6144852328013281887}
-  Desk_Single: {fileID: 21300000, guid: 7129c3b986c62f445b8ccff97ab700cb, type: 3}
-  Desk_Middle: {fileID: 21300000, guid: f8c7c24b6a966bd449968b8911dda056, type: 3}
-  Desk_Left: {fileID: 21300000, guid: dc7fff5685baa9344bb12b8669e4269a, type: 3}
-  Desk_Right: {fileID: 21300000, guid: 727b168ef32284e459dd17dee226def4, type: 3}
+  Desk_Single: {fileID: 21300000, guid: b0a87fc3ec733314a84c4c2258ac6894, type: 3}
+  Desk_Middle: {fileID: 21300000, guid: 71f60c7e602355c4a8402252e981184b, type: 3}
+  Desk_Left: {fileID: 21300000, guid: 289827a8168e85a45817f7a077b665e0, type: 3}
+  Desk_Right: {fileID: 21300000, guid: 7c34abfbfa23e6243b38edadb2e112f1, type: 3}
 --- !u!1 &7025035575502255062
 GameObject:
   m_ObjectHideFlags: 0
@@ -130,7 +130,7 @@ Transform:
   m_GameObject: {fileID: 7025035575502255062}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.01, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -177,12 +177,12 @@ SpriteRenderer:
   m_SortingLayerID: 680613467
   m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 7129c3b986c62f445b8ccff97ab700cb, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b0a87fc3ec733314a84c4c2258ac6894, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1.25, y: 1.25}
+  m_Size: {x: 20, y: 20}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

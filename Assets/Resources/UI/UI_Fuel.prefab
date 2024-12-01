@@ -168,8 +168,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 2}
-  m_SizeDelta: {x: 0, y: -4}
+  m_AnchoredPosition: {x: 16, y: 2}
+  m_SizeDelta: {x: -32, y: -4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4822049342057869088
 CanvasRenderer:
@@ -208,8 +208,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4280232517
-  m_fontColor: {r: 0.27058825, g: 0.16470589, b: 0.121568635, a: 1}
+    rgba: 4283073207
+  m_fontColor: {r: 0.7176471, g: 0.50980395, b: 0.2901961, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -226,8 +226,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
-  m_fontSizeBase: 18
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -566,6 +566,7 @@ GameObject:
   - component: {fileID: 4378596000738522640}
   - component: {fileID: 6825947533535908319}
   - component: {fileID: 2503776562103864398}
+  - component: {fileID: 6955043379934735232}
   m_Layer: 11
   m_Name: Btn
   m_TagString: Untagged
@@ -590,8 +591,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 36, y: -22}
-  m_SizeDelta: {x: 100, y: 24}
+  m_AnchoredPosition: {x: 38, y: -16}
+  m_SizeDelta: {x: 116, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4378596000738522640
 CanvasRenderer:
@@ -621,8 +622,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: dacfaaeeb94faf547a93a47cb4d45a49, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: cd1677f3e6d402d4b8388aadc15b8731, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -675,6 +676,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6955043379934735232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5001595104127361527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bd135d25b9c75b42a1521eb027f38af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5345868277902327816
 GameObject:
   m_ObjectHideFlags: 0
@@ -693,7 +706,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7152341515028310980
 RectTransform:
   m_ObjectHideFlags: 0
@@ -715,8 +728,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 73.2, y: 102.1}
-  m_SizeDelta: {x: 220, y: 92}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 256, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2155027891265101437
 CanvasRenderer:
@@ -806,8 +819,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 36, y: 14}
-  m_SizeDelta: {x: 216, y: 80}
+  m_AnchoredPosition: {x: 38, y: 22}
+  m_SizeDelta: {x: 248, y: 72}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3680147995466340799
 CanvasRenderer:
@@ -839,7 +852,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: e3265ab4bf004d28a9537516768c1c75, type: 3}
-    m_FontSize: 64
+    m_FontSize: 60
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 0
@@ -945,11 +958,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6899229548445106668, guid: 99e6589a0afba074bac2b68eaa236294, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -57.7
+      value: -68
       objectReference: {fileID: 0}
     - target: {fileID: 6899229548445106668, guid: 99e6589a0afba074bac2b68eaa236294, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6899229548445106668, guid: 99e6589a0afba074bac2b68eaa236294, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

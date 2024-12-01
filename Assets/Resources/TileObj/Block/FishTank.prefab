@@ -10,9 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 8721843472562826823}
   - component: {fileID: 4144484893173947887}
-  - component: {fileID: 3789279902546058033}
+  - component: {fileID: 5946378765866685827}
+  - component: {fileID: 7211285500401488315}
   m_Layer: 11
-  m_Name: BrickWindow
+  m_Name: FishTank
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,8 +31,7 @@ Transform:
   m_LocalPosition: {x: 1.72, y: -1.02, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 8270859100551403044}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &4144484893173947887
@@ -71,7 +71,7 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 5, y: 5}
-    newSize: {x: 1.125, y: 3}
+    newSize: {x: 5, y: 5}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -79,98 +79,13 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &3789279902546058033
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 223198607764510710}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fad272468fdb6884eb6cc34aff18a9e7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindTile: {fileID: 0}
-  CurHp: 0
-  MaxHp: 0
-  Armor: 0
-  info: 
-  linkAlready: 0
-  LootList: []
-  LootCount: 0
-  WallSprite: {fileID: 6024144065244634463}
-  FourSide:
-  - {fileID: 21300000, guid: 104dac203bd7bc440b88f4d09f60d8d1, type: 3}
-  NoneSide:
-  - {fileID: 21300000, guid: 893e9ca87b8c7994e9352ae690145c69, type: 3}
-  OneSide_Down:
-  - {fileID: 21300000, guid: cc7ea42a9c91a5b459f72964a6e1b2bc, type: 3}
-  OneSide_Left:
-  - {fileID: 21300000, guid: ee7012a9da03aa3418cb7a1308cbf802, type: 3}
-  OneSide_Right:
-  - {fileID: 21300000, guid: 16e8f0dae417a6744a39d9617d2be5be, type: 3}
-  OneSide_Up:
-  - {fileID: 21300000, guid: f22e567605cf937459f840103ccb5a6a, type: 3}
-  ThreeSide_DownMissing:
-  - {fileID: 21300000, guid: 3425e1065612f1f47b6997cf08059711, type: 3}
-  ThreeSide_LeftMissing:
-  - {fileID: 21300000, guid: a95b03149f2969e4e9c1615d68ca918b, type: 3}
-  ThreeSide_RightMissing:
-  - {fileID: 21300000, guid: 2f5170d891a499a4dbae728e71334443, type: 3}
-  ThreeSide_UpMissing:
-  - {fileID: 21300000, guid: 7eeb47df0137c9c46b571edc1ecd8989, type: 3}
-  TwoSide_DownLeft:
-  - {fileID: 21300000, guid: 1b88fec201fd98948ab16c822a49e089, type: 3}
-  TwoSide_DownRight:
-  - {fileID: 21300000, guid: 1609828420e038442997fa40d1ce545e, type: 3}
-  TwoSide_LeftRight:
-  - {fileID: 21300000, guid: 9e441560c0dea884798d84f0f8376eee, type: 3}
-  TwoSide_UpDown:
-  - {fileID: 21300000, guid: 0b43e303d31170c469f6c35e10f693e1, type: 3}
-  TwoSide_UpLeft:
-  - {fileID: 21300000, guid: e03d4c8fe5973ab4eaae5c6d0b5979cc, type: 3}
-  TwoSide_UpRight:
-  - {fileID: 21300000, guid: 25c0e3e296e135e4d844fab791f2f9a7, type: 3}
---- !u!1 &8522617163006449548
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8270859100551403044}
-  - component: {fileID: 6024144065244634463}
-  m_Layer: 11
-  m_Name: Sprite
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8270859100551403044
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8522617163006449548}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8721843472562826823}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &6024144065244634463
+--- !u!212 &5946378765866685827
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8522617163006449548}
+  m_GameObject: {fileID: 223198607764510710}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -205,7 +120,7 @@ SpriteRenderer:
   m_SortingLayerID: 680613467
   m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 9b911e4075b49b942abe5e4dcdf67dce, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 19ea04baf2575de479ab135b51f23885, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -216,3 +131,23 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &7211285500401488315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 223198607764510710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a9d884e6e0bf154b99fbe8f14be838a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bindTile: {fileID: 0}
+  CurHp: 0
+  MaxHp: 0
+  Armor: 0
+  info: 
+  linkAlready: 0
+  LootList: []
+  LootCount: 0

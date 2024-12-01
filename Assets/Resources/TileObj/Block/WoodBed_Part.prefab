@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8721843472562826823}
   - component: {fileID: 7720028177897769194}
+  - component: {fileID: 1513969611923597315}
   m_Layer: 11
   m_Name: WoodBed_Part
   m_TagString: Untagged
@@ -46,17 +47,58 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindTile: {fileID: 11400000, guid: c5233d8e8cc067b499d96976b0ef1a94, type: 2}
-  CurHp: 15
-  MaxHp: 15
+  CurHp: 1
+  MaxHp: 1
   Armor: 0
   info: 
   linkAlready: 0
   LootList: []
   LootCount: 0
-  spriteRenderer: {fileID: 8560255171791749233}
-  Bed_Part: {fileID: 21300000, guid: 5b47b740bb7e282469878b212c0460bd, type: 3}
-  Bed_V: {fileID: 21300000, guid: 5f469d73418a9a34a8aa7b2019c9b98f, type: 3}
-  Bed_H: {fileID: 21300000, guid: 63b74e404f7a30e41ad7690f709f338b, type: 3}
+--- !u!61 &1513969611923597315
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 223198607764510710}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 5, y: 5}
+    newSize: {x: 1.125, y: 3}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1 &5803083104248375971
 GameObject:
   m_ObjectHideFlags: 0
@@ -73,7 +115,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6727723197461638549
 Transform:
   m_ObjectHideFlags: 0

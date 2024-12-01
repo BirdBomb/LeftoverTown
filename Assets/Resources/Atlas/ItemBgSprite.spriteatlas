@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ItemBgSprite
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_IgnorePlatformSupport: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 848c97e0f2072bb4c96eff9026fc445a, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - 6a5d77508fee4554e8060868c52cfbde: 21300000
+    - e1edff503683f3a468237c6881b85c47: 21300000
+    - 76716e71f2518b4499550d263760a2f7: 21300000
+    - f8238103783c29e44a74ad1c29f28814: 21300000
+    - d4e02de56d66ac446b2adb1ff53922f3: 21300000
+    - 9548cae7450b3c44fa0ce5122a6607fa: 21300000
+    - e0d1634a82ec4e64e9389fb104464352: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 6a5d77508fee4554e8060868c52cfbde, type: 3}
+  - {fileID: 21300000, guid: e1edff503683f3a468237c6881b85c47, type: 3}
+  - {fileID: 21300000, guid: 76716e71f2518b4499550d263760a2f7, type: 3}
+  - {fileID: 21300000, guid: f8238103783c29e44a74ad1c29f28814, type: 3}
+  - {fileID: 21300000, guid: d4e02de56d66ac446b2adb1ff53922f3, type: 3}
+  - {fileID: 21300000, guid: 9548cae7450b3c44fa0ce5122a6607fa, type: 3}
+  - {fileID: 21300000, guid: e0d1634a82ec4e64e9389fb104464352, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - ItemBG_3
+  - ItemBG_4
+  - ItemBG_2
+  - ItemBG_0
+  - ItemBG_1
+  - ItemBG_5
+  - ItemBG_6
+  m_RenderDataMap: {}
+  m_Tag: ItemBgSprite
+  m_IsVariant: 0

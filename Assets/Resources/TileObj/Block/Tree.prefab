@@ -54,7 +54,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 898fdbc167aae5947b9cd70e9bc95a05, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -73,9 +73,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: cfeb77cded1d1b643b8241e16b4256f5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 552795c2fcea2344ab1b222145bc4d8a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -147,10 +147,19 @@ MonoBehaviour:
   CurHp: 15
   MaxHp: 15
   Armor: 0
+  info: 
+  linkAlready: 0
   LootList:
   - ID: 1001
     Weight: 100
   - ID: 1006
     Weight: 20
   LootCount: 2
-  info: 
+  Tree: {fileID: 6114030997716344390}
+  treeSprite:
+  - {fileID: 21300000, guid: 552795c2fcea2344ab1b222145bc4d8a, type: 3}
+  - {fileID: 21300000, guid: 961978028442b74438013d3e0d703d0e, type: 3}
+  - {fileID: 21300000, guid: b30bac90e2d65494b935ec7f1c87755b, type: 3}
+  - {fileID: 21300000, guid: 8c147c47d8f38fe42bb4d3ec6c40637b, type: 3}
+  - {fileID: 21300000, guid: 3d1993a88556cbc4298e9887dbb2545a, type: 3}
+  - {fileID: 21300000, guid: 3db060be0eef8a54cb5aff48529c0f7d, type: 3}

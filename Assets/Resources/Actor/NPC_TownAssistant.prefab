@@ -901,17 +901,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 0
   locking: 0
-  Root: {fileID: 1614621998564945313}
-  Head: {fileID: 5814753134137214593}
-  Body: {fileID: 895397656912192870}
-  Hand: {fileID: 929540523168129918}
-  Leg: {fileID: 418548603266387135}
-  Hand_Right: {fileID: 7906634776181169556}
-  Hand_Left: {fileID: 179351126685337921}
-  Hand_RightItem: {fileID: 4600643322571010172}
-  Hand_LeftItem: {fileID: 2163034111697260581}
-  Head_Item: {fileID: 6969192100663231132}
-  Body_Item: {fileID: 3884887897447303710}
+  Tran_Root: {fileID: 1614621998564945313}
+  Tran_Head: {fileID: 5814753134137214593}
+  Tran_Body: {fileID: 895397656912192870}
+  Tran_BothHand: {fileID: 929540523168129918}
+  Tran_BothLeg: {fileID: 418548603266387135}
+  Tran_RightHand: {fileID: 7906634776181169556}
+  Tran_LeftHand: {fileID: 179351126685337921}
+  Tran_RightItemInHand: {fileID: 4600643322571010172}
+  Tran_LeftItemInHand: {fileID: 2163034111697260581}
+  Tran_ItemOnHead: {fileID: 6969192100663231132}
+  Tran_ItemOnBody: {fileID: 3884887897447303710}
   Animator_Head: {fileID: 2812944113391369514}
   AnimaEventListen_Head: {fileID: 3043538101650264681}
   Animator_Body: {fileID: 8445137904326946619}
@@ -920,8 +920,15 @@ MonoBehaviour:
   AnimaEventListen_Hand: {fileID: 2371838918710998596}
   Animator_Leg: {fileID: 1868219027016183442}
   AnimaEventListen_Leg: {fileID: 5912057443916585167}
-  Hair: {fileID: 6765523464800134154}
-  Eye: {fileID: 1108438412904804613}
+  faceDir: {x: 0, y: 0}
+  spriteRenderer_Hair: {fileID: 6765523464800134154}
+  spriteRenderer_Eye: {fileID: 1108438412904804613}
+  spriteRenderer_Head: {fileID: 5875188617298325296}
+  spriteRenderer_Body: {fileID: 6636647383663502977}
+  spriteRenderer_LeftHand: {fileID: 8904808027677888850}
+  spriteRenderer_RightHand: {fileID: 1057610392651987849}
+  spriteRenderer_LeftLeg: {fileID: 3453121636553383070}
+  spriteRenderer_RightLeg: {fileID: 5644322219925640643}
 --- !u!114 &2069270092032871842
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -956,7 +963,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2466aa7a23d21a4394b30cc41be8dbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetTransform: {fileID: 0}
   networkRigidbody: {fileID: 2069270092032871842}
   LocalManager: {fileID: 7080824423892718743}
   _Data_Seed: 0
@@ -1098,13 +1104,12 @@ MonoBehaviour:
   skillSector: {fileID: 5897699707596743604}
   actorUI: {fileID: 819256106078883666}
   actorState: 0
-  navManager: {fileID: 0}
   isPlayer: 0
   isState: 0
   isInput: 0
-  face: {x: 0, y: 0}
-  tempPath: []
-  targetTile: {fileID: 0}
+  record_lastTile: {fileID: 0}
+  record_curTile: {fileID: 0}
+  bindBuffID: 
   config:
     Config_Hp: 50
     Config_Armor: 0

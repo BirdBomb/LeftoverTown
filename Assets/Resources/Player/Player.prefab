@@ -1229,17 +1229,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 0
   locking: 0
-  Root: {fileID: 6059930380166377277}
-  Head: {fileID: 8293686042536500585}
-  Body: {fileID: 726173079809783621}
-  Hand: {fileID: 4027559919473431314}
-  Leg: {fileID: 4421023233535970336}
-  Hand_Right: {fileID: 8252820358325040457}
-  Hand_Left: {fileID: 2065712486508948466}
-  Hand_RightItem: {fileID: 4659562439935735061}
-  Hand_LeftItem: {fileID: 4687643200630205078}
-  Head_Item: {fileID: 2456220067808556946}
-  Body_Item: {fileID: 5538097259606671428}
+  Tran_Root: {fileID: 6059930380166377277}
+  Tran_Head: {fileID: 8293686042536500585}
+  Tran_Body: {fileID: 726173079809783621}
+  Tran_BothHand: {fileID: 4027559919473431314}
+  Tran_BothLeg: {fileID: 4421023233535970336}
+  Tran_RightHand: {fileID: 8252820358325040457}
+  Tran_LeftHand: {fileID: 2065712486508948466}
+  Tran_RightItemInHand: {fileID: 4659562439935735061}
+  Tran_LeftItemInHand: {fileID: 4687643200630205078}
+  Tran_ItemOnHead: {fileID: 2456220067808556946}
+  Tran_ItemOnBody: {fileID: 5538097259606671428}
   Animator_Head: {fileID: 2107887346306368779}
   AnimaEventListen_Head: {fileID: 4700032786192033993}
   Animator_Body: {fileID: 1565239593870667187}
@@ -1249,8 +1249,14 @@ MonoBehaviour:
   Animator_Leg: {fileID: 4111008411581940894}
   AnimaEventListen_Leg: {fileID: 2027835273665219984}
   faceDir: {x: 0, y: 0}
-  Hair: {fileID: 3391440228612806032}
-  Eye: {fileID: 9147848508504076562}
+  spriteRenderer_Hair: {fileID: 3391440228612806032}
+  spriteRenderer_Eye: {fileID: 9147848508504076562}
+  spriteRenderer_Head: {fileID: 3992014471647863725}
+  spriteRenderer_Body: {fileID: 592587717456670555}
+  spriteRenderer_LeftHand: {fileID: 4554155212547037426}
+  spriteRenderer_RightHand: {fileID: 1215719177045292744}
+  spriteRenderer_LeftLeg: {fileID: 6393456945558565622}
+  spriteRenderer_RightLeg: {fileID: 4422192478141215238}
 --- !u!114 &8091430848374201477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1383,6 +1389,9 @@ MonoBehaviour:
   isPlayer: 1
   isState: 0
   isInput: 0
+  record_lastTile: {fileID: 0}
+  record_curTile: {fileID: 0}
+  bindBuffID: 
 --- !u!114 &2382471986505964745
 MonoBehaviour:
   m_ObjectHideFlags: 0

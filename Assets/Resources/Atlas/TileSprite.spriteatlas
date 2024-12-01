@@ -15,7 +15,7 @@ SpriteAtlas:
       compressionQuality: 50
       maxTextureSize: 2048
       textureCompression: 0
-      filterMode: 1
+      filterMode: 0
       generateMipMaps: 0
       readable: 0
       crunchedCompression: 0
@@ -51,8 +51,8 @@ SpriteAtlas:
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
     - 1c29b84010447ec429784cd1178cd9d7: 21300000
-    - 9b911e4075b49b942abe5e4dcdf67dce: 21300000
-    - 0c3d4021057a62f4e9d27e7b693aad88: 21300000
+    - 8b9201700ad82594688ce1fda95954b5: 21300000
+    - c51619b056d863a4e90b78c08c53d8de: 21300000
     - 487a04412a572f6458a343b636ade4f7: 21300000
     - be83d351f2593984f9bba4ebc8a9efd1: 21300000
     - ceb1bd81d02d42046b62ba8d54d057b8: 21300000
@@ -84,11 +84,13 @@ SpriteAtlas:
     - 0b09d03a7f7107a4182712d7402f6c9b: 21300000
     - 0f5bce8a489e27245a8ea6d68300bb54: 21300000
     - f0acd0baec52ca747b2b3c5965073205: 21300000
+    - 19ea04baf2575de479ab135b51f23885: 21300000
     - 20b308fad6e6d76419c3c1a236a9bb3b: 21300000
     - 04090c9b416d15141bccc3adf1282513: 21300000
     - 0c4cd0bd859875b4d9d7449dbe7b2c0b: 21300000
     - 22ac82bdb9ca3f34ebe33d6c7afee1fc: 21300000
     - cfeb77cded1d1b643b8241e16b4256f5: 21300000
+    - 66a3d7ddc82904649949a14c0762d041: 21300000
     - 75a4b81eaa5daf448807ab903da518a7: 21300000
     - 65fc41def31cf0a4e8d594c031a1c6c7: 21300000
     - 3ec67e2f070dd1a439cad4eae067ef3c: 21300000
@@ -96,8 +98,8 @@ SpriteAtlas:
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 1c29b84010447ec429784cd1178cd9d7, type: 3}
-  - {fileID: 21300000, guid: 9b911e4075b49b942abe5e4dcdf67dce, type: 3}
-  - {fileID: 21300000, guid: 0c3d4021057a62f4e9d27e7b693aad88, type: 3}
+  - {fileID: 21300000, guid: 8b9201700ad82594688ce1fda95954b5, type: 3}
+  - {fileID: 21300000, guid: c51619b056d863a4e90b78c08c53d8de, type: 3}
   - {fileID: 21300000, guid: 487a04412a572f6458a343b636ade4f7, type: 3}
   - {fileID: 21300000, guid: be83d351f2593984f9bba4ebc8a9efd1, type: 3}
   - {fileID: 21300000, guid: ceb1bd81d02d42046b62ba8d54d057b8, type: 3}
@@ -129,19 +131,21 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 0b09d03a7f7107a4182712d7402f6c9b, type: 3}
   - {fileID: 21300000, guid: 0f5bce8a489e27245a8ea6d68300bb54, type: 3}
   - {fileID: 21300000, guid: f0acd0baec52ca747b2b3c5965073205, type: 3}
+  - {fileID: 21300000, guid: 19ea04baf2575de479ab135b51f23885, type: 3}
   - {fileID: 21300000, guid: 20b308fad6e6d76419c3c1a236a9bb3b, type: 3}
   - {fileID: 21300000, guid: 04090c9b416d15141bccc3adf1282513, type: 3}
   - {fileID: 21300000, guid: 0c4cd0bd859875b4d9d7449dbe7b2c0b, type: 3}
   - {fileID: 21300000, guid: 22ac82bdb9ca3f34ebe33d6c7afee1fc, type: 3}
   - {fileID: 21300000, guid: cfeb77cded1d1b643b8241e16b4256f5, type: 3}
+  - {fileID: 21300000, guid: 66a3d7ddc82904649949a14c0762d041, type: 3}
   - {fileID: 21300000, guid: 75a4b81eaa5daf448807ab903da518a7, type: 3}
   - {fileID: 21300000, guid: 65fc41def31cf0a4e8d594c031a1c6c7, type: 3}
   - {fileID: 21300000, guid: 3ec67e2f070dd1a439cad4eae067ef3c, type: 3}
   - {fileID: 21300000, guid: 5c0e27ef1c321ad4cac1b7ff989a4c75, type: 3}
   m_PackedSpriteNamesToIndex:
   - Chair
-  - BrickWindow
-  - WoodWindow
+  - Bush
+  - Water
   - Default
   - WoodShore
   - FloorBuilder
@@ -173,11 +177,13 @@ SpriteAtlas:
   - Refrigerator
   - BrickWall
   - BonfireStone
+  - FishTank
   - RedPlushCarpet
   - WallLight
   - WoodBed_Part
   - Stove
   - Tree
+  - WoodBed
   - Desk
   - Grass
   - GoodsShelf_Iron

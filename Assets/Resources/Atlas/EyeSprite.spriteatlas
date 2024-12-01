@@ -15,12 +15,25 @@ SpriteAtlas:
       compressionQuality: 50
       maxTextureSize: 2048
       textureCompression: 0
-      filterMode: 1
+      filterMode: 0
       generateMipMaps: 0
       readable: 0
       crunchedCompression: 0
       sRGB: 1
-    platformSettings: []
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_IgnorePlatformSupport: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
     packingSettings:
       serializedVersion: 2
       padding: 4
@@ -39,15 +52,18 @@ SpriteAtlas:
     packedSpriteRenderDataKeys:
     - f669d884aa3b38543b3836694f932ba7: 21300000
     - 898a75d7c5ba1d5489e0daaededd280f: 21300000
+    - 748914a8a635f7647a5c0a4f98e7ecc3: 21300000
     - 97d9adcb6a042054581d4f3e99821948: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: f669d884aa3b38543b3836694f932ba7, type: 3}
   - {fileID: 21300000, guid: 898a75d7c5ba1d5489e0daaededd280f, type: 3}
+  - {fileID: 21300000, guid: 748914a8a635f7647a5c0a4f98e7ecc3, type: 3}
   - {fileID: 21300000, guid: 97d9adcb6a042054581d4f3e99821948, type: 3}
   m_PackedSpriteNamesToIndex:
   - Eye_100
   - Eye_101
+  - Eye_102
   - Eye_0
   m_RenderDataMap: {}
   m_Tag: EyeSprite

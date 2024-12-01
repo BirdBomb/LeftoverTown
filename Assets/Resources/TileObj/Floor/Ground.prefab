@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8721843472562826823}
-  - component: {fileID: 3886822644917577782}
+  - component: {fileID: 3309099490643894187}
+  - component: {fileID: 3074116559375966582}
   m_Layer: 12
   m_Name: Ground
   m_TagString: Untagged
@@ -29,82 +30,16 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4509941791239032420}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3886822644917577782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 223198607764510710}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 434b10132876dce41bc0cd7fbae17eae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindTile: {fileID: 0}
-  CurHp: 0
-  MaxHp: 0
-  Armor: 0
-  info: 
-  linkAlready: 0
-  LootList: []
-  LootCount: 0
-  tileSprite: {fileID: 1866573514880042664}
-  randomSprites:
-  - {fileID: 21300000, guid: b9ee93b244756434a9aadc3c6434f86f, type: 3}
-  - {fileID: 21300000, guid: 11d57f20d4e17804abde057c423633f4, type: 3}
-  - {fileID: 21300000, guid: c7eaca57fb7a67f4fa9fdc8c25dac753, type: 3}
-  - {fileID: 21300000, guid: c2d89def4b6f184479ea11598107825e, type: 3}
-  - {fileID: 21300000, guid: 773d1a83f6d68314c98ec64fe0bc6bb1, type: 3}
-  - {fileID: 21300000, guid: e1c5415573da0ba448e09c17d81645c8, type: 3}
-  - {fileID: 21300000, guid: 8a72650e89e0a49468382f36ae65b2cc, type: 3}
-  - {fileID: 21300000, guid: 14a13199e19062445afc5be7cf932b41, type: 3}
-  - {fileID: 21300000, guid: 0242d278a4431ea46b8a9e10aeeebb16, type: 3}
-  - {fileID: 21300000, guid: 26baeec3b9d852147b5dfdcfd0bfbdca, type: 3}
-  - {fileID: 21300000, guid: 26baeec3b9d852147b5dfdcfd0bfbdca, type: 3}
---- !u!1 &2827206392725221152
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4509941791239032420}
-  - component: {fileID: 1866573514880042664}
-  m_Layer: 12
-  m_Name: Sprite
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4509941791239032420
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2827206392725221152}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8721843472562826823}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &1866573514880042664
+--- !u!212 &3309099490643894187
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2827206392725221152}
+  m_GameObject: {fileID: 223198607764510710}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -118,7 +53,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 0d234a497a10101428131bf0f59bb442, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -138,8 +73,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2008615703
   m_SortingLayer: 1
-  m_SortingOrder: -1
-  m_Sprite: {fileID: 21300000, guid: a1494519df35be844b67218f10816f78, type: 3}
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 5621ea31b3b6ca9478375df1f4747743, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -150,3 +85,23 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &3074116559375966582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 223198607764510710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a9d884e6e0bf154b99fbe8f14be838a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bindTile: {fileID: 0}
+  CurHp: 0
+  MaxHp: 0
+  Armor: 0
+  info: 
+  linkAlready: 0
+  LootList: []
+  LootCount: 0
