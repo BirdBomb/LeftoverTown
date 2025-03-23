@@ -34,6 +34,7 @@ MonoBehaviour:
   m_InstancedGameObject: {fileID: 0}
   m_Flags: 1
   m_ColliderType: 2
+  config_tileID: 8100
   config_passType: 2
   config_passDrag: 0
   _posInWorld: {x: 0, y: 0}
