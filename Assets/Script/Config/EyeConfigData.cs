@@ -14,11 +14,13 @@ public class EyeConfigData : MonoBehaviour
         new EyeConfig(){ Eye_ID = 100 },
         new EyeConfig(){ Eye_ID = 101 },
         new EyeConfig(){ Eye_ID = 102 },
+        new EyeConfig(){ Eye_ID = 103 },
+        new EyeConfig(){ Eye_ID = 104 },
     };
 }
 [Serializable]
 public struct EyeConfig
 {
     [SerializeField]/*±àºÅ*/
-    public int Eye_ID;
+    public short Eye_ID;
 }

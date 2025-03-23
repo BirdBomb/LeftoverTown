@@ -1,25 +1,28 @@
-
 using DG.Tweening;
 using Fusion;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Numerics;
 using UniRx;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
-using static UnityEditor.Timeline.Actions.MenuPriority;
+using WebSocketSharp;
 using Vector3 = UnityEngine.Vector3;
 
 /// <summary>
-/// 基本物体
+/// 基类
 /// </summary>
 public class ItemBase
 {
     public ActorManager owner;
 
+    #region//初始化
+    public void ItemData()
+    {
+
+    }
+    #endregion
     #region//数据相关
     /// <summary>
     /// 物品数据
@@ -49,7 +52,7 @@ public class ItemBase
     /// <summary>
     /// 更新时间
     /// </summary>
-    public virtual void UpdateTime(int second)
+    public virtual void Holding_UpdateTime(int second)
     {
 
     }
@@ -61,8 +64,7 @@ public class ItemBase
     /// </summary>
     public virtual void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
-        gridCell.panel_Bar.gameObject.SetActive(false);
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
     }
     /// <summary>
     /// 左击格子
@@ -96,7 +98,7 @@ public class ItemBase
     /// <param name="state"></param>
     /// <param name="input"></param>
     /// <returns>最大值</returns>
-    public virtual bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
+    public virtual bool Holding_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
     {
         return true;
     }
@@ -105,9 +107,8 @@ public class ItemBase
     /// </summary>
     /// <param name="state"></param>
     /// <param name="input"></param>
-    public virtual void ReleaseLeftPress(bool state, bool input, bool player)
+    public virtual void Holding_ReleaseLeftPress(bool state, bool input, bool player)
     {
-
     }
     /// <summary>
     /// 右键按压
@@ -116,7 +117,7 @@ public class ItemBase
     /// <param name="state"></param>
     /// <param name="input"></param>
     /// <returns>最大值</returns>
-    public virtual bool UpdateRightPress(float pressTimer, bool state, bool input, bool player)
+    public virtual bool Holding_UpdateRightPress(float pressTimer, bool state, bool input, bool player)
     {
         return true;
     }
@@ -125,14 +126,14 @@ public class ItemBase
     /// </summary>
     /// <param name="state"></param>
     /// <param name="input"></param>
-    public virtual void ReleaseRightPress(bool state, bool input, bool player)
+    public virtual void Holding_ReleaseRightPress(bool state, bool input, bool player)
     {
 
     }
     /// <summary>
     /// 更新鼠标位置
     /// </summary>
-    public virtual void UpdateMousePos(Vector3 mouse)
+    public virtual void Holding_UpdateMousePos(Vector3 mouse)
     {
 
     }
@@ -143,10 +144,10 @@ public class ItemBase
     /// </summary>
     /// <param name="owner"></param>
     /// <param name="item"></param>
-    public virtual void Holding_Start(ActorManager owner, BaseBodyController body)
+    public virtual void Holding_Start(ActorManager owner, BodyController_Human body)
     {
         this.owner = owner;
-        body.Tran_RightItemInHand.GetComponent<SpriteRenderer>().sprite
+        body.transform_ItemInRightHand.GetComponent<SpriteRenderer>().sprite
             = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID);
     }
     /// <summary>
@@ -170,13 +171,13 @@ public class ItemBase
     /// <param name="val"></param>
     public virtual void Holding_ChangeDurability(sbyte val)
     {
-        if (val != 0 && owner.isPlayer) 
+        if (val != 0 && owner.actorAuthority.isPlayer) 
         {
             ItemData _oldItem = itemData;
             ItemData _newItem = itemData;
             if (_newItem.Item_Durability + val <= 0)
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemOnHand()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
                 {
                     item = itemData,
                 });
@@ -192,7 +193,6 @@ public class ItemBase
             }
         }
     }
-
     #endregion
     #endregion
     #region//穿戴部分
@@ -201,10 +201,10 @@ public class ItemBase
     /// </summary>
     /// <param name="owner"></param>
     /// <param name="body"></param>
-    public virtual void BeWearingOnHead(ActorManager owner, BaseBodyController body)
+    public virtual void BeWearingOnHead(ActorManager owner, BodyController_Human body)
     {
         this.owner = owner;
-        body.Tran_ItemOnHead.GetComponent<SpriteRenderer>().sprite
+        body.transform_ItemOnHead.GetComponent<SpriteRenderer>().sprite
            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID);
     }
     /// <summary>
@@ -212,34 +212,34 @@ public class ItemBase
     /// </summary>
     /// <param name="owner"></param>
     /// <param name="body"></param>
-    public virtual void BeWearingOnBody(ActorManager owner, BaseBodyController body)
+    public virtual void BeWearingOnBody(ActorManager owner, BodyController_Human body)
     {
         this.owner = owner;
-        body.Tran_ItemOnBody.GetComponent<SpriteRenderer>().sprite
+        body.transform_ItemOnBody.GetComponent<SpriteRenderer>().sprite
            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID);
     }
 
     #endregion
     #region//外置方法
     /// <summary>
-    /// 外置方法(数据初始化)
+    /// 数据初始化
     /// </summary>
     /// <returns></returns>
-    public virtual void StaticAction_InitData(ItemData baseData,out ItemData initData)
+    public virtual void StaticAction_InitData(short id,out ItemData data)
     {
-        initData = baseData;
+        data = new ItemData(id);
     }
     /// <summary>
-    /// 外置方法(堆叠)
+    /// 堆叠
     /// </summary>
-    /// <param name="mainItem"></param>
+    /// <param name="baseItem"></param>
     /// <param name="addItem"></param>
     /// <param name="newItem"></param>
-    public virtual void StaticAction_PileUp(ItemData mainItem, ItemData addItem, short maxCap, out ItemData newItem,out ItemData resItem)
+    public virtual void StaticAction_PileUp(ItemData baseItem, ItemData addItem, short maxCap, out ItemData newItem,out ItemData resItem)
     {
-        newItem = mainItem;
-        resItem = mainItem;
-        if(mainItem.Item_Count + addItem.Item_Count <= maxCap)
+        newItem = baseItem;
+        resItem = baseItem;
+        if(baseItem.Item_Count + addItem.Item_Count <= maxCap)
         {
             newItem.Item_Count += addItem.Item_Count;
             resItem.Item_Count = 0;
@@ -247,32 +247,21 @@ public class ItemBase
         else
         {
             newItem.Item_Count = maxCap;
-            resItem.Item_Count = ((short)(mainItem.Item_Count + addItem.Item_Count - maxCap));
+            resItem.Item_Count = ((short)(baseItem.Item_Count + addItem.Item_Count - maxCap));
         }
     }
     /// <summary>
-    /// 外置方法(填充堆叠)
+    /// 填充
     /// </summary>
-    /// <param name="mainItem"></param>
-    /// <param name="addItem"></param>
-    /// <param name="newItem"></param>
-    /// <param name="resItem"></param>
-    public virtual void StaticAction_FillUp(ItemData mainItem, ItemData contentItem, short maxCap, out ItemData newItem, out ItemData resItem)
+    /// <param name="oldContent">旧容器</param>
+    /// <param name="addItem">添加物</param>
+    /// <param name="maxCap">容器最大容量</param>
+    /// <param name="newContent">新容器</param>
+    /// <param name="resItem">剩余物</param>
+    public virtual void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
     {
-        newItem = mainItem;
-        resItem = contentItem;
-        newItem.Item_Content = new ContentData(contentItem);
-        newItem.Item_Content.Item_Count = mainItem.Item_Content.Item_Count;
-        if (mainItem.Item_Content.Item_Count + contentItem.Item_Count <= maxCap)
-        {
-            newItem.Item_Content.Item_Count += contentItem.Item_Count;
-            resItem.Item_Count = 0;
-        }
-        else
-        {
-            newItem.Item_Content.Item_Count = maxCap;
-            resItem.Item_Count = ((short)(mainItem.Item_Content.Item_Count + contentItem.Item_Count - maxCap));
-        }
+        newContent = oldContent;
+        resItem = addItem;
     }
     /// <summary>
     /// 外置方法(绘制NetObj)
@@ -280,6 +269,7 @@ public class ItemBase
     public virtual void StaticAction_DrawItemObj(ItemNetObj obj,ItemData data)
     {
         obj.spriteIcon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_ID);
+        obj.textMeshPro.text = data.Item_Count.ToString();
     }
     /// <summary>
     /// 外置方法(播放掉落动画)
@@ -307,51 +297,25 @@ public class ItemBase_Materials : ItemBase
 {
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
-        gridCell.panel_Bar.gameObject.SetActive(false);
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
     }
 }
 /// <summary>
-/// 基本食材
+/// 基本食物
 /// </summary>
-public class ItemBase_Ingredient: ItemBase
+public class ItemBase_Food : ItemBase
 {
-    public override void StaticAction_InitData(ItemData baseData, out ItemData initData)
+    public override void StaticAction_InitData(short id, out ItemData initData)
     {
-        baseData.Item_Info = 100;
-        baseData.Item_Durability = 100;
-        baseData.Item_DurabilityPoint = (short)(MapManager.Instance.mapNetManager.Date * 10 + MapManager.Instance.mapNetManager.Hour);
-        initData = baseData;
+        initData = new ItemData(id);
+        initData.Item_Info = 100;
+        initData.Item_Durability = 100;
+        initData.Item_DurabilityPoint = (short)(MapManager.Instance.mapNetManager.Date * 10 + MapManager.Instance.mapNetManager.Hour);
     }
     public override void UpdateDataFromNet(ItemData itemData)
     {
         base.UpdateDataFromNet(itemData);
         CalculateDurability();
-    }
-    public override void StaticAction_FillUp(ItemData mainItem, ItemData contentItem, short maxCap, out ItemData newItem, out ItemData resItem)
-    {
-        newItem = mainItem;
-        resItem = contentItem;
-        newItem.Item_Content = new ContentData(contentItem);
-        newItem.Item_Content.Item_Count = mainItem.Item_Content.Item_Count;
-
-        int wa_Dp = mainItem.Item_Content.Item_DurabilityPoint * mainItem.Item_Content.Item_Count + contentItem.Item_DurabilityPoint * contentItem.Item_Count;
-        int wa_Dv = mainItem.Item_Content.Item_Durability * mainItem.Item_Content.Item_Count + contentItem.Item_Durability * contentItem.Item_Count;
-        newItem.Item_Content.Item_DurabilityPoint = (short)((float)wa_Dp / (float)(contentItem.Item_Count + mainItem.Item_Content.Item_Count));
-        newItem.Item_Content.Item_Durability = (sbyte)((float)wa_Dv / (float)(contentItem.Item_Count + mainItem.Item_Content.Item_Count));
-        resItem.Item_DurabilityPoint = (short)((float)wa_Dp / (float)(contentItem.Item_Count + mainItem.Item_Content.Item_Count));
-        resItem.Item_Durability = (sbyte)((float)wa_Dv / (float)(contentItem.Item_Count + mainItem.Item_Content.Item_Count));
-
-        if (mainItem.Item_Content.Item_Count + contentItem.Item_Count <= maxCap)
-        {
-            newItem.Item_Content.Item_Count += contentItem.Item_Count;
-            resItem.Item_Count = 0;
-        }
-        else
-        {
-            newItem.Item_Content.Item_Count = maxCap;
-            resItem.Item_Count = ((short)(mainItem.Item_Content.Item_Count + contentItem.Item_Count - maxCap));
-        }
     }
     public override void StaticAction_PileUp(ItemData mainItem, ItemData addItem, short maxCap, out ItemData newItem, out ItemData resItem)
     {
@@ -399,9 +363,8 @@ public class ItemBase_Ingredient: ItemBase
     }
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
-        gridCell.panel_Bar.gameObject.SetActive(true);
-        gridCell.image_Bar.transform.localScale = new Vector3(itemData.Item_Durability / 100f, 1, 1);
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
+        gridCell.SetSliderVal(itemData.Item_Durability / 100f);
         if (itemData.Item_Info == 0)
         {
             gridCell.FreezeCell(true);
@@ -409,13 +372,43 @@ public class ItemBase_Ingredient: ItemBase
         else
         {
             gridCell.FreezeCell(false);
-            gridCell.image_Bar.color = new Color(Mathf.Lerp(1, 0, itemData.Item_Durability / 100f), Mathf.Lerp(0f, 1, itemData.Item_Durability / 100f), 0, 1);
+            gridCell.SetSliderColor(new Color(Mathf.Lerp(1, 0, itemData.Item_Durability / 100f), Mathf.Lerp(0f, 1, itemData.Item_Durability / 100f), 0, 1));
         }
     }
-    /// <summary>
-    /// 消耗
-    /// </summary>
-    /// <param name="val"></param>
+
+    public override bool Holding_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
+    {
+        if (inputData.leftPressTimer == 0)
+        {
+            if (owner)
+            {
+                owner.bodyController.SetAnimatorTrigger(BodyPart.Hand, "Eat");
+                owner.bodyController.SetAnimatorTrigger(BodyPart.Head, "Eat");
+                if (input)
+                {
+                    owner.bodyController.SetAnimatorAction(BodyPart.Head, (string str) =>
+                    {
+                        if (str.Equals("Eat"))
+                        {
+                            Eat();
+                        }
+                    });
+                }
+            }
+        }
+        inputData.leftPressTimer = pressTimer;
+        return base.Holding_UpdateLeftPress(pressTimer, state, input, player);
+    }
+    public override void Holding_ReleaseLeftPress(bool state, bool input, bool player)
+    {
+        inputData.leftPressTimer = 0;
+        base.Holding_ReleaseLeftPress(state, input, player);
+    }
+    public virtual void Eat()
+    {
+        Expend(1);
+        owner.hungryManager.AddFood(5);
+    }
     public virtual void Expend(int val)
     {
         if (itemData.Item_Count > val)
@@ -432,111 +425,10 @@ public class ItemBase_Ingredient: ItemBase
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemOnHand()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
             {
                 item = itemData,
             });
-        }
-    }
-}
-/// <summary>
-/// 基本食物
-/// </summary>
-public class ItemBase_Food : ItemBase
-{
-    public override void StaticAction_InitData(ItemData baseData,out ItemData initData)
-    {
-        baseData.Item_Info = 100;
-        baseData.Item_Durability = 100;
-        baseData.Item_DurabilityPoint = (short)(MapManager.Instance.mapNetManager.Date * 10 + MapManager.Instance.mapNetManager.Hour);
-        initData = baseData;
-    }
-    public override void UpdateDataFromNet(ItemData itemData)
-    {
-        base.UpdateDataFromNet(itemData);
-        CalculateDurability();
-    }
-    public override void StaticAction_FillUp(ItemData mainItem, ItemData contentItem, short maxCap, out ItemData newItem, out ItemData resItem)
-    {
-        newItem = mainItem;
-        resItem = contentItem;
-        newItem.Item_Content = new ContentData(contentItem);
-        newItem.Item_Content.Item_Count = mainItem.Item_Content.Item_Count;
-
-        int wa_Dp = mainItem.Item_Content.Item_DurabilityPoint * mainItem.Item_Content.Item_Count + contentItem.Item_DurabilityPoint * contentItem.Item_Count;
-        int wa_Dv = mainItem.Item_Content.Item_Durability * mainItem.Item_Content.Item_Count + contentItem.Item_Durability * contentItem.Item_Count;
-        newItem.Item_Content.Item_DurabilityPoint = (short)((float)wa_Dp / (float)(contentItem.Item_Count + mainItem.Item_Content.Item_Count));
-        newItem.Item_Content.Item_Durability = (sbyte)((float)wa_Dv / (float)(contentItem.Item_Count + mainItem.Item_Content.Item_Count));
-        resItem.Item_DurabilityPoint = (short)((float)wa_Dp / (float)(contentItem.Item_Count + mainItem.Item_Content.Item_Count));
-        resItem.Item_Durability = (sbyte)((float)wa_Dv / (float)(contentItem.Item_Count + mainItem.Item_Content.Item_Count));
-
-        if (mainItem.Item_Content.Item_Count + contentItem.Item_Count <= maxCap)
-        {
-            newItem.Item_Content.Item_Count += contentItem.Item_Count;
-            resItem.Item_Count = 0;
-        }
-        else
-        {
-            newItem.Item_Content.Item_Count = maxCap;
-            resItem.Item_Count = ((short)(mainItem.Item_Content.Item_Count + contentItem.Item_Count - maxCap));
-        }
-    }
-    public override void StaticAction_PileUp(ItemData mainItem, ItemData addItem, short maxCap, out ItemData newItem, out ItemData resItem)
-    {
-        newItem = mainItem;
-        resItem = mainItem;
-
-        int wa_Dp = mainItem.Item_DurabilityPoint * mainItem.Item_Count + addItem.Item_DurabilityPoint * addItem.Item_Count;
-        int wa_Dv = mainItem.Item_Durability * mainItem.Item_Count + addItem.Item_Durability * addItem.Item_Count;
-
-        newItem.Item_DurabilityPoint = (short)((float)wa_Dp / (float)(addItem.Item_Count + mainItem.Item_Count));
-        newItem.Item_Durability = (sbyte)((float)wa_Dv / (float)(addItem.Item_Count + mainItem.Item_Count));
-        resItem.Item_DurabilityPoint = (short)((float)wa_Dp / (float)(addItem.Item_Count + mainItem.Item_Count));
-        resItem.Item_Durability = (sbyte)((float)wa_Dv / (float)(addItem.Item_Count + mainItem.Item_Count));
-
-        if (mainItem.Item_Count + addItem.Item_Count <= maxCap)
-        {
-            newItem.Item_Count += addItem.Item_Count;
-            resItem.Item_Count = 0;
-        }
-        else
-        {
-            newItem.Item_Count = maxCap;
-            resItem.Item_Count = ((short)(mainItem.Item_Count + addItem.Item_Count - maxCap));
-        }
-    }
-    /// <summary>
-    /// 计算新鲜度
-    /// </summary>
-    /// <param name="nowTime"></param>
-    public virtual void CalculateDurability()
-    {
-        int nowTime = MapManager.Instance.mapNetManager.Date * 10 + MapManager.Instance.mapNetManager.Hour;
-        int offset = (int)((nowTime - itemData.Item_DurabilityPoint) * -5 * itemData.Item_Info / 100f);
-        if (itemData.Item_Durability + offset >= 0)
-        {
-            itemData.Item_Durability += (sbyte)offset;
-            itemData.Item_DurabilityPoint = (short)nowTime;
-        }
-        else
-        {
-            itemData.Item_Durability = 0;
-            itemData.Item_DurabilityPoint = (short)nowTime;
-        }
-    }
-    public override void DrawGridCell(UI_GridCell gridCell)
-    {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
-        gridCell.panel_Bar.gameObject.SetActive(true);
-        gridCell.image_Bar.transform.localScale = new Vector3(itemData.Item_Durability / 100f, 1, 1);
-        if (itemData.Item_Info == 0)
-        {
-            gridCell.FreezeCell(true);
-        }
-        else
-        {
-            gridCell.image_Bar.color = new Color(Mathf.Lerp(1, 0, itemData.Item_Durability / 100f), Mathf.Lerp(0f, 1, itemData.Item_Durability / 100f), 0, 1);
-            gridCell.FreezeCell(false);
         }
     }
 
@@ -546,16 +438,15 @@ public class ItemBase_Food : ItemBase
 /// </summary>
 public class ItemBase_Weapon : ItemBase
 {
-    public override void StaticAction_InitData(ItemData baseItem,out ItemData initData)
+    public override void StaticAction_InitData(short id,out ItemData initData)
     {
-        UnityEngine.Random.InitState(baseItem.Item_Seed);
-        baseItem.Item_Durability = (sbyte)UnityEngine.Random.Range(25, 100);
-        initData = baseItem;
+        initData = new ItemData(id);
+        initData.Item_Seed = new System.Random().Next(0, 100000);
+        initData.Item_Durability = (sbyte)new System.Random().Next(50, 101);
     }
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Durability.ToString() + "%");
-        gridCell.panel_Bar.gameObject.SetActive(false);
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(),"ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Durability.ToString() + "%");
     }
 }
 /// <summary>
@@ -563,16 +454,15 @@ public class ItemBase_Weapon : ItemBase
 /// </summary>
 public class ItemBase_Tool : ItemBase
 {
-    public override void StaticAction_InitData(ItemData baseItem, out ItemData initData)
+    public override void StaticAction_InitData(short id, out ItemData initData)
     {
-        UnityEngine.Random.InitState(baseItem.Item_Seed);
-        baseItem.Item_Durability = (sbyte)UnityEngine.Random.Range(25, 100);
-        initData = baseItem;
+        initData = new ItemData(id);
+        initData.Item_Seed = new System.Random().Next(0, 100000);
+        initData.Item_Durability = (sbyte)new System.Random().Next(50, 101);
     }
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Durability.ToString() + "%");
-        gridCell.panel_Bar.gameObject.SetActive(false);
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Durability.ToString() + "%");
     }
 }
 /// <summary>
@@ -582,16 +472,7 @@ public class ItemBase_Gun : ItemBase
 {
     public override void DrawGridCell(UI_GridCell gridCell)
     {
-        if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
-        {
-            gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_" + itemData.Item_Content.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Content.Item_Count.ToString());
-            gridCell.grid_Child.DrawCell(itemData);
-        }
-        else
-        {
-            gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "Item_Default", "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Content.Item_Count.ToString());
-        }
-        gridCell.panel_Bar.gameObject.SetActive(false);
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Content.Item_Count.ToString());
     }
 }
 /// <summary>
@@ -599,7 +480,7 @@ public class ItemBase_Gun : ItemBase
 /// </summary>
 public class ItemBase_Clothes:ItemBase
 {
-   
+
 }
 [Serializable]
 public struct ItemData : INetworkStruct, IEquatable<ItemData>
@@ -613,7 +494,11 @@ public struct ItemData : INetworkStruct, IEquatable<ItemData>
     public ContentData Item_Content;
     public bool Equals(ItemData other)
     {
-        if (Item_ID == other.Item_ID && Item_Seed == other.Item_Seed && Item_Count == other.Item_Count && Item_Info == other.Item_Info)
+        if (Item_ID == other.Item_ID && 
+            Item_Seed == other.Item_Seed && 
+            Item_Info == other.Item_Info && 
+            Item_Count == other.Item_Count &&
+            Item_Content.Equals(other.Item_Content))
         {
             return true;
         }
@@ -622,16 +507,16 @@ public struct ItemData : INetworkStruct, IEquatable<ItemData>
             return false;
         }
     }
-    public ItemData(short id, int seed, short count, short info, sbyte durability, short durabilityPoint, ContentData content)
+    public ItemData(short id)
     {
         Item_ID = id;
-        Item_Seed = seed;
-        Item_Count = count;
-        Item_Info = info;
-        Item_Durability = durability;
-        Item_DurabilityPoint = durabilityPoint;
+        Item_Count = 1;
+        Item_Seed = 0;
+        Item_Info = 0;
+        Item_Durability = 0;
+        Item_DurabilityPoint = 0;
 
-        Item_Content = content;
+        Item_Content = new ContentData();
     }
     public ItemData(ContentData contentData)
     {
@@ -663,7 +548,17 @@ public struct ContentData : INetworkStruct
         Item_Durability = itemData.Item_Durability;
         Item_DurabilityPoint = itemData.Item_DurabilityPoint;
     }
-
+    public bool Equals(ContentData other)
+    {
+        if (Item_ID == other.Item_ID && Item_Seed == other.Item_Seed && Item_Count == other.Item_Count)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }
 public class InputData
 {

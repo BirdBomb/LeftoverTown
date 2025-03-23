@@ -1,29 +1,4 @@
-﻿/****************************************************************************
- * Copyright (c) 2015 ~ 2024 liangxiegame MIT License
- *
- * QFramework v1.0
- *
- * https://qframework.cn
- * https://github.com/liangxiegame/QFramework
- * https://gitee.com/liangxiegame/QFramework
- *
- * Author:
- *  liangxie        https://github.com/liangxie
- *  soso            https://github.com/so-sos-so
- *
- * Contributor
- *  TastSong        https://github.com/TastSong
- *  京产肠饭         https://gitee.com/JingChanChangFan/hk_-unity-tools
- *  猫叔(一只皮皮虾)  https://space.bilibili.com/656352/
- *  New一天
- *  幽飞冷凝雪～冷
- *
- * Community
- *  QQ Group: 623597263
- * Latest Update: 2024.1.4 14:56 remove BindablePropertyUnRegister
- ****************************************************************************/
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 

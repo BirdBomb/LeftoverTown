@@ -7,130 +7,89 @@ using UnityEngine.UI;
 
 public class UI_Grid_Bag : UI_Grid
 {
-    [SerializeField, Header("背包槽位")]
-    private List<UI_GridCell> _bagCellList = new List<UI_GridCell>();
+    [SerializeField, Header("背包格子")]
+    private List<UI_GridCell> gridCells_BagCellList = new List<UI_GridCell>();
     [SerializeField, Header("背包锁")]
-    private List<Image> images_bagLockList = new List<Image>();
-    private List<ItemData> itemDatas_bagItemDataList = new List<ItemData>();
+    private List<Image> images_BagLockList = new List<Image>();
+    private List<ItemData> itemDatas_BagList = new List<ItemData>();
     private int _bagCapacity;
     private void Start()
     {
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
         {
             _bagCapacity = _.bagCapacity;
-            itemDatas_bagItemDataList.Clear();
-            for (int i = 0; i < _.itemDatas.Count; i++)
-            {
-                itemDatas_bagItemDataList.Add(_.itemDatas[i]);
-            }
+            itemDatas_BagList = new List<ItemData>(_.itemDatas);
             BagUpdateItem();
             BagDrawEveryLock();
 
         }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent.GameEvent_AllClient_UpdateTime>().Subscribe(_ =>
         {
             BagUpdateItem();
         }).AddTo(this);
+        BindAllCell();
     }
-    /// <summary>
-    /// 更新背包物体
-    /// </summary>
+    private void BindAllCell()
+    {
+        for (int i = 0; i < gridCells_BagCellList.Count; i++)
+        {
+            gridCells_BagCellList[i].BindAction(PutIn, PutOut, ClickCellLeft, ClickCellRight);
+        }
+    }
+    #region//绘制
     private void BagUpdateItem()
     {
-        BagDrawEveryCell();
-    }
-    private void BagDrawEveryCell()
-    {
-        for (int i = 0; i < _bagCellList.Count; i++)
+        for (int i = 0; i < gridCells_BagCellList.Count; i++)
         {
-            if (i < itemDatas_bagItemDataList.Count)
+            if (i < itemDatas_BagList.Count)
             {
-                DrawCell(_bagCellList[i], itemDatas_bagItemDataList[i]);
+                gridCells_BagCellList[i].UpdateData(itemDatas_BagList[i]);
             }
             else
             {
-                ResetCell(_bagCellList[i]);
+                gridCells_BagCellList[i].CleanData();
             }
         }
     }
     private void BagDrawEveryLock()
     {
-        for (int i = 0; i < images_bagLockList.Count; i++)
+        for (int i = 0; i < images_BagLockList.Count; i++)
         {
             if (i < _bagCapacity)
             {
-                images_bagLockList[i].enabled = false;
+                images_BagLockList[i].enabled = false;
             }
             else
             {
-                images_bagLockList[i].enabled = true;
+                images_BagLockList[i].enabled = true;
             }
         }
 
     }
-    private void ResetCell(UI_GridCell cell)
-    {
-        cell.ResetGridCell();
-    }
-    /// <summary>
-    /// 绘制一个格子
-    /// </summary>
-    /// <param name="cell"></param>
-    /// <param name="data"></param>
-    private void DrawCell(UI_GridCell cell, ItemData data)
-    {
-        cell.UpdateGridCell(data);
-        cell.BindClickAction(ClickCellLeft, ClickCellRight);
-        cell.BindDragAction(CellDragBegin, CellDragIn, CellDragEnd);
-    }
+    #endregion
+    #region//绑定
     public void ClickCellLeft(UI_GridCell gridCell)
     {
-        gridCell._bindItem.LeftClickGridCell(gridCell, gridCell._bindItem.itemData);
+        if (gridCell._bindItemBase != null) gridCell._bindItemBase.LeftClickGridCell(gridCell, gridCell._bindItemBase.itemData);
     }
     public void ClickCellRight(UI_GridCell gridCell)
     {
-        gridCell._bindItem.RightClickGridCell(gridCell, gridCell._bindItem.itemData);
+        if (gridCell._bindItemBase != null) gridCell._bindItemBase.RightClickGridCell(gridCell, gridCell._bindItemBase.itemData);
     }
-    public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-
-    }
-    public override void CellDragIn(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-        gridCell.image_MainIcon.transform.position = Input.mousePosition;
-    }
-    public override void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemFromBag()
-        {
-            item = itemData
-        });
-
-        pointerEventData.position = Input.mousePosition;
-        List<RaycastResult> raycastResults = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointerEventData, raycastResults);
-        if (raycastResults.Count > 0)
-        {
-            foreach (RaycastResult result in raycastResults)
-            {
-                if (result.gameObject.TryGetComponent(out UI_Grid grid))
-                {
-                    grid.ListenDragOn(this, gridCell, itemData);
-                    return;
-                }
-            }
-        }
-
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-        {
-            item = itemData
-        });
-    }
-    public override void ListenDragOn<T>(T grid, UI_GridCell cell, ItemData itemData)
+    public void PutIn(ItemData data)
     {
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
         {
-            item = itemData,
+            item = data,
         });
     }
+    public ItemData PutOut(ItemData data)
+    {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemInBag()
+        {
+            item = data
+        });
+        return data;
+    }
+    #endregion
 }

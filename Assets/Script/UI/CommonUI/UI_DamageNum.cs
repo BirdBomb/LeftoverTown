@@ -22,7 +22,6 @@ public class UI_DamageNum : MonoBehaviour
             Num.DOFade(0, 0.5f);
         });
         Invoke("Ending", 1);
-
     }
     public void Ending()
     {

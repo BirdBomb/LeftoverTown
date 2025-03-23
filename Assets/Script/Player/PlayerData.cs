@@ -7,19 +7,19 @@ public class PlayerData
     public PlayerData()
     {
         Name = "无名氏";
-        CurHp = 100;
-        MaxHp = 100;
-        Armor = 0;
-        CurFood = 100;
-        MaxFood = 100;
-        Water = 5;
-        CurSan = 100;
-        MaxSan = 100;
-        Happy = 5;
-        Coin = 100;
-        En = 3000;
-        CommonSpeed = 20;
-        MaxSpeed = 40;
+        Hp_Cur = 100;
+        Hp_Max = 100;
+        Armor_Cur = 0;
+        Food_Cur = 100;
+        Food_Max = 100;
+        Water_Cur = 5;
+        San_Cur = 100;
+        San_Max = 100;
+        Happy_Cur = 5;
+        Coin_Cur = 100;
+        En_Cur = 3000;
+        Speed_Common = 60;
+        Speed_Max = 80;
 
         Point_Strength = 1;
         Point_Intelligence = 1;
@@ -36,75 +36,70 @@ public class PlayerData
     [SerializeField]
     public string Name;
     /// <summary>
-    /// 位置
-    /// </summary>
-    [SerializeField]
-    public Vector3Int Pos;
-    /// <summary>
     /// 常态速度
     /// </summary>
     [SerializeField]
-    public short CommonSpeed;
+    public short Speed_Common;
     /// <summary>
     /// 最大速度
     /// </summary>
     [SerializeField]
-    public short MaxSpeed;
+    public short Speed_Max;
     /// <summary>
     /// 耐力
     /// </summary>
     [SerializeField]
-    public int En;
+    public int En_Cur;
     /// <summary>
     /// 当前生命值
     /// </summary>
     [SerializeField]
-    public short CurHp;
+    public short Hp_Cur;
     /// <summary>
     /// 最大生命值
     /// </summary>
     [SerializeField]
-    public int MaxHp;
+    public int Hp_Max;
     /// <summary>
     /// 护甲值
     /// </summary>
     [SerializeField]
-    public short Armor;
+    public short Armor_Cur;
     /// <summary>
     /// 当前食物值
     /// </summary>
     [SerializeField]
-    public short CurFood;
+    public short Food_Cur;
     /// <summary>
     /// 最大食物值
     /// </summary>
     [SerializeField]
-    public short MaxFood;
+    public short Food_Max;
     /// <summary>
     /// 缺水值
     /// </summary>
     [SerializeField]
-    public short Water;
+    public short Water_Cur;
     /// <summary>
     /// 当前精神值
     /// </summary>
     [SerializeField]
-    public short CurSan;
+    public short San_Cur;
     /// <summary>
     /// 最大精神值
     /// </summary>
     [SerializeField]
-    public short MaxSan;
+    public short San_Max;
     /// <summary>
     /// 心情值
     /// </summary>
     [SerializeField]
-    public short Happy;
+    public short Happy_Cur;
     /// <summary>
     /// 金币
     /// </summary>
     [SerializeField]
-    public short Coin;
+    public short Coin_Cur;
     /// <summary>
     /// 体力
     /// </summary>
@@ -191,15 +186,15 @@ public class PlayerData
     /// 头发ID
     /// </summary>
     [SerializeField]
-    public int HairID;
+    public short Hair_ID;
     /// <summary>
     /// 头发颜色
     /// </summary>
     [SerializeField]
-    public Color32 HairColor;
+    public Color32 Hair_Color;
     /// <summary>
     /// 眼镜ID
     /// </summary>
     [SerializeField]
-    public int EyeID;
+    public short Eye_ID;
 }

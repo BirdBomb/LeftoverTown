@@ -48,4 +48,11 @@ public class BuffBase
     {
 
     }
+    /// <summary>
+    /// 触发节点:秒更新
+    /// </summary>
+    public virtual void Listen_UpdateSecond(ActorManager actor)
+    {
+
+    }
 }

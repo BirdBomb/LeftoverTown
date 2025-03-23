@@ -5,53 +5,51 @@ using UnityEngine;
 public class BulletBase : MonoBehaviour
 {
     [HideInInspector]
-    public Vector3 moveDir;
+    public Vector3 vectoe3_MoveDir;
     [HideInInspector]
-    public float moveSpeed;
+    public Vector3 vectoe3_CurPos;
     [HideInInspector]
-    public Vector3 curPos;
+    public Vector3 vectoe3_LastPos;
     [HideInInspector]
-    public Vector3 lastPos;
+    public float float_MoveSpeed;
+    [HideInInspector]
+    public float float_Force;
     [SerializeField, Header("生命周期")]
-    public float life;
+    public float float_Life;
     [SerializeField, Header("子弹伤害")]
-    public short configDamage;
+    public short config_Damage;
     [SerializeField, Header("子弹速度")]
-    public short configSpeed;
+    public short config_Speed;
+    [SerializeField, Header("子弹力量")]
+    public float config_Force;
 
     [SerializeField, Header("子弹本身加载路径")]
-    public string bulletPath;
-    [SerializeField, Header("击中特效加载路径")]
-    public string effectPath;
-    [SerializeField, Header("目标路径")]
-    public LayerMask target;
-    protected Fusion.NetworkId _ownerId;
-    protected ActorNetManager _from;
-    protected bool _input;
-    protected bool _state;
+    public string str_BulletPath;
+    [SerializeField, Header("目标层级")]
+    public LayerMask layerMask_Target;
+    protected ActorNetManager actorNetManager_Owner;
+    protected ActorAuthority actorAuthority_Owner;
     protected bool _hide;
-    public virtual void InitBullet(Vector3 dir, float speed, ActorNetManager from)
+    public virtual void InitBullet(Vector3 dir, float speed, float force, ActorNetManager from)
     {
-        curPos = transform.position;
-        lastPos = transform.position;
-        moveDir = dir;
-        moveSpeed = configSpeed + speed;
-
-        _ownerId = from.Object.Id;
-        _from = from;
-        _input = from.Object.HasInputAuthority;
-        _state = from.Object.HasStateAuthority;
+        vectoe3_CurPos = transform.position;
+        vectoe3_LastPos = transform.position;
+        vectoe3_MoveDir = dir;
+        float_MoveSpeed = config_Speed + speed;
+        float_Force = config_Force + force;
+        actorNetManager_Owner = from;
+        actorAuthority_Owner = actorNetManager_Owner.actorManager_Local.actorAuthority;
         _hide = false;
     }
     public virtual void HideBullet()
     {
         _hide = true;
-        PoolManager.Instance.ReleaseObject(bulletPath, gameObject);
+        PoolManager.Instance.ReleaseObject(str_BulletPath, gameObject);
     }
     private void OnEnable()
     {
         _hide = false;
-        Invoke("HideBullet", life);
+        Invoke("HideBullet", float_Life);
     }
     private void OnDisable()
     {

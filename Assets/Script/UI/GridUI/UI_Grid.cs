@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -6,68 +7,21 @@ using UnityEngine.EventSystems;
 
 public class UI_Grid : MonoBehaviour
 {
+    public Action<string> action_ChangeInfo;
     /// <summary>
-    /// 打开
+    /// 绑定数据回调
     /// </summary>
-    /// <param name="tileObj"></param>
-    public virtual void Open(TileObj tileObj)
+    public virtual void BindAction_ChangeInfo(Action<string> callBack)
     {
-        
+        action_ChangeInfo = callBack;
     }
-    /// <summary>
-    /// 关闭
-    /// </summary>
-    /// <param name="tileObj"></param>
-    public virtual void Close(TileObj tileObj)
-    {
-        
-    }
-    /// <summary>
-    /// 格子开始拖拽
-    /// </summary>
-    /// <param name="gridCell"></param>
-    /// <param name="itemData"></param>
-    /// <param name="pointerEventData"></param>
-    public virtual void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
+    public virtual void Open()
     {
 
     }
-    /// <summary>
-    /// 格子拖拽中
-    /// </summary>
-    /// <param name="gridCell"></param>
-    /// <param name="itemData"></param>
-    /// <param name="pointerEventData"></param>
-    public virtual void CellDragIn(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
+
+    public virtual void Close()
     {
 
     }
-    /// <summary>
-    /// 格子拖拽结束
-    /// </summary>
-    /// <param name="gridCell"></param>
-    /// <param name="itemData"></param>
-    /// <param name="pointerEventData"></param>
-    public virtual void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-
-    }
-    /// <summary>
-    /// 监听拖拽
-    /// </summary>
-    public virtual void ListenDragOn<T>(T from, UI_GridCell cell, ItemData itemData) where T : UI_Grid
-    {
-
-    }
-    /*取出*/
-    public virtual void PutOut(ItemData before, out ItemData after)
-    {
-        after = before;
-    }
-    /*放入*/
-    public virtual void PutIn(ItemData before, out ItemData after)
-    {
-        after = before;
-    }
-
 }

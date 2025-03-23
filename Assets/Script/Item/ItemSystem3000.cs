@@ -10,403 +10,132 @@ public class ItemSystem3000
 {
     
 }
+#region//蔬果
 /// <summary>
-/// 水
+/// 鸟果
 /// </summary>
-public class Item_3000 : ItemBase_Ingredient
+public class Item_3000 : ItemBase_Food
 {
-    public override void Holding_Start(ActorManager owner, BaseBodyController body)
+    public override void Eat()
     {
-        base.Holding_Start(owner, body);
+        base.Eat();
     }
-    /// <summary>
-    /// 计算新鲜度
-    /// </summary>
-    /// <param name="nowTime"></param>
-    public override void CalculateDurability()
+}
+/// <summary>
+/// 黄金鸟果
+/// </summary>
+public class Item_3001 : ItemBase_Food
+{
+    public override void Eat()
     {
-        itemData.Item_Durability = 100;
+        base.Eat();
+    }
+}
+/// <summary>
+/// 水桔
+/// </summary>
+public class Item_3002 : ItemBase_Food
+{
+    public override void Eat()
+    {
+        base.Eat();
+    }
+}
+/// <summary>
+/// 薯果
+/// </summary>
+public class Item_3003 : ItemBase_Food
+{
+    public override void Eat()
+    {
+        base.Eat();
+    }
+}
+/// <summary>
+/// 辣椒
+/// </summary>
+public class Item_3004 : ItemBase_Food
+{
+    public override void Eat()
+    {
+        base.Eat();
+    }
+}
+
+#endregion
+#region//肉蛋
+/// <summary>
+/// 带皮肉
+/// </summary>
+public class Item_3100 : ItemBase_Food
+{
+    public override void Eat()
+    {
+        base.Eat();
+    }
+}
+/// <summary>
+/// 带骨肉
+/// </summary>
+public class Item_3101 : ItemBase_Food
+{
+    public override void Eat()
+    {
+        base.Eat();
+    }
+}
+/// <summary>
+/// 禽腿肉
+/// </summary>
+public class Item_3102 : ItemBase_Food
+{
+    public override void Eat()
+    {
+        base.Eat();
+    }
+}
+/// <summary>
+/// 内脏
+/// </summary>
+public class Item_3103 : ItemBase_Food
+{
+    public override void Eat()
+    {
+        base.Eat();
     }
 }
 /// <summary>
 /// 污染肉
 /// </summary>
-public class Item_3001 : ItemBase_Ingredient
+public class Item_3104 : ItemBase_Food
 {
-    #region//食用逻辑
-    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
+    public override void Eat()
     {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                owner.BodyController.SetHeadTrigger("Eat", 1, (string str) =>
-                {
-                    if (input && str.Equals("HeadEat"))
-                    {
-                        OnlyInput_Eat();
-                    }
-                });
-                owner.BodyController.SetHandTrigger("Eat", 1, null);
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
+        base.Eat();
     }
-    public override void ReleaseLeftPress(bool state, bool input, bool player)
-    {
-        inputData.leftPressTimer = 0;
-        base.ReleaseLeftPress(state, input, player);
-    }
-    private void OnlyInput_Eat()
-    {
-        Expend(1);
-        owner.AllClient_AddFood(5);
-    }
-
-    #endregion
 }
 /// <summary>
-/// 鸟果
+/// 鲫鱼
 /// </summary>
-public class Item_3002 : ItemBase_Ingredient
+public class Item_3110 : ItemBase_Food
 {
-    #region//食用逻辑
-    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
+    public override void Eat()
     {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                owner.BodyController.SetHeadTrigger("Eat", 1, (string str) =>
-                {
-                    if (input && str.Equals("HeadEat"))
-                    {
-                        OnlyInput_Eat();
-                    }
-                });
-                owner.BodyController.SetHandTrigger("Eat", 1, null);
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
+        base.Eat();
     }
-    public override void ReleaseLeftPress(bool state, bool input, bool player)
-    {
-        inputData.leftPressTimer = 0;
-        base.ReleaseLeftPress(state, input, player);
-    }
-    private void OnlyInput_Eat()
-    {
-        Expend(1);
-        owner.AllClient_AddFood(5);
-    }
-
-    #endregion
 }
-/// <summary>
-/// 水桔
-/// </summary>
-public class Item_3003 : ItemBase_Ingredient
-{
-    #region//食用逻辑
-    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
-    {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                owner.BodyController.SetHeadTrigger("Eat", 1, (string str) =>
-                {
-                    if (input && str.Equals("HeadEat"))
-                    {
-                        OnlyInput_Eat();
-                    }
-                });
-                owner.BodyController.SetHandTrigger("Eat", 1, null);
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
-    }
-    public override void ReleaseLeftPress(bool state, bool input, bool player)
-    {
-        inputData.leftPressTimer = 0;
-        base.ReleaseLeftPress(state, input, player);
-    }
-    private void OnlyInput_Eat()
-    {
-        Expend(1);
-        owner.AllClient_AddFood(5);
-    }
 
-    #endregion
-}
-/// <summary>
-/// 黄金鸟果
-/// </summary>
-public class Item_3004 : ItemBase_Ingredient
-{
-    #region//食用逻辑
-    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
-    {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                owner.BodyController.SetHeadTrigger("Eat", 1, (string str) =>
-                {
-                    if (input && str.Equals("HeadEat"))
-                    {
-                        OnlyInput_Eat();
-                    }
-                });
-                owner.BodyController.SetHandTrigger("Eat", 1, null);
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
-    }
-    public override void ReleaseLeftPress(bool state, bool input, bool player)
-    {
-        inputData.leftPressTimer = 0;
-        base.ReleaseLeftPress(state, input, player);
-    }
-    private void OnlyInput_Eat()
-    {
-        Expend(1);
-        owner.AllClient_AddFood(5);
-    }
-
-    #endregion
-}
-/// <summary>
-/// 带皮肉
-/// </summary>
-public class Item_3005 : ItemBase_Ingredient
-{
-    #region//食用逻辑
-    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
-    {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                owner.BodyController.SetHeadTrigger("Eat", 1, (string str) =>
-                {
-                    if (input && str.Equals("HeadEat"))
-                    {
-                        OnlyInput_Eat();
-                    }
-                });
-                owner.BodyController.SetHandTrigger("Eat", 1, null);
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
-    }
-    public override void ReleaseLeftPress(bool state, bool input, bool player)
-    {
-        inputData.leftPressTimer = 0;
-        base.ReleaseLeftPress(state, input, player);
-    }
-    private void OnlyInput_Eat()
-    {
-        Expend(1);
-        owner.AllClient_AddFood(5);
-    }
-
-    #endregion
-}
-/// <summary>
-/// 带骨肉
-/// </summary>
-public class Item_3006 : ItemBase_Ingredient
-{
-    #region//食用逻辑
-    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
-    {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                owner.BodyController.SetHeadTrigger("Eat", 1, (string str) =>
-                {
-                    if (input && str.Equals("HeadEat"))
-                    {
-                        OnlyInput_Eat();
-                    }
-                });
-                owner.BodyController.SetHandTrigger("Eat", 1, null);
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
-    }
-    public override void ReleaseLeftPress(bool state, bool input, bool player)
-    {
-        inputData.leftPressTimer = 0;
-        base.ReleaseLeftPress(state, input, player);
-    }
-    private void OnlyInput_Eat()
-    {
-        Expend(1);
-        owner.AllClient_AddFood(5);
-    }
-
-    #endregion
-}
-/// <summary>
-/// 禽腿肉
-/// </summary>
-public class Item_3007 : ItemBase_Ingredient
-{
-    #region//食用逻辑
-    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
-    {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                owner.BodyController.SetHeadTrigger("Eat", 1, (string str) =>
-                {
-                    if (input && str.Equals("HeadEat"))
-                    {
-                        OnlyInput_Eat();
-                    }
-                });
-                owner.BodyController.SetHandTrigger("Eat", 1, null);
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
-    }
-    public override void ReleaseLeftPress(bool state, bool input, bool player)
-    {
-        inputData.leftPressTimer = 0;
-        base.ReleaseLeftPress(state, input, player);
-    }
-    private void OnlyInput_Eat()
-    {
-        Expend(1);
-        owner.AllClient_AddFood(5);
-    }
-
-    #endregion
-}
-/// <summary>
-/// 内脏
-/// </summary>
-public class Item_3008 : ItemBase_Ingredient
-{
-    #region//食用逻辑
-    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
-    {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                owner.BodyController.SetHeadTrigger("Eat", 1, (string str) =>
-                {
-                    if (input && str.Equals("HeadEat"))
-                    {
-                        OnlyInput_Eat();
-                    }
-                });
-                owner.BodyController.SetHandTrigger("Eat", 1, null);
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
-    }
-    public override void ReleaseLeftPress(bool state, bool input, bool player)
-    {
-        inputData.leftPressTimer = 0;
-        base.ReleaseLeftPress(state, input, player);
-    }
-    private void OnlyInput_Eat()
-    {
-        Expend(1);
-        owner.AllClient_AddFood(5);
-    }
-
-    #endregion
-}
-/// <summary>
-/// 薯果
-/// </summary>
-public class Item_3009 : ItemBase_Ingredient
-{
-    #region//食用逻辑
-    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
-    {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                owner.BodyController.SetHeadTrigger("Eat", 1, (string str) =>
-                {
-                    if (input && str.Equals("HeadEat"))
-                    {
-                        OnlyInput_Eat();
-                    }
-                });
-                owner.BodyController.SetHandTrigger("Eat", 1, null);
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
-    }
-    public override void ReleaseLeftPress(bool state, bool input, bool player)
-    {
-        inputData.leftPressTimer = 0;
-        base.ReleaseLeftPress(state, input, player);
-    }
-    private void OnlyInput_Eat()
-    {
-        Expend(1);
-        owner.AllClient_AddFood(5);
-    }
-
-    #endregion
-}
+#endregion
+#region//其他
 /// <summary>
 /// 面粉
 /// </summary>
-public class Item_3010 : ItemBase_Ingredient
+public class Item_3200 : ItemBase_Food
 {
-    #region//食用逻辑
-    public override bool UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
+    public override void Eat()
     {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                owner.BodyController.SetHeadTrigger("Eat", 1, (string str) =>
-                {
-                    if (input && str.Equals("HeadEat"))
-                    {
-                        OnlyInput_Eat();
-                    }
-                });
-                owner.BodyController.SetHandTrigger("Eat", 1, null);
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
+        base.Eat();
     }
-    public override void ReleaseLeftPress(bool state, bool input, bool player)
-    {
-        inputData.leftPressTimer = 0;
-        base.ReleaseLeftPress(state, input, player);
-    }
-    private void OnlyInput_Eat()
-    {
-        Expend(1);
-        owner.AllClient_AddFood(5);
-    }
-
-    #endregion
 }
 /// <summary>
 /// 腐烂食物
@@ -414,3 +143,4 @@ public class Item_3010 : ItemBase_Ingredient
 public class Item_3999 : ItemBase
 {
 }
+#endregion

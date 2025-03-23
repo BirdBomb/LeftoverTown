@@ -14,85 +14,38 @@ using Button = UnityEngine.UI.Button;
 using Debug = UnityEngine.Debug;
 using Image = UnityEngine.UI.Image;
 
-public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler,IPointerExitHandler
+public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    [Header("图标图集")]
-    public SpriteAtlas atlas_ItemIcon;
-    [Header("背景图集")]
-    public SpriteAtlas atlas_ItemBG;
-    [Header("图标背景")]
-    public Image image_BackGround;
-    [Header("图标主要")]
-    public Image image_MainIcon;
-    [Header("图标次要")]
-    public Image image_ChildIcon;
-    [Header("图标遮罩(冰冻)")]
-    public Image image_IceMask;
-    [Header("信息文本")]
-    public Text text_Info;
-    [Header("UI按钮")]
-    public Button btn_Main;
-    [Header("UI子集")]
+    [SerializeField, Header("图标图集")]
+    private SpriteAtlas spriteAtlas_ItemIcon;
+    [SerializeField, Header("背景图集")]
+    private SpriteAtlas spriteAtlas_ItemBG;
+    [SerializeField, Header("图标背景")]
+    private Image image_IconBG;
+    [SerializeField, Header("图标主要")]
+    private Image image_IconMain;
+    [SerializeField, Header("冷冻遮罩")]
+    private Image image_IconMask;
+    [SerializeField, Header("角标")]
+    private Text text_CornerMark;
+    [SerializeField, Header("子Grid")]
     public UI_Grid_Child grid_Child;
-    [Header("滑动条背景")]
-    public Transform panel_Bar;
-    [Header("滑动条填充")]
-    public Image image_Bar;
+    [SerializeField, Header("滑动条背景")]
+    private Transform panel_Bar;
+    [SerializeField, Header("滑动条填充")]
+    private Image image_Bar;
     private bool _sleeping = false;
     private bool _pointing = false;
-    private void Awake()
-    {
-        Bind();
-    }
 
-    public ItemBase _bindItem;
-    public int BindID
-    {
-        get { return bindID; }
-        set
-        {
-            if (bindID != value)
-            {
-                bindID = value;
-                if (bindID != 0)
-                {
-                    Type type = Type.GetType("Item_" + bindID.ToString());
-                    _bindItem = (ItemBase)Activator.CreateInstance(type);
-                }
-                else
-                {
-                    _bindItem = null;
-                }
-            }
-        }
-    }
-    private int bindID;
-    private Action<UI_GridCell> _bindClickLeft;
-    private Action<UI_GridCell> _bindClickRight;
-    private Action<UI_GridCell, ItemData, PointerEventData> _bindDragBegin;
-    private Action<UI_GridCell, ItemData, PointerEventData> _bindDraging;
-    private Action<UI_GridCell, ItemData, PointerEventData> _bindDragEnd;
+    private Action<ItemData> action_PutIn;
+    private Func<ItemData, ItemData> action_PutOut;
+    private Action<UI_GridCell> action_ClickLeft;
+    private Action<UI_GridCell> action_ClickRight;
     private string str_itemName = "";
     private string str_itemDesc = "";
-    private string str_itemInfoDesc = "";
-    #region//UI绑定
-    private void Bind()
-    {
-        btn_Main.onClick.AddListener(ClickLeft);
-    }
-    public virtual void BindClickAction(Action<UI_GridCell> clickLeft, Action<UI_GridCell> clickRight)
-    {
-        _bindClickLeft = clickLeft;
-        _bindClickRight = clickRight;
-    }
-    public virtual void BindDragAction(Action<UI_GridCell, ItemData, PointerEventData> dragBegin, Action<UI_GridCell, ItemData, PointerEventData> dragIn, Action<UI_GridCell, ItemData, PointerEventData> dragEnd)
-    {
-        _bindDragBegin = dragBegin;
-        _bindDraging = dragIn;
-        _bindDragEnd = dragEnd;
-    }
-    #endregion
-    #region//UI交互
+    private string str_itemInfo = "";
+
+    public ItemBase _bindItemBase = null;
     public void OnDisable()
     {
         if (_pointing)
@@ -103,117 +56,132 @@ public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             });
         }
     }
-    public void ClickLeft()
-    {
-        if (_bindClickLeft != null && !_sleeping)
-        {
-            _bindClickLeft.Invoke(this);
-        }
-    }
-    public void ClickRight()
-    {
-        if (_bindClickRight != null && !_sleeping)
-        {
 
-        }
-    }
-    public void OnBeginDrag(PointerEventData eventData)
+    #region//UI绑定
+    public void BindAction(Action<ItemData> putIn, Func<ItemData, ItemData> putOut, Action<UI_GridCell> clickLeft, Action<UI_GridCell> clickRight)
     {
-        if (_bindDragBegin != null && !_sleeping)
-        {
-            _bindDragBegin.Invoke(this, _bindItem.itemData, eventData);
-        }
-    }
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (_bindDraging != null && !_sleeping)
-        {
-            _bindDraging.Invoke(this, _bindItem.itemData, eventData);
-        }
-    }
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        image_MainIcon.transform.localPosition = Vector3.zero;
-        if (_bindDragEnd != null && !_sleeping)
-        {
-            _bindDragEnd.Invoke(this, _bindItem.itemData, new PointerEventData(EventSystem.current));
-        }
-    }
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        _pointing = true;
-        if (!_sleeping)
-        {
-            transform.DOKill();
-            transform.localScale = Vector3.one;
-            transform.DOScale(new Vector3(1.1f, 1.1f, 1.1f), 0.2f);
-
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_ShowInfoTextUI()
-            {
-                anchor = eventData.position,
-                text = str_itemInfoDesc
-            });
-        }
-    }
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        _pointing = false;
-        if (!_sleeping)
-        {
-            transform.DOKill();
-            transform.localScale = Vector3.one;
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
-            {
-
-            });
-        }
+        action_PutIn = putIn;
+        action_PutOut = putOut;
+        action_ClickLeft = clickLeft;
+        action_ClickRight = clickRight;
     }
     #endregion
     #region//更新格子
     /// <summary>
-    /// 更新物品格子
+    /// 更新数据
     /// </summary>
-    public virtual ItemBase UpdateGridCell(ItemData data)
+    public virtual ItemBase UpdateData(ItemData data)
     {
-        if (data.Item_ID == 0)
+        if (_bindItemBase == null || _bindItemBase.itemData.Item_ID != data.Item_ID)
         {
-            BindID = data.Item_ID;
-            ResetGridCell();
+            ResetCell();
+            BindItemBase(data);
+            UpdateItemBase(data);
+            ColourCell(_bindItemBase.itemConfig.Item_Name, _bindItemBase.itemConfig.Item_Desc, _bindItemBase.itemConfig.ItemRarity);
         }
         else
         {
-            if (BindID != data.Item_ID)
-            {
-                ResetGridCell();
-                BindID = data.Item_ID;
-                _bindItem.UpdateDataFromNet(data);
-                _bindItem.DrawGridCell(this);
-                Colour(_bindItem.itemConfig.Item_Name, _bindItem.itemConfig.Item_Desc, _bindItem.itemConfig.ItemRarity);
-                str_itemInfoDesc = str_itemName + "\n" + str_itemDesc;
-            }
-            else
-            {
-                BindID = data.Item_ID;
-                _bindItem.UpdateDataFromNet(data);
-                _bindItem.DrawGridCell(this);
-            }
+            UpdateItemBase(data);
         }
-        return _bindItem;
+        return _bindItemBase;
     }
     /// <summary>
-    /// 重设物品格子
+    /// 清空数据
     /// </summary>
-    public void ResetGridCell()
+    public virtual void CleanData()
+    {
+        if(_bindItemBase != null)
+        {
+            _bindItemBase = null;
+            ResetCell();
+        }
+    }
+    /// <summary>
+    /// 绑定实例
+    /// </summary>
+    /// <param name="data"></param>
+    private void BindItemBase(ItemData data)
+    {
+        Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+        if (type != null) _bindItemBase = (ItemBase)Activator.CreateInstance(type);
+        else _bindItemBase = null;
+    }
+    /// <summary>
+    /// 更新实例
+    /// </summary>
+    /// <param name="data"></param>
+    private void UpdateItemBase(ItemData data)
+    {
+        _bindItemBase.UpdateDataFromNet(data);
+        _bindItemBase.DrawGridCell(this);
+        if (grid_Child)
+        {
+            grid_Child.UpdateGrid(data);
+            grid_Child.DrawCell(data);
+        }
+    }
+    #endregion
+    #region//绘制格子
+    /// <summary>
+    /// 绘制格子
+    /// </summary>
+    /// <param name="mainIcon"></param>
+    /// <param name="childIcon"></param>
+    /// <param name="backGround"></param>
+    /// <param name="name"></param>
+    /// <param name="info"></param>
+    public void DrawCell(string mainIcon, string backGround, string name, string info)
+    {
+        image_IconBG.gameObject.SetActive(true);
+        image_IconMain.sprite = spriteAtlas_ItemIcon.GetSprite(mainIcon);
+        image_IconBG.sprite = spriteAtlas_ItemBG.GetSprite(backGround);
+        str_itemName = name;
+        text_CornerMark.text = info;
+    }
+    /// <summary>
+    /// 重设格子
+    /// </summary>
+    private void ResetCell()
     {
         FreezeCell(false);
         SleepCell(false);
         CleanCell();
     }
-    private void Colour(string nameStr, string descStr, int rarity)
+    /// <summary>
+    /// 清空格子
+    /// </summary>
+    public void CleanCell()
+    {
+        text_CornerMark.text = "";
+        str_itemName = "";
+        str_itemDesc = "";
+        str_itemInfo = "";
+        image_IconMain.sprite = spriteAtlas_ItemIcon.GetSprite("Item_Default");
+        image_IconBG.gameObject.SetActive(false);
+        panel_Bar.gameObject.SetActive(false);
+        image_Bar.transform.localScale = Vector3.one;
+        if (_pointing)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
+            {
+
+            });
+        }
+        if (grid_Child)
+        {
+            grid_Child.CloseGrid();
+        }
+    }
+    /// <summary>
+    /// 染色格子
+    /// </summary>
+    /// <param name="nameStr"></param>
+    /// <param name="descStr"></param>
+    /// <param name="rarity"></param>
+    private void ColourCell(string nameStr, string descStr, int rarity)
     {
         str_itemName = nameStr;
         str_itemDesc = descStr;
-
         if (rarity == 0)
         {
             str_itemName = "<color=#9A9A9A>" + str_itemName + "</color>";
@@ -242,11 +210,10 @@ public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         {
             str_itemName = "<color=#D59DD6>" + str_itemName + "</color>";
         }
+        str_itemInfo = str_itemName + "\n" + str_itemDesc;
     }
-    #endregion
-    #region//格子状态
     /// <summary>
-    /// 冰冻
+    /// 冰冻格子
     /// </summary>
     /// <param name="freeze"></param>
     public void FreezeCell(bool freeze)
@@ -255,74 +222,158 @@ public class UI_GridCell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         {
             image_Bar.color = new Color(0.5f, 1, 1, 1);
         }
-        image_IceMask.gameObject.SetActive(freeze);
+        image_IconMask.gameObject.SetActive(freeze);
     }
     /// <summary>
-    /// 休眠
+    /// 休眠格子
     /// </summary>
     /// <param name="sleep"></param>
     public void SleepCell(bool sleep)
     {
         if (sleep)
         {
-            image_MainIcon.color = new Color(1, 0.5f, 0.5f, 0.5f);
-            image_ChildIcon.color = new Color(1, 0.5f, 0.5f, 0.5f);
-            text_Info.color = new Color(1, 0.25f, 0.25f, 1);
+            image_IconMain.color = new Color(1, 0.5f, 0.5f, 0.5f);
+            text_CornerMark.color = new Color(1, 0.25f, 0.25f, 1);
         }
         else
         {
-            image_MainIcon.color = new Color(1, 1, 1, 1);
-            image_ChildIcon.color = new Color(1, 1, 1, 1);
-            text_Info.color = new Color(1, 1, 1, 1);
+            image_IconMain.color = new Color(1, 1, 1, 1);
+            text_CornerMark.color = new Color(1, 1, 1, 1);
         }
         _sleeping = sleep;
     }
-    /// <summary>
-    /// 清空
-    /// </summary>
-    public void CleanCell()
+    #endregion
+    #region//滑动条
+    public void SetSliderVal(float val)
     {
-        text_Info.text = "";
-        str_itemName = "";
-        str_itemDesc = "";
-        str_itemInfoDesc = "";
-        image_MainIcon.sprite = atlas_ItemIcon.GetSprite("Item_Default");
-        image_ChildIcon.sprite = atlas_ItemIcon.GetSprite("Item_Default");
-        image_BackGround.gameObject.SetActive(false);
-        panel_Bar.gameObject.SetActive(false);
-        image_Bar.transform.localScale = Vector3.one;
-        _bindClickLeft = null;
-        _bindClickRight = null;
-        _bindDragBegin = null;
-        _bindDraging = null;
-        _bindDragEnd = null;
-        if (_pointing)
+        panel_Bar.gameObject.SetActive(true);
+        image_Bar.transform.localScale = new Vector3(val, 1, 1);
+    }
+    public void SetSliderColor(Color color)
+    {
+        image_Bar.color = color;
+    }
+    #endregion
+    #region//UI交互
+    /// <summary>
+    /// 鼠标点击
+    /// </summary>
+    /// <param name="eventData"></param>
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (_sleeping)
         {
+            return;
+        }
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            ClickLeft();
+        }
+        else if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            ClickRight();
+        }
+    }
+    /// <summary>
+    /// 鼠标移入
+    /// </summary>
+    /// <param name="eventData"></param>
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        _pointing = true;
+        if (!_sleeping)
+        {
+            transform.DOKill();
+            transform.localScale = Vector3.one;
+            transform.DOScale(new Vector3(1.1f, 1.1f, 1.1f), 0.2f);
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_ShowInfoTextUI()
+            {
+                anchor = eventData.position,
+                text = str_itemInfo
+            });
+        }
+    }
+    /// <summary>
+    /// 鼠标移出
+    /// </summary>
+    /// <param name="eventData"></param>
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        _pointing = false;
+        if (!_sleeping)
+        {
+            transform.DOKill();
+            transform.localScale = Vector3.one;
             MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
             {
 
             });
         }
-        if (grid_Child)
+    }
+    /// <summary>
+    /// 鼠标左击
+    /// </summary>
+    private void ClickLeft()
+    {
+        if (action_ClickLeft != null)
         {
-            grid_Child.CloseGrid();
+            action_ClickLeft.Invoke(this);
+        }
+        Keeping();
+    }
+    /// <summary>
+    /// 鼠标右击
+    /// </summary>
+    private void ClickRight()
+    {
+        if (action_ClickRight != null)
+        {
+            action_ClickRight.Invoke(this);
         }
     }
     /// <summary>
-    /// 绘制
+    /// 放入
     /// </summary>
-    /// <param name="mainIcon"></param>
-    /// <param name="childIcon"></param>
-    /// <param name="backGround"></param>
-    /// <param name="name"></param>
-    /// <param name="info"></param>
-    public void DrawCell(string mainIcon, string childIcon, string backGround, string name, string info)
+    /// <param name="data"></param>
+    public void PutIn(ItemData data)
     {
-        image_BackGround.gameObject.SetActive(true);
-        image_MainIcon.sprite = atlas_ItemIcon.GetSprite(mainIcon);
-        image_ChildIcon.sprite = atlas_ItemIcon.GetSprite(childIcon);
-        image_BackGround.sprite = atlas_ItemBG.GetSprite(backGround);
-        text_Info.text = info;
+        if (action_PutIn != null)
+        {
+            action_PutIn.Invoke(data);
+        }
+    }
+    /// <summary>
+    /// 取出
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    public ItemData PutOut(ItemData data)
+    {
+        if(action_PutOut != null)
+        {
+            return action_PutOut.Invoke(data);
+        }
+        else
+        {
+            return new ItemData();
+        }
+    }
+    /// <summary>
+    /// 鼠标持有
+    /// </summary>
+    public void Keeping()
+    {
+        ItemData temp = new ItemData();
+        if (_bindItemBase != null)
+        {
+            temp = _bindItemBase.itemData;
+            temp.Item_Count = (Input.GetKey(KeyCode.LeftControl)) ? (short)(Mathf.FloorToInt(_bindItemBase.itemData.Item_Count * 0.5f)) : _bindItemBase.itemData.Item_Count;
+        }
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_StartKeepingItem()
+        {
+            itemCell = this,
+            itemData = temp
+        });
     }
     #endregion
 }

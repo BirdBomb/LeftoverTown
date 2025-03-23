@@ -5,20 +5,19 @@ using UnityEngine;
 public static class UIEvent 
 {
     /// <summary>
-    /// UI-更新持有物体
-    /// </summary>
-    public class UIEvent_UpdateItemInHand
-    {
-        public int playerID;
-        public ItemData itemData;
-    }
-    /// <summary>
     /// UI-更新背包物体
     /// </summary>
     public class UIEvent_UpdateItemInBag
     {
         public int bagCapacity;
         public List<ItemData> itemDatas = new List<ItemData>();
+    }
+    /// <summary>
+    /// UI-更新持有物体
+    /// </summary>
+    public class UIEvent_UpdateItemInHand
+    {
+        public ItemData itemData;
     }
     /// <summary>
     /// UI-更新头顶物体
@@ -39,31 +38,31 @@ public static class UIEvent
     /// </summary>
     public class UIEvent_UpdateStatus
     {
-        public short statusId;
+        public StatusType statusType;
     }
     /// <summary>
     /// UI-更新个人属性HP
     /// </summary>
     public class UIEvent_UpdateHPData
     {
-        public int HP;
-        public int MaxHP;
+        public int HP_Cur;
+        public int HP_Max;
     }
     /// <summary>
     /// UI-更新个人属性Food
     /// </summary>
     public class UIEvent_UpdateFoodData
     {
-        public int Food;
-        public int MaxFood;
+        public int Food_Cur;
+        public int Food_Max;
     }
     /// <summary>
     /// UI-更新个人属性San
     /// </summary>
     public class UIEvent_UpdateSanData
     {
-        public int San;
-        public int MaxSan;
+        public int San_Cur;
+        public int San_Max;
     }
     /// <summary>
     /// UI-更新个人属性Armor
@@ -115,6 +114,13 @@ public static class UIEvent
         public BuffConfig buffConfig;
     }
     /// <summary>
+    /// 更新Buff
+    /// </summary>
+    public class UIEvent_UpdateBuff
+    {
+        public List<BuffConfig> buffConfigs;
+    }
+    /// <summary>
     /// 显示信息文字
     /// </summary>
     public class UIEvent_ShowInfoTextUI
@@ -130,11 +136,25 @@ public static class UIEvent
 
     }
     /// <summary>
-    /// 显示全局文字
+    /// 显示鼠标
     /// </summary>
-    public class UIEvent_ShowGlobalTextUI
+    public class UIEvent_ShowCursorImage
     {
-        public string text;
+        public Sprite sprite;
     }
+    /// <summary>
+    /// 隐藏鼠标
+    /// </summary>
+    public class UIEvent_HideCursorImage
+    {
 
+    }
+    /// <summary>
+    /// 开始持有
+    /// </summary>
+    public class UIEvent_StartKeepingItem
+    {
+        public UI_GridCell itemCell;
+        public ItemData itemData;
+    }
 }

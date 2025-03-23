@@ -9,45 +9,40 @@ using UnityEngine.EventSystems;
 public class UI_Grid_Refrigerator : UI_Grid
 {
     [SerializeField, Header("格子列表")]
-    private List<UI_GridCell> cellList = new List<UI_GridCell>();
-    private List<ItemData> itemDataList = new List<ItemData>();
+    private List<UI_GridCell> gridCells_List = new List<UI_GridCell>();
+    private List<ItemData> itemDatas_List = new List<ItemData>();
 
-    private TileObj bindTileObj;
     public void Start()
     {
-        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_TimeChange>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent.GameEvent_AllClient_UpdateTime>().Subscribe(_ =>
         {
             DrawEveryCell();
         }).AddTo(this);
+        BindAllCell();
+    }
+    private void BindAllCell()
+    {
+        for (int i = 0; i < gridCells_List.Count; i++)
+        {
+            gridCells_List[i].BindAction(PutIn, PutOut, null, null);
+        }
     }
 
-    #region//打开关闭
-    public override void Open(TileObj tileObj)
-    {
-        bindTileObj = tileObj;
-        base.Open(tileObj);
-    }
-    public override void Close(TileObj tileObj)
-    {
-        base.Open(tileObj);
-    }
-
-    #endregion
     #region//信息更新与上传
     /// <summary>
     /// 从地块获取更新
     /// </summary>
     /// <param name="info"></param>
-    public void UpdateInfoFromTile(string info)
+    public void UpdateInfo(string info)
     {
-        itemDataList.Clear();
+        itemDatas_List.Clear();
         string[] strings = info.Split("/*I*/");
         for (int i = 0; i < strings.Length; i++)
         {
             if (strings[i] != "")
             {
                 ItemData data = JsonUtility.FromJson<ItemData>(strings[i]);
-                itemDataList.Add(data);
+                itemDatas_List.Add(data);
             }
         }
         DrawEveryCell();
@@ -55,21 +50,24 @@ public class UI_Grid_Refrigerator : UI_Grid
     /// <summary>
     /// 改变更新给地块
     /// </summary>
-    public void ChangeInfoToTile()
+    public void ChangeInfo()
     {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < itemDataList.Count; i++)
+        for (int i = 0; i < itemDatas_List.Count; i++)
         {
             if (i == 0)
             {
-                builder.Append(JsonUtility.ToJson(itemDataList[i]));
+                builder.Append(JsonUtility.ToJson(itemDatas_List[i]));
             }
             else
             {
-                builder.Append("/*I*/" + JsonUtility.ToJson(itemDataList[i]));
+                builder.Append("/*I*/" + JsonUtility.ToJson(itemDatas_List[i]));
             }
         }
-        bindTileObj.TryToChangeInfo(builder.ToString());
+        if (action_ChangeInfo != null)
+        {
+            action_ChangeInfo.Invoke(builder.ToString());
+        }
     }
     #endregion
     #region//UI绘制
@@ -78,160 +76,45 @@ public class UI_Grid_Refrigerator : UI_Grid
     /// </summary>
     private void DrawEveryCell()
     {
-        for (int i = 0; i < cellList.Count; i++)
+        for (int i = 0; i < gridCells_List.Count; i++)
         {
-            if (i < itemDataList.Count)
+            if (i < itemDatas_List.Count)
             {
-                DrawCell(itemDataList[i], cellList[i]);
+                gridCells_List[i].UpdateData(itemDatas_List[i]);
             }
             else
             {
-                ResetCell(cellList[i]);
+                gridCells_List[i].CleanData();
             }
         }
     }
-    /// <summary>
-    /// 绘制一个格子
-    /// </summary>
-    /// <param name="cell"></param>
-    /// <param name="config"></param>
-    private void DrawCell(ItemData data, UI_GridCell cell)
-    {
-        cell.UpdateGridCell(data);
-        cell.BindClickAction(ClickCellLeft, ClickCellRight);
-        cell.BindDragAction(CellDragBegin, CellDragIn, CellDragEnd);
-    }
-    /// <summary>
-    /// 重置一个格子
-    /// </summary>
-    /// <param name="cell"></param>
-    private void ResetCell(UI_GridCell cell)
-    {
-        cell.ResetGridCell();
-    }
-
     #endregion
-    #region//UI交互
-    public void ClickCellLeft(UI_GridCell gridCell)
+    public void PutIn(ItemData data)
     {
-
-    }
-    public void ClickCellRight(UI_GridCell gridCell)
-    {
-
-    }
-    public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-
-    }
-    public override void CellDragIn(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-        RectTransformUtility.ScreenPointToWorldPointInRectangle(gridCell.image_MainIcon.rectTransform, Input.mousePosition, Camera.main, out Vector3 pos);
-        gridCell.image_MainIcon.transform.position = pos;
-    }
-    public override void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-        pointerEventData.position = Input.mousePosition;
-        List<RaycastResult> raycastResults = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointerEventData, raycastResults);
-        if (raycastResults.Count > 0)
+        ItemConfig config = ItemConfigData.GetItemConfig(data.Item_ID);
+        if (config.Item_Type == ItemType.Ingredient || config.Item_Type == ItemType.Food)
         {
-            foreach (RaycastResult result in raycastResults)
-            {
-                if (result.gameObject.TryGetComponent(out UI_Grid grid))
-                {
-                    PutOut(itemData, out ItemData afterData);
-                    grid.ListenDragOn(this, gridCell, afterData);
-                    return;
-                }
-            }
+            data.Item_Info = 0;
         }
-        else
-        {
-            PutOut(itemData, out ItemData afterData);
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-            {
-                item = afterData
-            });
-        }
-    }
-    public override void ListenDragOn<T>(T grid, UI_GridCell cell, ItemData itemData)
-    {
-        PutIn(itemData, out ItemData back);
-        if (back.Item_Count != 0)
+        itemDatas_List = GameToolManager.Instance.PutInItemList(itemDatas_List, gridCells_List.Count, data, out data);
+        if (data.Item_Count != 0)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
             {
-                item = back,
+                item = data,
             });
         }
-        base.ListenDragOn<T>(grid, cell, itemData);
+        ChangeInfo();
     }
-
-    #endregion
-    #region//取出放入
-    /*取出*/
-    public override void PutOut(ItemData before, out ItemData after)
+    public ItemData PutOut(ItemData data)
     {
-        itemDataList.Remove(before);
-        ItemConfig config = ItemConfigData.GetItemConfig(before.Item_ID);
+        itemDatas_List = GameToolManager.Instance.PutOutItemList(itemDatas_List, data);
+        ItemConfig config = ItemConfigData.GetItemConfig(data.Item_ID);
         if (config.Item_Type == ItemType.Ingredient || config.Item_Type == ItemType.Food)
         {
-            before.Item_Info = 100;
+            data.Item_Info = 100;
         }
-        after = before;
-        ChangeInfoToTile();
+        ChangeInfo();
+        return data;
     }
-    /*放入*/
-    public override void PutIn(ItemData before, out ItemData after)
-    {
-        ItemConfig config = ItemConfigData.GetItemConfig(before.Item_ID);
-        if (config.Item_Type == ItemType.Ingredient || config.Item_Type == ItemType.Food)
-        {
-            before.Item_Info = 0;
-        }
-        ItemData resData = before;
-        if (config.Item_Size == ItemSize.AsGroup)
-        {
-            for (int i = 0; i < cellList.Count; i++)
-            {
-                if (itemDataList.Count > i)
-                {
-                    if (itemDataList[i].Item_ID == resData.Item_ID)
-                    {
-                        Type type = Type.GetType("Item_" + itemDataList[i].Item_ID.ToString());
-                        ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(itemDataList[i], resData, config.Item_MaxCount, out ItemData newData, out resData);
-                        itemDataList[i] = newData;
-                    }
-                }
-                else
-                {
-                    if (resData.Item_Count > 0)
-                    {
-                        ItemData emptyData = resData;
-                        emptyData.Item_Count = 0;
-                        Type type = Type.GetType("Item_" + resData.Item_ID.ToString());
-                        ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(emptyData, resData, config.Item_MaxCount, out ItemData newData, out resData);
-                        itemDataList.Add(newData);
-                    }
-                }
-            }
-        }
-        else
-        {
-            if (itemDataList.Count < cellList.Count)
-            {
-                ItemData emptyData = resData;
-                emptyData.Item_Count = 0;
-                Type type = Type.GetType("Item_" + resData.Item_ID.ToString());
-                ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(emptyData, resData, config.Item_MaxCount, out ItemData newData, out resData);
-                itemDataList.Add(newData);
-            }
-        }
-        after = resData;
-        ChangeInfoToTile();
-    }
-
-
-    #endregion
 }

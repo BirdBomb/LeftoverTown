@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using System;
+using Fusion;
 
 public class GameEvent 
 {
@@ -11,12 +12,19 @@ public class GameEvent
     /// </summary>
     public class GameEvent_Local_BindLocalPlayer
     {
-        public PlayerController player;
+        public PlayerCoreLocal playerCore;
     }
     /// <summary>
-    /// 本地端:时间改变
+    /// 本地端:时间变更
     /// </summary>
-    public class GameEvent_Local_TimeChange
+    public class GameEvent_State_ChangeTime
+    {
+        public int hour;
+    }
+    /// <summary>
+    /// 本地端:时间更新
+    /// </summary>
+    public class GameEvent_AllClient_UpdateTime
     {
         public int hour;
         public int date;
@@ -39,7 +47,13 @@ public class GameEvent
         public Vector3 pos;
         public System.Action<ActorManager> callBack;
     }
-
+    /// <summary>
+    /// 服务端:召唤玩家
+    /// </summary>
+    public class GameEvent_State_RevivePlayer
+    {
+        public PlayerRef playerRef;
+    }
     /// <summary>
     /// 本地端:生成物体
     /// </summary>
@@ -58,17 +72,17 @@ public class GameEvent
     }
 
     /// <summary>
-    /// 本地端:某人移动
+    /// 所有客户端:某人移动
     /// </summary>
-    public class GameEvent_Local_SomeoneMove
+    public class GameEvent_AllClient_SomeoneMove
     {
         public ActorManager moveActor;
-        public MyTile moveTile;
+        public Vector3Int movePos; 
     }
     /// <summary>
     /// 本地端:某人做某事
     /// </summary>
-    public class GameEvent_Local_SomeoneDoSomething
+    public class GameEvent_AllClient_SomeoneDoSomething
     {
         public ActorManager actor;
         public ActorAction action;
@@ -76,7 +90,7 @@ public class GameEvent
     /// <summary>
     /// 本地端:某人犯法
     /// </summary>
-    public class GameEvent_Local_SomeoneCommit
+    public class GameEvent_AllClient_SomeoneCommit
     {
         public ActorManager actor;
         public short fine;
@@ -90,10 +104,10 @@ public class GameEvent
     /// <summary>
     /// 本地端:某人说某话
     /// </summary>
-    public class GameEvent_Local_SomeoneSendEmoji
+    public class GameEvent_AllClient_SomeoneSendEmoji
     {
         public ActorManager actor;
-        public int id;
+        public Emoji emoji;
         public float distance;
     }
     /// <summary>
@@ -105,6 +119,5 @@ public class GameEvent
         public int id;
         public Vector3 pos;
         public float distance;
-        public Action<TileObj> action;
     }
 }

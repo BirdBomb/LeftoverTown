@@ -9,14 +9,17 @@ public class BuffConfigData : MonoBehaviour
         return buffConfigs.Find((x) => { return x.Buff_ID == ID; });
     }
     /// <summary>
-    /// 1000+负面初始buff
+    /// 100+正面buff
+    /// 200+负面buff
     /// 8000+负面初始buff
     /// 9000+正面初始buff
     /// </summary>
     public readonly static List<BuffConfig> buffConfigs = new List<BuffConfig>()
     {
-        new BuffConfig(){Buff_ID=100,Buff_Icon = true,Buff_Name="睡眠",Buff_Desc="你正在休息，缓慢恢复生命值与理智，但饥饿消耗会更快"},
-        new BuffConfig(){Buff_ID=101,Buff_Icon = true,Buff_Name="深度睡眠",Buff_Desc="你正在休息(深度放松)，恢复生命值与理智，但饥饿消耗会更快"},
+        new BuffConfig(){Buff_ID = 100,Buff_Icon = true,Buff_Name="睡眠",Buff_Desc="你正在休息，缓慢恢复生命值与理智，但饥饿消耗会更快"},
+        new BuffConfig(){Buff_ID = 101,Buff_Icon = true,Buff_Name="深度睡眠",Buff_Desc="你正在休息(深度放松)，恢复生命值与理智，但饥饿消耗会更快"},
+
+        new BuffConfig(){Buff_ID = 200,Buff_Icon = true,Buff_Name="侵蚀",Buff_Desc="你离太阳碎片太远了!"},
 
         new BuffConfig(){Buff_ID=8000,Buff_Cost=-1,Buff_Name="体弱无力",Buff_Desc="力量-1"},
         new BuffConfig(){Buff_ID=8001,Buff_Cost=-1,Buff_Name="小个子",Buff_Desc="力量-2，敏捷+1"},

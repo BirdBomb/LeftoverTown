@@ -15,9 +15,9 @@ public class ItemNetObj : NetworkBehaviour
 {
     [Header("物品图标")]
     public SpriteRenderer spriteIcon;
-    [Header("物品碰撞")]
-    public CircleCollider2D spriteCollider;
-    [Networked, OnChangedRender(nameof(UpdateItem))]
+    [Header("物品数量")]
+    public TMPro.TextMeshPro textMeshPro;
+    [Networked, OnChangedRender(nameof(UpdateItem)), HideInInspector]
     public ItemData data { get; set; } = new ItemData();
     private ItemBase _bindItem;
     public override void Spawned()

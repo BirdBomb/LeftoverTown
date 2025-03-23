@@ -5,20 +5,35 @@ using UnityEngine;
 
 public class CookConfigData 
 {
-    public static CookConfig GetItemConfig(int ID)
+    public static CookConfig GetCookConfig(int ID)
     {
         return cookConfigs.Find((x) => { return x.Cook_ID == ID; });
     }
     public readonly static List<CookConfig> cookConfigs = new List<CookConfig>()
     {
-        new CookConfig(){Cook_ID = 4009,Cook_Time = 20,Cook_Level = 0,
-            Cook_Raw = new List<int>(){ 30053009, 30063009, 30094001, 30094002, 30054008, 30064008, 40014008, 40024008, } },
-        new CookConfig(){Cook_ID = 4010,Cook_Time = 20,Cook_Level = 0,
-            Cook_Raw = new List<int>(){ 3002, 3003, 4006, 4007, 30023003, 30024006, 30024007, 30034006, 30034007,40064007 } },
-        new CookConfig(){Cook_ID = 4011,Cook_Time = 20,Cook_Level = 0,
-            Cook_Raw = new List<int>(){ 3005, 3006, 4001, 4002, 30053006, 30054001, 30054002, 30064001, 30064002, 40014002, } },
-        new CookConfig(){Cook_ID = 4012,Cook_Time = 20,Cook_Level = 5,
-            Cook_Raw = new List<int>(){ 30023005, 30033005, 30023006, 30033006, 30024001, 30034001, 30024002, 30034002, } },
+        new CookConfig(){Cook_ID = 4100,Cook_Time = 20,Cook_Level = 0,
+            CooK_Raw_Main = new List<short>(){ },
+            CooK_Raw_Add = new List<short>(){ } },
+        /* Ìπ˚»‚Ï“*/
+        new CookConfig(){Cook_ID = 4101,Cook_Time = 20,Cook_Level = 0,
+            CooK_Raw_Main = new List<short>(){ 3100, 3101, 3102, 4001, 4002, 4003 },
+            CooK_Raw_Add = new List<short>(){ 3003, 4008 } },
+        /*‘”π˚Ï¿*/
+        new CookConfig(){Cook_ID = 4102,Cook_Time = 20,Cook_Level = 0,
+            CooK_Raw_Main = new List<short>(){ 3000, 3001, 3002, 4006, 4007 },
+            CooK_Raw_Add = new List<short>(){ 3000, 3001, 3002, 4006, 4007 } },
+        /*◊•»‚*/
+        new CookConfig(){Cook_ID = 4103,Cook_Time = 20,Cook_Level = 0,
+            CooK_Raw_Main = new List<short>(){ 3100, 3101, 3102, 4001, 4002, 4003, },
+            CooK_Raw_Add = new List<short>(){  3100, 3101, 3102, 4001, 4002, 4003, } },
+        /*π˚+»‚*/
+        new CookConfig(){Cook_ID = 4104,Cook_Time = 20,Cook_Level = 5,
+            CooK_Raw_Main = new List<short>(){ 3100, 3101 },
+            CooK_Raw_Add = new List<short>(){ 3000, 3001, 3002 } },
+        /*ÀÆ÷Û”„*/
+        new CookConfig(){Cook_ID = 4105,Cook_Time = 20,Cook_Level = 0,
+            CooK_Raw_Main = new List<short>(){ 3110, },
+            CooK_Raw_Add = new List<short>(){ 3004 } },
     };
 
 }
@@ -31,5 +46,7 @@ public struct CookConfig
     [SerializeField]
     public short Cook_Level;
     [SerializeField]
-    public List<int> Cook_Raw;
+    public List<short> CooK_Raw_Main;
+    [SerializeField]
+    public List<short> CooK_Raw_Add;
 }

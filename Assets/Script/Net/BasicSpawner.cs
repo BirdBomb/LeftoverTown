@@ -10,9 +10,6 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
 {
     [SerializeField,Header("玩家预制体")] private NetworkPrefabRef _playerPrefab;
     private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
-
-    private int local_leftClick;
-    private int local_rightClick;
     private float local_leftPressTimer;
     private float local_rightPressTimer;
     private void Update()
@@ -33,30 +30,21 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
         {
             local_rightPressTimer = 0;
         }
-
-        if (Input.GetKeyDown(KeyCode.Mouse0))
-        {
-            local_leftClick++;
-        }
-        if (Input.GetKeyDown(KeyCode.Mouse1))
-        {
-            local_rightClick++;
-        }
     }
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
-        
+        Debug.Log("连接到服务器");
     }
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
     {
-        
+        Debug.Log($"连接失败{reason}");
     }
 
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
     {
-        
+        Debug.Log($"连接请求{request.RemoteAddress}");
     }
 
     public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data)
@@ -66,7 +54,7 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
 
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
     {
-        
+        Debug.Log($"服务器断联{reason}");
     }
 
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken)
@@ -82,18 +70,6 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
         {
             data.MouseLocation = Camera.main.ScreenToWorldPoint(Input.mousePosition) - Camera.main.transform.position;
         }
-        if (local_leftClick > 0)
-        {
-            data.MouseLeftClick = true;
-            local_leftClick = 0;
-        }
-        else { data.MouseLeftClick = false; }
-        if (local_rightClick > 0) 
-        { 
-            data.MouseRightClick = true; ;
-            local_rightClick = 0;
-        }
-        else { data.MouseRightClick = false; }
         data.MouseLeftPressTimer = local_leftPressTimer;
         data.MouseRightPressTimer = local_rightPressTimer;
         #endregion
@@ -125,11 +101,11 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         Debug.Log("玩家加入" + player);
-        if (runner.IsServer)
+        if (runner.IsServer || runner.GameMode == GameMode.Shared)
         {
             // Create a unique position for the player
             Vector3 spawnPosition = new Vector3((player.RawEncoded % runner.Config.Simulation.PlayerCount) * 3, 1, 0);
-            NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
+            NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, new Vector3(999, 0, 0), Quaternion.identity, player);
             // Keep track of the player avatars for easy access
             _spawnedCharacters.Add(player, networkPlayerObject);
         }
@@ -176,7 +152,7 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
-        
+        Debug.Log($"服务器关闭{shutdownReason}");
     }
 
     public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message)
@@ -187,14 +163,6 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
 }
 public struct NetworkInputData:INetworkInput
 {
-    /// <summary>
-    /// 左键点击
-    /// </summary>
-    public bool MouseLeftClick;
-    /// <summary>
-    /// 右键点击
-    /// </summary>
-    public bool MouseRightClick;
     /// <summary>
     /// 左键时长
     /// </summary>

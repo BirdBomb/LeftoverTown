@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using TMPro;
-using static UnityEditor.PlayerSettings;
 using UnityEngine.UI;
 using DG.Tweening;
 

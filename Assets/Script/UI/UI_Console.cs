@@ -6,16 +6,15 @@ using UniRx;
 using QFramework;
 using static UnityEngine.Rendering.DebugUI;
 using Button = UnityEngine.UI.Button;
+using TMPro;
 
 public class UI_Console : MonoBehaviour
 {
     private void Start()
     {
         // 添加输入框值改变的监听器
-        inputField.onValueChanged.AddListener(OnInputFieldValueChanged);
-        // 添加输入框点击的监听器
-        inputField.onEndEdit.AddListener(OnInputFieldEndEdit);
         btn_hideOrShow.onClick.AddListener(() => { HidePanel(!panel_Main.gameObject.activeSelf); });
+        dropDown_GlobalTime.onValueChanged.AddListener(ChangeGlobalTime);
         btn_changeItemType_1000.onClick.AddListener(() => { ChangeItemType(1); });
         btn_changeItemType_2000.onClick.AddListener(() => { ChangeItemType(2); });
         btn_changeItemType_3000.onClick.AddListener(() => { ChangeItemType(3); });
@@ -42,24 +41,6 @@ public class UI_Console : MonoBehaviour
         }
         data.IconListCount = btn_list.Count;
     }
-    #region//输入
-    [SerializeField, Header("输入框")]
-    private InputField inputField;
-    // 当输入框值改变时调用的方法
-    private void OnInputFieldValueChanged(string value)
-    {
-        var data = ConsoleUIArchitecture.Interface.GetModel<IConsoleDataModle>();
-        data.InputStr = value;
-        ConsoleUIArchitecture.Interface.SendCommand(new ConsoleCommand_UpdateInput());
-    }
-    // 当输入框结束编辑时调用的方法
-    private void OnInputFieldEndEdit(string value)
-    {
-        var data = ConsoleUIArchitecture.Interface.GetModel<IConsoleDataModle>();
-        data.InputStr = value;
-        ConsoleUIArchitecture.Interface.SendCommand(new ConsoleCommand_EndInput());
-    }
-    #endregion
     #region//图鉴
     [SerializeField, Header("主面板")]
     private Transform panel_Main;
@@ -87,9 +68,22 @@ public class UI_Console : MonoBehaviour
     private Button btn_lastPage;
     [SerializeField, Header("下一页")]
     private Button btn_nextPage;
+    [SerializeField, Header("全局时间")]
+    private TMP_Dropdown dropDown_GlobalTime;
     private void HidePanel(bool hide)
     {
         panel_Main.gameObject.SetActive(hide);
+    }
+    /// <summary>
+    /// 更改全局时间
+    /// </summary>
+    /// <param name="i"></param>
+    private void ChangeGlobalTime(int i)
+    {
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_State_ChangeTime()
+        {
+            hour = i
+        });
     }
     /// <summary>
     /// 更改目标物体种类

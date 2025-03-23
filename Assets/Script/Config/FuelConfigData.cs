@@ -10,9 +10,9 @@ public class FuelConfigData
     }
     public readonly static List<FuelConfig> fuelConfigs = new List<FuelConfig>()
     {
-        new FuelConfig(){FuelID = 1001,FuelVal = 100},
+        new FuelConfig(){FuelID = 1000,FuelVal = 100},
         new FuelConfig(){FuelID = 1002,FuelVal = 50},
-        new FuelConfig(){FuelID = 1004,FuelVal = 500},
+        new FuelConfig(){FuelID = 1011,FuelVal = 500},
     };
 }
 public struct FuelConfig

@@ -24,6 +24,10 @@ public class UI_BuffGroup : MonoBehaviour
             DestroyBuffIcon(_.buffConfig);
         }).AddTo(this);
     }
+    private void UpdateBuffIcon(List<BuffConfig> buffConfigs)
+    {
+       
+    }
     private void CreateBuffIcon(BuffConfig buffConfig)
     {
         if (buffConfig.Buff_Icon)
@@ -35,7 +39,7 @@ public class UI_BuffGroup : MonoBehaviour
             gameObject.transform.localScale = Vector3.one;
         }
     }
-    public void DestroyBuffIcon(BuffConfig buffConfig)
+    private void DestroyBuffIcon(BuffConfig buffConfig)
     {
         if (dic_Pool.ContainsKey(buffConfig.Buff_ID))
         {

@@ -11,50 +11,53 @@ public class CreateConfigData
     public readonly static List<CreateConfig> createConfigs = new List<CreateConfig>()
     {
         /*机械元件*/
-        new CreateConfig(){Create_ID = 1020,Create_Level = 7,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1013, 4),} },
+        new CreateConfig(){Create_ID = 1100,Create_Level = 0,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1000, 2),} },
+        /*机械元件*/
+        new CreateConfig(){Create_ID = 1200,Create_Level = 7,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1110, 4),} },
         /*高能芯片*/
-        new CreateConfig(){Create_ID = 1021,Create_Level = 7,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1013, 4),} },
+        new CreateConfig(){Create_ID = 1201,Create_Level = 7,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1201, 4),} },
+        /*火把*/
+        new CreateConfig(){Create_ID = 2000,Create_Level = 0,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1001, 1), new CreateRaw(1011, 1), } },
         /*木斧头*/
         new CreateConfig(){Create_ID = 2001,Create_Level = 0,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1001, 4), new CreateRaw(1006, 4), } },
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 4),} },
         /*铁斧头*/
         new CreateConfig(){Create_ID = 2002,Create_Level = 0,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1001, 4), new CreateRaw(1006, 4), } },
-        /*粗制木弓*/
-        new CreateConfig(){Create_ID = 2003,Create_Level = 0,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1006, 4),} },
-        /*火把*/
-        new CreateConfig(){Create_ID = 2004,Create_Level = 0,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1006, 4), new CreateRaw(1002, 4), } },
-        /*精致木弓*/
-        new CreateConfig(){Create_ID = 2005,Create_Level = 0,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1006, 4),} },
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 2), new CreateRaw(1110, 1), } },
         /*木棍*/
-        new CreateConfig(){Create_ID = 2006,Create_Level = 0,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1002, 4) } },
+        new CreateConfig(){Create_ID = 2100,Create_Level = 0,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 2) } },
         /*长柄钢刀*/
-        new CreateConfig(){Create_ID = 2007,Create_Level = 0,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1002, 4), new CreateRaw(1013, 1), } },
+        new CreateConfig(){Create_ID = 2101,Create_Level = 0,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 2), new CreateRaw(1110, 1), } },
         /*精钢匕首*/
-        new CreateConfig(){Create_ID = 2008,Create_Level = 0,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1002, 2), new CreateRaw(1013, 1), } },
-        /*筒手枪*/
-        new CreateConfig(){Create_ID = 2009,Create_Level = 1,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1002, 2), new CreateRaw(1013, 1), new CreateRaw(1020, 2), } },
-        /*金质弓*/
-        new CreateConfig(){Create_ID = 2010,Create_Level = 0,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1014, 4), new CreateRaw(1006, 4), } },
+        new CreateConfig(){Create_ID = 2102,Create_Level = 0,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 2), new CreateRaw(1110, 1), } },
         /*宽刃钢刀*/
-        new CreateConfig(){Create_ID = 2011,Create_Level = 0,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1002, 2), new CreateRaw(1013, 1), } },
+        new CreateConfig(){Create_ID = 2103,Create_Level = 0,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 2), new CreateRaw(1110, 1), } },
+        /*粗制木弓*/
+        new CreateConfig(){Create_ID = 2200,Create_Level = 0,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 2),} },
+        /*精致木弓*/
+        new CreateConfig(){Create_ID = 2201,Create_Level = 0,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 4),} },
+        /*金质弓*/
+        new CreateConfig(){Create_ID = 2202,Create_Level = 0,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1111, 2), } },
+        /*筒手枪*/
+        new CreateConfig(){Create_ID = 2300,Create_Level = 1,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 2), new CreateRaw(1110, 1), new CreateRaw(1200, 2), } },
         /*BPM*/
-        new CreateConfig(){Create_ID = 2012,Create_Level = 1,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1002, 2), new CreateRaw(1013, 1), new CreateRaw(1020, 2), } },
+        new CreateConfig(){Create_ID = 2301,Create_Level = 1,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 2), new CreateRaw(1110, 1), new CreateRaw(1200, 2), } },
         /*AKM*/
-        new CreateConfig(){Create_ID = 2013,Create_Level = 1,
-            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1002, 2), new CreateRaw(1013, 1), new CreateRaw(1020, 2), } },
+        new CreateConfig(){Create_ID = 2302,Create_Level = 1,
+            Create_Raw = new List<CreateRaw>(){ new CreateRaw(1100, 2), new CreateRaw(1110, 1), new CreateRaw(1200, 2), } },
     };
 }
 public struct CreateConfig

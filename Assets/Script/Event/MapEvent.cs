@@ -17,10 +17,6 @@ public class MapEvent : MonoBehaviour
         /// 地图尺寸
         /// </summary>
         public int mapSize;
-        /// <summary>
-        /// 角色引用
-        /// </summary>
-        public PlayerRef playerRef;
     }
     /// <summary>
     /// 请求保存地图数据
@@ -31,22 +27,36 @@ public class MapEvent : MonoBehaviour
 
     public class MapEvent_LocalTile_TakeDamage
     {
-        public TileObj tileObj;
+        public Vector3Int pos;
         public int damage;
     }
     public class MapEvent_LocalTile_UpdateBuildingInfo
     {
-        public TileObj tileObj;
-        public string tileInfo;
+        public Vector3Int pos;
+        public string info;
     }
-    public class MapEvent_LocalTile_ChangeBuilding
+    /// <summary>
+    /// 改变一个区域里的建筑
+    /// </summary>
+    public class MapEvent_LocalTile_ChangeBuildingArea
     {
         public Vector3Int buildingPos;
-        public int buildingID;
+        public AreaSize areaSize;
+        public short buildingID;
     }
-    public class MapEvent_LocalTile_ChangeFloor
+    /// <summary>
+    /// 改变一个地面
+    /// </summary>
+    public class MapEvent_LocalTile_ChangeGround
     {
-        public Vector3Int floorPos;
-        public int floorID;
+        public Vector3Int groundPos;
+        public short groundID;
+    }
+    /// <summary>
+    /// 修改世界太阳
+    /// </summary>
+    public class MapEvent_LocalTile_ChangeSunLight
+    {
+        public int distance;
     }
 }

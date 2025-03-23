@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 public class UI_Grid_OnHead : UI_Grid
 {
     [SerializeField, Header("头部格子")]
-    private UI_GridCell cell;
+    private UI_GridCell gridCell;
     private ItemData itemData;
 
     private void Start()
@@ -15,72 +15,35 @@ public class UI_Grid_OnHead : UI_Grid
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemOnHead>().Subscribe(_ =>
         {
             itemData = _.itemData;
-            if (itemData.Item_ID == 0)
-            {
-                ResetCell();
-            }
-            else
-            {
-                DrawCell();
-            }
+            gridCell.UpdateData(itemData);
         }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_AllClient_UpdateTime>().Subscribe(_ =>
+        {
+            gridCell.UpdateData(itemData);
+        }).AddTo(this);
+        BindAllCell();
     }
-    private void DrawCell()
+    private void BindAllCell()
     {
-        cell.UpdateGridCell(itemData);
-        cell.BindClickAction(ClickCellLeft, ClickCellRight);
-        cell.BindDragAction(CellDragBegin, CellDragIn, CellDragEnd);
+        gridCell.BindAction(PutIn, PutOut, null, null);
     }
-    private void ResetCell()
-    {
-        cell.ResetGridCell();
-    }
-    public void ClickCellLeft(UI_GridCell gridCell)
-    {
-       
-    }
-    public void ClickCellRight(UI_GridCell gridCell)
-    {
-        
-    }
-    public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
+    #region//绑定
 
-    }
-    public override void CellDragIn(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-        gridCell.image_MainIcon.transform.position = Input.mousePosition;
-    }
-    public override void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryRemoveItemOnHead()
-        {
-            item = itemData
-        });
-        pointerEventData.position = Input.mousePosition;
-        List<RaycastResult> raycastResults = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointerEventData, raycastResults);
-        if (raycastResults.Count > 0)
-        {
-            foreach (RaycastResult result in raycastResults)
-            {
-                if (result.gameObject.TryGetComponent(out UI_Grid grid))
-                {
-                    grid.ListenDragOn(this, gridCell, itemData);
-                    return;
-                }
-            }
-        }
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-        {
-            item = itemData
-        });
-    }
-    public override void ListenDragOn<T>(T grid, UI_GridCell cell, ItemData itemData)
+    #endregion
+    public void PutIn(ItemData data)
     {
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemOnHead()
         {
-            item = itemData
+            item = data
         });
     }
+    public ItemData PutOut(ItemData data)
+    {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHead()
+        {
+            item = data
+        });
+        return data;
+    }
+
 }

@@ -12,42 +12,45 @@ public class Buff100 : BuffBase
 {
     public override void Listen_AddOnActor(ActorManager actor)
     {
-        Debug.Log("睡觉");
-        actor.BodyController.HideActor();
+        actor.bodyController.HideActor();
         base.Listen_AddOnActor(actor);
     }
     public override void Listen_SubFromActor(ActorManager actor)
     {
-        Debug.Log("醒来");
-        actor.BodyController.ShowActor();
-        foreach(MyTile tile in actor.Tool_GetNearbyTiles(ActorManager.NearByMean.EightSide))
-        {
-            if (tile.bindObj)
-            {
-                if (tile.bindObj.TryGetComponent(out TileObj_Bed bed))
-                {
-                    bed.GetUpOnBed(actor);
-                }
-            }
-            else
-            {
-
-            }
-        };
+        actor.bodyController.ShowActor();
         base.Listen_SubFromActor(actor);
     }
     public override void Listen_MyselfMove(ActorManager actor)
     {
-        actor.NetManager.RPC_LocalInput_SubBuff(100);
+        actor.actorNetManager.RPC_LocalInput_SubBuff(100);
         base.Listen_MyselfMove(actor);
     }
 }
 /// <summary>
-/// 坐下
+/// 深度睡眠
 /// </summary>
 public class Buff101 : BuffBase
 {
-
+    
+}
+/// <summary>
+/// 黑暗侵蚀
+/// </summary>
+public class Buff200 : BuffBase
+{
+    private ActorManager actorManager;
+    private int val;
+    public override void Listen_AddOnActor(ActorManager actor)
+    {
+        actorManager = actor;
+        base.Listen_AddOnActor(actor);
+    }
+    public override void Listen_UpdateSecond(ActorManager actor)
+    {
+        val++;
+        actor.AllClient_Listen_TakeDamage(val, null);
+        base.Listen_UpdateSecond(actor);
+    }
 }
 /// <summary>
 /// 体弱无力
@@ -289,7 +292,7 @@ public class Buff9007 : BuffBase
 {
     public override void Listen_AddOnPlayerCreation(ref PlayerData data)
     {
-        data.Armor += 1;
+        data.Armor_Cur += 1;
         base.Listen_AddOnPlayerCreation(ref data);
     }
 }

@@ -6,9 +6,18 @@ using UnityEngine;
 public class PlayerEvent 
 {
     /// <summary>
+    /// 本地玩家:尝试给修改物体
+    /// </summary>
+    public class PlayerEvent_Local_TryChangeItemInBag
+    {
+        public ItemData oldItem;
+        public ItemData newItem;
+    }
+
+    /// <summary>
     /// 本地玩家:尝试从背包移除物体
     /// </summary>
-    public class PlayerEvent_Local_TryRemoveItemFromBag
+    public class PlayerEvent_Local_TrySubItemInBag
     {
         public ItemData item;
     }
@@ -19,19 +28,11 @@ public class PlayerEvent
     {
         public ItemData item;
     }
-    /// <summary>
-    /// 本地玩家:尝试给背包修改物体
-    /// </summary>
-    public class PlayerEvent_Local_TryChangeItemInBag
-    {
-        public ItemData oldItem;
-        public ItemData newItem;
-    }
 
     /// <summary>
     /// 本地玩家:尝试从手部移除物体
     /// </summary>
-    public class PlayerEvent_Local_TryRemoveItemOnHand
+    public class PlayerEvent_Local_TrySubItemOnHand
     {
         public ItemData item;
     }
@@ -49,7 +50,7 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:尝试从头顶移除物体
     /// </summary>
-    public class PlayerEvent_Local_TryRemoveItemOnHead
+    public class PlayerEvent_Local_TrySubItemOnHead
     {
         public ItemData item;
     }
@@ -65,7 +66,7 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:尝试从身体移除物体
     /// </summary>
-    public class PlayerEvent_Local_TryRemoveItemOnBody
+    public class PlayerEvent_Local_TrySubItemOnBody
     {
         public ItemData item;
     }
@@ -98,22 +99,17 @@ public class PlayerEvent
     /// </summary>
     public class PlayerEvent_Local_TryBuildBuilding 
     {
+        public AreaSize size;
+        public bool force = false; 
         public int id;
     }
-    /// <summary>
-    /// 本地玩家:创造建筑
-    /// </summary>
-    public class PlayerEvent_Local_TryBuildFloor
-    {
-        public int id;
-    }
-
     /// <summary>
     /// 本地玩家:发送一个表情
     /// </summary>
     public class PlayerEvent_Local_Emoji
     {
         public int id;
+        public Emoji emoji;
     }
 
     /// <summary>

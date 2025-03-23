@@ -323,15 +323,7 @@ public class ConsoleItemListSystem : IConsoleItemListSystem
         if (itemTargetConfigs.Count > startIndex)
         {
             Type type = Type.GetType("Item_" + itemTargetConfigs[startIndex].Item_ID.ToString());
-            ItemData itemData= new ItemData
-                (itemTargetConfigs[startIndex].Item_ID,
-                 MapManager.Instance.mapSeed + (int)(System.DateTime.Now.Ticks * 1000),
-                 1,
-                 0,
-                 0,
-                 0,
-                 new ContentData());
-            ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(itemData,out ItemData initData);
+            ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(itemTargetConfigs[startIndex].Item_ID, out ItemData initData);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
             {
                 item = initData
@@ -365,11 +357,7 @@ public class ConsoleBuildingListSystem : IConsoleBuildingListSystem
         int startIndex = iconCount * page + index;
         if (tileTargetConfigs.Count > startIndex)
         {
-            int buildingID = tileTargetConfigs[startIndex].Building_ID;
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryBuildBuilding()
-            {
-                id = buildingID
-            });
+            MapPreviewManager.Instance.PreviewOpen(tileTargetConfigs[startIndex], MapPreviewManager.BuildState.ForceBuildBuilding);
         }
     }
     public IArchitecture GetArchitecture()
@@ -402,11 +390,11 @@ public class ConsoleBuildingListSystem : IConsoleBuildingListSystem
                 {
                     if (buildingTargetConfigs.Count > i)
                     {
-                        iconList[i - startIndex].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite(buildingTargetConfigs[i].Building_SpriteName);
+                        iconList[i - startIndex].sprite = Resources.Load<SpriteAtlas>("Atlas/BuildingIcon").GetSprite(buildingTargetConfigs[i].Building_ID.ToString());
                     }
                     else
                     {
-                        iconList[i - startIndex].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite("Default");
+                        iconList[i - startIndex].sprite = Resources.Load<SpriteAtlas>("Atlas/BuildingIcon").GetSprite("Default");
                     }
                 }
             }
@@ -438,15 +426,11 @@ public class ConsoleFloorListSystem : IConsoleFloorListSystem
         var page = this.GetModel<IConsoleDataModle>().ListPage;
         var index = this.GetModel<IConsoleDataModle>().ListIndex;
         var iconCount = this.GetModel<IConsoleDataModle>().IconListCount;
-        List<FloorConfig> tileTargetConfigs = FloorConfigData.floorConfigs;
+        List<GroundConfig> tileTargetConfigs = GroundConfigData.groundConfigs;
         int startIndex = iconCount * page + index;
         if (tileTargetConfigs.Count > startIndex)
         {
-            int floorID = tileTargetConfigs[startIndex].Floor_ID;
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryBuildFloor()
-            {
-                id = floorID
-            });
+            MapPreviewManager.Instance.PreviewOpen(tileTargetConfigs[startIndex], MapPreviewManager.BuildState.ForceBuildFloor);
         }
     }
     public IArchitecture GetArchitecture()
@@ -464,26 +448,26 @@ public class ConsoleFloorListSystem : IConsoleFloorListSystem
         var iconList = this.GetModel<IConsoleDataModle>().IconList;
         var iconListCount = this.GetModel<IConsoleDataModle>().IconListCount;
 
-        List<FloorConfig> floorTargetConfigs = FloorConfigData.floorConfigs;
+        List<GroundConfig> groundTargetConfigs = GroundConfigData.groundConfigs;
         int startIndex = iconListCount * itemPage;
 
         if (startIndex < 0)
         {
-            this.GetModel<IConsoleDataModle>().ListPage = (floorTargetConfigs.Count / iconListCount);
+            this.GetModel<IConsoleDataModle>().ListPage = (groundTargetConfigs.Count / iconListCount);
         }
         else
         {
-            if (floorTargetConfigs.Count > startIndex)
+            if (groundTargetConfigs.Count > startIndex)
             {
                 for (int i = startIndex; i < startIndex + iconListCount; i++)
                 {
-                    if (floorTargetConfigs.Count > i)
+                    if (groundTargetConfigs.Count > i)
                     {
-                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite(floorTargetConfigs[i].Floor_SpriteName);
+                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/GroundIcon").GetSprite(groundTargetConfigs[i].Ground_ID.ToString());
                     }
                     else
                     {
-                        iconList[i].sprite = Resources.Load<SpriteAtlas>("Atlas/TileSprite").GetSprite("Default");
+                        iconList[i].sprite = null;
                     }
                 }
             }

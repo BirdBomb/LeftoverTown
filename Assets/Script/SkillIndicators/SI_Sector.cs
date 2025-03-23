@@ -6,14 +6,12 @@ public class SI_Sector : MonoBehaviour
 {
     [SerializeField, Header("线渲染器")]
     LineRenderer _line;
-    Gradient _gradient;
     [SerializeField, Header("中心")]
     private Transform _centerTrans;
-    public Vector2 CenterPos { set { _centerPos = value; } get { return _centerTrans.position; } }
-    private Vector2 _centerPos;
     [SerializeField, Header("方向")]
     private Transform _dirTrans;
-
+    [SerializeField, Header("图层")]
+    private LayerMask _layerMask;
     private void Start()
     {
         _line = gameObject.GetComponent<LineRenderer>();
@@ -55,7 +53,7 @@ public class SI_Sector : MonoBehaviour
         for(int i = 0; i <= acc; i++)
         {
             Vector2 tempDirL = Quaternion.Euler(0, 0, -1f * subAngle * i) * (dir);
-            RaycastHit2D[] hitsL = Physics2D.RaycastAll(CenterPos, tempDirL, radiu);
+            RaycastHit2D[] hitsL = Physics2D.RaycastAll(_centerTrans.position, tempDirL, radiu, _layerMask);
             for (int j = 0; j < hitsL.Length; j++)
             {
                 if (!targetList.Contains(hitsL[j].transform))
@@ -67,7 +65,7 @@ public class SI_Sector : MonoBehaviour
         for(int i = 0; i < acc; i++)
         {
             Vector2 tempDirR = Quaternion.Euler(0, 0, 1f * subAngle * (i + 1f)) * (dir);
-            RaycastHit2D[] hitsR = Physics2D.RaycastAll(CenterPos, tempDirR, radiu);
+            RaycastHit2D[] hitsR = Physics2D.RaycastAll(_centerTrans.position, tempDirR, radiu, _layerMask);
             for (int j = 0; j < hitsR.Length; j++)
             {
                 if (!targetList.Contains(hitsR[j].transform))
@@ -94,8 +92,10 @@ public class SI_Sector : MonoBehaviour
 
         angle += 1;
         float startAngle;
-        if (dir.x >= 0) { startAngle = Vector2.Angle(dir, Vector2.up); }
-        else { startAngle = Vector2.Angle(dir, Vector2.down) + 180; }
+
+        //if (dir.x >= 0) { startAngle = Vector2.Angle(dir, Vector2.up); }
+        //else { startAngle = Vector2.Angle(dir, Vector2.down) + 180; }
+        startAngle = Vector2.Angle(dir, Vector2.up);
 
         startAngle += angle * 0.5f;
 

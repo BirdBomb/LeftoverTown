@@ -8,182 +8,164 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
-using static UnityEditor.Timeline.Actions.MenuPriority;
 
 public class UI_Grid_CookPanel : UI_Grid
 {
     [SerializeField, Header("原料格子")]
-    private List<UI_GridCell> cell_IngredientList = new List<UI_GridCell>();
+    private List<UI_GridCell> gridCells_Ingredient = new List<UI_GridCell>();
     [SerializeField, Header("成品格子")]
-    private UI_GridCell cell_Food;
+    private UI_GridCell gridCell_Food;
     [SerializeField, Header("最大容量")]
-    private int max_FoodSlot;
+    private int int_IngredientCapacity;
     [SerializeField, Header("烹饪进度条")]
     private Image image_CookBar;
     [SerializeField, Header("烹饪结果描述")]
     private TextMeshProUGUI text_CookDesc;
     [SerializeField, Header("烹饪按钮")]
-    private Button btn_Cook;
+    private Button btn_CookStart;
     [SerializeField, Header("烹饪技能描述")]
-    private TextMeshProUGUI text_CookBar;
+    private TextMeshProUGUI text_CookSkill;
     [SerializeField, Header("烹饪技能加成")]
     private int skillOffset;
-    public Action<List<ItemData>> bindAddRawAction;
-    public Action bindPutOutFoodAction;
-    public Action<ItemData, short, short> bindCookAction;
-    private List<ItemData> cookRawDataList = new List<ItemData>();
-    private ItemData cookResultData;
-    private short cookTime = 0;
-    private short cookMaxTime = 0;
-    private TileObj bindTileObj;
-    public override void Open(TileObj tileObj)
+    public Action<List<ItemData>> action_PutInIngredient;
+    public Action action_PutOutFood;
+    public Action<ItemData, short, short> action_Cook;
+    private List<ItemData> itemDatas_Ingredient = new List<ItemData>();
+    private ItemData itemData_Food;
+    public void Start()
     {
-        bindTileObj = tileObj;
-        base.Open(tileObj);
+        BindAllCell();
     }
-    public override void Close(TileObj tileObj)
+    private void BindAllCell()
     {
-        bindTileObj = tileObj;
-        base.Close(tileObj);
-    }
-    public void BindAction(Action<List<ItemData>> addRawAction,Action<ItemData,short,short> cookAction,Action putOutAction)
-    {
-        bindAddRawAction = addRawAction;
-        bindCookAction = cookAction;
-        bindPutOutFoodAction = putOutAction;
-    }
-
-    #region//UI操作
-    public override void CellDragBegin(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-
-    }
-    public override void CellDragIn(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-        RectTransformUtility.ScreenPointToWorldPointInRectangle(gridCell.image_MainIcon.rectTransform, Input.mousePosition, Camera.main, out Vector3 pos);
-        gridCell.image_MainIcon.transform.position = pos;
-    }
-    public override void CellDragEnd(UI_GridCell gridCell, ItemData itemData, PointerEventData pointerEventData)
-    {
-        pointerEventData.position = Input.mousePosition;
-        List<RaycastResult> raycastResults = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointerEventData, raycastResults);
-        if (raycastResults.Count > 0)
+        for (int i = 0; i < gridCells_Ingredient.Count; i++)
         {
-            foreach (RaycastResult result in raycastResults)
+            gridCells_Ingredient[i].BindAction(PutInIngredient, PutOutIngredient, null, null);
+        }
+        gridCell_Food.BindAction(PutInFood, PutOutFood, null, null);
+    }
+    public void BindAction_Cook(Action<List<ItemData>> putInIngredient, Action<ItemData,short,short> cook,Action putOutFood)
+    {
+        action_PutInIngredient = putInIngredient;
+        action_Cook = cook;
+        action_PutOutFood = putOutFood;
+    }
+    #region//上传更新
+    public void UpdateInfo(List<ItemData> rawList, ItemData result, short time, short maxTime)
+    {
+        itemData_Food = result;
+        itemDatas_Ingredient.Clear();
+        for (int i = 0; i < rawList.Count; i++)
+        {
+            if (rawList[i].Item_ID != 0)
             {
-                if (result.gameObject.TryGetComponent(out UI_Grid grid))
-                {
-                    PutOut(itemData, out ItemData afterData);
-                    grid.ListenDragOn(this, gridCell, afterData);
-                    return;
-                }
+                itemDatas_Ingredient.Add(rawList[i]);
+            }
+        }
+        if (maxTime != 0)
+        {
+            image_CookBar.transform.DOKill();
+            image_CookBar.transform.DOScaleX(((float)time / maxTime), 0.1f);
+            if (time == maxTime)
+            {
+                gridCell_Food.DOKill();
+                gridCell_Food.transform.localScale = Vector3.one;
+                gridCell_Food.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
             }
         }
         else
         {
-            PutOut(itemData, out ItemData afterData);
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
-            {
-                item = afterData
-            });
+            image_CookBar.transform.localScale = new Vector3(0, 1f, 1f);
         }
-
+        DrawAllCell();
     }
-    public override void ListenDragOn<T>(T grid, UI_GridCell cell, ItemData itemData)
+    public void ChangeInfo()
     {
-        PutIn(itemData, out ItemData back);
-        if (back.Item_Count != 0)
+        if (action_ChangeInfo != null)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
-            {
-                item = back,
-            });
+            action_ChangeInfo.Invoke("");
         }
-        base.ListenDragOn<T>(grid, cell, itemData);
-    }
-    public void ClickCookBtn(ItemData item, short val, short max)
-    {
-        bindCookAction(item, val, max);
-        ChangeInfoToTile();
     }
     #endregion
-    #region//UI管理
+    #region//UI绘制
     /// <summary>
     /// 绘制所有格子
     /// </summary>
     private void DrawAllCell()
     {
-        for(int i = 0; i< cell_IngredientList.Count; i++)
+        for (int i = 0; i < gridCells_Ingredient.Count; i++)
         {
-            ResetCell(cell_IngredientList[i]);
-            if (cookRawDataList.Count > i && cookRawDataList[i].Item_ID != 0)
+            if (itemDatas_Ingredient.Count > i && itemDatas_Ingredient[i].Item_ID > 0)
             {
-                DrawCell(cookRawDataList[i], cell_IngredientList[i]);
-            }
-        }
-        ResetCell(cell_Food);
-        DrawCell(cookResultData, cell_Food);
-        CheckRaw();
-    }
-
-    /// <summary>
-    /// 重置一个格子
-    /// </summary>
-    /// <param name="cell"></param>
-    private void ResetCell(UI_GridCell cell)
-    {
-        cell.ResetGridCell();
-    }
-    /// <summary>
-    /// 绘制一个格子
-    /// </summary>
-    /// <param name="cell"></param>
-    /// <param name="config"></param>
-    private void DrawCell(ItemData data, UI_GridCell cell)
-    {
-        cell.UpdateGridCell(data);
-        cell.BindDragAction(CellDragBegin, CellDragIn, CellDragEnd);
-    }
-    private void CheckRaw()
-    {
-        text_CookBar.text = skillOffset.ToString();
-        if (cookRawDataList.Count > 1)
-        {
-            CookConfig cookResult;
-            int id_0 = cookRawDataList[0].Item_ID;
-            int id_1 = cookRawDataList[1].Item_ID;
-            if (id_0 == id_1)
-            {
-                FindCookResulr(id_0, out cookResult);
+                gridCells_Ingredient[i].UpdateData(itemDatas_Ingredient[i]);
             }
             else
             {
-                if (id_0 > id_1)
-                {
-                    FindCookResulr(id_1 * 10000 + id_0,out cookResult);
-                }
-                else
-                {
-                    FindCookResulr(id_0 * 10000 + id_1, out cookResult);
-                }
+                gridCells_Ingredient[i].CleanData();
             }
+        }
+        if (itemData_Food.Item_ID > 0)
+        {
+            gridCell_Food.UpdateData(itemData_Food);
+        }
+        else
+        {
+            gridCell_Food.CleanData();
+        }
+        CheckRaw();
+    }
+    #endregion
+    #region//UI管理
+    private void CheckRaw()
+    {
+        text_CookSkill.text = "技能加成" + skillOffset.ToString();
+        if (itemDatas_Ingredient.Count > 1)
+        {
+            CookConfig cookResult;
+            FindCookResult(itemDatas_Ingredient[0].Item_ID, itemDatas_Ingredient[1].Item_ID, out cookResult);
             if (cookResult.Cook_ID != 0)
             {
                 CheckCookResult(cookResult);
-                btn_Cook.gameObject.SetActive(true);
+                btn_CookStart.gameObject.SetActive(true);
             }
         }
         else
         {
-            btn_Cook.gameObject.SetActive(false);
+            btn_CookStart.gameObject.SetActive(false);
             text_CookDesc.text = "";
         }
     }
-    private void FindCookResulr(int raw,out CookConfig config)
+    private void FindCookResult(short raw_0, short raw_1, out CookConfig config)
     {
-        config = CookConfigData.cookConfigs.Find((x) => { return x.Cook_Raw.Contains(raw); });
+        config = CookConfigData.cookConfigs.Find((x) => 
+        {
+            if (x.CooK_Raw_Main.Contains(raw_0) && x.CooK_Raw_Add.Contains(raw_1))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        });
+        if (config.Cook_ID == 0)
+        {
+            config = CookConfigData.cookConfigs.Find((x) =>
+            {
+                if (x.CooK_Raw_Main.Contains(raw_1) && x.CooK_Raw_Add.Contains(raw_0))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            });
+        }
+        if(config.Cook_ID == 0)
+        {
+            config = CookConfigData.GetCookConfig(4100);
+        }
     }
     private void CheckCookResult(CookConfig config)
     {
@@ -201,120 +183,84 @@ public class UI_Grid_CookPanel : UI_Grid
         {
             text_CookDesc.text = ItemConfigData.GetItemConfig(config.Cook_ID).Item_Name + ":成功几率" + succesPro + "%";
         }
-        btn_Cook.onClick.RemoveAllListeners();
+        btn_CookStart.onClick.RemoveAllListeners();
         UnityEngine.Random.InitState(System.DateTime.Now.Second);
         if (UnityEngine.Random.Range(0, 100) < succesPro)
         {
             /*成功*/
-            btn_Cook.onClick.AddListener(() =>
+            btn_CookStart.onClick.AddListener(() =>
             {
                 Type type = Type.GetType("Item_" + config.Cook_ID.ToString());
-                ItemData itemData = new ItemData
-                    (config.Cook_ID,
-                     MapManager.Instance.mapSeed + (int)(System.DateTime.Now.Ticks * 1000),
-                     1,
-                     0,
-                     0,
-                     0,
-                     new ContentData());
-                ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(itemData, out ItemData initData);
+                ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(config.Cook_ID, out ItemData initData);
                 ClickCookBtn(initData, 0, config.Cook_Time);
             });
         }
         else
         {
             /*失败*/
-            btn_Cook.onClick.AddListener(() =>
+            btn_CookStart.onClick.AddListener(() =>
             {
-                Type type = Type.GetType("Item_" + 4000
-                    .ToString());
-                ItemData itemData = new ItemData
-                    (4000,
-                     MapManager.Instance.mapSeed + (int)(System.DateTime.Now.Ticks * 1000),
-                     1,
-                     0,
-                     0,
-                     0,
-                     new ContentData());
-                ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(itemData, out ItemData initData);
+                Type type = Type.GetType("Item_" + 4100.ToString());
+                ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(4100, out ItemData initData);
                 ClickCookBtn(initData, 0, config.Cook_Time);
             });
         }
     }
-    #endregion
-    #region//放入取出
-    public override void PutIn(ItemData before, out ItemData after)
+    private void ClickCookBtn(ItemData item, short val, short max)
     {
-        ItemData resData = before;
-        ItemConfig itemConfig = ItemConfigData.GetItemConfig(before.Item_ID);
-        if ((itemConfig.Item_Type == ItemType.Ingredient || itemConfig.Item_Type == ItemType.Food) && cookRawDataList.Count < max_FoodSlot)
-        {
-            ItemData itemData = before;
-            itemData.Item_Count = 0;
-            Type type = Type.GetType("Item_" + before.Item_ID.ToString());
-            ((ItemBase)Activator.CreateInstance(type)).StaticAction_PileUp(itemData, resData, 1, out ItemData newData, out resData);
-            after = resData;
-
-            cookRawDataList.Add(newData);
-            bindCookAction.Invoke(new ItemData(), 0, 0);
-            bindAddRawAction.Invoke(cookRawDataList);
-            ChangeInfoToTile();
-        }
-        else
-        {
-            base.PutIn(before, out after);
-        }
-    }
-    public override void PutOut(ItemData before, out ItemData after)
-    {
-        if (before.Equals(cookResultData))
-        {
-            cookResultData = new ItemData();
-            bindPutOutFoodAction.Invoke();
-        }
-        else
-        {
-            cookRawDataList.Remove(before);
-        }
-        after = before;
-        bindCookAction.Invoke(new ItemData(), 0, 0);
-        bindAddRawAction.Invoke(cookRawDataList);
-        ChangeInfoToTile();
+        action_Cook(item, val, max);
+        ChangeInfo();
     }
     #endregion
-    #region//上传更新
-    public void UpdateInfoFromTile(List<ItemData> rawList, ItemData result, short time, short maxTime)
+    public void PutInIngredient(ItemData addData)
     {
-        cookResultData = result;
-        cookRawDataList.Clear();
-        for (int i = 0; i < rawList.Count; i++)
+        ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.Item_ID);
+        if((itemConfig.Item_Type == ItemType.Ingredient || itemConfig.Item_Type == ItemType.Food) && itemDatas_Ingredient.Count < int_IngredientCapacity)
         {
-            if (rawList[i].Item_ID != 0)
+            ItemData resData = addData;
+            addData.Item_Count = 1;
+            resData.Item_Count -= 1;
+            if (resData.Item_ID > 0 && resData.Item_Count != 0)
             {
-                cookRawDataList.Add(rawList[i]);
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                {
+                    item = resData,
+                });
             }
-        }
-        if (maxTime != 0)
-        {
-            image_CookBar.transform.DOKill();
-            image_CookBar.transform.DOScaleX(((float)time / maxTime), 0.1f);
-            if (time == maxTime)
-            {
-                cell_Food.DOKill();
-                cell_Food.transform.localScale = Vector3.one;
-                cell_Food.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-            }
+            itemDatas_Ingredient.Add(addData);
+            action_Cook.Invoke(new ItemData(), 0, 0);
+            action_PutInIngredient.Invoke(itemDatas_Ingredient);
+            ChangeInfo();
         }
         else
         {
-            image_CookBar.transform.localScale = new Vector3(0, 1f, 1f);
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            {
+                item = addData,
+            });
         }
-        DrawAllCell();
     }
-    public void ChangeInfoToTile()
+    public ItemData PutOutIngredient(ItemData subData)
     {
-        bindTileObj.TryToChangeInfo("");
+        itemDatas_Ingredient = GameToolManager.Instance.PutOutItemList(itemDatas_Ingredient, subData);
+        action_Cook.Invoke(new ItemData(), 0, 0);
+        action_PutInIngredient.Invoke(itemDatas_Ingredient);
+        ChangeInfo();
+        return subData;
     }
-    #endregion
-
+    public void PutInFood(ItemData addData)
+    {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+        {
+            item = addData,
+        });
+    }
+    public ItemData PutOutFood(ItemData subData)
+    {
+        itemData_Food = GameToolManager.Instance.PutOutItemSingle(itemData_Food, subData) ;
+        action_PutOutFood.Invoke();
+        action_Cook.Invoke(new ItemData(), 0, 0);
+        ChangeInfo();
+        return subData;
+    }
 }

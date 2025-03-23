@@ -13,12 +13,5 @@ using Unity.VisualScripting;
 public partial class ItemSystem
 {
 }
-/// <summary>
-/// Ô­³õÊ÷Ö¦
-/// </summary>
-[Serializable]
-public class Item_0 : ItemBase
-{
-}
 
 

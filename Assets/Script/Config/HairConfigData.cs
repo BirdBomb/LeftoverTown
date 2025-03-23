@@ -14,13 +14,14 @@ public class HairConfigData : MonoBehaviour
         new HairConfig(){ Hair_ID = 0,Hair_Name ="" },
         new HairConfig(){ Hair_ID = 100,Hair_Name ="" },
         new HairConfig(){ Hair_ID = 101,Hair_Name ="" },
+        new HairConfig(){ Hair_ID = 102,Hair_Name ="" },
     };
 }
 [Serializable]
 public struct HairConfig
 {
     [SerializeField]/*±àºÅ*/
-    public int Hair_ID;
+    public short Hair_ID;
     [SerializeField]/*Ãû×Ö*/
     public string Hair_Name;
 }

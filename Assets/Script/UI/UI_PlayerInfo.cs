@@ -6,8 +6,6 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
-using UnityEngine.XR;
-using static UnityEditor.Timeline.Actions.MenuPriority;
 
 public class UI_PlayerInfo : MonoBehaviour
 {
@@ -32,10 +30,6 @@ public class UI_PlayerInfo : MonoBehaviour
     private UI_GridCell _bodyCell;
     [SerializeField, Header("头部槽位")]
     private UI_GridCell _headCell;
-    [SerializeField, Header("技能面板")]
-    private UI_SkillPanel skillPanel;
-    [SerializeField, Header("技能轮盘")]
-    private List<UI_SkillSlot> skillUse;
     [SerializeField, Header("力量")]
     public UI_PointPanel point_Strength;
     [SerializeField, Header("智力")]
@@ -54,19 +48,6 @@ public class UI_PlayerInfo : MonoBehaviour
     public UI_PointPanel Point_Cook;
     private SpriteAtlas atlas;
 
-    private void Start()
-    {
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_BindSkill>().Subscribe(_ =>
-        {
-            skillPanel.UpdateUsingSkill(_.skillIDs);
-            if (!atlas) { atlas = Resources.Load<SpriteAtlas>("Atlas/SkillSprite"); }
-            for (int i = 0; i < _.skillIDs.Count; i++)
-            {
-                int index = i;
-                skillUse[index].Init(_.skillIDs[index], atlas.GetSprite(_.skillIDs[index].ToString()));
-            }
-        }).AddTo(this);
-    }
     private void Update()
     {
         if (Input.GetKeyUp(KeyCode.C))
@@ -88,7 +69,6 @@ public class UI_PlayerInfo : MonoBehaviour
         mask.SetActive(true);
         bg.SetActive(true);
         UpdateCell();
-        skillPanel.UpdateDraw();
     }
     public void Close()
     {
@@ -99,37 +79,36 @@ public class UI_PlayerInfo : MonoBehaviour
     }
     public void UpdateCell()
     {
-        Debug.Log(GameLocalManager.Instance.localPlayer);
-        NetworkLinkedList<ItemData> bagItem = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_ItemInBag;
-        ItemData handItem = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_ItemInHand;
-        ItemData headItem = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_ItemOnHead;
-        ItemData bodyItem = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_ItemOnBody;
+        NetworkLinkedList<ItemData> bagItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemsInBag;
+        ItemData handItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemInHand;
+        ItemData headItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemOnHead;
+        ItemData bodyItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemOnBody;
         for (int i = 0; i < bagItem.Count; i++)
         {
             int index = i;
             if (_bagCellList.Count > index)
             {
-                _bagCellList[index].UpdateGridCell(bagItem[index]);
+                _bagCellList[index].UpdateData(bagItem[index]);
             }
         }
-        _handCell.UpdateGridCell(handItem);
-        _headCell.UpdateGridCell(headItem);
-        _bodyCell.UpdateGridCell(bodyItem);
+        _handCell.UpdateData(handItem);
+        _headCell.UpdateData(headItem);
+        _bodyCell.UpdateData(bodyItem);
 
-        playerName.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Name.ToString();
-        playerFine.text = GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Fine.ToString();
-        InitPlayerPhoto(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_HairID, 
-            GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_EyeID, 
-            GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_HairColor);
+        playerName.text = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Name.ToString();
+        playerFine.text = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Fine.ToString();
+        InitPlayerPhoto(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_HairID, 
+            GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_EyeID, 
+            GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_HairColor);
 
-        point_Strength.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Strength);
-        Point_Intelligence.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Intelligence);
-        Point_SPower.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_SPower);
-        Point_Focus.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Focus);
-        Point_Agility.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Agility);
-        Point_Make.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Make);
-        Point_Build.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Build);
-        Point_Cook.UpdatePoint(GameLocalManager.Instance.localPlayer.actorManager.NetManager.Data_Point_Cook);
+        point_Strength.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Strength);
+        Point_Intelligence.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Intelligence);
+        Point_SPower.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_SPower);
+        Point_Focus.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Focus);
+        Point_Agility.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Agility);
+        Point_Make.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Make);
+        Point_Build.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Build);
+        Point_Cook.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Cook);
 
     }
     public void ResetCell()
@@ -137,11 +116,11 @@ public class UI_PlayerInfo : MonoBehaviour
         ItemData itemData = new ItemData();
         for (int i = 0; i < _bagCellList.Count; i++)
         {
-            _bagCellList[i].UpdateGridCell(itemData);
+            _bagCellList[i].UpdateData(itemData);
         }
-        _handCell.UpdateGridCell(itemData);
-        _headCell.UpdateGridCell(itemData);
-        _bodyCell.UpdateGridCell(itemData);
+        _handCell.UpdateData(itemData);
+        _headCell.UpdateData(itemData);
+        _bodyCell.UpdateData(itemData);
     }
     private void InitPlayerPhoto(int hairID, int eyeID, Color32 hairColor)
     {

@@ -7,7 +7,6 @@ using UnityEngine.EventSystems;
 
 public class UI_Common : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private bool pointIn = false;
     public void OnPointerEnter(PointerEventData eventData)
     {
         transform.DOKill();

@@ -9,6 +9,7 @@ public class AudioManager : SingleTon<AudioManager>, ISingleTon
 {
     [Header("混音器")]
     public AudioMixer audioMixer;
+    [Header("播放器")]
     public SourceManager sourceManager;
     private ClipManager clipManager = new ClipManager();
     public void Init()
