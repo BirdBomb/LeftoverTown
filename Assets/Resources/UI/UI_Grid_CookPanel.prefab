@@ -416,7 +416,7 @@ GameObject:
   - component: {fileID: 2985662046491323827}
   - component: {fileID: 658451713204889451}
   m_Layer: 5
-  m_Name: UI_CookPanel
+  m_Name: UI_Grid_CookPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -817,15 +817,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7105b549d8dea544da1d53fa5763c450, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cell_IngredientList:
+  bindTileObj: {fileID: 0}
+  gridCells_Ingredient:
   - {fileID: 6327882727270281025}
   - {fileID: 9083510037239997136}
-  cell_Food: {fileID: 3648107938706829257}
-  max_FoodSlot: 2
+  gridCell_Food: {fileID: 3648107938706829257}
+  int_IngredientCapacity: 2
   image_CookBar: {fileID: 5278020075312031742}
   text_CookDesc: {fileID: 4414741545260561759}
-  btn_Cook: {fileID: 4504651918627446197}
-  text_CookBar: {fileID: 6937208432563211490}
+  btn_CookStart: {fileID: 4504651918627446197}
+  text_CookSkill: {fileID: 6937208432563211490}
   skillOffset: 2
 --- !u!1 &7274393225403052732
 GameObject:
@@ -1088,8 +1089,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -40, y: -8}
-  m_SizeDelta: {x: 192, y: 32}
+  m_AnchoredPosition: {x: -53, y: -8}
+  m_SizeDelta: {x: 166, y: 32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1366607822078015405
 CanvasRenderer:

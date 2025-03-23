@@ -58,11 +58,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9fd79d79a0fb459ababab9a78f00caa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _physicsAuthority: 2
+  _physicsAuthority: 0
   _physicsTiming: 3
   ClientPhysicsSimulation: 3
   DeltaTimeMultiplier: 1
-  SetUnityFixedTimestep: 0
+  SetUnityFixedTimestep: 1
 --- !u!114 &522349810143740778
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76,4 +76,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerPrefab:
-    RawGuidValue: 330d62b040f51954c83b2e4356df0edb
+    RawGuidValue: 38af16963665af84c9b68febde0c5e40

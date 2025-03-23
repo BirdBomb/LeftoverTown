@@ -221,14 +221,14 @@ GameObject:
   - component: {fileID: 2714896714684818798}
   - component: {fileID: 3175393092752784175}
   - component: {fileID: 6523369571906326520}
-  - component: {fileID: 532291673289334596}
+  - component: {fileID: 8077218261195611296}
   m_Layer: 11
   m_Name: UI_Grid_CabinetSteal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2714896714684818798
 RectTransform:
   m_ObjectHideFlags: 0
@@ -297,7 +297,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &532291673289334596
+--- !u!114 &8077218261195611296
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -306,10 +306,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3145158905166680984}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6636eca804258646ab78abfb96d8929, type: 3}
+  m_Script: {fileID: 11500000, guid: 4befcb8b2672e054b874fc4562f79107, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellList:
+  bindTileObj: {fileID: 0}
+  gridCells_List:
   - {fileID: 4792092087755254727}
   - {fileID: 1193310238948555367}
   - {fileID: 3966909366343808826}

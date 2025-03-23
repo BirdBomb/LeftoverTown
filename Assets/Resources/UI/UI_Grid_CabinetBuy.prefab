@@ -800,7 +800,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &4203262571846121647
 RectTransform:
   m_ObjectHideFlags: 0
@@ -881,7 +881,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c190fdcf409fb6c459e6969ad674be66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellList:
+  bindTileObj: {fileID: 0}
+  gridCells_List:
   - {fileID: 78990987136959374}
   - {fileID: 7229278541280699745}
   - {fileID: 3935340967303730831}
@@ -891,7 +892,7 @@ MonoBehaviour:
   - {fileID: 5109870692141689760}
   - {fileID: 3757524887899127752}
   - {fileID: 2455383583232115354}
-  priceList:
+  texts_Price:
   - {fileID: 770878135761309587}
   - {fileID: 1097937159249696728}
   - {fileID: 6410239073703684984}

@@ -538,7 +538,7 @@ GameObject:
   - component: {fileID: 1362573634536746708}
   - component: {fileID: 4123189556556716222}
   m_Layer: 5
-  m_Name: UI_ActorChooseButton
+  m_Name: UI_ChooseActorButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -622,6 +622,10 @@ MonoBehaviour:
   image_Hair: {fileID: 5284726706490479437}
   image_Eye: {fileID: 7758606580364709930}
   text_Name: {fileID: 7039449606216614772}
+  bind_Data: 
+  bind_Path: 
+  spriteAtlas_Hair: {fileID: 4343727234628468602, guid: 2c368028d2079e144af6731a6433f739, type: 2}
+  spriteAtlas_Eye: {fileID: 4343727234628468602, guid: 48552f0cd65b6224eb37eb61ffbba325, type: 2}
 --- !u!1 &8382139123703999956
 GameObject:
   m_ObjectHideFlags: 0

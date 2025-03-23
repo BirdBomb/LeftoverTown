@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6899229548445106668}
   - component: {fileID: 2624901480704832080}
   - component: {fileID: 1434760596329374979}
-  - component: {fileID: 1642699605738760834}
   m_Layer: 5
   m_Name: UI_GridCell
   m_TagString: Untagged
@@ -61,61 +60,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 602c0194b3c044844a9ab3a1d3bfc58b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  atlas_ItemIcon: {fileID: 4343727234628468602, guid: dfcef9f411b96c442835a10515a64459, type: 2}
-  atlas_ItemBG: {fileID: 4343727234628468602, guid: 0a4c2dedb27775340a517b00093e7369, type: 2}
-  image_BackGround: {fileID: 5410362395848991622}
-  image_MainIcon: {fileID: 2684186466293595926}
-  image_ChildIcon: {fileID: 6802600277858187701}
-  image_IceMask: {fileID: 7624180712415199038}
-  text_Info: {fileID: 786042160190778899}
-  btn_Main: {fileID: 1642699605738760834}
+  spriteAtlas_ItemIcon: {fileID: 4343727234628468602, guid: dfcef9f411b96c442835a10515a64459, type: 2}
+  spriteAtlas_ItemBG: {fileID: 4343727234628468602, guid: 0a4c2dedb27775340a517b00093e7369, type: 2}
+  image_IconBG: {fileID: 5410362395848991622}
+  image_IconMain: {fileID: 2684186466293595926}
+  image_IconMask: {fileID: 7624180712415199038}
+  text_CornerMark: {fileID: 786042160190778899}
   grid_Child: {fileID: 8845740304231255766}
   panel_Bar: {fileID: 176607367128769299}
   image_Bar: {fileID: 6509091259195496250}
---- !u!114 &1642699605738760834
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 237908814398966087}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &553059621069577652
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,7 +233,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 548cb7f7f29c5914996ff51a51dd89a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cell: {fileID: 6929521188335690400}
+  bindTileObj: {fileID: 0}
+  gridCell: {fileID: 6929521188335690400}
   _open: 0
 --- !u!1 &2125516029691013076
 GameObject:
@@ -425,7 +379,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 34bc646e1c4ef5b4e9ff23fcbc7b43e0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 40850104d9bc3b74f84922b7ed0828d3, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -592,7 +546,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 0
+  m_Text: 
 --- !u!114 &5502379759088114829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -669,14 +623,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 602c0194b3c044844a9ab3a1d3bfc58b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  atlas_ItemIcon: {fileID: 4343727234628468602, guid: dfcef9f411b96c442835a10515a64459, type: 2}
-  atlas_ItemBG: {fileID: 4343727234628468602, guid: 0a4c2dedb27775340a517b00093e7369, type: 2}
-  image_BackGround: {fileID: 434255649479894118}
-  image_MainIcon: {fileID: 6802600277858187701}
-  image_ChildIcon: {fileID: 4895990708309804037}
-  image_IceMask: {fileID: 6445060965427063621}
-  text_Info: {fileID: 1177553749885479562}
-  btn_Main: {fileID: 6930767474557212005}
+  spriteAtlas_ItemIcon: {fileID: 4343727234628468602, guid: dfcef9f411b96c442835a10515a64459, type: 2}
+  spriteAtlas_ItemBG: {fileID: 4343727234628468602, guid: 0a4c2dedb27775340a517b00093e7369, type: 2}
+  image_IconBG: {fileID: 434255649479894118}
+  image_IconMain: {fileID: 6802600277858187701}
+  image_IconMask: {fileID: 6445060965427063621}
+  text_CornerMark: {fileID: 1177553749885479562}
   grid_Child: {fileID: 0}
   panel_Bar: {fileID: 2289717315161422714}
   image_Bar: {fileID: 9064848519013205662}
