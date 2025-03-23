@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Water
-  m_Shader: {fileID: -6465566751694194690, guid: 2e63c840289d88448bba1a553aa9a877, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 9b0bd168e584d2046a51b85d6c2921c0, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -23,20 +23,40 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _LightTex:
-        m_Texture: {fileID: 2800000, guid: 108fc855508637b408dfc84cd1bf94d9, type: 3}
+    - _CausticBaseTex:
+        m_Texture: {fileID: 2800000, guid: d01c8bb216b766e4797fce27ae8262d4, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CausticHighLightTex:
+        m_Texture: {fileID: 2800000, guid: 57bc6dc14881ce44eaf723d79b7b2921, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DistortTex:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _WaterTex:
-        m_Texture: {fileID: 2800000, guid: bafcd084acf80db4a9e62abca37fa5af, type: 3}
+    - _SampleTexture2D_75e3b77318ba4c1a94338b656393c51c_Texture_1_Texture2D:
+        m_Texture: {fileID: 8600000, guid: eea6265cf4ef4294b8071d0c9115be9c, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_e851713b1caf4ce39d4e827cd75431bb_Texture_1_Texture2D:
+        m_Texture: {fileID: 8600000, guid: eea6265cf4ef4294b8071d0c9115be9c, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_f7d22e430c9144a0825060bb5943ff29_Texture_1_Texture2D:
+        m_Texture: {fileID: 8600000, guid: f435ab42db1991d4abbb1f31ef06c83a, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_ff6959c00a0e4f2b9c7d15313ca05b25_Texture_1_Texture2D:
+        m_Texture: {fileID: 8600000, guid: f435ab42db1991d4abbb1f31ef06c83a, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _WaveTex:
-        m_Texture: {fileID: 2800000, guid: d757bcc74f9d42845a97774fdd0cf2cf, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -53,27 +73,64 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _LightSpeed: 0
-    - _LineHeight: 0.01
-    - _LineSpeed: 2
-    - _LineStep: 1.5
-    - _NoisePower: 0.025
-    - _NoiseScale: 1
-    - _NoiseSpeed: 0.01
-    - _PixelSize: 0.01
-    - _WaterSpeed: 0.01
-    - _WavePower: 0.5
-    - _WaveSpeed: 0.01
+    - _AreaSpeed: 1
+    - _BottomAlpha: 0.2
+    - _BottomAngleSpeed: 1
+    - _BottomNoiseScale: 2
+    - _BottomNoiseStrengh: 0.0017578399
+    - _BottomPixelUnit: 640
+    - _BottomScale: 0.01
+    - _BottomSpeed: 1
+    - _BottomStrengh: 1.25
+    - _CausitcBlend: 0.05
+    - _CausticBaseStrength: 0.2
+    - _CausticHighLightStrengrh: 0
+    - _CausticNoiseScale: 0.05
+    - _CausticScale: 8
+    - _CausticSpeed: 2
+    - _DistortBlend: 1
+    - _DistortScale: 5
+    - _DistortSpeed: 1
+    - _DistortStrength: 5
+    - _DistortUVStrength: 1
+    - _EdgeWaveColorNoiseScale: 0.2
+    - _EdgeWaveHeight: 0.00625
+    - _EdgeWaveLength: 5
+    - _EdgeWaveShakeSpeed: 0.5
+    - _EdgeWaveSpeed: 0.2
+    - _FloatingMaskScale: 1
+    - _FloatingMaskSpeed: 1
+    - _FloatingScale: 4
+    - _FloatingSpeed: 1
+    - _FloatingStep: 0.8
+    - _FloatingStrength: 8
+    - _MaskRange: 0.5
+    - _MaskScale: 20
+    - _MaskStrength: 0.2
+    - _WaveDistortStrength: 0.5
+    - _WaveHeight: 0.05
+    - _WaveLength: 5
+    - _WaveSpeed: 1
+    - _WaveStep: 0.2
+    - _WaveStrength: 0.5
     m_Colors:
-    - _BaseColor: {r: 1, g: 0, b: 0, a: 0}
-    - _Deep: {r: -0.01, g: 0.01, b: 0, a: 0}
-    - _Offset: {r: 0.21, g: 0.04, b: 0, a: 0}
-    - _PixelScale: {r: 0.0005, g: 0.0005, b: 0, a: 0}
-    - _Vector2: {r: -28.94, g: -1.77, b: 0, a: 0}
-    - _WaterColor: {r: 0.23921569, g: 0.53333336, b: 0.6745098, a: 0}
-    - _WaveColor: {r: 0.75786155, g: 0.9449254, b: 1, a: 0}
+    - _AreaScale: {r: 1, g: 1, b: 0, a: 0}
+    - _BaseColor: {r: 0.39999998, g: 1, b: 1, a: 1}
+    - _BottomPixelCount: {r: 568.888, g: 320, b: 0, a: 0}
+    - _CausticBaseColor: {r: 0.7452829, g: 1, b: 0.96881014, a: 0}
+    - _CausticHighLightColor: {r: 1, g: 1, b: 1, a: 0}
+    - _DistortColor: {r: 0.74509805, g: 1, b: 0.9686275, a: 0.5019608}
+    - _DistortTran: {r: 4.5932097, g: -1.3892263, b: 0.02, a: 0.02}
+    - _EdgeColor: {r: 0.40000004, g: 0.8000001, b: 1, a: 1}
+    - _EdgeHighLightColor: {r: 0.64465404, g: 0.9680601, b: 1, a: 1}
+    - _EdgeWaveColor: {r: 0.5, g: 1, b: 1, a: 1}
+    - _EdgeWaveHighLightColor: {r: 0.827044, g: 0.9855995, b: 1, a: 0}
+    - _EdgeWaveNoiseScale: {r: 0, g: 0, b: 0, a: 0}
+    - _MaskSpeed: {r: -1, g: -2, b: 0, a: 0}
+    - _WaveColor: {r: 1, g: 1, b: 1, a: 1}
+    - _WaveTran: {r: 0.5, g: 0.5, b: 0.02, a: 0.02}
   m_BuildTextureStacks: []
---- !u!114 &254476791311315548
+--- !u!114 &6744582985301369526
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
