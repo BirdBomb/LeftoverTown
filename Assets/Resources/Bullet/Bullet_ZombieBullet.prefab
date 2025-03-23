@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 6115545872993090307}
   - component: {fileID: 8466269865931788451}
   m_Layer: 0
-  m_Name: Bullet_100
+  m_Name: Bullet_ZombieBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -129,15 +129,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3172556a6a274034d967d294b64cdd91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveDir: {x: 0, y: 0, z: 0}
-  moveSpeed: 0
-  curPos: {x: 0, y: 0, z: 0}
-  lastPos: {x: 0, y: 0, z: 0}
-  life: 3
-  configDamage: 2
-  configSpeed: 5
-  bulletPath: Bullet/Bullet_100
-  effectPath: Effect/Effect_Bullet100
-  target:
+  vectoe3_MoveDir: {x: 0, y: 0, z: 0}
+  vectoe3_CurPos: {x: 0, y: 0, z: 0}
+  vectoe3_LastPos: {x: 0, y: 0, z: 0}
+  float_MoveSpeed: 0
+  float_Force: 0
+  float_Life: 3
+  config_Damage: 0
+  config_Speed: 0
+  config_Force: 0
+  str_BulletPath: Bullet/Bullet_ZombieBullet
+  layerMask_Target:
     serializedVersion: 2
-    m_Bits: 1089
+    m_Bits: 1088

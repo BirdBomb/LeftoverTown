@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3687720742263628995}
   - component: {fileID: 1740548629249918439}
   m_Layer: 0
-  m_Name: Bullet_9004
+  m_Name: Bullet_9010
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,19 +46,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3606cdae819bced4a8f28e9ebc694d37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveDir: {x: 0, y: 0, z: 0}
-  moveSpeed: 0
-  curPos: {x: 0, y: 0, z: 0}
-  lastPos: {x: 0, y: 0, z: 0}
-  life: 3
-  configDamage: 5
-  configSpeed: 50
-  bulletPath: Bullet/Bullet_9004
-  effectPath: 
-  target:
+  vectoe3_MoveDir: {x: 0, y: 0, z: 0}
+  vectoe3_CurPos: {x: 0, y: 0, z: 0}
+  vectoe3_LastPos: {x: 0, y: 0, z: 0}
+  float_MoveSpeed: 0
+  float_Force: 0
+  float_Life: 3
+  config_Damage: 10
+  config_Speed: 50
+  config_Force: 2
+  str_BulletPath: Bullet/Bullet_9010
+  layerMask_Target:
     serializedVersion: 2
-    m_Bits: 1089
-  speedOffset: 50
+    m_Bits: 1088
   spriteRenderer: {fileID: 6301272907957791235}
   trailRenderer: {fileID: 6008889255792531987}
   bulletLight: {fileID: 3836740984328718162}

@@ -51,11 +51,14 @@ SpriteAtlas:
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
     - 24199d013ee35034fb9e0cd72a5d87bb: 21300000
+    - 81cb1952088332b4ea8e35c93b0f93ce: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 24199d013ee35034fb9e0cd72a5d87bb, type: 3}
+  - {fileID: 21300000, guid: 81cb1952088332b4ea8e35c93b0f93ce, type: 3}
   m_PackedSpriteNamesToIndex:
   - Buff100
+  - Buff200
   m_RenderDataMap: {}
   m_Tag: BuffSprite
   m_IsVariant: 0

@@ -6,7 +6,7 @@ SpriteAtlas:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SkillSprite
+  m_Name: GroundPreview
   m_EditorData:
     serializedVersion: 2
     textureSettings:
@@ -15,7 +15,7 @@ SpriteAtlas:
       compressionQuality: 50
       maxTextureSize: 2048
       textureCompression: 0
-      filterMode: 1
+      filterMode: 0
       generateMipMaps: 0
       readable: 0
       crunchedCompression: 0
@@ -27,18 +27,31 @@ SpriteAtlas:
       blockOffset: 1
       allowAlphaSplitting: 0
       enableRotation: 1
-      enableTightPacking: 0
+      enableTightPacking: 1
       enableAlphaDilation: 0
     secondaryTextureSettings: {}
     variantMultiplier: 1
-    packables: []
+    packables:
+    - {fileID: 102900000, guid: 9ccfe4a02df39634a85244cf3cdef0b5, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
-    packedSpriteRenderDataKeys: []
+    packedSpriteRenderDataKeys:
+    - c51619b056d863a4e90b78c08c53d8de: 21300000
+    - b7c65ce3045b9cd42b2767e5a813bd48: 21300000
+    - a1494519df35be844b67218f10816f78: 21300000
+    - 65fc41def31cf0a4e8d594c031a1c6c7: 21300000
   m_MasterAtlas: {fileID: 0}
-  m_PackedSprites: []
-  m_PackedSpriteNamesToIndex: []
+  m_PackedSprites:
+  - {fileID: 21300000, guid: c51619b056d863a4e90b78c08c53d8de, type: 3}
+  - {fileID: 21300000, guid: b7c65ce3045b9cd42b2767e5a813bd48, type: 3}
+  - {fileID: 21300000, guid: a1494519df35be844b67218f10816f78, type: 3}
+  - {fileID: 21300000, guid: 65fc41def31cf0a4e8d594c031a1c6c7, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - 9000
+  - 9999
+  - 1000
+  - 1001
   m_RenderDataMap: {}
-  m_Tag: SkillSprite
+  m_Tag: GroundPreview
   m_IsVariant: 0

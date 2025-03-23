@@ -15,7 +15,7 @@ SpriteAtlas:
       compressionQuality: 50
       maxTextureSize: 2048
       textureCompression: 0
-      filterMode: 1
+      filterMode: 0
       generateMipMaps: 0
       readable: 0
       crunchedCompression: 0
@@ -50,60 +50,42 @@ SpriteAtlas:
     isAtlasV2: 0
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
-    - a5b0f62336f9cf8449bf3fc0bf8fe4b6: 21300000
+    - 99a109f1c5cd2d84e8a1d27eb88f6bb1: 21300000
+    - 8be9a124697498f4fb411a32157d3a9c: 21300000
     - 8db289f485a9cb646b61bba51237e78c: 21300000
-    - 42bec34686552e84ca84c70e1d13c26a: 21300000
-    - ae3faa076ea38a34f8c5269d0bac1cb2: 21300000
     - 7096853756d652e469cdae26a8eb5e65: 21300000
+    - b64136e7d65e8fd4a8089950e72ced7b: 21300000
     - 59554d5824729fc438e49c60e08f972a: 21300000
-    - 745f7f884e5eacc409d5f00f11f570c3: 21300000
-    - e3f95c984ec87864293489ee83436030: 21300000
-    - 81a751b877926154298c5e0dbc5c3138: 21300000
-    - 363ed2b9ea752654596969afdb919a48: 21300000
-    - ccf0538bbd6a9bc47909643e479e1a7b: 21300000
-    - 5b332ccb3b43eeb4da8276b7ea3d6aba: 21300000
+    - 945ad4ca5a5a8f5409bd7f91e43f9dcb: 21300000
     - d82eb41d3ae32c147a1078c1af88d92e: 21300000
-    - e56dc91da1fa76d47ba5ad965f144ac3: 21300000
     - f04e88fd4f9a92241bf9b0502c542b67: 21300000
     - 5d4c9bce695a47c449346ec52b5ed2ee: 21300000
-    - 1bd5c1ffc246913489fc03be240647e4: 21300000
+    - 962c3e2fceb3fca43912262e9ebc5cd4: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: a5b0f62336f9cf8449bf3fc0bf8fe4b6, type: 3}
+  - {fileID: 21300000, guid: 99a109f1c5cd2d84e8a1d27eb88f6bb1, type: 3}
+  - {fileID: 21300000, guid: 8be9a124697498f4fb411a32157d3a9c, type: 3}
   - {fileID: 21300000, guid: 8db289f485a9cb646b61bba51237e78c, type: 3}
-  - {fileID: 21300000, guid: 42bec34686552e84ca84c70e1d13c26a, type: 3}
-  - {fileID: 21300000, guid: ae3faa076ea38a34f8c5269d0bac1cb2, type: 3}
   - {fileID: 21300000, guid: 7096853756d652e469cdae26a8eb5e65, type: 3}
+  - {fileID: 21300000, guid: b64136e7d65e8fd4a8089950e72ced7b, type: 3}
   - {fileID: 21300000, guid: 59554d5824729fc438e49c60e08f972a, type: 3}
-  - {fileID: 21300000, guid: 745f7f884e5eacc409d5f00f11f570c3, type: 3}
-  - {fileID: 21300000, guid: e3f95c984ec87864293489ee83436030, type: 3}
-  - {fileID: 21300000, guid: 81a751b877926154298c5e0dbc5c3138, type: 3}
-  - {fileID: 21300000, guid: 363ed2b9ea752654596969afdb919a48, type: 3}
-  - {fileID: 21300000, guid: ccf0538bbd6a9bc47909643e479e1a7b, type: 3}
-  - {fileID: 21300000, guid: 5b332ccb3b43eeb4da8276b7ea3d6aba, type: 3}
+  - {fileID: 21300000, guid: 945ad4ca5a5a8f5409bd7f91e43f9dcb, type: 3}
   - {fileID: 21300000, guid: d82eb41d3ae32c147a1078c1af88d92e, type: 3}
-  - {fileID: 21300000, guid: e56dc91da1fa76d47ba5ad965f144ac3, type: 3}
   - {fileID: 21300000, guid: f04e88fd4f9a92241bf9b0502c542b67, type: 3}
   - {fileID: 21300000, guid: 5d4c9bce695a47c449346ec52b5ed2ee, type: 3}
-  - {fileID: 21300000, guid: 1bd5c1ffc246913489fc03be240647e4, type: 3}
+  - {fileID: 21300000, guid: 962c3e2fceb3fca43912262e9ebc5cd4, type: 3}
   m_PackedSpriteNamesToIndex:
-  - Emoji_15
+  - Emoji_Empty
+  - 1X1
   - Emoji_2
-  - Emoji_7
-  - Emoji_9
   - Emoji_0
+  - 2X2
   - Emoji_3
-  - Emoji_16
-  - Emoji_11
-  - Emoji_13
-  - Emoji_12
-  - Emoji_8
-  - Emoji_6
+  - 2X1
   - Emoji_5
-  - Emoji_14
   - Emoji_4
   - Emoji_1
-  - Emoji_10
+  - 1X2
   m_RenderDataMap: {}
   m_Tag: EmojiSprite
   m_IsVariant: 0
