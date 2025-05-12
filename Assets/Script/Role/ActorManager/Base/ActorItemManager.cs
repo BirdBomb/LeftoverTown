@@ -29,7 +29,7 @@ public class ActorItemManager
     {
         if (itemBase_OnHand != null)
         {
-            itemBase_OnHand.Holding_UpdateTime(val);
+            itemBase_OnHand.OnHand_UpdateTime(val);
         }
         if (itemBase_OnHead != null)
         {
@@ -73,7 +73,7 @@ public class ActorItemManager
                 else
                 {
                     itemBase_OnHand.UpdateDataFromNet(data);
-                    itemBase_OnHand.Holding_UpdateLook();
+                    itemBase_OnHand.OnHand_UpdateLook();
                 }
             }
         }
@@ -88,12 +88,12 @@ public class ActorItemManager
         Type type = Type.GetType("Item_" + data.Item_ID.ToString());
         itemBase_OnHand = (ItemBase)Activator.CreateInstance(type);
         itemBase_OnHand.UpdateDataFromNet(data);
-        itemBase_OnHand.Holding_Start(actorManager, bodyController);
-        itemBase_OnHand.Holding_UpdateLook();
+        itemBase_OnHand.OnHand_Start(actorManager, bodyController);
+        itemBase_OnHand.OnHand_UpdateLook();
     }
     private void ResetItemInHand()
     {
-        if (itemBase_OnHand != null) { itemBase_OnHand.Holding_Over(actorManager); }
+        if (itemBase_OnHand != null) { itemBase_OnHand.OnHand_Over(actorManager, bodyController); }
         itemBase_OnHand = new ItemBase();
         if (bodyController.gameObjects_ItemInHand.Count > 0)
         {
@@ -132,10 +132,6 @@ public class ActorItemManager
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
-                MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateStatus()
-                {
-                    statusType = actorManager.actorNetManager.statusType
-                });
                 MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemOnHead()
                 {
                     itemData = data
@@ -171,11 +167,12 @@ public class ActorItemManager
         Type type = Type.GetType("Item_" + data.Item_ID.ToString());
         itemBase_OnHead = (ItemBase)Activator.CreateInstance(type);
         itemBase_OnHead.UpdateDataFromNet(data);
-        itemBase_OnHead.BeWearingOnHead(actorManager, bodyController);
+        itemBase_OnHead.OnHead_Start(actorManager, bodyController);
 
     }
     public void ResetItemOnHead()
     {
+        if (itemBase_OnHead != null) { itemBase_OnHead.OnHead_Over(actorManager, bodyController); }
         itemBase_OnHead = new ItemBase();
         if (bodyController.gameObjects_ItemOnHead.Count > 0)
         {
@@ -198,10 +195,6 @@ public class ActorItemManager
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
-                MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateStatus()
-                {
-                    statusType = actorManager.actorNetManager.statusType
-                });
                 MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemOnBody()
                 {
                     itemData = data
@@ -235,11 +228,12 @@ public class ActorItemManager
         Type type = Type.GetType("Item_" + data.Item_ID.ToString());
         itemBase_OnBody = (ItemBase)Activator.CreateInstance(type);
         itemBase_OnBody.UpdateDataFromNet(data);
-        itemBase_OnBody.BeWearingOnBody(actorManager, bodyController);
+        itemBase_OnBody.OnBody_Start(actorManager, bodyController);
 
     }
     public void ResetItemOnBody()
     {
+        if (itemBase_OnBody != null) { itemBase_OnBody.OnBody_Over(actorManager, bodyController); }
         itemBase_OnBody = new ItemBase();
         if (bodyController.gameObjects_ItemOnBody.Count > 0)
         {

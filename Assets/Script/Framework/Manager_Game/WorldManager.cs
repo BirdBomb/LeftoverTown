@@ -21,7 +21,17 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
     {
         volume.profile.TryGet(out _whiteBalance);
     }
-    public void UpdateTime(int hour,int date)
+    public void UpdateSecond(int second, int hour, int day)
+    {
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_All_UpdateSecond()
+        {
+            second = second,
+            hour = hour,
+            day = day,
+            now = GlobalTimeNow
+        });
+    }
+    public void UpdateHour(int hour,int day)
     {
         switch (hour)
         {
@@ -76,10 +86,10 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
                 }
                 break;
         }
-        MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_UpdateTime()
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_All_UpdateHour()
         {
             hour = hour,
-            date = date,
+            day = day,
             now = GlobalTimeNow
         });
     }
@@ -165,7 +175,6 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
         }
         GlobalTimeNow = globalTime;
     }
-
     #region//世界光源
     [SerializeField, Header("后处理")]
     private Volume volume;

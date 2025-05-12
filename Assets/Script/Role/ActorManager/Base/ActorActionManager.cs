@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using UniRx;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.RuleTile.TilingRuleOutput;
+
 public class ActorActionManager 
 {
     private ActorManager actorManager;
@@ -43,9 +45,13 @@ public class ActorActionManager
     {
         actorManager.actorNetManager.networkRigidbody.Rigidbody.velocity = dir * force;
     }
-    public void PickUp()
+    /// <summary>
+    /// 捡起
+    /// </summary>
+    /// <param name="radiu"></param>
+    public void PickUp(float radiu)
     {
-        var items = Physics2D.OverlapCircleAll(actorManager.transform.position, 0.5f, layerMask_ItemObj);
+        var items = Physics2D.OverlapCircleAll(actorManager.transform.position, radiu, layerMask_ItemObj);
         foreach (Collider2D item in items)
         {
             if (item.gameObject.transform.parent.TryGetComponent(out ItemNetObj obj))
@@ -53,6 +59,48 @@ public class ActorActionManager
                 actorManager.actorNetManager.RPC_LocalInput_PickItem(obj.Object.Id);
                 break;
             }
+        }
+    }
+    /// <summary>
+    /// 快速切换
+    /// </summary>
+    public void Switch(int index)
+    {
+        List<ItemData> items = actorManager.actorNetManager.Local_GetBagItem();
+        index = index % items.Count;
+        ItemData oldBagItem = items[index];
+        ItemData oldHandItem = actorManager.actorNetManager.Net_ItemInHand;
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        {
+            index = index,
+            itemData = oldHandItem,
+        });
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+        {
+            oldItem = oldHandItem,
+            newItem = oldBagItem,
+        });
+    }
+    /// <summary>
+    /// 快速丢弃
+    /// </summary>
+    /// <param name="index"></param>
+    public void Drop(int index)
+    {
+        List<ItemData> items = actorManager.actorNetManager.Local_GetBagItem();
+        index = index % items.Count;
+        ItemData dropItem = items[index];
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        {
+            index = index,
+            itemData = new ItemData(),
+        }) ;
+        if(dropItem.Item_ID != 0)
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
+            {
+                item = dropItem
+            });
         }
     }
     public void FaceTo(Vector2 dir)
@@ -63,6 +111,7 @@ public class ActorActionManager
     }
     public void TurnTo(Vector2 dir)
     {
+        bodyController.turnDir = dir.normalized;
         if (dir.x > 0.1f) bodyController.TurnRight();
         if (dir.x < -0.1f) bodyController.TurnLeft();
     }
@@ -133,45 +182,49 @@ public class ActorActionManager
     {
         actorManager.actorNetManager.Runner.Despawn(actorManager.actorNetManager.Object);
     }
+    /// <summary>
+    /// 掉落所有物体
+    /// </summary>
     public void DropDown()
     {
-        for (int i = 0; i < actorManager.actorNetManager.Net_ItemsInBag.Count; i++)
+        List<ItemData> dropItem = new List<ItemData>();
+        List<ItemData> bagItems = actorManager.actorNetManager.Local_GetBagItem();
+        for (int i = 0; i < bagItems.Count; i++)
         {
-            ItemData item = actorManager.actorNetManager.Net_ItemsInBag[i];
+            ItemData item = bagItems[i];
             if (item.Item_ID != 0)
             {
-                MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
-                {
-                    itemData = item,
-                    pos = actorManager.transform.position - new Vector3(0, 0.1f, 0)
-                });
+                dropItem.Add(item);
             }
         }
         ItemData itemOnHead = actorManager.actorNetManager.Net_ItemOnHead;
         if (itemOnHead.Item_ID != 0)
         {
-            MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
-            {
-                itemData = itemOnHead,
-                pos = actorManager.transform.position - new Vector3(0, 0.1f, 0)
-            });
+            dropItem.Add(itemOnHead);
         }
         ItemData itemOnBody = actorManager.actorNetManager.Net_ItemOnBody;
         if (itemOnBody.Item_ID != 0)
         {
-            MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
-            {
-                itemData = itemOnBody,
-                pos = actorManager.transform.position - new Vector3(0, 0.1f, 0)
-            });
+            dropItem.Add(itemOnBody);
         }
         ItemData itemOnHand = actorManager.actorNetManager.Net_ItemInHand;
         if (itemOnHand.Item_ID != 0)
         {
+            dropItem.Add(itemOnHand);
+        }
+        for (int i = 0; i < dropItem.Count; i++)
+        {
+            float angle = i * (360 / dropItem.Count);
+            float angleRad = angle * Mathf.Deg2Rad;
+
+            float x = Mathf.Cos(angleRad) * 0.5f;
+            float y = Mathf.Sin(angleRad) * 0.5f;
+            Debug.Log(dropItem[i].Item_ID + "/" + dropItem[i].Item_Count);
+            Vector3 position = new Vector3(x, y, 0);
             MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
             {
-                itemData = itemOnHand,
-                pos = actorManager.transform.position - new Vector3(0, 0.1f, 0)
+                itemData = dropItem[i],
+                pos = position + actorManager.transform.position,
             });
         }
     }
@@ -182,7 +235,12 @@ public class ActorActionManager
             actorManager.actorNetManager.RPC_AllClient_HpChange(val, new NetworkId());
         }
     }
-    public void TakeDamage(int val, ActorNetManager from)
+    /// <summary>
+    /// 物理伤害
+    /// </summary>
+    /// <param name="val"></param>
+    /// <param name="from"></param>
+    public void TakeAttackDamage(int val, ActorNetManager from)
     {
         if (actorManager.actorState != ActorState.Dead)
         {
@@ -199,11 +257,31 @@ public class ActorActionManager
             }
         }
     }
+    /// <summary>
+    /// 魔法伤害
+    /// </summary>
+    public void TakeMagicDamage(int val, ActorNetManager from)
+    {
+        if (actorManager.actorState != ActorState.Dead)
+        {
+            NetworkId networkId = new NetworkId();
+            if (from) { networkId = from.Object.Id; }
+            val -= actorManager.actorNetManager.Net_Resistance;
+            if (val > 0)
+            {
+                actorManager.actorNetManager.RPC_AllClient_HpChange(-val, networkId);
+            }
+            else
+            {
+                actorManager.actorNetManager.RPC_AllClient_HpChange(0, networkId);
+            }
+        }
+    }
     public bool PayCoin(int coin)
     {
-        if (actorManager.actorNetManager.Net_Coin >= coin && actorManager.actorAuthority.isLocal)
+        if (actorManager.actorNetManager.Local_Coin >= coin && actorManager.actorAuthority.isLocal)
         {
-            actorManager.actorNetManager.RPC_LocalInput_PayCoin(coin);
+            actorManager.actorNetManager.RPC_Local_PayCoin(coin);
             return true;
         }
         else
@@ -215,46 +293,22 @@ public class ActorActionManager
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            actorManager.actorNetManager.RPC_LocalInput_EarnCoin(coin);
+            actorManager.actorNetManager.RPC_Local_EarnCoin(coin);
         }
-        return actorManager.actorNetManager.Net_Coin;
+        return actorManager.actorNetManager.Local_Coin;
     }
     public void SetFine(short val)
     {
-        if (actorManager.actorNetManager.Net_Fine < val && actorManager.actorAuthority.isLocal)
+        if (actorManager.actorNetManager.Local_Fine < val && actorManager.actorAuthority.isLocal)
         {
-            actorManager.actorNetManager.RPC_LocalInput_ChangeFine(val);
+            actorManager.actorNetManager.RPC_Local_ChangeFine(val);
         }
     }
     public void ClearFine()
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            actorManager.actorNetManager.RPC_LocalInput_ChangeFine(0);
-        }
-    }
-    public bool EnSub(int offset)
-    {
-        if (actorManager.actorNetManager.Net_EnCur > 50)
-        {
-            actorManager.actorNetManager.Net_EnCur -= offset;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    public bool EnAdd(int offset)
-    {
-        if (actorManager.actorNetManager.Net_EnCur < actorManager.actorNetManager.Net_EnMax)
-        {
-            actorManager.actorNetManager.Net_EnCur += offset;
-            return false;
-        }
-        else
-        {
-            return true;
+            actorManager.actorNetManager.RPC_Local_ChangeFine(0);
         }
     }
     public void SendEmoji(int emojiID)

@@ -44,6 +44,8 @@ public class BodyController_Base : MonoBehaviour
     #region//×ªÏò
     [HideInInspector]
     public Vector2 faceDir;
+    [HideInInspector]
+    public Vector2 turnDir;
     protected bool turnRight = true;
     protected bool faceRight = true;
 

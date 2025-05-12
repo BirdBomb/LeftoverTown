@@ -8,9 +8,11 @@ public class MapInfoData
     public string name;
     [SerializeField]
     public string seed;
+    [SerializeField] 
+    public short distance = 500;
     [SerializeField]
-    public int date;
+    public short date;
     [SerializeField]
-    public int hour;
+    public short hour;
 }
 

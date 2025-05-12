@@ -11,14 +11,40 @@ public class ItemLocalObj_Dagger : ItemLocalObj
     [SerializeField]
     private SpriteRenderer spriteRenderer_Hand;
     [SerializeField]
-    private SI_Sector sector;
+    private SkillIndicators skillIndicators;
     [SerializeField, Header("´Á´ÌÉËº¦")]
     private short config_StabDamage;
     [SerializeField, Header("´Á´Ì·¶Î§")]
     private float config_StabMaxRange;
     [SerializeField, Header("´Á´Ì¾àÀë")]
     private float config_StabMaxDistance;
+    [SerializeField, Header("´Á´ÌËÙ¶È")]
+    private float config_StabSpeed = 1;
+    /// <summary>
+    /// Åü¿³¶¯»­Ê±³¤
+    /// </summary>
+    private float config_StabDuraction = 1;
+    /// <summary>
+    /// Åü¿³CD
+    /// </summary>
+    private float config_StabCD;
+    /// <summary>
+    /// Åü¿³CDµ¹Êý
+    /// </summary>
+    private float config_StabCDRec;
+    /// <summary>
+    /// ÏÂ´ÎÈ­»÷Ê±¼ä
+    /// </summary>
+    private float float_NextStabTiming = 0;
+
     private InputData inputData = new InputData();
+    private void FixedUpdate()
+    {
+        if (inputData.leftPressTimer == 0 && float_NextStabTiming > 0)
+        {
+            float_NextStabTiming -= Time.fixedDeltaTime;
+        }
+    }
 
     public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
     {
@@ -31,6 +57,9 @@ public class ItemLocalObj_Dagger : ItemLocalObj
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
 
+        config_StabCD = config_StabDuraction / config_StabSpeed;
+        config_StabCDRec = config_StabSpeed / config_StabDuraction;
+
         spriteRenderer_Hand.sprite = body.transform_RightHand.GetComponent<SpriteRenderer>().sprite;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingByHand(owner, body, data);
@@ -38,22 +67,32 @@ public class ItemLocalObj_Dagger : ItemLocalObj
 
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
-        if (inputData.leftPressTimer == 0)
+        if (inputData.leftPressTimer >= float_NextStabTiming)
         {
+            float_NextStabTiming += config_StabCD + 0.1f;
             animator.SetTrigger("Stab");
+            animator.speed = config_StabSpeed;
         }
         inputData.leftPressTimer = time;
         return base.PressLeftMouse(time, actorAuthority);
     }
     public override void ReleaseLeftMouse()
     {
-        inputData.leftPressTimer = 0;
+        if (inputData.leftPressTimer > 0)
+        {
+            float_NextStabTiming -= inputData.leftPressTimer;
+            inputData.leftPressTimer = 0;
+        }
         base.ReleaseLeftMouse();
     }
     public override void UpdateMousePos(Vector3 mouse)
     {
         inputData.mousePosition = mouse;
-        sector.Update_SIsector(inputData.mousePosition, config_StabMaxDistance, config_StabMaxRange, 1);
+        if (actorManager.actorAuthority.isLocal && actorManager.actorAuthority.isPlayer)
+        {
+            float alpht = (float_NextStabTiming - inputData.leftPressTimer) * config_StabCDRec;
+            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, config_StabMaxDistance, config_StabMaxRange, alpht);
+        }
         base.UpdateMousePos(mouse);
     }
     public void Stab()
@@ -61,15 +100,20 @@ public class ItemLocalObj_Dagger : ItemLocalObj
         if (actorManager.actorAuthority.isLocal)
         {
             sbyte temp = 0;
-            sector.Checkout_SIsector(inputData.mousePosition, config_StabMaxDistance, config_StabMaxRange, out Transform[] targetTile);
-            for (int i = 0; i < targetTile.Length; i++)
+            skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_StabMaxDistance, config_StabMaxRange, out Collider2D[] colliders);
+            for (int i = 0; i < colliders.Length; i++)
             {
-                if (targetTile[i].TryGetComponent(out ActorManager actor))
+                if (colliders[i].tag.Equals("Actor"))
                 {
-                    if (actor != actorManager)
+                    if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        actor.AllClient_Listen_TakeDamage(config_StabDamage, actorManager.actorNetManager);
-                        temp = -2;
+                        if (actor == actorManager) { continue; }
+                        else
+                        {
+                            actor.AllClient_Listen_TakeAttackDamage(config_StabDamage, actorManager.actorNetManager);
+                            temp = -2;
+                        }
                     }
                 }
             }
@@ -92,7 +136,7 @@ public class ItemLocalObj_Dagger : ItemLocalObj
             else
             {
                 _newItem.Item_Durability += val;
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
                 {
                     oldItem = _oldItem,
                     newItem = _newItem,

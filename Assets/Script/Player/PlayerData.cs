@@ -17,18 +17,7 @@ public class PlayerData
         San_Max = 100;
         Happy_Cur = 5;
         Coin_Cur = 100;
-        En_Cur = 3000;
         Speed_Common = 60;
-        Speed_Max = 80;
-
-        Point_Strength = 1;
-        Point_Intelligence = 1;
-        Point_SPower = 1;
-        Point_Focus = 1;
-        Point_Agility = 1;
-        Point_Make = 1;
-        Point_Build = 1;
-        Point_Cook = 1;
     }
     /// <summary>
     /// 名字
@@ -41,16 +30,6 @@ public class PlayerData
     [SerializeField]
     public short Speed_Common;
     /// <summary>
-    /// 最大速度
-    /// </summary>
-    [SerializeField]
-    public short Speed_Max;
-    /// <summary>
-    /// 耐力
-    /// </summary>
-    [SerializeField]
-    public int En_Cur;
-    /// <summary>
     /// 当前生命值
     /// </summary>
     [SerializeField]
@@ -59,7 +38,7 @@ public class PlayerData
     /// 最大生命值
     /// </summary>
     [SerializeField]
-    public int Hp_Max;
+    public short Hp_Max;
     /// <summary>
     /// 护甲值
     /// </summary>
@@ -100,46 +79,6 @@ public class PlayerData
     /// </summary>
     [SerializeField]
     public short Coin_Cur;
-    /// <summary>
-    /// 体力
-    /// </summary>
-    [SerializeField]
-    public short Point_Strength;
-    /// <summary>
-    /// 智力
-    /// </summary>
-    [SerializeField]
-    public short Point_Intelligence;
-    /// <summary>
-    /// 法力
-    /// </summary>
-    [SerializeField]
-    public short Point_SPower;
-    /// <summary>
-    /// 专注
-    /// </summary>
-    [SerializeField]
-    public short Point_Focus;
-    /// <summary>
-    /// 敏捷
-    /// </summary>
-    [SerializeField]
-    public short Point_Agility;
-    /// <summary>
-    /// 制造
-    /// </summary>
-    [SerializeField]
-    public short Point_Make;
-    /// <summary>
-    /// 建造
-    /// </summary>
-    [SerializeField]
-    public short Point_Build;
-    /// <summary>
-    /// 烹饪
-    /// </summary>
-    [SerializeField]
-    public short Point_Cook;
 
     /// <summary>
     /// 背包物体
@@ -162,16 +101,6 @@ public class PlayerData
     [SerializeField] 
     public ItemData BodyItem;
 
-    /// <summary>
-    /// 玩家学会的技能
-    /// </summary>
-    [SerializeField]
-    public List<short> SkillKnowList = new List<short>();
-    /// <summary>
-    /// 玩家使用的技能
-    /// </summary>
-    [SerializeField]
-    public List<short> SkillUseList = new List<short>();
     /// <summary>
     /// 玩家Buff列表
     /// </summary>

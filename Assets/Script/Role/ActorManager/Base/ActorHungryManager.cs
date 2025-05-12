@@ -12,7 +12,7 @@ public class ActorHungryManager
     /// <summary>
     /// µÖ¿¹¼¢¶öÄÜÁ¦
     /// </summary>
-    private int int_ReHungry = 10;
+    private int int_ReHungry = 20;
     public void Bind(ActorManager actorManager)
     {
         this.actorManager = actorManager;
@@ -37,6 +37,7 @@ public class ActorHungryManager
             else
             {
                 actorManager.actorNetManager.RPC_LocalInput_FoodChange(0);
+                actorManager.actorNetManager.RPC_AllClient_HpChange(-5, new Fusion.NetworkId());
             }
         }
         return actorManager.actorNetManager.Net_FoodCur;
@@ -45,13 +46,13 @@ public class ActorHungryManager
     {
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            if (actorManager.actorNetManager.Net_FoodCur + val <= actorManager.actorNetManager.Net_FoodMax)
+            if (actorManager.actorNetManager.Net_FoodCur + val <= actorManager.actorNetManager.Local_FoodMax)
             {
                 actorManager.actorNetManager.RPC_LocalInput_FoodChange((short)(actorManager.actorNetManager.Net_FoodCur + val));
             }
             else
             {
-                actorManager.actorNetManager.RPC_LocalInput_FoodChange(actorManager.actorNetManager.Net_FoodMax);
+                actorManager.actorNetManager.RPC_LocalInput_FoodChange(actorManager.actorNetManager.Local_FoodMax);
             }
         }
         return actorManager.actorNetManager.Net_FoodCur;

@@ -19,45 +19,65 @@ public class MapNetManager : NetworkBehaviour
     private int mapSeed;
     void Start()
     {
-        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_RequestMapData>().Subscribe(_ =>
+        MessageBroker.Default.Receive<MapEvent.MapEvent_Local_RequestMapData>().Subscribe(_ =>
         {
             Local_RequestMapData(_.playerPos, _.mapSize, Runner.LocalPlayer);
         }).AddTo(this);
-        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_SaveMapData>().Subscribe(_ =>
+        MessageBroker.Default.Receive<MapEvent.MapEvent_Local_SaveMapData>().Subscribe(_ =>
         {
             if (Object.HasStateAuthority)
             {
                 SaveMap();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_TakeDamage>().Subscribe(_ =>
+        MessageBroker.Default.Receive<MapEvent.MapEvent_Local_ChangeBuildingHp>().Subscribe(_ =>
         {
-            RPC_LocalInput_TileTakeDamage(_.pos, _.damage, Runner.LocalPlayer);
+            RPC_LocalInput_ChangeBuildingHp(_.pos, _.offset, Runner.LocalPlayer);
         }).AddTo(this);
-        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_UpdateBuildingInfo>().Subscribe(_ =>
+        MessageBroker.Default.Receive<MapEvent.MapEvent_Local_ChangeBuildingInfo>().Subscribe(_ =>
         {
-            RPC_LocalInput_TileUpdateInfo(_.pos, _.info);
+            RPC_LocalInput_ChangeBuildingInfo(_.pos, _.info);
         }).AddTo(this);
-        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_ChangeBuildingArea>().Subscribe(_ =>
+        MessageBroker.Default.Receive<MapEvent.MapEvent_Local_ChangeBuildingArea>().Subscribe(_ =>
         {
             RPC_LocalInput_BuildingAreaChange(_.buildingPos, _.buildingID, (int)_.areaSize);
         }).AddTo(this);
-        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_ChangeGround>().Subscribe(_ =>
+        MessageBroker.Default.Receive<MapEvent.MapEvent_State_ChangeBuildingArea>().Subscribe(_ =>
+        {
+            if(Object.HasStateAuthority)
+            {
+                OnlyState_BuildingAreaChange(_.buildingPos, _.buildingID, _.areaSize);
+            }
+        }).AddTo(this);
+
+        MessageBroker.Default.Receive<MapEvent.MapEvent_Local_ChangeGround>().Subscribe(_ =>
         {
             RPC_LocalInput_FloorChange(_.groundPos, _.groundID);
         }).AddTo(this);
-        MessageBroker.Default.Receive<MapEvent.MapEvent_LocalTile_ChangeSunLight>().Subscribe(_ =>
+        MessageBroker.Default.Receive<MapEvent.MapEvent_Local_ChangeSunLight>().Subscribe(_ =>
         {
             RPC_LocalInput_ChangeSun(_.distance);
         }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_State_ChangeTime>().Subscribe(_ => 
+        MessageBroker.Default.Receive<GameEvent.GameEvent_State_AddOneHour>().Subscribe(_ =>
+        {
+            AddOneHour();
+        }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_State_ChangeTime>().Subscribe(_ =>
         {
             ChangeTime(_.hour);
+        }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_ChangeWeather>().Subscribe(_ =>
+        {
+            ChangeWeather(_.index);
         }).AddTo(this);
     }
     public override void Spawned()
     {
         base.Spawned();
+        OnSecondChange();
+        OnHourChange();
+        OnWeatherChange();
+        OnDistanceChange();
     }
 
 
@@ -85,13 +105,14 @@ public class MapNetManager : NetworkBehaviour
     {
         InitLoop();
         InitSeed();
+        InitDistance();
     }
     private void InitLoop()
     {
         Debug.Log("开始计算世界时间");
         Hour = bind_MapInfoData.hour;
-        Date = bind_MapInfoData.date;
-        InvokeRepeating("UpdateTime", 120, 120);
+        Day = bind_MapInfoData.date;
+        InvokeRepeating("AddOneSecond", 1, 1);
     }
     private void InitSeed()
     {
@@ -106,9 +127,27 @@ public class MapNetManager : NetworkBehaviour
         }
         mapSeed = seedInt;
     }
+    private void InitDistance()
+    {
+        Distance = bind_MapInfoData.distance;
+    }
     #endregion
     #region//时间周期
-    public void UpdateTime()
+    public void AddOneSecond()
+    {
+        if (Object.HasStateAuthority)
+        {
+            if (Second < 60)
+            {
+                Second += 1;
+            }
+            else
+            {
+                AddOneHour();
+            }
+        }
+    }
+    public void AddOneHour()
     {
         if (Object.HasStateAuthority)
         {
@@ -118,23 +157,46 @@ public class MapNetManager : NetworkBehaviour
             }
             else
             {
-                Date += 1;
-                Hour = 0;
+                AddOneDay();
             }
+            Second = 0;
             bind_MapInfoData.hour = Hour;
-            bind_MapInfoData.date = Date;
         }
     }
-    public void ChangeTime(int val)
+    public void AddOneDay()
     {
         if (Object.HasStateAuthority)
         {
-            Hour = val;
-            bind_MapInfoData.hour = Hour;
-            bind_MapInfoData.date = Date;
-            CancelInvoke("UpdateTime");
-            InvokeRepeating("UpdateTime", 120, 120);
+            Day += 1;
+            Hour = 0;
+            bind_MapInfoData.date = Day;
         }
+    }
+    public void ChangeTime(short val)
+    {
+        if (Object.HasStateAuthority)
+        {
+            if (Hour < val)
+            {
+                int offset = val - Hour;
+                for (short i = 0; i < offset; i++)
+                {
+                    AddOneHour();
+                }
+            }
+            else if (Hour > val)
+            {
+                int offset = val + 10 - Hour;
+                for (short i = 0; i < offset; i++)
+                {
+                    AddOneHour();
+                }
+            }
+        }
+    }
+    public void ChangeWeather(short index)
+    {
+        RPC_LocalInput_ChangeWeather(index);
     }
     #endregion
     #region//本地端
@@ -181,7 +243,7 @@ public class MapNetManager : NetworkBehaviour
                         MapManager.Instance.CreateBuilding(tileTypeList[index], new Vector3Int(center.x + x, center.y + y, 0), out BuildingTile buildingTile);
                         if (tileInfoList[index].Length > 0)
                         {
-                            buildingTile.tileObj.UpdateInfo(tileInfoList[index]);
+                            buildingTile.tileObj.All_UpdateInfo(tileInfoList[index]);
                         }
                     }
                     index++;
@@ -314,6 +376,14 @@ public class MapNetManager : NetworkBehaviour
             State_TrySendBuildingTileTypeData(tempPos, size, size, player);
         }
     }
+    /// <summary>
+    /// 发送地图中心
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="player"></param>
+    /// <param name="seed"></param>
     private void State_TrySendMapCenter(Vector3Int center, int width, int height, PlayerRef player, int seed)
     {
         RPC_StateCall_UpdateMapCenter(player, center, width, height, seed);
@@ -408,7 +478,7 @@ public class MapNetManager : NetworkBehaviour
                 else
                 {
                     //bind_GroundTileTypeData.tileDic.Add(tempIndex, 1001);
-                    tempTileArray[index] = 1001;
+                    tempTileArray[index] = 9000;
                 }
                 index++;
             }
@@ -443,19 +513,20 @@ public class MapNetManager : NetworkBehaviour
         }
     }
     /// <summary>
-    /// 客户端输入对地块的攻击
+    /// 客户端更改地块生命值
     /// </summary>
     /// <param name="pos"></param>
-    /// <param name="damage"></param>
+    /// <param name="offset"></param>
     /// <param name="player"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_TileTakeDamage(Vector3Int pos, int damage, PlayerRef player)
+    private void RPC_LocalInput_ChangeBuildingHp(Vector3Int pos, int offset, PlayerRef player)
     {
         if (Object.HasStateAuthority)
         {
             if (MapManager.Instance.GetBuilding(pos, out BuildingTile buildingTile))
             {
-                RPC_StateCall_TileUpdateHp(pos, damage, player);
+                int newHp = buildingTile.tileObj.hp + offset;
+                RPC_StateCall_TileUpdateHp(pos, newHp, player);
             }
             else
             {
@@ -468,11 +539,11 @@ public class MapNetManager : NetworkBehaviour
     /// </summary>
     /// <param name="pos"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_TileUpdateInfo(Vector3Int pos, string info)
+    private void RPC_LocalInput_ChangeBuildingInfo(Vector3Int pos, string info)
     {
         if (Object.HasStateAuthority)
         {
-            RPC_StateCall_BuildingUpdateInfo(pos, info);
+            RPC_StateCall_ChangeBuildingInfo(pos, info);
             int tempX = pos.x + 30000;
             int tempY = pos.y + 30000;
             int tempIndex;
@@ -669,7 +740,7 @@ public class MapNetManager : NetworkBehaviour
     {
         if(MapManager.Instance.GetBuilding(pos,out BuildingTile buildingTile))
         {
-            buildingTile.tileObj.UpdateHP(hp);
+            buildingTile.tileObj.All_UpdateHP(hp);
         }
     }
     /// <summary>
@@ -687,10 +758,10 @@ public class MapNetManager : NetworkBehaviour
     /// </summary>
     /// <param name="pos"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_BuildingUpdateInfo(Vector3Int pos, string info)
+    private void RPC_StateCall_ChangeBuildingInfo(Vector3Int pos, string info)
     {
         MapManager.Instance.GetBuilding(pos, out BuildingTile buildingTile);
-        buildingTile.tileObj.UpdateInfo(info);
+        buildingTile.tileObj.All_UpdateInfo(info);
     }
     /// <summary>
     /// 服务器通知改变地板
@@ -707,25 +778,48 @@ public class MapNetManager : NetworkBehaviour
     /// </summary>
     /// <param name="distance"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_ChangeSun(int distance)
+    private void RPC_LocalInput_ChangeSun(short distance)
     {
+        bind_MapInfoData.distance = distance;
         Distance = distance;
     }
+    /// <summary>
+    /// 客户端改变天气
+    /// </summary>
+    /// <param name="distance"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    private void RPC_LocalInput_ChangeWeather(short index)
+    {
+        Weather = index;
+    }
+
     #endregion
     #region//Network
+    [Networked, OnChangedRender(nameof(OnSecondChange)), HideInInspector]
+    public short Second { get; set; }
     [Networked, OnChangedRender(nameof(OnHourChange)), HideInInspector]
-    public int Hour { get; set; }
+    public short Hour { get; set; }
     [Networked, HideInInspector]
-    public int Date { get; set; }
-    [Networked, OnChangedRender(nameof(OnDistance)), HideInInspector]
-    public int Distance { get; set; }
+    public short Day { get; set; }
+    [Networked, OnChangedRender(nameof(OnDistanceChange)), HideInInspector]
+    public short Distance { get; set; }
+    [Networked, OnChangedRender(nameof(OnWeatherChange)), HideInInspector]
+    public short Weather { get; set; }
+    public void OnSecondChange()
+    {
+        WorldManager.Instance.UpdateSecond(Second, Hour, Day);
+    }
     public void OnHourChange()
     {
-        WorldManager.Instance.UpdateTime(Hour, Date);
+        WorldManager.Instance.UpdateHour(Hour, Day);
     }
-    public void OnDistance()
+    public void OnDistanceChange()
     {
         WorldManager.Instance.UpdateDistance(Distance);
+    }
+    public void OnWeatherChange()
+    {
+        EnvironmentManager.Instance.ChangeWeather((Weather)Weather);
     }
     #endregion
 }

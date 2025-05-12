@@ -164,25 +164,25 @@ public class UI_EmojiUI : MonoBehaviour
             case Direction.Center:
                 break;
             case Direction.Right:
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_Emoji()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
                     emoji = Emoji.Yell
                 });
                 break;
             case Direction.Left:
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_Emoji()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
                     emoji = Emoji.Shock
                 });
                 break;
             case Direction.Up:
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_Emoji()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
                     emoji = Emoji.Puzzled
                 });
                 break;
             case Direction.Down:
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_Emoji()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
                     emoji = Emoji.Greeting
                 });

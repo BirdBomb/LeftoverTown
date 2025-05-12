@@ -52,7 +52,7 @@ public class BuildingTile : TileBase
     {
         if (tileObj)
         {
-            tileObj.ActorInputKeycode(actor, code);
+            tileObj.All_ActorInputKeycode(actor, code);
         }
     }
     /// <summary>
@@ -62,7 +62,7 @@ public class BuildingTile : TileBase
     {
         if (tileObj)
         {
-            return tileObj.ActorNearby(who);
+            return tileObj.All_ActorNearby(who);
         }
         return false;
     }
@@ -74,7 +74,7 @@ public class BuildingTile : TileBase
     {
         if (tileObj)
         {
-            tileObj.ActorStandOn(who);
+            tileObj.All_ActorStandOn(who);
         }
     }
     /// <summary>
@@ -85,7 +85,7 @@ public class BuildingTile : TileBase
     {
         if (tileObj)
         {
-            return tileObj.ActorFaraway(who);
+            return tileObj.All_ActorFaraway(who);
         }
         return false;
     }
@@ -99,7 +99,7 @@ public class BuildingTile : TileBase
     {
         if (tileObj)
         {
-            return tileObj.PlayerHolding(player);
+            return tileObj.All_PlayerHolding(player);
         }
         return false;
     }
@@ -112,7 +112,7 @@ public class BuildingTile : TileBase
     {
         if (tileObj)
         {
-            return tileObj.PlayerRelease(player);
+            return tileObj.All_PlayerRelease(player);
         }
         return false;
     }

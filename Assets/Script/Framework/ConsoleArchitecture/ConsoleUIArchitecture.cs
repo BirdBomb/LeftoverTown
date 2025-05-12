@@ -326,7 +326,7 @@ public class ConsoleItemListSystem : IConsoleItemListSystem
             ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(itemTargetConfigs[startIndex].Item_ID, out ItemData initData);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
             {
-                item = initData
+                itemData = initData
             });
         }
     }

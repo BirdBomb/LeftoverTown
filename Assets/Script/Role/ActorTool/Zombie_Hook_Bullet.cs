@@ -87,7 +87,7 @@ public class Zombie_Hook_Bullet : MonoBehaviour
     {
         if (actor.actorAuthority.isState)
         {
-            actor.AllClient_Listen_TakeDamage(float_Damage, actorManager_Owner.actorNetManager);
+            actor.AllClient_Listen_TakeAttackDamage(float_Damage, actorManager_Owner.actorNetManager);
             actor.actionManager.AddForce(vector3_Dir, 25);
         }
     }
@@ -95,7 +95,7 @@ public class Zombie_Hook_Bullet : MonoBehaviour
     {
         if (actor.actorAuthority.isState)
         {
-            actor.AllClient_Listen_TakeDamage(float_Damage * 2, actorManager_Owner.actorNetManager);
+            actor.AllClient_Listen_TakeAttackDamage(float_Damage * 2, actorManager_Owner.actorNetManager);
             actor.actionManager.AddForce(dir, 50);
         }
     }

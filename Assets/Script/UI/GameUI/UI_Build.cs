@@ -1,28 +1,76 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UniRx;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
 public class UI_Build : MonoBehaviour
 {
-    #region
-    private List<BuildingConfig> buildingConfigs_TempList;
-    private BuildingConfig buildingConfig_Target;
-    private int CurPage
+    private List<BuildingConfig> buildingConfigs_TempList = new List<BuildingConfig>();
+    private List<GroundConfig> groundConfigs_TempList = new List<GroundConfig>();
+
+    public void Start()
     {
-        get { return curPage; }
-        set
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
         {
-            curPage = value;
+            DrawBuildingList();
+            if (index >= 0)
+            {
+                if (CurType == BuildingType.Ground)
+                {
+                    DrawBuildingRaw(buildingConfig_Temp, index);
+                }
+                else
+                {
+                    DrawBuildingRaw(groundConfig_Temp, index);
+                }
+            }
+        }).AddTo(this);
+
+        button_LastPage.onClick.AddListener(ClickLastPageBtn);
+        button_NextPage.onClick.AddListener(ClickNextPageBtn);
+
+        button_LastType.onClick.AddListener(ClickLastTypeBtn);
+        button_NextType.onClick.AddListener(ClickNextTypeBtn);
+
+        button_LastAge.onClick.AddListener(ClickLastAgeBtn);
+        button_NextAge.onClick.AddListener(ClickNextAgeBtn);
+
+        //UpdateBuildingList();
+    }
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.Mouse0) && !EventSystem.current.IsPointerOverGameObject())
+        {
+            DrawBuildingRaw(new BuildingConfig(), 0);
+            DrawBuildingRaw(new GroundConfig(), 0);
         }
     }
-    private int curPage;
+
+    #region//建筑类别
+    [SerializeField, Header("上一类别")]
+    private Button button_LastType;
+    [SerializeField, Header("下一类别")]
+    private Button button_NextType;
+    [SerializeField, Header("类别")]
+    private TextMeshProUGUI textMeshProUGUI_Type;
+
 
     private int curTypeIndex = 0;
+    private List<BuildingType> buildingTypes_Config = new List<BuildingType>()
+    {
+        BuildingType.All,
+        BuildingType.Structure,
+        BuildingType.Furniture,
+        BuildingType.Machine,
+        BuildingType.Other,
+        BuildingType.Ground,
+    };
     private BuildingType CurType
     {
         get { return curType; }
@@ -30,92 +78,19 @@ public class UI_Build : MonoBehaviour
         {
             if (curType != value)
             {
-                buildingConfigs_TempList = BuildingConfigData.buildConfigs.FindAll((x) =>
-                {
-                    return x.Building_Type == value && x.Building_ID <= 9999;
-                });
-                CurPage = 0;
                 curType = value;
                 textMeshProUGUI_Type.text = curType.ToString();
-                UpdateBuildingListUI();
+                UpdateBuildingList();
             }
         }
     }
     private BuildingType curType = BuildingType.Structure;
-
-
-    [SerializeField, Header("上一页")]
-    private Button button_LastPage;
-    [SerializeField, Header("下一页")]
-    private Button button_NextPage;
-    [SerializeField, Header("页数")]
-    private TextMeshProUGUI textMeshProUGUI_Page;
-    [SerializeField, Header("上一类别")]
-    private Button button_LastType;
-    [SerializeField, Header("下一类别")]
-    private Button button_NextType;
-    [SerializeField, Header("类别")]
-    private TextMeshProUGUI textMeshProUGUI_Type;
-    private List<BuildingType> buildingTypes = 
-        new List<BuildingType>() { BuildingType.Structure, BuildingType.Furniture, BuildingType.Machine };
-    [SerializeField]
-    private List<Button> buttons_Building;
-    [SerializeField]
-    private List<Image> image_Building;
-    [SerializeField, Header("建筑预览_建筑面板")]
-    private Transform transform_TargetBuildingPanel;
-    [SerializeField, Header("建筑预览_建筑名字")]
-    private TextMeshProUGUI text_TargetBuildingName;
-    [SerializeField, Header("建筑预览_目标建筑原料")]
-    private List<UI_ItemCell> itemCells_TargetBuildingRawList = new List<UI_ItemCell>();
-
-    [SerializeField]
-    private SpriteAtlas spriteAtlas_BuildingIcon;
-    [SerializeField]
-    private SpriteAtlas spriteAtlas_Item;
-    [SerializeField]
-    private SpriteAtlas spriteAtlas_ItemBG;
-    public void Start()
-    {
-        button_LastPage.onClick.AddListener(ClickLastPageBtn);
-        button_NextPage.onClick.AddListener(ClickNextPageBtn);
-
-        button_LastType.onClick.AddListener(ClickLastTypeBtn);
-        button_NextType.onClick.AddListener(ClickNextTypeBtn);
-    }
-    #region//UI交互
-    /// <summary>
-    /// 上一页按钮点击
-    /// </summary>
-    private void ClickNextPageBtn()
-    {
-        if (CurPage * buttons_Building.Count < buildingConfigs_TempList.Count)
-        {
-            CurPage++;
-        }
-        else
-        {
-            CurPage = 0;
-        }
-        UpdateBuildingListUI();
-    }
-    /// <summary>
-    /// 下一页按钮点击
-    /// </summary>
-    private void ClickLastPageBtn()
-    {
-        if (CurPage > 0)
-        {
-            CurPage--;
-            UpdateBuildingListUI();
-        }
-    }
     /// <summary>
     /// 上一类别按钮点击
     /// </summary>
     private void ClickNextTypeBtn()
     {
-        if (curTypeIndex < buildingTypes.Count - 1)
+        if (curTypeIndex < buildingTypes_Config.Count - 1)
         {
             curTypeIndex++;
         }
@@ -123,7 +98,7 @@ public class UI_Build : MonoBehaviour
         {
             curTypeIndex = 0;
         }
-        CurType = buildingTypes[curTypeIndex];
+        CurType = buildingTypes_Config[curTypeIndex];
     }
     /// <summary>
     /// 下一类别按钮点击
@@ -136,109 +111,358 @@ public class UI_Build : MonoBehaviour
         }
         else
         {
-            curTypeIndex = buildingTypes.Count - 1;
+            curTypeIndex = buildingTypes_Config.Count - 1;
         }
-        CurType = buildingTypes[curTypeIndex];
+        CurType = buildingTypes_Config[curTypeIndex];
     }
-    private void ClickBuildingBtn(BuildingConfig buildingConfig,int index)
+
+    #endregion
+    #region//建筑时代
+    [SerializeField, Header("上一时代")]
+    private Button button_LastAge;
+    [SerializeField, Header("下一时代")]
+    private Button button_NextAge;
+    [SerializeField, Header("时代")]
+    private TextMeshProUGUI textMeshProUGUI_Age;
+    private int curAgeIndex = 0;
+    private List<AgeGroup> buildingAges_Config = new List<AgeGroup>()
     {
-        buildingConfig_Target = buildingConfig;
-        BuildingBuilderConfig buildingBuilderConfig = new BuildingBuilderConfig();
-        buildingBuilderConfig.Config = buildingConfig;
-        buildingBuilderConfig.Type = CurType;
-        buildingBuilderConfig.Page = CurPage;
-        DrawBuildingPanel(buildingConfig, index);
-        MapPreviewManager.Instance.PreviewOpen(buildingConfig, MapPreviewManager.BuildState.TryBuildBuilding);
+        AgeGroup.StoneAge,
+        AgeGroup.IronAge,
+    };
+    private AgeGroup CurAge
+    {
+        get { return curAge; }
+        set
+        {
+            curAge = value;
+            textMeshProUGUI_Age.text = curAge.ToString();
+            UpdateBuildingList();
+        }
+    }
+    private AgeGroup curAge = AgeGroup.StoneAge;
+
+    /// <summary>
+    /// 上一时代按钮点击
+    /// </summary>
+    private void ClickNextAgeBtn()
+    {
+        if (curAgeIndex < buildingAges_Config.Count - 1)
+        {
+            curAgeIndex++;
+        }
+        else
+        {
+            curAgeIndex = 0;
+        }
+        curTypeIndex = 0;
+        CurType = buildingTypes_Config[curTypeIndex];
+        CurAge = buildingAges_Config[curAgeIndex];
+    }
+    /// <summary>
+    /// 下一时代按钮点击
+    /// </summary>
+    private void ClickLastAgeBtn()
+    {
+        if (curAgeIndex > 0)
+        {
+            curAgeIndex--;
+        }
+        else
+        {
+            curAgeIndex = buildingAges_Config.Count - 1;
+        }
+        curTypeIndex = 0;
+        CurType = buildingTypes_Config[curTypeIndex];
+        CurAge = buildingAges_Config[curAgeIndex];
     }
     #endregion
+    #region//列表页数
+    [SerializeField, Header("上一页")]
+    private Button button_LastPage;
+    [SerializeField, Header("下一页")]
+    private Button button_NextPage;
+    [SerializeField, Header("页数")]
+    private Text textMeshProUGUI_Page;
+    private int CurPage
+    {
+        get { return curPage; }
+        set
+        {
+            curPage = value;
+        }
+    }
+    private int curPage;
+    /// <summary>
+    /// 上一页按钮点击
+    /// </summary>
+    private void ClickNextPageBtn()
+    {
+        if (CurPage * buttons_Icon.Count < buildingConfigs_TempList.Count)
+        {
+            CurPage++;
+        }
+        else
+        {
+            CurPage = 0;
+        }
+        DrawBuildingList();
+    }
+    /// <summary>
+    /// 下一页按钮点击
+    /// </summary>
+    private void ClickLastPageBtn()
+    {
+        if (CurPage > 0)
+        {
+            CurPage--;
+            DrawBuildingList();
+        }
+    }
 
-    private void UpdateBuildingListUI()
+    #endregion
+    #region//列表UI
+    [SerializeField]
+    private List<Button> buttons_Icon;
+    [SerializeField]
+    private List<Image> image_Icon;
+    [SerializeField]
+    private SpriteAtlas spriteAtlas_BuildingIcon;
+    [SerializeField]
+    private SpriteAtlas spriteAtlas_GroundIcon;
+    private void UpdateBuildingList()
+    {
+        groundConfigs_TempList = GroundConfigData.groundConfigs.FindAll((x) =>
+        {
+            return x.Ground_Age == CurAge;
+        });
+        if (CurType == BuildingType.All)
+        {
+            buildingConfigs_TempList = BuildingConfigData.buildConfigs.FindAll((x) =>
+            {
+                return x.Building_Age == CurAge && x.Building_ID <= 9999;
+            });
+        }
+        else
+        {
+            buildingConfigs_TempList = BuildingConfigData.buildConfigs.FindAll((x) =>
+            {
+                return x.Building_Type == CurType && x.Building_Age == CurAge && x.Building_ID <= 9999;
+            });
+        }
+        CurPage = 0;
+        DrawBuildingList();
+    }
+    private void DrawBuildingList()
     {
         textMeshProUGUI_Page.text = CurPage.ToString();
-        for (int i = 0; i < buttons_Building.Count; i++)
+        if (index >= 0)
         {
-            buttons_Building[i].onClick.RemoveAllListeners();
-            if (i + CurPage * buttons_Building.Count < buildingConfigs_TempList.Count)
+            if (CurType == BuildingType.Ground)
             {
-                BuildingConfig buildingConfig = buildingConfigs_TempList[i + CurPage * buttons_Building.Count];
-                int index = i;
-                buttons_Building[i].gameObject.SetActive(true);
-                buttons_Building[i].onClick.AddListener(() => { ClickBuildingBtn(buildingConfig, index); });
-                image_Building[i].sprite = spriteAtlas_BuildingIcon.GetSprite(buildingConfig.Building_ID.ToString());
+                DrawBuildingRaw(buildingConfig_Temp, index);
             }
             else
             {
-                buttons_Building[i].gameObject.SetActive(false);
-                image_Building[i].sprite = null;
+                DrawBuildingRaw(groundConfig_Temp, index);
+            }
+        }
+        for (int i = 0; i < buttons_Icon.Count; i++)
+        {
+            buttons_Icon[i].onClick.RemoveAllListeners();
+            if (CurType == BuildingType.Ground)
+            {
+                if (i + CurPage * buttons_Icon.Count < groundConfigs_TempList.Count)
+                {
+                    GroundConfig groundConfig = groundConfigs_TempList[i + CurPage * buttons_Icon.Count];
+                    int index = i;
+                    buttons_Icon[i].gameObject.SetActive(true);
+                    buttons_Icon[i].onClick.AddListener(() => { ClickBuildingBtn(groundConfig, index); });
+                    image_Icon[i].sprite = spriteAtlas_GroundIcon.GetSprite(groundConfig.Ground_ID.ToString());
+                    if (CheckBuildingRaw(groundConfig))
+                    {
+                        image_Icon[i].color = Color.white;
+                    }
+                    else
+                    {
+                        image_Icon[i].color = Color.red;
+                    }
+                }
+                else
+                {
+                    buttons_Icon[i].gameObject.SetActive(false);
+                    image_Icon[i].sprite = null;
+                }
+            }
+            else
+            {
+                if (i + CurPage * buttons_Icon.Count < buildingConfigs_TempList.Count)
+                {
+                    BuildingConfig buildingConfig = buildingConfigs_TempList[i + CurPage * buttons_Icon.Count];
+                    int index = i;
+                    buttons_Icon[i].gameObject.SetActive(true);
+                    buttons_Icon[i].onClick.AddListener(() => { ClickBuildingBtn(buildingConfig, index); });
+                    image_Icon[i].sprite = spriteAtlas_BuildingIcon.GetSprite(buildingConfig.Building_ID.ToString());
+                    if (CheckBuildingRaw(buildingConfig))
+                    {
+                        image_Icon[i].color = Color.white;
+                    }
+                    else
+                    {
+                        image_Icon[i].color = Color.red;
+                    }
+                }
+                else
+                {
+                    buttons_Icon[i].gameObject.SetActive(false);
+                    image_Icon[i].sprite = null;
+                }
             }
         }
     }
-    private void DrawBuildingPanel(BuildingConfig config,int index)
+    private void ClickBuildingBtn(BuildingConfig buildingConfig, int index)
     {
-        if (config.Building_ID > 0)
+        DrawBuildingRaw(buildingConfig, index);
+        MapPreviewManager.Instance.PreviewOpen(buildingConfig, MapPreviewManager.BuildState.TryBuildBuilding);
+    }
+    private void ClickBuildingBtn(GroundConfig groundConfig, int index)
+    {
+        DrawBuildingRaw(groundConfig, index);
+        MapPreviewManager.Instance.PreviewOpen(groundConfig, MapPreviewManager.BuildState.TryBuildFloor);
+    }
+
+    #endregion
+    #region//原料UI
+    [SerializeField, Header("原料面板")]
+    private Transform transform_RawPanel;
+    [SerializeField, Header("原料面板信息")]
+    private TextMeshProUGUI text_TargetName;
+    [SerializeField, Header("原料列表")]
+    private List<UI_ItemCell> itemCells_TargetRawList = new List<UI_ItemCell>();
+    [SerializeField]
+    private SpriteAtlas spriteAtlas_Item;
+    [SerializeField]
+    private SpriteAtlas spriteAtlas_ItemBG;
+    private BuildingConfig buildingConfig_Temp;
+    private GroundConfig groundConfig_Temp;
+    private int index = -1;
+    private void DrawBuildingRaw(BuildingConfig config, int index)
+    {
+        buildingConfig_Temp = config;
+        this.index = index;
+        for (int i = 0; i < itemCells_TargetRawList.Count; i++)
         {
-            transform_TargetBuildingPanel.gameObject.SetActive(true);
-            transform_TargetBuildingPanel.position = buttons_Building[index].transform.position;
-            text_TargetBuildingName.text = config.Building_Name;
+            itemCells_TargetRawList[i].CleanCell();
+        }
+        if (config.Building_ID > 0 && buildingConfigs_TempList.Count > index && buildingConfigs_TempList[index].Equals(config))
+        {
+            transform_RawPanel.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+            transform_RawPanel.gameObject.SetActive(true);
+            transform_RawPanel.position = buttons_Icon[index].transform.position;
+            text_TargetName.text = config.Building_Name;
             CheckBuildingRaw(config);
         }
         else
         {
-            transform_TargetBuildingPanel.gameObject.SetActive(false);
-            text_TargetBuildingName.text = "";
-            for (int i = 0; i < itemCells_TargetBuildingRawList.Count; i++)
+            transform_RawPanel.transform.DOKill();
+            transform_RawPanel.transform.localScale = Vector3.one;
+            transform_RawPanel.gameObject.SetActive(false);
+            transform_RawPanel.position = buttons_Icon[index].transform.position;
+            text_TargetName.text = "";
+            for (int i = 0; i < itemCells_TargetRawList.Count; i++)
             {
-                itemCells_TargetBuildingRawList[i].Clean();
+                itemCells_TargetRawList[i].CleanCell();
             }
         }
     }
-    /// <summary>
-    /// 检查建筑原材料
-    /// </summary>
-    /// <param name="config"></param>
-    /// <returns></returns>
     private bool CheckBuildingRaw(BuildingConfig config)
     {
         bool temp = true;
-        List<ItemData> data = new List<ItemData>(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemsInBag);
+        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
         for (int i = 0; i < config.Building_Raw.Count; i++)
         {
             ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Building_Raw[i].ID);
             int itemCount = 0;
-            for (int j = 0; j < data.Count; j++)
+            for (int j = 0; j < itemDatas.Count; j++)
             {
-                if (data[j].Item_ID == config.Building_Raw[i].ID)
+                if (itemDatas[j].Item_ID == config.Building_Raw[i].ID)
                 {
-                    itemCount += data[j].Item_Count;
+                    itemCount += itemDatas[j].Item_Count;
                 }
             }
             string info = itemCount.ToString() + "/" + config.Building_Raw[i].Count.ToString();
+            Sprite sprite_Icon = spriteAtlas_Item.GetSprite("Item_" + itemConfig.Item_ID.ToString());
+            Sprite sprite_BG = spriteAtlas_ItemBG.GetSprite("ItemBG_" + itemConfig.ItemRarity);
             if (itemCount < config.Building_Raw[i].Count)
             {
                 temp = false;
+                itemCells_TargetRawList[i].DrawCellIcon(sprite_Icon,Color.red,sprite_BG,Color.red);
+                itemCells_TargetRawList[i].DrawCellInfo(info, itemConfig.Item_Name, itemConfig.Item_Desc, itemConfig.ItemRarity);
             }
-            itemCells_TargetBuildingRawList[i].Draw(spriteAtlas_Item.GetSprite("Item_" + itemConfig.Item_ID.ToString()), spriteAtlas_ItemBG.GetSprite("ItemBG_" + itemConfig.ItemRarity), itemConfig.ItemRarity, info, itemConfig.Item_Name, itemConfig.Item_Desc);
+            else
+            {
+                itemCells_TargetRawList[i].DrawCellIcon(sprite_Icon, Color.white, sprite_BG, Color.white);
+                itemCells_TargetRawList[i].DrawCellInfo(info, itemConfig.Item_Name, itemConfig.Item_Desc, itemConfig.ItemRarity);
+            }
         }
         return temp;
     }
-    /// <summary>
-    /// 消耗建筑原材料
-    /// </summary>
-    /// <param name="config"></param>
-    private void ExpendBuildingRaw(BuildingConfig config)
+    private void DrawBuildingRaw(GroundConfig config, int index)
     {
-        List<ItemData> data = new List<ItemData>(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemsInBag);
-        for (int i = 0; i < config.Building_Raw.Count; i++)
+        groundConfig_Temp = config;
+        this.index = index;
+        for (int i = 0; i < itemCells_TargetRawList.Count; i++)
         {
-            ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Building_Raw[i].ID);
-            ItemData itemData = new ItemData(config.Building_Raw[i].ID);
-            itemData.Item_Count = config.Building_Raw[i].Count;
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemInBag()
-            {
-                item = itemData
-            });
+            itemCells_TargetRawList[i].CleanCell();
+        }
+        if (config.Ground_ID > 0 && groundConfigs_TempList.Count > index && groundConfigs_TempList[index].Equals(config))
+        {
+            transform_RawPanel.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+            transform_RawPanel.gameObject.SetActive(true);
+            transform_RawPanel.position = buttons_Icon[index].transform.position;
+            text_TargetName.text = config.Ground_Name;
+            CheckBuildingRaw(config);
+        }
+        else
+        {
+            transform_RawPanel.transform.DOKill();
+            transform_RawPanel.transform.localScale = Vector3.one;
+            transform_RawPanel.gameObject.SetActive(false);
+            transform_RawPanel.position = buttons_Icon[index].transform.position;
+            text_TargetName.text = "";
         }
     }
+    private bool CheckBuildingRaw(GroundConfig config)
+    {
+        bool temp = true;
+        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
+        for (int i = 0; i < config.Ground_Raw.Count; i++)
+        {
+            ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Ground_Raw[i].ID);
+            int itemCount = 0;
+            for (int j = 0; j < itemDatas.Count; j++)
+            {
+                if (itemDatas[j].Item_ID == config.Ground_Raw[i].ID)
+                {
+                    itemCount += itemDatas[j].Item_Count;
+                }
+            }
+            string info = itemCount.ToString() + "/" + config.Ground_Raw[i].Count.ToString();
+            Sprite sprite_Icon = spriteAtlas_Item.GetSprite("Item_" + itemConfig.Item_ID.ToString());
+            Sprite sprite_BG = spriteAtlas_ItemBG.GetSprite("ItemBG_" + itemConfig.ItemRarity);
+            if (itemCount < config.Ground_Raw[i].Count)
+            {
+                temp = false;
+                itemCells_TargetRawList[i].DrawCellIcon(sprite_Icon, Color.red, sprite_BG, Color.red);
+                itemCells_TargetRawList[i].DrawCellInfo(info, itemConfig.Item_Name, itemConfig.Item_Desc, itemConfig.ItemRarity);
+            }
+            else
+            {
+                itemCells_TargetRawList[i].DrawCellIcon(sprite_Icon, Color.white, sprite_BG, Color.white);
+                itemCells_TargetRawList[i].DrawCellInfo(info, itemConfig.Item_Name, itemConfig.Item_Desc, itemConfig.ItemRarity);
+            }
+        }
+        return temp;
+    }
     #endregion
-
 }

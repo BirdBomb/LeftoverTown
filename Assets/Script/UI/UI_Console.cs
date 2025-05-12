@@ -14,7 +14,9 @@ public class UI_Console : MonoBehaviour
     {
         // 添加输入框值改变的监听器
         btn_hideOrShow.onClick.AddListener(() => { HidePanel(!panel_Main.gameObject.activeSelf); });
+        btn_AddOneHour.onClick.AddListener(() => { AddOneHour(); });
         dropDown_GlobalTime.onValueChanged.AddListener(ChangeGlobalTime);
+        dropDown_GlobalWeather.onValueChanged.AddListener(ChangeGlobalWeather);
         btn_changeItemType_1000.onClick.AddListener(() => { ChangeItemType(1); });
         btn_changeItemType_2000.onClick.AddListener(() => { ChangeItemType(2); });
         btn_changeItemType_3000.onClick.AddListener(() => { ChangeItemType(3); });
@@ -25,7 +27,7 @@ public class UI_Console : MonoBehaviour
         btn_changeFloorType.onClick.AddListener(() => { ChangeFloorType(); });
         btn_Save.onClick.AddListener(() => 
         {
-            MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_SaveMapData()
+            MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_SaveMapData()
             {
 
             });
@@ -70,9 +72,23 @@ public class UI_Console : MonoBehaviour
     private Button btn_nextPage;
     [SerializeField, Header("全局时间")]
     private TMP_Dropdown dropDown_GlobalTime;
+    [SerializeField, Header("增加一个小时")]
+    private Button btn_AddOneHour;
+    [SerializeField, Header("全局天气")]
+    private TMP_Dropdown dropDown_GlobalWeather;
     private void HidePanel(bool hide)
     {
         panel_Main.gameObject.SetActive(hide);
+    }
+    /// <summary>
+    /// 增加一小时
+    /// </summary>
+    private void AddOneHour()
+    {
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_State_AddOneHour()
+        {
+            
+        });
     }
     /// <summary>
     /// 更改全局时间
@@ -82,7 +98,18 @@ public class UI_Console : MonoBehaviour
     {
         MessageBroker.Default.Publish(new GameEvent.GameEvent_State_ChangeTime()
         {
-            hour = i
+            hour = (short)i
+        });
+    }
+    /// <summary>
+    /// 更改全局天气
+    /// </summary>
+    /// <param name="i"></param>
+    private void ChangeGlobalWeather(int i)
+    {
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_ChangeWeather()
+        {
+            index = (short)i
         });
     }
     /// <summary>

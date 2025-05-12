@@ -29,6 +29,13 @@ public class Item_9010 : ItemBase
 {
 
 }
+/// <summary>
+/// ´ÎÔªµ¯Ï»
+/// </summary>
+public class Item_9020 : ItemBase
+{
+
+}
 
 #endregion
 #region//²âÊÔ

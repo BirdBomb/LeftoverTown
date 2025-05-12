@@ -22,42 +22,30 @@ public class PlayerCoreLocal : MonoBehaviour
                 Local_UpdateNearbyTile(_.movePos);
             }
         }).AddTo(this);
+        #region//背包物体
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemInBag>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemInBag(_.item);
+                actorManager_Bind.actorNetManager.Local_AddItemInBag(_.index, _.itemData);
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TrySubItemInBag>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryExpendItemInBag>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_SubItemInBag(_.item);
+                actorManager_Bind.actorNetManager.Local_ExpendItemInBag(_.itemID, _.itemCount);
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemInBag>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                if (actorManager_Bind.actorNetManager.Net_ItemInHand.Equals(_.oldItem))
-                {
-                    actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeItemOnHand(_.oldItem, _.newItem);
-                }
-                else if (actorManager_Bind.actorNetManager.Net_ItemOnHead.Equals(_.oldItem))
-                {
-                    actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeItemOnHead(_.oldItem, _.newItem);
-                }
-                else if (actorManager_Bind.actorNetManager.Net_ItemOnBody.Equals(_.oldItem))
-                {
-                    actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeItemOnBody(_.oldItem, _.newItem);
-                }
-                else
-                {
-                    actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeItemInBag(_.oldItem, _.newItem);
-                }
+                actorManager_Bind.actorNetManager.Local_ChangeItemInBag(_.index,_.itemData);
             }
         }).AddTo(this);
+        #endregion
+        #region//手部物体
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnHand>().Subscribe(_ =>
         {
             if (bool_Local)
@@ -72,6 +60,15 @@ public class PlayerCoreLocal : MonoBehaviour
                 actorManager_Bind.actorNetManager.RPC_LocalInput_SubItemOnHand(_.item);
             }
         }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeItemOnHand(_.oldItem, _.newItem);
+            }
+        }).AddTo(this);
+        #endregion
+        #region//头部物体
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnHead>().Subscribe(_ =>
         {
             if (bool_Local)
@@ -86,6 +83,15 @@ public class PlayerCoreLocal : MonoBehaviour
                 actorManager_Bind.actorNetManager.RPC_LocalInput_SubItemOnHead(_.item);
             }
         }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemOnHead>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeItemOnHead(_.oldItem, _.newItem);
+            }
+        }).AddTo(this);
+        #endregion
+        #region//身体物体
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnBody>().Subscribe(_ =>
         {
             if (bool_Local)
@@ -100,6 +106,14 @@ public class PlayerCoreLocal : MonoBehaviour
                 actorManager_Bind.actorNetManager.RPC_LocalInput_SubItemOnBody(_.item);
             }
         }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemOnBody>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeItemOnBody(_.oldItem, _.newItem);
+            }
+        }).AddTo(this);
+        #endregion
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryDropItem>().Subscribe(_ =>
         {
             if (bool_Local)
@@ -122,11 +136,18 @@ public class PlayerCoreLocal : MonoBehaviour
                 });
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_Emoji>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_SendEmoji>().Subscribe(_ =>
         {
             if (bool_Local)
             {
                 actorManager_Bind.actorNetManager.RPC_LocalInput_SendEmoji((int)_.emoji);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_SendText>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.RPC_LocalInput_SendText(_.text,(int)Emoji.Yell);
             }
         }).AddTo(this);
     }
@@ -146,7 +167,7 @@ public class PlayerCoreLocal : MonoBehaviour
     #endregion
     #region//角色绑定
     [HideInInspector]
-    public ActorManager actorManager_Bind;
+    public ActorManager actorManager_Bind = null;
     public void AllClinet_BindActor(ActorManager actor)
     {
         actorManager_Bind = actor;
@@ -161,7 +182,6 @@ public class PlayerCoreLocal : MonoBehaviour
             //actor.actorNetManager.Object.AssignInputAuthority(playerCoreNet.Object.InputAuthority);
             State_BindActor();
         }
-        actorManager_Bind.actorNetManager.AllClient_UpdateNetworkData();
     }
     public void Local_BindActor()
     {
@@ -185,10 +205,16 @@ public class PlayerCoreLocal : MonoBehaviour
         if (playerData_Local != null)
         {
             Debug.Log("--玩家信息获取成功--");
-            actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeBagCapacity(10);
-            for (int i = 0; i < playerData_Local.BagItems.Count; i++)
+            for (int i = 0; i < 15; i++)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemInBag(playerData_Local.BagItems[i]);
+                if(i < playerData_Local.BagItems.Count)
+                {
+                    actorManager_Bind.actorNetManager.Local_ChangeItemInBag(i, playerData_Local.BagItems[i]);
+                }
+                else
+                {
+                    actorManager_Bind.actorNetManager.Local_ChangeItemInBag(i, new ItemData());
+                }
             }
             //Debug.Log("--初始化玩家手部");
             actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnHand(playerData_Local.HandItem);
@@ -198,11 +224,6 @@ public class PlayerCoreLocal : MonoBehaviour
             actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnBody(playerData_Local.BodyItem);
             //Debug.Log("--初始化玩家数据");
             actorManager_Bind.actorNetManager.RPC_LocalInput_InitPlayerCommonData(Local_CreatePlayerNetData(playerData_Local), playerData_Local.Name);
-            //Debug.Log("--初始化玩家Buff与Skill");
-            for (int i = 0; i < playerData_Local.BuffList.Count; i++)
-            {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_AddBuff(playerData_Local.BuffList[i], "");
-            }
             Debug.Log("--初始化玩家位置");
             actorManager_Bind.actorNetManager.RPC_LocalInput_UpdateNetworkTransform(Vector3Int.zero, 999);
             Local_UpdateMapInView(Vector3Int.zero);
@@ -226,27 +247,14 @@ public class PlayerCoreLocal : MonoBehaviour
         playerNetData.Eye_ID = playerData.Eye_ID;
 
         playerNetData.Speed_Common = playerData.Speed_Common;
-        playerNetData.Speed_Max = playerData.Speed_Max;
         playerNetData.Hp_Cur = playerData.Hp_Cur;
         playerNetData.Hp_Max = playerData.Hp_Max;
         playerNetData.Armor_Cur = playerData.Armor_Cur;
         playerNetData.Food_Cur = playerData.Food_Cur;
         playerNetData.Food_Max = playerData.Food_Max;
-        playerNetData.Water_Cur = playerData.Water_Cur;
         playerNetData.San_Cur = playerData.San_Cur;
         playerNetData.San_Max = playerData.San_Max;
-        playerNetData.Happy_Cur = playerData.Happy_Cur;
         playerNetData.Coin_Cur = playerData.Coin_Cur;
-        playerNetData.En_Cur = playerData.En_Cur;
-
-        playerNetData.Point_Strength = playerData.Point_Strength;
-        playerNetData.Point_Intelligence = playerData.Point_Intelligence;
-        playerNetData.Point_Agility = playerData.Point_Agility;
-        playerNetData.Point_Focus = playerData.Point_Focus;
-        playerNetData.Point_SPower = playerData.Point_SPower;
-        playerNetData.Point_Make = playerData.Point_Make;
-        playerNetData.Point_Build = playerData.Point_Build;
-        playerNetData.Point_Cook = playerData.Point_Cook;
 
         return playerNetData;
     }
@@ -259,6 +267,7 @@ public class PlayerCoreLocal : MonoBehaviour
     /// <param name="keyCode"></param>
     public void Local_PlayerInputKey()
     {
+        if (!actorManager_Bind) return;
         if (Input.GetKeyDown(KeyCode.F))
         {
             actorManager_Bind.inputManager.InputKeycode(KeyCode.F);
@@ -270,6 +279,22 @@ public class PlayerCoreLocal : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q))
         {
             actorManager_Bind.inputManager.InputKeycode(KeyCode.Q);
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            actorManager_Bind.inputManager.InputKeycode(KeyCode.R);
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            actorManager_Bind.inputManager.InputKeycode(KeyCode.Space);
+        }
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            actorManager_Bind.inputManager.InputKeycode(KeyCode.Tab);
+        }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            actorManager_Bind.inputManager.InputKeycode(KeyCode.C);
         }
     }
     #endregion
@@ -288,7 +313,7 @@ public class PlayerCoreLocal : MonoBehaviour
         {
             Debug.Log($"超出地图绘制范围,绘制新区域。当前位置({pos})地图锚点({vector3Int_mapCenter})");
             vector3Int_mapCenter = new Vector3Int((int)(Math.Round(pos.x / config_MapView) * config_MapView), (int)(Math.Round(pos.y / config_MapView) * config_MapView), 0);
-            MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_RequestMapData()
+            MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_RequestMapData()
             {
                 playerPos = vector3Int_mapCenter,
                 mapSize = (int)config_MapView
@@ -346,27 +371,16 @@ public class PlayerCoreLocal : MonoBehaviour
 /// </summary>
 public struct PlayerNetData : INetworkStruct
 {
-    public int Hp_Cur;
-    public int Hp_Max;
-    public short Armor_Cur;
+    public short Hp_Cur;
+    public short Hp_Max;
     public short Food_Cur;
     public short Food_Max;
-    public short Water_Cur;
     public short San_Cur;
     public short San_Max;
-    public short Happy_Cur;
+    public short Armor_Cur;
+    public short Resistance_Cur;
     public short Coin_Cur;
     public short Speed_Common;
-    public short Speed_Max;
-    public int En_Cur;
-    public short Point_Strength;
-    public short Point_Intelligence;
-    public short Point_Focus;
-    public short Point_Agility;
-    public short Point_SPower;
-    public short Point_Make;
-    public short Point_Build;
-    public short Point_Cook;
 
     public short Hair_ID;
     public Color32 Hair_Color;

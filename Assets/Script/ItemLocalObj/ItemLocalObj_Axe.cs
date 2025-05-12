@@ -14,14 +14,40 @@ public class ItemLocalObj_Axe : ItemLocalObj
     [SerializeField]
     private SpriteRenderer spriteRenderer_Hand;
     [SerializeField]
-    private SI_Sector sector;
+    private SkillIndicators skillIndicators;
+    [SerializeField, Header("Åü¿³ËÙ¶È")]
+    private float config_HackSpeed = 1;
     [SerializeField, Header("Åü¿³ÉËº¦")]
-    private short config_hackDamage = 5;
+    private short config_HackDamage = 5;
     [SerializeField, Header("Åü¿³·¶Î§")]
-    private float config_hackMaxRange = 60;
+    private float config_HackMaxRange = 60;
     [SerializeField, Header("Åü¿³¾àÀë")]
-    private float config_hackMaxDistance = 1;
+    private float config_HackMaxDistance = 1;
+    /// <summary>
+    /// Åü¿³¶¯»­Ê±³¤
+    /// </summary>
+    private float config_HackDuraction = 1;
+    /// <summary>
+    /// Åü¿³CD
+    /// </summary>
+    private float config_HackCD;
+    /// <summary>
+    /// Åü¿³CDµ¹Êý
+    /// </summary>
+    private float config_HackCDRec;
+    /// <summary>
+    /// ÏÂ´ÎÈ­»÷Ê±¼ä
+    /// </summary>
+    private float float_NextHackTiming = 0;
+
     private InputData inputData = new InputData();
+    private void FixedUpdate()
+    {
+        if (inputData.leftPressTimer == 0 && float_NextHackTiming > 0)
+        {
+            float_NextHackTiming -= Time.fixedDeltaTime;
+        }
+    }
     public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
     {
         itemData = data;
@@ -33,28 +59,41 @@ public class ItemLocalObj_Axe : ItemLocalObj
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
 
+        config_HackCD = config_HackDuraction / config_HackSpeed;
+        config_HackCDRec = config_HackSpeed / config_HackDuraction;
+
         spriteRenderer_Hand.sprite = body.transform_RightHand.GetComponent<SpriteRenderer>().sprite;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingByHand(owner, body, data);
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
-        if (inputData.leftPressTimer == 0)
+        if (inputData.leftPressTimer >= float_NextHackTiming)
         {
+            float_NextHackTiming += config_HackCD + 0.1f;
             animator.SetTrigger("Hack");
+            animator.speed = config_HackSpeed;
         }
         inputData.leftPressTimer = time;
         return base.PressLeftMouse(time, actorAuthority);
     }
     public override void ReleaseLeftMouse()
     {
-        inputData.leftPressTimer = 0;
+        if (inputData.leftPressTimer > 0)
+        {
+            float_NextHackTiming -= inputData.leftPressTimer;
+            inputData.leftPressTimer = 0;
+        }
         base.ReleaseLeftMouse();
     }
     public override void UpdateMousePos(Vector3 mouse)
     {
         inputData.mousePosition = mouse;
-        sector.Update_SIsector(inputData.mousePosition, config_hackMaxDistance, config_hackMaxRange, 1);
+        if (actorManager.actorAuthority.isLocal && actorManager.actorAuthority.isPlayer)
+        {
+            float alpht = (float_NextHackTiming - inputData.leftPressTimer) * config_HackCDRec;
+            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, config_HackMaxDistance, config_HackMaxRange, alpht);
+        }
         base.UpdateMousePos(mouse);
     }
     public void Hack()
@@ -62,15 +101,28 @@ public class ItemLocalObj_Axe : ItemLocalObj
         if (actorManager.actorAuthority.isLocal)
         {
             sbyte temp = 0;
-            sector.Checkout_SIsector(inputData.mousePosition, config_hackMaxDistance, config_hackMaxRange, out Transform[] targetTile);
-            for (int i = 0; i < targetTile.Length; i++)
+            skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_HackMaxDistance, config_HackMaxRange, out Collider2D[] colliders);
+            for (int i = 0; i < colliders.Length; i++)
             {
-                if (targetTile[i].TryGetComponent(out ActorManager actor))
+                if (colliders[i].tag.Equals("BuildingNatural"))
                 {
-                    if (actor != actorManager)
+                    if (colliders[i].TryGetComponent(out BuildingObj building))
                     {
-                        actor.AllClient_Listen_TakeDamage(config_hackDamage, actorManager.actorNetManager);
+                        building.Local_TakeDamage(config_HackDamage);
                         temp = -2;
+                    }
+                }
+                else if (colliders[i].tag.Equals("Actor"))
+                {
+                    if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
+                    {
+                        if (actor == actorManager) { continue; }
+                        else
+                        {
+                            actor.AllClient_Listen_TakeAttackDamage(config_HackDamage, actorManager.actorNetManager);
+                            temp = -1;
+                        }
                     }
                 }
             }
@@ -93,7 +145,7 @@ public class ItemLocalObj_Axe : ItemLocalObj
             else
             {
                 _newItem.Item_Durability += val;
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
                 {
                     oldItem = _oldItem,
                     newItem = _newItem,

@@ -24,7 +24,6 @@ public class UI_ActorCreatePanel : MonoBehaviour
         bindPath = path;
         playerData = new PlayerData();
         createAction = create;
-        UpdatePointPanel();
         UpdateHeadPanel();
     }
     public void Show()
@@ -35,28 +34,6 @@ public class UI_ActorCreatePanel : MonoBehaviour
     {
         transform_Panel.gameObject.SetActive(false);
     }
-    #region//角色点数
-    public UI_PointPanel uI_PointPanel_Strength;
-    public UI_PointPanel uI_PointPanel_Intelligence;
-    public UI_PointPanel uI_PointPanel_SPower;
-    public UI_PointPanel uI_PointPanel_Focus;
-    public UI_PointPanel uI_PointPanel_Agility;
-    public UI_PointPanel uI_PointPanel_Make;
-    public UI_PointPanel uI_PointPanel_Build;
-    public UI_PointPanel uI_PointPanel_Cook;
-
-    private void UpdatePointPanel()
-    {
-        uI_PointPanel_Strength.UpdatePoint(playerData.Point_Strength);
-        uI_PointPanel_Intelligence.UpdatePoint(playerData.Point_Intelligence);
-        uI_PointPanel_SPower.UpdatePoint(playerData.Point_SPower);
-        uI_PointPanel_Focus.UpdatePoint(playerData.Point_Focus);
-        uI_PointPanel_Agility.UpdatePoint(playerData.Point_Agility);
-        uI_PointPanel_Make.UpdatePoint(playerData.Point_Make);
-        uI_PointPanel_Build.UpdatePoint(playerData.Point_Build);
-        uI_PointPanel_Cook.UpdatePoint(playerData.Point_Cook);
-    }
-    #endregion
     #region//角色外貌
     public TMP_InputField input_Name;
     public Image image_Hair;

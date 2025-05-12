@@ -20,7 +20,7 @@ public class BuildingObj_Plant : BuildingObj
     [Header("成熟")]
     public Sprite sprite_State2;
     private PlantState plantState;
-    public override void Draw()
+    public override void All_Draw()
     {
         if (info == "0")
         {
@@ -37,9 +37,9 @@ public class BuildingObj_Plant : BuildingObj
             spriteRenderer_Plant.sprite = sprite_State2;
             plantState = PlantState.State2;
         }
-        base.Draw();
+        base.All_Draw();
     }
-    public override void ActorInputKeycode(ActorManager actor, KeyCode code)
+    public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
@@ -48,9 +48,9 @@ public class BuildingObj_Plant : BuildingObj
                 Harvest();
             }
         }
-        base.ActorInputKeycode(actor, code);
+        base.All_ActorInputKeycode(actor, code);
     }
-    public override bool PlayerHolding(PlayerCoreLocal player)
+    public override bool All_PlayerHolding(PlayerCoreLocal player)
     {
         /*靠近是我自己*/
         if (player.bool_Local && plantState == PlantState.State2)
@@ -60,7 +60,7 @@ public class BuildingObj_Plant : BuildingObj
         }
         return false;
     }
-    public override bool PlayerRelease(PlayerCoreLocal player)
+    public override bool All_PlayerRelease(PlayerCoreLocal player)
     {
         /*离开是我自己*/
         if (player.bool_Local)
@@ -97,16 +97,16 @@ public class BuildingObj_Plant : BuildingObj
         ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(short_PlantID, out ItemData initData);
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
         {
-            item = initData
+            itemData = initData
         });
         spriteRenderer_Plant.transform.localScale = Vector3.one;
         spriteRenderer_Plant.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-        ChangeInfo("0");
+        Local_ChangeInfo("0");
     }
-    public override void UpdateInfo(string info)
+    public override void All_UpdateInfo(string info)
     {
-        base.UpdateInfo(info);
-        Draw();
+        base.All_UpdateInfo(info);
+        All_Draw();
     }
     public enum PlantState
     {

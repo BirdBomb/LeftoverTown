@@ -11,17 +11,13 @@ public class BulletBase : MonoBehaviour
     [HideInInspector]
     public Vector3 vectoe3_LastPos;
     [HideInInspector]
-    public float float_MoveSpeed;
+    public int float_BulletDemage;
     [HideInInspector]
-    public float float_Force;
+    public float float_BulletSpeed;
+    [HideInInspector]
+    public float float_BulletForce;
     [SerializeField, Header("生命周期")]
     public float float_Life;
-    [SerializeField, Header("子弹伤害")]
-    public short config_Damage;
-    [SerializeField, Header("子弹速度")]
-    public short config_Speed;
-    [SerializeField, Header("子弹力量")]
-    public float config_Force;
 
     [SerializeField, Header("子弹本身加载路径")]
     public string str_BulletPath;
@@ -30,16 +26,9 @@ public class BulletBase : MonoBehaviour
     protected ActorNetManager actorNetManager_Owner;
     protected ActorAuthority actorAuthority_Owner;
     protected bool _hide;
-    public virtual void InitBullet(Vector3 dir, float speed, float force, ActorNetManager from)
+    public virtual void Shot(Vector3 dir, int demage_Offset, float speed_Offset, float force_Offset, ActorNetManager from)
     {
-        vectoe3_CurPos = transform.position;
-        vectoe3_LastPos = transform.position;
-        vectoe3_MoveDir = dir;
-        float_MoveSpeed = config_Speed + speed;
-        float_Force = config_Force + force;
-        actorNetManager_Owner = from;
-        actorAuthority_Owner = actorNetManager_Owner.actorManager_Local.actorAuthority;
-        _hide = false;
+
     }
     public virtual void HideBullet()
     {

@@ -6,35 +6,35 @@ using UnityEngine;
 public class BuildingObj_WoodWorkingBench : BuildingObj
 {
     [SerializeField]
-    private GameObject obj_SingalF;
+    private GameObject obj_Singal;
     [SerializeField]
-    private GameObject obj_CreateItem;
-    [SerializeField]
-    private UI_Grid_CreateItem uI_CreateItem;
+    private GameObject prefab_UI;
+    private TileUI tileUI_Bind = null;
+    private bool bool_OpenUI = false;
     #region//瓦片交互
-    public override void ActorInputKeycode(ActorManager actor, KeyCode code)
+    public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
-            OpenOrCloseSingal(obj_CreateItem.activeSelf);
-            OpenOrCloseCreateUI(!obj_CreateItem.activeSelf);
+            OpenOrCloseSingal(bool_OpenUI);
+            OpenOrCloseCreateUI(!bool_OpenUI);
         }
-        base.ActorInputKeycode(actor, code);
+        base.All_ActorInputKeycode(actor, code);
     }
     private void OpenOrCloseSingal(bool open)
     {
-        obj_SingalF.transform.DOKill();
+        obj_Singal.transform.DOKill();
         if (open)
         {
-            obj_SingalF.SetActive(true);
-            obj_SingalF.transform.localScale = Vector3.one;
-            obj_SingalF.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_Singal.SetActive(true);
+            obj_Singal.transform.localScale = Vector3.one;
+            obj_Singal.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
         }
         else
         {
-            obj_SingalF.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
+            obj_Singal.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
             {
-                obj_SingalF.SetActive(false);
+                obj_Singal.SetActive(false);
             });
         }
     }
@@ -42,23 +42,23 @@ public class BuildingObj_WoodWorkingBench : BuildingObj
     {
         if (open)
         {
-            obj_CreateItem.transform.localScale = Vector3.one;
-            obj_CreateItem.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-            obj_CreateItem.SetActive(true);
-            uI_CreateItem.Open();
-            uI_CreateItem.BindAction_ChangeInfo(ChangeInfo);
-            uI_CreateItem.UpdateInfo(info);
+            bool_OpenUI = true;
+            UIManager.Instance.ShowTileUI(prefab_UI, out tileUI_Bind);
+            CreateListConfig createListConfig = CreateListConfigData.GetCreateListConfig(1000);
+            List<CreateRawConfig> createRawConfigs = new List<CreateRawConfig>();
+            for(int i = 0; i < createListConfig.List.Count; i++)
+            {
+                createRawConfigs.Add(CreateRawConfigData.GetCreateRawConfig(createListConfig.List[i]));
+            }
+            tileUI_Bind.GetComponent<TileUI_CreateItem>().InitPool(createRawConfigs, createListConfig.Name);
         }
         else
         {
-            obj_CreateItem.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_CreateItem.SetActive(false);
-            });
-            uI_CreateItem.Close();
+            bool_OpenUI = false;
+            if (tileUI_Bind) UIManager.Instance.HideTileUI(tileUI_Bind);
         }
     }
-    public override bool PlayerHolding(PlayerCoreLocal player)
+    public override bool All_PlayerHolding(PlayerCoreLocal player)
     {
         /*靠近是我自己*/
         if (player.bool_Local)
@@ -68,7 +68,7 @@ public class BuildingObj_WoodWorkingBench : BuildingObj
         }
         return false;
     }
-    public override bool PlayerRelease(PlayerCoreLocal player)
+    public override bool All_PlayerRelease(PlayerCoreLocal player)
     {
         /*离开是我自己*/
         if (player.bool_Local)
@@ -78,13 +78,6 @@ public class BuildingObj_WoodWorkingBench : BuildingObj
             return true;
         }
         return true;
-    }
-    #endregion
-    #region//信息更新与上传
-    public override void UpdateInfo(string info)
-    {
-        uI_CreateItem.UpdateInfo(info);
-        base.UpdateInfo(info);
     }
     #endregion
 }

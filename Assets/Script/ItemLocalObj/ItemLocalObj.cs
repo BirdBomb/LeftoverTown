@@ -9,11 +9,11 @@ public class ItemLocalObj : MonoBehaviour
     public ActorManager actorManager;
     [HideInInspector]
     public ItemData itemData;
-    public void UpdateDataByLocal(ItemData data)
+    public virtual void UpdateDataByLocal(ItemData data)
     {
         itemData = data;
     }
-    public void UpdateDataByNet(ItemData data)
+    public virtual void UpdateDataByNet(ItemData data)
     {
         itemData = data;
     }

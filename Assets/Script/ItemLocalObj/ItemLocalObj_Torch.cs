@@ -12,8 +12,8 @@ public class ItemLocalObj_Torch : ItemLocalObj
     private Transform transform_Root;
     [SerializeField]
     private SpriteRenderer spriteRenderer_Hand;
-    private int temp_burnTimer = 0;
-    private const int config_burnTimer = 5;
+    private int temp_BurnTimer = 0;
+    private const int config_BurnTimer = 5;
     private InputData inputData= new InputData();
     public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
     {
@@ -63,14 +63,14 @@ public class ItemLocalObj_Torch : ItemLocalObj
     }
     public override void UpdateTime(int second)
     {
-        if (temp_burnTimer > config_burnTimer)
+        if (temp_BurnTimer > config_BurnTimer)
         {
-            temp_burnTimer = 0;
+            temp_BurnTimer = 0;
             ChangeDurability(-1);
         }
         else
         {
-            temp_burnTimer += second;
+            temp_BurnTimer += second;
         }
         base.UpdateTime(second);
     }
@@ -90,7 +90,7 @@ public class ItemLocalObj_Torch : ItemLocalObj
             else
             {
                 _newItem.Item_Durability += val;
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
                 {
                     oldItem = _oldItem,
                     newItem = _newItem,

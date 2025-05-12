@@ -13,13 +13,13 @@ public class BuildingObj_Fence_Wood : BuildingObj
     private GameObject obj_LinkLeft;
     [SerializeField]
     private GameObject obj_LinkDown;
-    public override void Draw()
+    public override void All_Draw()
     {
         Around around = MapManager.Instance.CheckBuilding_FourSide(buildingTile.tileID,buildingTile.tilePos);
         obj_LinkRight.SetActive(around.R);
         obj_LinkLeft.SetActive(around.L);
         obj_LinkDown.SetActive(around.D);
-        base.Draw();
+        base.All_Draw();
     }
 
 }

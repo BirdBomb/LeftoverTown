@@ -25,7 +25,11 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
         });
         MessageBroker.Default.Receive<NetEvent.NetEvent_CreateGame>().Subscribe(_ =>
         {
-            CreateRoom(_.RoomName,_.RoomType);
+            CreateRoom(_.RoomName, _.RoomType);
+        });
+        MessageBroker.Default.Receive<NetEvent.NetEvent_QuitGame>().Subscribe(_ =>
+        {
+            QuitRoom();
         });
         base.Start();
     }
@@ -67,6 +71,12 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
                     isVisible = true;
                     break;
                 }
+            case 3:
+                {
+                    gameMode = GameMode.Shared;
+                    isVisible = true;
+                    break;
+                }
         }
         Debug.Log(gameMode);
         await networkRunner.StartGame(new StartGameArgs()
@@ -88,12 +98,19 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
         }
         await networkRunner.StartGame(new StartGameArgs()
         {
-            GameMode = GameMode.Client,
+            GameMode = GameMode.Shared,
             SessionName = roomName,
             Scene = scene,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
 
+    }
+    public async void QuitRoom()
+    {
+        await networkRunner.Shutdown();
+        Destroy(networkRunner);
+        CreateNetCore();
+        SceneManager.LoadScene("MenuScene");
     }
     public void UpdateFusionSetting(FusionAppSettings settings)
     {

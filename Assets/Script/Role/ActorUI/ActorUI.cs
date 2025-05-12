@@ -7,45 +7,25 @@ using static Fusion.Allocator;
 using TMPro;
 public class ActorUI : MonoBehaviour
 {
-    public Transform HpPanel;
-    public Transform HPBar;
-    public SpriteRenderer HPColor;
-    public Transform EnPanel;
-    public Transform EnBar;
-    public SpriteRenderer EnColor;
-    public Transform EnReleaseBar;
+    public Transform transform_HpPanel;
+    public Transform transform_HPBar;
     public TextMeshPro textMeshPro_Name;
     public TextMeshPro textMeshPro_Text;
 
-    public SpriteRenderer Emoji;
-    private SpriteAtlas _emojiAtlas;
-    private void Start()
-    {
-        _emojiAtlas = Resources.Load<SpriteAtlas>("Atlas/EmojiSprite");
-    }
+    public SpriteAtlas spriteAtlas_Emoji;
+    public SpriteRenderer spriteRenderer_Emoji;
+    public Transform transform_Singal;
+
     public void UpdateHPBar(float val)
     {
-        HPBar.localScale = new Vector3(val, 1, 1);
-    }
-    public void HighLightENBar()
-    {
-        EnBar.DOPunchScale(Vector3.one * 0.1f, 0.1f);
-    }
-    public void UpdateENBar(float val)
-    {
-        EnBar.localScale = new Vector3(val, 1, 1);
-        EnColor.color = new Color(1 - val, 1, 0, 1);
-    }
-    public void UpdateENReleaseBar(float val)
-    {
-        EnReleaseBar.localScale = new Vector3(val, 1, 1);
+        transform_HPBar.localScale = new Vector3(val, 1, 1);
     }
     public void SendEmoji(Emoji emoji)
     {
-        Emoji.transform.DOKill();
-        Emoji.transform.localScale = Vector3.zero;
-        Emoji.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
-        Emoji.sprite = _emojiAtlas.GetSprite("Emoji_" + (int)emoji);
+        spriteRenderer_Emoji.transform.DOKill();
+        spriteRenderer_Emoji.transform.localScale = Vector3.zero;
+        spriteRenderer_Emoji.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
+        spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite("Emoji_" + (int)emoji);
         textMeshPro_Text.text = ""; 
         if (IsInvoking("ResetEmoji"))
         {
@@ -55,10 +35,10 @@ public class ActorUI : MonoBehaviour
     }
     public void SendText(string text)
     {
-        Emoji.transform.DOKill();
-        Emoji.transform.localScale = Vector3.zero;
-        Emoji.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
-        Emoji.sprite = _emojiAtlas.GetSprite("Emoji_Empty");
+        spriteRenderer_Emoji.transform.DOKill();
+        spriteRenderer_Emoji.transform.localScale = Vector3.zero;
+        spriteRenderer_Emoji.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
+        spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite("Emoji_Empty");
         textMeshPro_Text.text = text;
         if (IsInvoking("ResetEmoji"))
         {
@@ -68,12 +48,18 @@ public class ActorUI : MonoBehaviour
     }
     private void ResetEmoji()
     {
-        Emoji.transform.DOScale(Vector3.zero, 0.25f);
+        spriteRenderer_Emoji.transform.DOScale(Vector3.zero, 0.25f);
         textMeshPro_Text.text = "";
     }
     public void ShowName(string str)
     {
         textMeshPro_Name.text = str;
+    }
+    public void ShowSingal(bool on)
+    {
+        transform_Singal.gameObject.SetActive(on);
+        transform_Singal.transform.localScale = Vector3.one;
+        transform_Singal.DOPunchScale(new Vector3(-0.1f, 0.1f, 0), 0.2f);
     }
 }
 public enum Emoji
@@ -106,4 +92,8 @@ public enum Emoji
     /// 不开心
     /// </summary>
     Unhappy,
+    /// <summary>
+    /// 开心
+    /// </summary>
+    Happy,
 }

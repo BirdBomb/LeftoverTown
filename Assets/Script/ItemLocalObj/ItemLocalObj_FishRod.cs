@@ -253,7 +253,7 @@ public class ItemLocalObj_FishRod : ItemLocalObj
                     ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(fishingID, out ItemData initData);
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
                     {
-                        item = initData
+                        itemData = initData
                     });
                 }
                 EndReady(0.2f);
@@ -269,7 +269,7 @@ public class ItemLocalObj_FishRod : ItemLocalObj
     }
     private void SetFishTime()
     {
-        UnityEngine.Random.InitState(itemData.Item_Seed);
+        UnityEngine.Random.InitState(itemData.Item_Info);
         fishingTime = UnityEngine.Random.Range(float_MinFishTime, float_MaxFishTime);
     }
     private void SetFishID()
@@ -281,7 +281,7 @@ public class ItemLocalObj_FishRod : ItemLocalObj
         {
             weight += fishConfigs[i].ItemWeight;
         }
-        UnityEngine.Random.InitState(itemData.Item_Seed);
+        UnityEngine.Random.InitState(itemData.Item_Info);
         val = UnityEngine.Random.Range(0, weight);
         for (int i = 0; i < fishConfigs.Count; i++)
         {

@@ -24,8 +24,8 @@ public class GroundTile : TileBase
     public int tileID;
     [HideInInspector]
     public Vector3Int tilePos;
-    [HideInInspector]
-    public Vector2 tileWorldPos;
+    //[HideInInspector]
+    //public Vector2 tileWorldPos;
     [HideInInspector]
     public GroundObj tileObj;
     public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)

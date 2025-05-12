@@ -161,9 +161,9 @@ public class UI_LobbyJoin : MonoBehaviour
     public void JoinRoom()
     {
         GameDataManager.Instance.bind_PlayerDataPath = bind_ActorDataPath;
-
         MessageBroker.Default.Publish(new NetEvent.NetEvent_JoinGame()
         {
+            RoomInfo = sessionInfo_Bind,
             RoomName = sessionInfo_Bind.Name,
         });
     }

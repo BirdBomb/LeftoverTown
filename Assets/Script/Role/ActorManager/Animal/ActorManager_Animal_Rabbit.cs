@@ -7,68 +7,179 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static Fusion.Allocator;
 using static GameEvent;
-using static UnityEngine.InputManagerEntry;
 
 public class ActorManager_Animal_Rabbit : ActorManager
 {
+    [SerializeField, Header("思考间隔"), Range(1, 10)]
+    public float float_ThinkCD;
+    private float float_ThinkTimer;
     [Header("兔子配置")]
     public ActorConfig_Rabbit config;
-
-    private Vector2 vector2_State_RabbitHole;
-    private int int_Second;
+    /// <summary>
+    /// 出生点
+    /// </summary>
+    private Vector3Int vector3_HomePos;
     private GlobalTime globalTime_Cur;
     public override void AllClient_AddListener()
     {
-        MessageBroker.Default.Receive<GameEvent_AllClient_SomeoneSendEmoji>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent_All_UpdateHour>().Subscribe(_ =>
         {
-            AllClient_Listen_RoleSendEmoji(_.actor, _.emoji, _.distance);
-            if (actorAuthority.isState) State_Listen_RoleSendEmoji(_.actor, _.emoji, _.distance);
-
-        }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent_AllClient_UpdateTime>().Subscribe(_ =>
-        {
-            AllClient_Listen_UpdateTime(_.hour, _.date, _.now);
+            AllClient_Listen_UpdateTime(_.hour, _.day, _.now);
         }).AddTo(this);
         base.AllClient_AddListener();
     }
-
-    public override void AllClient_Init()
+    #region//初始化
+    public override void Client_Init()
     {
         statusManager.statusType = config.status_Type;
-        base.AllClient_Init();
+        base.Client_Init();
     }
     public override void State_Init()
     {
         State_InitNPCData();
         base.State_Init();
     }
-    public override void State_SecondUpdate()
+    /// <summary>
+    /// 初始化数据
+    /// </summary>
+    private void State_InitNPCData()
     {
-        int_Second++;
-        if (int_Second % config.float_Stroll == 0)
+        List<ItemData> itemDatas = new List<ItemData>();
+        for (int i = 0; i < config.lootInfos_Base.Count; i++)
         {
-            if (globalTime_Cur != GlobalTime.Evening)
+            int count = new System.Random().Next(config.lootInfos_Base[i].CountMin, config.lootInfos_Base[i].CountMax + 1);
+            ItemData item = itemManager.CreateItemData(config.lootInfos_Base[i].ID, (short)count);
+            itemDatas.Add(item);
+        }
+        for (int i = 0; i < config.lootInfos_Extra.Count; i++)
+        {
+            int random = new System.Random().Next(0, 1000);
+            if (random <= config.lootInfos_Extra[i].Weight)
             {
-                if (brainManager.actorManagers_ThreatenedTarget.Count == 0)
-                {
-                    State_Stroll();
-                }
-            }
-            else
-            {
-                if (brainManager.actorManagers_ThreatenedTarget.Count == 0)
-                {
-                    State_GoHome();
-                }
+                ItemData item = itemManager.CreateItemData(config.lootInfos_Extra[i].ID, (short)config.lootInfos_Extra[i].Count);
+                itemDatas.Add(item);
             }
         }
-        base.State_SecondUpdate();
+        State_SetAbilityData(config.short_Hp, config.short_Armor, config.short_Resistance, config.short_MoveSpeed);
+        actorNetManager.Local_SetBagItem(itemDatas);
     }
+    /// <summary>
+    /// 绑定出生点
+    /// </summary>
+    /// <param name="pos"></param>
+    public void State_BindRabbitHole(Vector3Int pos)
+    {
+        vector3_HomePos = pos;
+    }
+    #endregion
     public override void AllClient_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
     {
         globalTime_Cur = globalTime;
         base.AllClient_Listen_UpdateTime(hour, date, globalTime);
     }
+    #region//对外界的反应
+    public override void State_Listen_MyselfHpChange(int parameter, NetworkId id)
+    {
+        NetworkObject networkObject = actorNetManager.Runner.FindObject(id);
+        if (networkObject != null)
+        {
+            ActorManager who = networkObject.GetComponent<ActorManager>();
+            if (actionManager.LookAt(who, config.float_ViewDistance))
+            {
+                State_Threatened_Run(who);
+            }
+        }
+        base.State_Listen_MyselfHpChange(parameter, id);
+    }
+    #endregion
+    #region//闲置状态
+    public override void State_SecondUpdate()
+    {
+        float_ThinkTimer += 1;
+        if (float_ThinkTimer > float_ThinkCD)
+        {
+            float_ThinkTimer = 0;
+            State_Think();
+        }
+        base.State_SecondUpdate();
+    }
+    /// <summary>
+    /// 思考
+    /// </summary>
+    public void State_Think()
+    {
+        if (globalTime_Cur != GlobalTime.Evening)
+        {
+            if (brainManager.actorManagers_ThreatenedTarget.Count == 0)
+            {
+                State_Think_Stroll();
+            }
+        }
+        else
+        {
+            if (brainManager.actorManagers_ThreatenedTarget.Count == 0)
+            {
+                State_Think_GoHome();
+            }
+        }
+    }
+    /// <summary>
+    /// 闲逛
+    /// </summary>
+    public void State_Think_Stroll()
+    {
+        if (vector3_HomePos.x - pathManager.vector3Int_CurPos.x > 10)
+        {
+            State_MoveSameStep(Vector3Int.right);
+        }
+        else if (vector3_HomePos.x - pathManager.vector3Int_CurPos.x < -10)
+        {
+            State_MoveSameStep(Vector3Int.left);
+        }
+        else if (vector3_HomePos.y - pathManager.vector3Int_CurPos.y > 10)
+        {
+            State_MoveSameStep(Vector3Int.up);
+        }
+        else if (vector3_HomePos.y - pathManager.vector3Int_CurPos.y < -10)
+        {
+            State_MoveSameStep(Vector3Int.down);
+        }
+        else
+        {
+            int random = new System.Random().Next(1, 4);
+            if (random == 1) State_MoveSameStep(Vector3Int.down, config.short_MoveStep);
+            if (random == 2) State_MoveSameStep(Vector3Int.up, config.short_MoveStep);
+            if (random == 3) State_MoveSameStep(Vector3Int.right, config.short_MoveStep);
+            if (random == 4) State_MoveSameStep(Vector3Int.left, config.short_MoveStep);
+        }
+    }
+    /// <summary>
+    /// 回家
+    /// </summary>
+    public void State_Think_GoHome()
+    {
+        if (Vector3.Distance(pathManager.vector3Int_CurPos, vector3_HomePos) < 0.5f)
+        {
+            actionManager.Despawn();
+        }
+        else
+        {
+            pathManager.State_MoveTo(vector3_HomePos);
+        }
+    }
+    /// <summary>
+    /// 朝目标方向移动
+    /// </summary>
+    /// <param name="dir"></param>
+    /// <returns></returns>
+    public void State_MoveSameStep(Vector3Int dir, short step = 1)
+    {
+        Vector3Int pos_F = pathManager.vector3Int_CurPos + dir * step;
+        Vector3Int pos_R = pathManager.vector3Int_CurPos - dir * step;
+        if (!pathManager.State_MoveTo(pos_F)) pathManager.State_MoveTo(pos_R);
+    }
+    #endregion
+    #region//警戒状态
     public override void State_Listen_RoleInView(ActorManager actor)
     {
         if (actor.statusManager.statusType != StatusType.Animal_Common)
@@ -87,47 +198,13 @@ public class ActorManager_Animal_Rabbit : ActorManager
     }
     public override void State_CustomUpdate()
     {
-        State_CheckThreatened();
+        State_Threatened_Check();
         base.State_CustomUpdate();
-    }
-    /// <summary>
-    /// 初始化数据
-    /// </summary>
-    private void State_InitNPCData()
-    {
-        actorNetManager.Net_HpCur = config.short_Hp;
-        actorNetManager.Net_HpMax = config.short_Hp;
-        actorNetManager.Net_SpeedCommon = config.short_Speed;
-        actorNetManager.Net_SpeedMax = config.short_Speed;
-        for (int i = 0; i < config.lootInfos_Base.Count; i++)
-        {
-            int count = new System.Random().Next(config.lootInfos_Base[i].CountMin, config.lootInfos_Base[i].CountMax + 1);
-            ItemData item = itemManager.CreateItemData(config.lootInfos_Base[i].ID, (short)count);
-            actorNetManager.Net_ItemsInBag.Add(item);
-        }
-        for (int i = 0; i < config.lootInfos_Extra.Count; i++)
-        {
-            int random = new System.Random().Next(0, 1000);
-            if (random <= config.lootInfos_Extra[i].Weight)
-            {
-                ItemData item = itemManager.CreateItemData(config.lootInfos_Extra[i].ID, (short)config.lootInfos_Extra[i].Count);
-                actorNetManager.Net_ItemsInBag.Add(item);
-            }
-        }
-    }
-
-    /// <summary>
-    /// 绑定兔子洞
-    /// </summary>
-    /// <param name="myTile"></param>
-    public void State_BindRabbitHole(Vector2 pos)
-    {
-        vector2_State_RabbitHole = pos;
     }
     /// <summary>
     /// 检查威胁
     /// </summary>
-    public void State_CheckThreatened()
+    public void State_Threatened_Check()
     {
         float distance_Min = float.MaxValue;
         float distance_New = 0;
@@ -136,7 +213,7 @@ public class ActorManager_Animal_Rabbit : ActorManager
         brainManager.actorManagers_Nearby.RemoveAll((x) => { return x == null; });
         for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
         {
-            if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], 99))
+            if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], config.float_ViewDistance))
             {
                 distance_New = Vector3.Distance(transform.position, (brainManager.actorManagers_Nearby[i].transform.position));
                 if (distance_Min > distance_New)
@@ -149,106 +226,61 @@ public class ActorManager_Animal_Rabbit : ActorManager
         }
         if (brainManager.actorManager_ThreatenedTarget != null)
         {
-            State_Run(brainManager.actorManager_ThreatenedTarget);
+            State_Threatened_Run(brainManager.actorManager_ThreatenedTarget);
         }
     }
     /// <summary>
     /// 逃跑
     /// </summary>
-    public void State_Run(ActorManager from)
+    public void State_Threatened_Run(ActorManager from)
     {
-        Vector3Int dir = Vector3Int.zero;
+        Vector3Int dirX;
+        Vector3Int dirY;
         if (from.transform.position.x < transform.position.x)
         {
-            dir += Vector3Int.right;
+            dirX = Vector3Int.right;
         }
         else
         {
-            dir += Vector3Int.left;
+            dirX = Vector3Int.left;
         }
-        if (from.transform.position.y < transform.position.y)
+        if (from.pathManager.vector3Int_CurPos.y < pathManager.vector3Int_CurPos.y)
         {
-            dir += Vector3Int.up;
+            dirY = Vector3Int.up;
+        }
+        else if (from.pathManager.vector3Int_CurPos.y > pathManager.vector3Int_CurPos.y)
+        {
+            dirY = Vector3Int.down;
         }
         else
         {
-            dir += Vector3Int.down;
+            dirY = Vector3Int.zero;
         }
-        pathManager.State_MoveTo(pathManager.vector3Int_CurPos + dir);
+        if (pathManager.State_MoveTo(pathManager.vector3Int_CurPos + dirX + dirY)) return;
+        if (pathManager.State_MoveTo(pathManager.vector3Int_CurPos + dirX)) return;
+        if (pathManager.State_MoveTo(pathManager.vector3Int_CurPos + dirY)) return;
     }
-    /// <summary>
-    /// 闲逛
-    /// </summary>
-    public void State_Stroll()
-    {
-        Vector2 pos = transform.position;
-        if (vector2_State_RabbitHole.x - pos.x > 10)
-        {
-            State_MoveOneStep(Vector3Int.right);
-        }
-        else if (vector2_State_RabbitHole.x - pos.x < -10)
-        {
-            State_MoveOneStep(Vector3Int.left);
-        }
-        else if (vector2_State_RabbitHole.y - pos.y > 10)
-        {
-            State_MoveOneStep(Vector3Int.up);
-        }
-        else if (vector2_State_RabbitHole.y - pos.y < -10)
-        {
-            State_MoveOneStep(Vector3Int.down);
-        }
-        else
-        {
-            int random = new System.Random().Next(1, 4);
-            if (random == 1) State_MoveOneStep(Vector3Int.down);
-            if (random == 2) State_MoveOneStep(Vector3Int.up);
-            if (random == 3) State_MoveOneStep(Vector3Int.right);
-            if (random == 4) State_MoveOneStep(Vector3Int.left);
-        }
-    }
-    /// <summary>
-    /// 回家
-    /// </summary>
-    public void State_GoHome()
-    {
-        if (Vector2.Distance(transform.position, vector2_State_RabbitHole) < 0.5f)
-        {
-            actionManager.Despawn();
-        }
-        else
-        {
-            pathManager.State_MoveTo(vector2_State_RabbitHole);
-        }
-    }
-    /// <summary>
-    /// 目标方向移动一格
-    /// </summary>
-    /// <param name="dir"></param>
-    /// <returns></returns>
-    public void State_MoveOneStep(Vector3Int dir)
-    {
-        Vector3Int pos_F = pathManager.vector3Int_CurPos + dir;
-        if (!pathManager.State_MoveTo(pos_F))
-        {
-            Vector3Int pos_R = pathManager.vector3Int_CurPos - dir;
-            pathManager.State_MoveTo(pos_R);
-        }
-    }
+    #endregion
 }
 [Serializable]
 public struct ActorConfig_Rabbit
 {
     [Header("初始身份")]
     public StatusType status_Type;
-    [Header("初始生命")]
+    [Header("生命")]
     public short short_Hp;
-    [Header("初始速度")]
-    public short short_Speed;
-    [Header("初始闲逛间隔"), Range(1, 10)]
-    public float float_Stroll;
+    [Header("护甲")]
+    public short short_Armor;
+    [Header("魔抗")]
+    public short short_Resistance;
+    [Header("移动速度")]
+    public short short_MoveSpeed;
+    [Header("移动距离"), Range(1, 10)]
+    public short short_MoveStep;
+    [Header("视野距离"), Range(1, 99)]
+    public float float_ViewDistance;
     [Header("基本掉落列表")]
-    public List<BaseLootInfo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    > lootInfos_Base;
+    public List<BaseLootInfo> lootInfos_Base;
     [Header("额外掉落列表")]
     public List<ExtraLootInfo> lootInfos_Extra;
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -14,36 +15,69 @@ public class ActorInputManager
     #region//玩家输入
     private Action<ActorManager, float, Vector2, bool> action_InputMove = null;
     private List<Action<ActorManager, KeyCode>> actions_InputKeycode = new List<Action<ActorManager, KeyCode>>();
-    private float float_shiftPressTimer = 0;
-
-    public void InputKeycode(KeyCode keyCode)
+    private int int_SwitchIndex = 0;
+    public void InputKeycode(KeyCode keyCode,bool on = true)
     {
         for (int i = 0; i < actions_InputKeycode.Count; i++)
         {
             actions_InputKeycode[i].Invoke(actorManager, keyCode);
         }
+        if (keyCode == KeyCode.Space)
+        {
+            actorManager.actionManager.PickUp(0.5f);
+        }
         if (keyCode == KeyCode.Q)
         {
-            actorManager.actionManager.PickUp();
+            if (int_SwitchIndex > 0)
+            {
+                int_SwitchIndex--;
+            }
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_SwitchItemInBag()
+            {
+                index = int_SwitchIndex,
+            });
+        }
+        if (keyCode == KeyCode.E)
+        {
+            int_SwitchIndex++;
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_SwitchItemInBag()
+            {
+                index = int_SwitchIndex,
+            });
+        }
+        if (keyCode == KeyCode.Tab)
+        {
+            actorManager.actionManager.Switch(int_SwitchIndex);
+        }
+        if (keyCode == KeyCode.C)
+        {
+            actorManager.actionManager.Drop(int_SwitchIndex);
+        }
+        if (keyCode == KeyCode.R)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_OpenItemInHand()
+            {
+                
+            });
         }
     }
     public void InputMouse(float leftPressTime, float rightPressTime, bool hasStateAuthority, bool hasInputAuthority)
     {
         if (leftPressTime > 0)
         {
-            actorManager.itemManager.itemBase_OnHand.Holding_UpdateLeftPress(leftPressTime, hasStateAuthority, hasInputAuthority, true);
+            actorManager.itemManager.itemBase_OnHand.OnHand_UpdateLeftPress(leftPressTime, hasStateAuthority, hasInputAuthority, true);
         }
         else
         {
-            actorManager.itemManager.itemBase_OnHand.Holding_ReleaseLeftPress(hasStateAuthority, hasInputAuthority, true);
+            actorManager.itemManager.itemBase_OnHand.OnHand_ReleaseLeftPress(hasStateAuthority, hasInputAuthority, true);
         }
         if (rightPressTime > 0)
         {
-            actorManager.itemManager.itemBase_OnHand.Holding_UpdateRightPress(rightPressTime, hasStateAuthority, hasInputAuthority, true);
+            actorManager.itemManager.itemBase_OnHand.OnHand_UpdateRightPress(rightPressTime, hasStateAuthority, hasInputAuthority, true);
         }
         else
         {
-            actorManager.itemManager.itemBase_OnHand.Holding_ReleaseRightPress(hasStateAuthority, hasInputAuthority, true);
+            actorManager.itemManager.itemBase_OnHand.OnHand_ReleaseRightPress(hasStateAuthority, hasInputAuthority, true);
         }
     }
     public void InputFace(Vector2 dir, bool hasStateAuthority, bool hasInputAuthority)
@@ -51,7 +85,7 @@ public class ActorInputManager
         actorManager.actionManager.FaceTo(dir);
         if (actorManager.itemManager.itemBase_OnHand != null)
         {
-            actorManager.itemManager.itemBase_OnHand.Holding_UpdateMousePos(dir);
+            actorManager.itemManager.itemBase_OnHand.OnHand_UpdateMousePos(dir);
         }
     }
     public void InputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
@@ -59,63 +93,10 @@ public class ActorInputManager
         action_InputMove?.Invoke(actorManager, deltaTime, dir, speedUp);
 
         dir = dir.normalized;
-        float commonSpeed = actorManager.actorNetManager.Net_SpeedCommon * 0.1f;
-        float maxSpeed = actorManager.actorNetManager.Net_SpeedMax * 0.1f;
-        float speed;
-        if (speedUp)
-        {
-            if (actorManager.actionManager.EnSub((int)(deltaTime * 1000)))
-            {
-                if (float_shiftPressTimer < 1)
-                {
-                    float_shiftPressTimer += deltaTime;
-                }
-                else
-                {
-                    float_shiftPressTimer = 1;
-                }
-            }
-            else
-            {
-                if (float_shiftPressTimer > deltaTime)
-                {
-                    float_shiftPressTimer -= deltaTime;
-                }
-                else
-                {
-                    float_shiftPressTimer = 0;
-                }
-            }
-        }
-        else
-        {
-            if (float_shiftPressTimer > deltaTime)
-            {
-                float_shiftPressTimer -= deltaTime;
-            }
-            else
-            {
-                float_shiftPressTimer = 0;
-            }
-            actorManager.actionManager.EnAdd((int)(deltaTime * actorManager.actorNetManager.Net_EnRelease));
-        }
-        if (float_shiftPressTimer > 1)
-        {
-            speed = Mathf.Lerp(commonSpeed, maxSpeed, 1);
-        }
-        else
-        {
-            speed = Mathf.Lerp(commonSpeed, maxSpeed, float_shiftPressTimer);
-        }
-
+        float speed = actorManager.actorNetManager.Net_SpeedCommon * 0.1f;
         Vector2 velocity = new Vector2(dir.x * speed, dir.y * speed);
         Vector3 newPos = actorManager.transform.position + new UnityEngine.Vector3(velocity.x * deltaTime, velocity.y * deltaTime, 0);
         actorManager.actorNetManager.OnlyState_UpdateNetworkRigidbody(newPos, velocity.magnitude);
-
-
-        //if (actorManager.vehicleManager_Bind == null)
-        //{
-        //}
     }
     public void Local_AddInputKeycodeAction(Action<ActorManager, KeyCode> action)
     {
@@ -150,15 +131,15 @@ public class ActorInputManager
         if (inputType == MouseInputType.PressRightThenPressLeft)
         {
             float_MouseRightPressTimer += dt;
-            if (actorManager.itemManager.itemBase_OnHand.Holding_UpdateRightPress(float_MouseRightPressTimer, actorManager.actorAuthority.isState, actorManager.actorAuthority.isLocal, false))
+            if (actorManager.itemManager.itemBase_OnHand.OnHand_UpdateRightPress(float_MouseRightPressTimer, actorManager.actorAuthority.isState, actorManager.actorAuthority.isLocal, false))
             {
                 float_MouseLeftPressTimer += dt;
-                if (actorManager.itemManager.itemBase_OnHand.Holding_UpdateLeftPress(float_MouseLeftPressTimer, actorManager.actorAuthority.isState, actorManager.actorAuthority.isLocal, false))
+                if (actorManager.itemManager.itemBase_OnHand.OnHand_UpdateLeftPress(float_MouseLeftPressTimer, actorManager.actorAuthority.isState, actorManager.actorAuthority.isLocal, false))
                 {
                     float_MouseRightPressTimer = 0;
                     float_MouseLeftPressTimer = 0;
-                    actorManager.itemManager.itemBase_OnHand.Holding_ReleaseLeftPress(actorManager.actorAuthority.isState, actorManager.actorAuthority.isLocal, false);
-                    actorManager.itemManager.itemBase_OnHand.Holding_ReleaseRightPress(actorManager.actorAuthority.isState, actorManager.actorAuthority.isLocal, false);
+                    actorManager.itemManager.itemBase_OnHand.OnHand_ReleaseLeftPress(actorManager.actorAuthority.isState, actorManager.actorAuthority.isLocal, false);
+                    actorManager.itemManager.itemBase_OnHand.OnHand_ReleaseRightPress(actorManager.actorAuthority.isState, actorManager.actorAuthority.isLocal, false);
                     return true;
                 }
             }
@@ -169,7 +150,7 @@ public class ActorInputManager
     {
         vector3_MouseLocation = pos;
         actorManager.actionManager.FaceTo(vector3_MouseLocation - actorManager.transform.position);
-        actorManager.itemManager.itemBase_OnHand.Holding_UpdateMousePos(vector3_MouseLocation - actorManager.transform.position);
+        actorManager.itemManager.itemBase_OnHand.OnHand_UpdateMousePos(vector3_MouseLocation - actorManager.transform.position);
     }
     /// <summary>
     /// 鼠标按键按下方法

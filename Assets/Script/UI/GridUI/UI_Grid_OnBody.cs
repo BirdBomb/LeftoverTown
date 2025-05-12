@@ -17,7 +17,7 @@ public class UI_Grid_OnBody : UI_Grid
             itemData = _.itemData;
             gridCell.UpdateData(itemData);
         }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_AllClient_UpdateTime>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
         {
             gridCell.UpdateData(itemData);
         }).AddTo(this);
@@ -25,17 +25,17 @@ public class UI_Grid_OnBody : UI_Grid
     }
     private void BindAllCell()
     {
-        gridCell.BindAction(PutIn, PutOut, null, null);
+        gridCell.BindGrid(new ItemPath(ItemFrom.Body, 0), PutIn, PutOut, null, null);
     }
     #region//°ó¶¨
-    public void PutIn(ItemData data)
+    public void PutIn(ItemData data, ItemPath path)
     {
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemOnBody()
         {
             item = data
         });
     }
-    public ItemData PutOut(ItemData data)
+    public ItemData PutOut(ItemData itemData_From, ItemData data, ItemPath itemPath)
     {
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnBody()
         {

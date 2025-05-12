@@ -16,64 +16,35 @@ public class ItemSystem1000
 [Serializable]
 public class Item_0 : ItemBase
 {
-    public override void DrawGridCell(UI_GridCell gridCell)
+    #region//持有
+    private ItemLocalObj_Punch itemLocalObj_Punch;
+    public override void OnHand_Start(ActorManager owner, BodyController_Human body)
+    {
+        this.owner = owner;
+        itemLocalObj_Punch = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_0").GetComponent<ItemLocalObj_Punch>();
+        itemLocalObj_Punch.HoldingByHand(owner, body, itemData);
+    }
+    #endregion
+    public override void GridCell_Draw(UI_GridCell gridCell)
     {
         
     }
+
     #region//使用逻辑
-    private const short config_attackDamage = 1;
-    public override void Holding_UpdateMousePos(Vector3 mouse)
+    public override void OnHand_UpdateMousePos(Vector3 mouse)
     {
+        itemLocalObj_Punch.UpdateMousePos(mouse);
         inputData.mousePosition = mouse;
-        base.Holding_UpdateMousePos(mouse);
+        base.OnHand_UpdateMousePos(mouse);
     }
-    public override bool Holding_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
+    public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
     {
-        if (inputData.leftPressTimer == 0)
-        {
-            if (owner)
-            {
-                if(new System.Random().Next(0, 2) == 0) 
-                {
-                    owner.bodyController.SetAnimatorTrigger(BodyPart.Hand, "PunchRight");
-                }
-                else
-                {
-                    owner.bodyController.SetAnimatorTrigger(BodyPart.Hand, "PunchRight");
-                }
-                if (input) Attack();
-            }
-        }
-        inputData.leftPressTimer = pressTimer;
-        return true;
+        return itemLocalObj_Punch.PressLeftMouse(pressTimer, owner.actorAuthority);
     }
-    public override void Holding_ReleaseLeftPress(bool state, bool input, bool player)
+    public override void OnHand_ReleaseLeftPress(bool state, bool input, bool player)
     {
-        inputData.leftPressTimer = 0;
-        base.Holding_ReleaseLeftPress(state, input, player);
-    }
-
-    private void Attack()
-    {
-        owner.bodyController.SetAnimatorAction(BodyPart.Hand, (string str) =>
-        {
-            if (str.Equals("PunchRight")|| str.Equals("PunchLeft"))
-            {
-                RaycastHit2D[] hit2D = Physics2D.LinecastAll(owner.transform.position, owner.transform.position + inputData.mousePosition.normalized);
-                for (int i = 0; i < hit2D.Length; i++)
-                {
-                    if (hit2D[i].collider.transform.TryGetComponent(out ActorManager actor))
-                    {
-                        if (actor == owner) { continue; }
-                        else
-                        {
-                            actor.AllClient_Listen_TakeDamage(config_attackDamage, owner.actorNetManager);
-                        }
-                    }
-                }
-            }
-        });
-
+        itemLocalObj_Punch.ReleaseLeftMouse();
+        base.OnHand_ReleaseLeftPress(state, input, player);
     }
     #endregion
 }
@@ -89,6 +60,12 @@ public class Item_1000 : ItemBase_Materials
 /// 树枝
 /// </summary>
 public class Item_1001 : ItemBase_Materials
+{
+}
+/// <summary>
+/// 草
+/// </summary>
+public class Item_1002 : ItemBase_Materials
 {
 }
 /// <summary>
@@ -207,6 +184,12 @@ public class Item_1200 : ItemBase_Materials
 /// 高能芯片
 /// </summary>
 public class Item_1201 : ItemBase_Materials
+{
+}
+/// <summary>
+/// 枪械元件
+/// </summary>
+public class Item_1202: ItemBase_Materials
 {
 }
 #endregion

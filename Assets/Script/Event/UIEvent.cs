@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,20 @@ public static class UIEvent
     {
         public int bagCapacity;
         public List<ItemData> itemDatas = new List<ItemData>();
+    }
+    /// <summary>
+    /// UI_选中背包物体
+    /// </summary>
+    public class UIEvent_SwitchItemInBag 
+    {
+        public int index;
+    }
+    /// <summary>
+    /// UI-打开持有物体
+    /// </summary>
+    public class UIEvent_OpenItemInHand
+    {
+        
     }
     /// <summary>
     /// UI-更新持有物体
@@ -70,6 +85,13 @@ public static class UIEvent
     public class UIEvent_UpdateArmorData
     {
         public short Armor;
+    }
+    /// <summary>
+    /// UI-更新个人属性Resistance
+    /// </summary>
+    public class UIEvent_UpdateResistanceData
+    {
+        public short Resistance;
     }
     /// <summary>
     /// UI-更新个人属性Water
@@ -152,9 +174,32 @@ public static class UIEvent
     /// <summary>
     /// 开始持有
     /// </summary>
-    public class UIEvent_StartKeepingItem
+    public class UIEvent_StartHoldingItem
     {
         public UI_GridCell itemCell;
-        public ItemData itemData;
+        /// <summary>
+        /// 原本的部分
+        /// </summary>
+        public ItemData itemData_From;
+        /// <summary>
+        /// 取出的部分
+        /// </summary>
+        public ItemData itemData_Out;
+    }
+    /// <summary>
+    /// 开始交易
+    /// </summary>
+    public class UIEvent_StartDeal
+    {
+        public ActorManager dealActor;
+        public List<ItemData> dealGoods;
+        public Func<ItemData, int> dealOffer;
+    }
+    /// <summary>
+    /// 结束交易
+    /// </summary>
+    public class UIEvent_OverDeal
+    {
+        public ActorManager dealActor;
     }
 }

@@ -107,6 +107,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     /// <param name="center"></param>
     private void CheckPlayerCenter(int width, int height)
     {
+        Debug.Log("-----------------------" + width + "/" + height);
         List<Vector3Int> cullingList = new List<Vector3Int>();
         /*遍历所有已经绘制的区域并记录不靠近任何玩家的区域*/
         for (int i = 0; i < areaList_Ground.Count; i++)
@@ -117,6 +118,10 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
                 if (Vector3Int.Distance(areaList_Ground[i], playerCenterDic[playerRefs[j]]) <= config_MaxView)
                 {
                     culling = false;    
+                }
+                else
+                {
+                    Debug.Log("超出视野");
                 }
             }
             if (culling)
@@ -398,7 +403,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
 
                 if (GetBuilding(new Vector3Int(posX, posY, 0), out BuildingTile buildingTile))
                 {
-                    buildingTile.tileObj.Draw();
+                    buildingTile.tileObj.All_Draw();
                 }
             }
         }

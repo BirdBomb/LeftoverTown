@@ -9,7 +9,7 @@ public class BuildingObj_RabbitHole : BuildingObj
     private ActorManager_Animal_Rabbit rabbit;
     public override void Start()
     {
-        MessageBroker.Default.Receive<GameEvent.GameEvent_AllClient_UpdateTime>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
         {
             ListenTimeUpdate(_.now);
         }).AddTo(this);
@@ -31,7 +31,7 @@ public class BuildingObj_RabbitHole : BuildingObj
             callBack = ((actor) =>
             {
                 rabbit = actor.GetComponent<ActorManager_Animal_Rabbit>();
-                //rabbit.State_BindRabbitHole(buildingTile);
+                rabbit.State_BindRabbitHole(buildingTile.tilePos);
             })
         });
     }

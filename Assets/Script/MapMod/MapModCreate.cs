@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -31,7 +32,7 @@ public class MapModCreate : MonoBehaviour
                 // 输出Tile信息，可以根据需要进行相应的操作
                 if (tile != null)
                 {
-                    mapMod_Bind.dic_mapFloorData.Add(new Vector2Int(x, y), (short)tile.tileID);
+                    mapMod_Bind.dic_mapFloorData.Add(new Vector2Int(x, y), short.Parse(tile.name));
                 }
             }
         }
@@ -46,7 +47,7 @@ public class MapModCreate : MonoBehaviour
                 // 输出Tile信息，可以根据需要进行相应的操作
                 if (tile != null)
                 {
-                    mapMod_Bind.dic_mapBuildingData.Add(new Vector2Int(x, y), (short)tile.tileID);
+                    mapMod_Bind.dic_mapBuildingData.Add(new Vector2Int(x, y), short.Parse(tile.name));
                 }
             }
         }

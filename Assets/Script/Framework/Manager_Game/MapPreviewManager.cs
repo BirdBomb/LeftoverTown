@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UniRx;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.U2D;
 
 public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
@@ -59,7 +60,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         if (bool_InPreview)
         {
             PreviewUpdate();
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !EventSystem.current.IsPointerOverGameObject())
             {
                 PreviewBuild();
             }
@@ -104,7 +105,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         }
         else
         {
-            bool_GetAllRaw = CheckRaw(config.Building_Raw, config.Building_RawLevel);
+            bool_GetAllRaw = CheckRaw(config.Building_Raw);
         }
         UpdateSprite(config);
     }
@@ -121,7 +122,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         }
         else
         {
-            bool_GetAllRaw = CheckRaw(config.Ground_Raw, 0);
+            bool_GetAllRaw = CheckRaw(config.Ground_Raw);
         }
         UpdateSprite(config);
     }
@@ -155,7 +156,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     }
     private void UpdateSprite(GroundConfig config)
     {
-        spriteRenderer_Preview.sprite = spriteAtlas_BuildingPreview.GetSprite(config.Ground_ID.ToString());
+        spriteRenderer_Preview.sprite = spriteAtlas_GroundPreview.GetSprite(config.Ground_ID.ToString());
     }
     public void PreviewBuild()
     {
@@ -170,7 +171,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
                     {
                         int index = int_GroupIndex % buildingConfig_Target.Building_Group.Count;
                         BuildingConfig config = BuildingConfigData.GetBuildingConfig(buildingConfig_Target.Building_Group[index]);
-                        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuildingArea()
+                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingArea()
                         {
                             buildingID = config.Building_ID,
                             buildingPos = vector3Int_CurPreviewPos,
@@ -179,7 +180,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
                     }
                     else
                     {
-                        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuildingArea()
+                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingArea()
                         {
                             buildingID = buildingConfig_Target.Building_ID,
                             buildingPos = vector3Int_CurPreviewPos,
@@ -189,7 +190,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
                     break;
                 case BuildState.ForceBuildFloor:
                     PlayBuild(true);
-                    MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeGround()
+                    MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeGround()
                     {
                         groundID = groundConfig_Target.Ground_ID,
                         groundPos = vector3Int_CurPreviewPos,
@@ -197,7 +198,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
                     break;
                 case BuildState.TryBuildBuilding:
 
-                    if (CheckPostion(vector3_CurPreviewPos) && CheckRaw(buildingConfig_Target.Building_Raw, buildingConfig_Target.Building_RawLevel))
+                    if (CheckPostion(vector3_CurPreviewPos) && CheckRaw(buildingConfig_Target.Building_Raw))
                     {
                         PlayBuild(true);
                         ExpenRaw(buildingConfig_Target.Building_Raw);
@@ -205,7 +206,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
                         {
                             int index = int_GroupIndex % buildingConfig_Target.Building_Group.Count;
                             BuildingConfig config = BuildingConfigData.GetBuildingConfig(buildingConfig_Target.Building_Group[index]);
-                            MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuildingArea()
+                            MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingArea()
                             {
                                 buildingID = config.Building_ID,
                                 buildingPos = vector3Int_CurPreviewPos,
@@ -214,7 +215,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
                         }
                         else
                         {
-                            MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeBuildingArea()
+                            MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingArea()
                             {
                                 buildingID = buildingConfig_Target.Building_ID,
                                 buildingPos = vector3Int_CurPreviewPos,
@@ -228,11 +229,11 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
                     }
                     break;
                 case BuildState.TryBuildFloor:
-                    if (CheckPostion(vector3_CurPreviewPos) && CheckRaw(groundConfig_Target.Ground_Raw, 0))
+                    if (CheckPostion(vector3_CurPreviewPos) && CheckRaw(groundConfig_Target.Ground_Raw))
                     {
                         PlayBuild(true);
                         ExpenRaw(groundConfig_Target.Ground_Raw);
-                        MessageBroker.Default.Publish(new MapEvent.MapEvent_LocalTile_ChangeGround()
+                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeGround()
                         {
                             groundID = groundConfig_Target.Ground_ID,
                             groundPos = vector3Int_CurPreviewPos,
@@ -304,10 +305,10 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// <param name="raws"></param>
     /// <param name="level"></param>
     /// <returns></returns>
-    private bool CheckRaw(List<RawItem> raws, int level)
+    private bool CheckRaw(List<ItemRaw> raws)
     {
         bool temp = true;
-        List<ItemData> data = new List<ItemData>(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemsInBag);
+        List<ItemData> data = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
         for (int i = 0; i < raws.Count; i++)
         {
             ItemConfig itemConfig = ItemConfigData.GetItemConfig(raws[i].ID);
@@ -330,18 +331,17 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// 消耗材料
     /// </summary>
     /// <param name="raws"></param>
-    private void ExpenRaw(List<RawItem> raws)
+    private void ExpenRaw(List<ItemRaw> raws)
     {
         for (int i = 0; i < raws.Count; i++)
         {
-            ItemConfig itemConfig = ItemConfigData.GetItemConfig(raws[i].ID);
-            ItemData itemData = new ItemData(raws[i].ID);
-            itemData.Item_Count = raws[i].Count;
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryExpendItemInBag()
             {
-                item = itemData
+                itemID = raws[i].ID,
+                itemCount = raws[i].Count,
             });
         }
+
     }
     /// <summary>
     /// 更新颜色

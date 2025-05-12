@@ -12,12 +12,17 @@ public class UI_Grid_OnHand : UI_Grid
     private ItemData itemData;
     private void Start()
     {
+        MessageBroker.Default.Receive<UIEvent.UIEvent_OpenItemInHand>().Subscribe(_ =>
+        {
+            gridCell.ClickRight();
+        }).AddTo(this);
+
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInHand>().Subscribe(_ =>
         {
             itemData = _.itemData;
             gridCell.UpdateData(itemData);
         }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_AllClient_UpdateTime>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
         {
             gridCell.UpdateData(itemData);
         }).AddTo(this);
@@ -25,17 +30,17 @@ public class UI_Grid_OnHand : UI_Grid
     }
     private void BindAllCell()
     {
-        gridCell.BindAction(PutIn, PutOut, ClickCellLeft, ClickCellRight);
+        gridCell.BindGrid(new ItemPath(ItemFrom.Hand, 0), PutIn, PutOut, ClickCellLeft, ClickCellRight);
     }
     #region//°ó¶¨
-    public void PutIn(ItemData data)
+    public void PutIn(ItemData data, ItemPath path)
     {
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemOnHand()
         {
             item = data
         });
     }
-    public ItemData PutOut(ItemData data)
+    public ItemData PutOut(ItemData itemData_From, ItemData data, ItemPath itemPath)
     {
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
         {
@@ -45,11 +50,11 @@ public class UI_Grid_OnHand : UI_Grid
     }
     public void ClickCellLeft(UI_GridCell gridCell)
     {
-        if (gridCell._bindItemBase != null) gridCell._bindItemBase.LeftClickGridCell(gridCell, gridCell._bindItemBase.itemData);
+        if (gridCell._bindItemBase != null) gridCell._bindItemBase.GridCell_LeftClick(gridCell, gridCell._bindItemBase.itemData);
     }
     public void ClickCellRight(UI_GridCell gridCell)
     {
-        if (gridCell._bindItemBase != null) gridCell._bindItemBase.RightClickGridCell(gridCell, gridCell._bindItemBase.itemData);
+        if (gridCell._bindItemBase != null) gridCell._bindItemBase.GridCell_RightClick(gridCell, gridCell._bindItemBase.itemData);
     }
     #endregion
 }

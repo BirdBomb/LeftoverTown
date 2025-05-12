@@ -14,9 +14,9 @@ public class UI_Grid_Child : UI_Grid
     public bool _open;
     private ItemData itemData_oldContainer;
     private ItemData itemData_newContainer;
-    public void Start()
+    public void BindCell(ItemPath itemPath)
     {
-        gridCell.BindAction(PutIn, PutOut, null, null);
+        gridCell.BindGrid(itemPath, PutIn, PutOut, null, null);
     }
     public void OpenOrCloseGrid(ItemData oldContainer)
     {
@@ -40,7 +40,7 @@ public class UI_Grid_Child : UI_Grid
     {
         _open = false;
         gameObject.SetActive(false);
-        gridCell.CleanData();
+        gridCell.CleanItemBase();
     }
     public void UpdateGrid(ItemData oldContainer)
     {
@@ -56,43 +56,97 @@ public class UI_Grid_Child : UI_Grid
         }
         else
         {
-            gridCell.CleanData();
+            gridCell.CleanItemBase();
         }
     }
-    public void PutIn(ItemData addItem)
+    public void PutIn(ItemData addItem, ItemPath itemPath)
     {
         Type type = Type.GetType("Item_" + itemData_oldContainer.Item_ID.ToString());
         ((ItemBase)Activator.CreateInstance(type)).StaticAction_FillUp(itemData_oldContainer, addItem, out itemData_newContainer, out ItemData resItem);
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        switch (itemPath.itemFrom)
         {
-            oldItem = itemData_oldContainer,
-            newItem = itemData_newContainer,
-        });
+            case ItemFrom.Bag:
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                {
+                    itemData = itemData_newContainer,
+                    index = itemPath.itemIndex
+                });
+                break;
+            case ItemFrom.Hand:
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                {
+                    oldItem = itemData_oldContainer,
+                    newItem = itemData_newContainer,
+                });
+                break;
+            case ItemFrom.Head:
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHead()
+                {
+                    oldItem = itemData_oldContainer,
+                    newItem = itemData_newContainer,
+                });
+                break;
+            case ItemFrom.Body:
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnBody()
+                {
+                    oldItem = itemData_oldContainer,
+                    newItem = itemData_newContainer,
+                });
+                break;
+        }
+
         if (resItem.Item_ID > 0 && resItem.Item_Count > 0)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
             {
-                item = resItem,
+                itemData = resItem,
             });
         }
         itemData_oldContainer = itemData_newContainer;
         DrawCell(itemData_oldContainer);
     }
-    public ItemData PutOut(ItemData data)
+    public ItemData PutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        if (itemData_oldContainer.Item_Content.Item_ID == data.Item_ID)
+        if (itemData_oldContainer.Item_Content.Item_ID == itemData_Out.Item_ID)
         {
-            ItemData res = GameToolManager.Instance.PutOutItemSingle(new ItemData(itemData_oldContainer.Item_Content), data);
+            ItemData res = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
             itemData_newContainer = itemData_oldContainer;
             itemData_newContainer.Item_Content = new ContentData(res);
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+            switch (itemPath.itemFrom)
             {
-                oldItem = itemData_oldContainer,
-                newItem = itemData_newContainer,
-            });
+                case ItemFrom.Bag:
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                    {
+                        itemData = itemData_newContainer,
+                        index = itemPath.itemIndex
+                    });
+                    break;
+                case ItemFrom.Hand:
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    {
+                        oldItem = itemData_oldContainer,
+                        newItem = itemData_newContainer,
+                    });
+                    break;
+                case ItemFrom.Head:
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHead()
+                    {
+                        oldItem = itemData_oldContainer,
+                        newItem = itemData_newContainer,
+                    });
+                    break;
+                case ItemFrom.Body:
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnBody()
+                    {
+                        oldItem = itemData_oldContainer,
+                        newItem = itemData_newContainer,
+                    });
+                    break;
+            }
+
             itemData_oldContainer = itemData_newContainer;
             DrawCell(itemData_oldContainer);
         }
-        return data;
+        return itemData_Out;
     }
 }

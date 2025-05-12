@@ -68,10 +68,6 @@ public class VanManager : VehicleManager
     private float float_turnPower;
     [SerializeField, Header("回正速度")]
     private float float_backPower;
-    [SerializeField, Header("存储UI")]
-    private UI_Grid_Cabinet uI_Grid_Cabinet;
-    [SerializeField, Header("Cabinet")]
-    private GameObject obj_cabinet;
     [SerializeField, Header("SingalGetOn")]
     private GameObject obj_singalGetOn;
     [SerializeField, Header("SingalGetOff")]
@@ -156,8 +152,6 @@ public class VanManager : VehicleManager
         }
         if (code == KeyCode.E)
         {
-            OpenOrCloseSingalE(obj_cabinet.activeSelf);
-            OpenOrCloseCabinetUI(!obj_cabinet.activeSelf);
         }
         base.AllClient_ActorInputKeycode(actor, code);
     }
@@ -414,23 +408,6 @@ public class VanManager : VehicleManager
     }
     private void OpenOrCloseCabinetUI(bool open)
     {
-        if (open)
-        {
-            obj_cabinet.transform.localScale = Vector3.one;
-            obj_cabinet.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-            obj_cabinet.SetActive(true);
-            uI_Grid_Cabinet.Open();
-            uI_Grid_Cabinet.BindAction_ChangeInfo(TryToChangeInfo);
-            uI_Grid_Cabinet.UpdateInfo(VehicleNetManager_NetManager.string_Data);
-        }
-        else
-        {
-            obj_cabinet.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_cabinet.SetActive(false);
-            });
-            uI_Grid_Cabinet.Close();
-        }
     }
     #endregion
     #region//信息
@@ -440,7 +417,6 @@ public class VanManager : VehicleManager
     }
     public override void FromRPC_AllClient_UpdateInfo(string info)
     {
-        uI_Grid_Cabinet.UpdateInfo(info);
         base.FromRPC_AllClient_UpdateInfo(info);
     }
     #endregion

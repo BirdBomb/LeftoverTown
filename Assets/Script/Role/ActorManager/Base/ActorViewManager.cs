@@ -11,12 +11,26 @@ public class ActorViewManager : MonoBehaviour
     }
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        actorManager.AllClient_Listen_RoleInView(collision.GetComponent<ActorManager>());
-        if(actorManager.actorAuthority.isState) actorManager.State_Listen_RoleInView(collision.GetComponent<ActorManager>());
+        if (collision.gameObject.tag.Equals("Item"))
+        {
+            if (actorManager.actorAuthority.isState) actorManager.State_Listen_ItemInView(collision.transform.parent.GetComponent<ItemNetObj>());
+        }
+        else
+        {
+            actorManager.AllClient_Listen_RoleInView(collision.GetComponent<ActorManager>());
+            if (actorManager.actorAuthority.isState) actorManager.State_Listen_RoleInView(collision.GetComponent<ActorManager>());
+        }
     }
     public void OnTriggerExit2D(Collider2D collision)
     {
-        actorManager.AllClient_Listen_RoleOutView(collision.GetComponent<ActorManager>());
-        if (actorManager.actorAuthority.isState) actorManager.State_Listen_RoleOutView(collision.GetComponent<ActorManager>());
+        if (collision.gameObject.tag.Equals("Item"))
+        {
+            if (actorManager.actorAuthority.isState) actorManager.State_Listen_ItemOutView(collision.transform.parent.GetComponent<ItemNetObj>());
+        }
+        else
+        {
+            actorManager.AllClient_Listen_RoleOutView(collision.GetComponent<ActorManager>());
+            if (actorManager.actorAuthority.isState) actorManager.State_Listen_RoleOutView(collision.GetComponent<ActorManager>());
+        }
     }
 }

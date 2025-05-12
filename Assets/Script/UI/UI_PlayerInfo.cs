@@ -79,37 +79,12 @@ public class UI_PlayerInfo : MonoBehaviour
     }
     public void UpdateCell()
     {
-        NetworkLinkedList<ItemData> bagItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemsInBag;
         ItemData handItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemInHand;
         ItemData headItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemOnHead;
         ItemData bodyItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemOnBody;
-        for (int i = 0; i < bagItem.Count; i++)
-        {
-            int index = i;
-            if (_bagCellList.Count > index)
-            {
-                _bagCellList[index].UpdateData(bagItem[index]);
-            }
-        }
         _handCell.UpdateData(handItem);
         _headCell.UpdateData(headItem);
         _bodyCell.UpdateData(bodyItem);
-
-        playerName.text = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Name.ToString();
-        playerFine.text = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Fine.ToString();
-        InitPlayerPhoto(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_HairID, 
-            GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_EyeID, 
-            GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_HairColor);
-
-        point_Strength.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Strength);
-        Point_Intelligence.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Intelligence);
-        Point_SPower.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_SPower);
-        Point_Focus.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Focus);
-        Point_Agility.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Agility);
-        Point_Make.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Make);
-        Point_Build.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Build);
-        Point_Cook.UpdatePoint(GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_Point_Cook);
-
     }
     public void ResetCell()
     {

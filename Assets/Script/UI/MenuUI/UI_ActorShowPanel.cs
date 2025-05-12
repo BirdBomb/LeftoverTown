@@ -26,22 +26,6 @@ public class UI_ActorShowPanel : MonoBehaviour
     public TextMeshProUGUI text_San;
     [Header("属性_心情")]
     public TextMeshProUGUI text_Happy;
-    [Header("技能_力量")]
-    public UI_PointPanel Point_Strength;
-    [Header("技能_智力")]
-    public UI_PointPanel Point_Intelligence;
-    [Header("技能_专注")]
-    public UI_PointPanel Point_Focus;
-    [Header("技能_敏捷")]
-    public UI_PointPanel Point_Agility;
-    [Header("技能_法力")]
-    public UI_PointPanel Point_SPower;
-    [Header("技能_制造")]
-    public UI_PointPanel Point_Make;
-    [Header("技能_建造")]
-    public UI_PointPanel Point_Build;
-    [Header("技能_烹饪")]
-    public UI_PointPanel Point_Cook;
     [Header("Buff")]
     public UI_BuffPanel ui_BuffPanel;
     private SpriteAtlas spriteAtlas_Hair;
@@ -61,7 +45,6 @@ public class UI_ActorShowPanel : MonoBehaviour
     {
         InitHead(playerData);
         InitInfo(playerData);
-        InitPoint(playerData);
         InitBuff(playerData);
     }
     private void InitHead(PlayerData playerData)
@@ -79,17 +62,6 @@ public class UI_ActorShowPanel : MonoBehaviour
         text_Armor.text = playerData.Armor_Cur.ToString();
         text_San.text = playerData.San_Cur.ToString();
         text_Happy.text = playerData.Happy_Cur.ToString();
-    }
-    private void InitPoint(PlayerData playerData)
-    {
-        Point_Strength.UpdatePoint(playerData.Point_Strength);
-        Point_Intelligence.UpdatePoint(playerData.Point_Intelligence);
-        Point_Focus.UpdatePoint(playerData.Point_Focus);
-        Point_Agility.UpdatePoint(playerData.Point_Agility);
-        Point_SPower.UpdatePoint(playerData.Point_SPower);
-        Point_Make.UpdatePoint(playerData.Point_Make);
-        Point_Build.UpdatePoint(playerData.Point_Build);
-        Point_Cook.UpdatePoint(playerData.Point_Cook);
     }
     private void InitBuff(PlayerData playerData)
     {

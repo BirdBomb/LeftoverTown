@@ -17,8 +17,8 @@ public class ActorManager_NPC_Security : ActorManager_NPC
     [SerializeField, Header("搜查时长"), Range(1, 10)]
     private float float_SearchTime;
 
-    private Vector2 vector2_StationPos;
-    private Vector2 vector2_AttackPos;
+    private Vector3Int vector3_StationPos;
+    private Vector3Int vector3_AttackPos;
     private GlobalTime globalTime_Now;
     /// <summary>
     /// 睡眠中
@@ -37,9 +37,9 @@ public class ActorManager_NPC_Security : ActorManager_NPC
             if (actorAuthority.isState) State_Listen_RoleSendEmoji(_.actor, _.emoji, _.distance);
 
         }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent_AllClient_UpdateTime>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent_All_UpdateHour>().Subscribe(_ =>
         {
-            AllClient_Listen_UpdateTime(_.hour, _.date, _.now);
+            AllClient_Listen_UpdateTime(_.hour, _.day, _.now);
         }).AddTo(this);
         base.AllClient_AddListener();
     }
@@ -133,7 +133,7 @@ public class ActorManager_NPC_Security : ActorManager_NPC
             }
             else
             {
-                vector2_AttackPos = brainManager.allClient_actorManager_AttackTarget.transform.position;
+                vector3_AttackPos = brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos;
             }
         }
         else
@@ -142,7 +142,7 @@ public class ActorManager_NPC_Security : ActorManager_NPC
             {
                 if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], config.short_View))
                 {
-                    if (brainManager.actorManagers_Nearby[i].actorNetManager.Net_Fine > 0)
+                    if (brainManager.actorManagers_Nearby[i].actorNetManager.Local_Fine > 0)
                     {
 
                         State_SendText(word_FindTheCulprit, Emoji.Menace);
@@ -177,8 +177,8 @@ public class ActorManager_NPC_Security : ActorManager_NPC
                 }
                 else
                 {
-                    if (actorNetManager.Net_HpCur * 2 <= actorNetManager.Net_HpMax)
-                        State_SendText(word_Panic, Emoji.Panic);
+                    if (actorNetManager.Net_HpCur * 2 <= actorNetManager.Local_HpMax)
+                    State_SendText(word_Panic, Emoji.Panic);
                 }
             }
         }
@@ -193,7 +193,7 @@ public class ActorManager_NPC_Security : ActorManager_NPC
                 case Emoji.Yell:
                     if (brainManager.allClient_actorManager_AttackTarget == null)
                     {
-                        vector2_AttackPos = actor.transform.position;
+                        vector3_AttackPos = actor.pathManager.vector3Int_CurPos;
                         State_SendText(word_Notice, Emoji.Puzzled); 
                         State_Search();
                         pathManager.State_MoveTo(actor.pathManager.vector3Int_CurPos);
@@ -223,9 +223,9 @@ public class ActorManager_NPC_Security : ActorManager_NPC
     /// 绑定起始位置
     /// </summary>
     /// <param name="myTile"></param>
-    public void State_BindStation(Vector2 pos)
+    public void State_BindStation(Vector3Int pos)
     {
-        vector2_StationPos = pos;
+        vector3_StationPos = pos;
     }
 
     #region//战斗状态
@@ -280,11 +280,11 @@ public class ActorManager_NPC_Security : ActorManager_NPC
     /// <param name="vector2"></param>
     private void State_Search()
     {
-        if (vector2_AttackPos != Vector2.zero)
+        if (vector3_AttackPos != Vector3Int.zero)
         {
             float_ThinkTimer = float_SearchTime;
-            pathManager.State_MoveTo(vector2_AttackPos);
-            vector2_AttackPos = Vector2.zero;
+            pathManager.State_MoveTo(vector3_AttackPos);
+            vector3_AttackPos = Vector3Int.zero;
         }
     }
     /// <summary>
@@ -300,6 +300,10 @@ public class ActorManager_NPC_Security : ActorManager_NPC
                 brainManager.bool_AttackState = !inputManager.Simulate_InputMousePress(dt, ActorInputManager.MouseInputType.PressRightThenPressLeft);
             }
         }
+        else
+        {
+            actionManager.FaceTo(bodyController.turnDir);
+        }
     }
 
     #endregion
@@ -309,7 +313,7 @@ public class ActorManager_NPC_Security : ActorManager_NPC
     /// </summary>
     private void State_DoWhat()
     {
-        if (Vector2.Distance(transform.position, vector2_StationPos) > 2)
+        if (Vector3.Distance(pathManager.vector3Int_CurPos, vector3_StationPos) > 2)
         {
             State_GoToWork();
         }
@@ -321,7 +325,7 @@ public class ActorManager_NPC_Security : ActorManager_NPC
             }
             else
             {
-                State_SendText(word_Soliloquize, Emoji.Unhappy);
+                
             }
         }
     }
@@ -330,7 +334,7 @@ public class ActorManager_NPC_Security : ActorManager_NPC
     /// </summary>
     private void State_GoToWork()
     {
-        if (pathManager.State_MoveTo(vector2_StationPos))
+        if (pathManager.State_MoveTo(vector3_StationPos))
         {
             State_SendText(word_BackToWork, Emoji.Unhappy);
         }
@@ -364,20 +368,6 @@ public class ActorManager_NPC_Security : ActorManager_NPC
     #endregion
     #region//语言
     /// <summary>
-    /// 恐慌
-    /// </summary>
-    private List<string> word_Panic = new List<string>()
-    {
-        "嘿!我需要支援!","我在流血!","呃啊啊啊","救命!"
-    };
-    /// <summary>
-    /// 威胁
-    /// </summary>
-    private List<string> word_Menace = new List<string>()
-    {
-        "你完蛋了","你自找的","什么?","你以为我好惹吗"
-    };
-    /// <summary>
     /// 发现犯罪
     /// </summary>
     private List<string> word_FindTheCulprit = new List<string>()
@@ -385,39 +375,11 @@ public class ActorManager_NPC_Security : ActorManager_NPC
         "嘿,你等一下","你这罪犯","站住","别动!"
     };
     /// <summary>
-    /// 发现怪物
-    /// </summary>
-    private List<string> word_FindTheMonster = new List<string>()
-    {
-        "怎么让我给遇见了","嘿!这里有情况","倒霉","来人啊!"
-    };
-    /// <summary>
-    /// 追击
-    /// </summary>
-    private List<string> word_Pursue = new List<string>()
-    {
-        "别让我抓住你","你以为跑得掉吗","回来!","我会逮到你的"
-    };
-    /// <summary>
-    /// 注意
-    /// </summary>
-    private List<string> word_Notice = new List<string>()
-    {
-        "嗯?","什么声音?","谁在那里?","哎?"
-    };
-    /// <summary>
     /// 回去工作
     /// </summary>
     private List<string> word_BackToWork = new List<string>()
     {
         "浪费时间","但愿别再出乱子了","别再来了","这附近不安全","回去吧"
-    };
-    /// <summary>
-    /// 自言自语
-    /// </summary>
-    private List<string> word_Soliloquize = new List<string>()
-    {
-        "这世道...","怎么会有人...难说","...哦,这样...","天气一般",
     };
     /// <summary>
     /// 迷路

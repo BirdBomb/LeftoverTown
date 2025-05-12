@@ -34,16 +34,16 @@ public class UI_GameSenceUI : MonoBehaviour
     [Header("精神条")]
     public Transform Bar_San;
     [Header("护甲")]
-    public TextMeshProUGUI Text_Armor;
+    public Text Text_Armor;
+    [Header("魔抗")]
+    public Text Text_Resistance;
     [Header("缺水")]
-    public TextMeshProUGUI Text_Water;
+    public Text Text_Water;
     [Header("心情")]
-    public TextMeshProUGUI Text_Happy;
+    public Text Text_Happy;
     [Header("金币")]
-    public TextMeshProUGUI Text_Coin;
+    public Text Text_Coin;
     private int val_Coin;
-    [Header("身份")]
-    public TextMeshProUGUI Text_Status;
     [Header("悬赏")]
     public Text Text_Fine;
 
@@ -84,6 +84,10 @@ public class UI_GameSenceUI : MonoBehaviour
         {
             Text_Armor.text = _.Armor.ToString();
         }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateResistanceData>().Subscribe(_ =>
+        {
+            Text_Resistance.text = _.Resistance.ToString();
+        }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateWaterData>().Subscribe(_ =>
         {
             Text_Water.text = _.Water.ToString();
@@ -104,7 +108,7 @@ public class UI_GameSenceUI : MonoBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateStatus>().Subscribe(_ =>
         {
-            Text_Status.text = StatusConfigData.statusName[(int)_.statusType];
+            //Text_Status.text = StatusConfigData.statusName[(int)_.statusType];
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateFineData>().Subscribe(_ =>
         {

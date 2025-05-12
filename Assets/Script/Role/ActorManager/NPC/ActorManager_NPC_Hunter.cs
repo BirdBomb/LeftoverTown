@@ -1,4 +1,5 @@
 using Fusion;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -15,9 +16,17 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     private float float_ThinkTimer;
     [SerializeField, Header("搜查时长"), Range(1, 10)]
     private float float_SearchTime;
-
-    private Vector2 vector2_ChoppingBoardPos;
-    private Vector2 vector2_AttackPos;
+    /// <summary>
+    /// 出生点
+    /// </summary>
+    private Vector3Int vector3_HomePos;
+    /// <summary>
+    /// 搜查点
+    /// </summary>
+    private Vector3Int vector3_SearchPos;
+    /// <summary>
+    /// 当前时间
+    /// </summary>
     private GlobalTime globalTime_Now;
     /// <summary>
     /// 睡眠中
@@ -36,9 +45,9 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
             if (actorAuthority.isState) State_Listen_RoleSendEmoji(_.actor, _.emoji, _.distance);
 
         }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent_AllClient_UpdateTime>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent_All_UpdateHour>().Subscribe(_ =>
         {
-            AllClient_Listen_UpdateTime(_.hour, _.date, _.now);
+            AllClient_Listen_UpdateTime(_.hour, _.day, _.now);
         }).AddTo(this);
         base.AllClient_AddListener();
     }
@@ -53,18 +62,11 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
                 if (State_CheckingAttackingDistance())
                 {
                     State_Elude();
-                    if (brainManager.allClient_actorManager_AttackTarget.actorState != ActorState.Dead)
-                    {
-                        actorNetManager.RPC_State_NpcChangeAttackState(true);
-                    }
-                    else
-                    {
-                        actorNetManager.RPC_State_NpcChangeAttackTarget(new NetworkId());
-                    }
+                    actorNetManager.RPC_State_NpcChangeAttackState(true);
                 }
                 else
                 {
-                    State_Follow(brainManager.allClient_actorManager_AttackTarget.transform.position);
+                    State_Follow(brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos);
                 }
             }
         }
@@ -74,31 +76,11 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
             if (float_ThinkTimer < 0)
             {
                 float_ThinkTimer = float_ThinkCD;
-                State_DoWhat();
+                if (State_CheckToPickUp()) { State_MoveToPickUp(); }
+                else { State_Think(); }
             }
         }
         base.State_FixedUpdateNetwork(dt);
-    }
-    public override void AllClient_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
-    {
-        globalTime_Now = globalTime;
-        base.AllClient_Listen_UpdateTime(hour, date, globalTime);
-    }
-    public override void State_Listen_RoleInView(ActorManager actor)
-    {
-        if (actor.statusManager.statusType != StatusType.Animal_Common)
-        {
-            brainManager.actorManagers_Nearby.Add(actor);
-        }
-        base.State_Listen_RoleInView(actor);
-    }
-    public override void State_Listen_RoleOutView(ActorManager actor)
-    {
-        if (actor.statusManager.statusType != StatusType.Animal_Common)
-        {
-            brainManager.actorManagers_Nearby.Remove(actor);
-        }
-        base.State_Listen_RoleInView(actor);
     }
     public override void State_CustomUpdate()
     {
@@ -114,54 +96,55 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     }
     public override void AllClient_SecondUpdate()
     {
-        AllClient_IdleLoop();
+        AllClient_StateLoop();
+        AllClient_CheckState();
         base.AllClient_SecondUpdate();
     }
+    #region//初始化
     /// <summary>
-    /// 检查威胁
+    /// 绑定起始位置
     /// </summary>
-    public void State_CheckNearby()
+    /// <param name="myTile"></param>
+    public void State_BindChoppingBoard(Vector3Int pos)
     {
-        if (brainManager.allClient_actorManager_AttackTarget != null)
-        {
-            if (!actionManager.LookAt(brainManager.allClient_actorManager_AttackTarget, config.short_View))
-            {
-                State_OutAttack();
-            }
-            else
-            {
-                vector2_AttackPos = brainManager.allClient_actorManager_AttackTarget.transform.position;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
-            {
-                if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], config.short_View))
-                {
-                    if (brainManager.actorManagers_Nearby[i].actorNetManager.Net_Fine > 0 || brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Monster_Common)
-                    {
-                        State_InAttack(brainManager.actorManagers_Nearby[i]);
-                        return;
-                    }
-                }
-            }
-            State_Search();
-        }
+        vector3_HomePos = pos;
     }
-
+    #endregion
+    #region//对外界的反应
+    public override void AllClient_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
+    {
+        globalTime_Now = globalTime;
+        base.AllClient_Listen_UpdateTime(hour, date, globalTime);
+    }
+    public override void State_Listen_WorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
+    {
+        if (globalTime == GlobalTime.Morning)
+        {
+            State_ResetBag();
+        }
+        base.State_Listen_WorldGlobalTimeChange(hour, date, globalTime);
+    }
     public override void State_Listen_MyselfHpChange(int parameter, NetworkId id)
     {
-        ActorManager who = actorNetManager.Runner.FindObject(id).GetComponent<ActorManager>();
-        if (who.actorAuthority.isPlayer && actionManager.LookAt(who, config.short_View))
+        NetworkObject networkObject = actorNetManager.Runner.FindObject(id);
+        if (networkObject != null)
         {
-            who.actionManager.SetFine(500);
-            if (brainManager.allClient_actorManager_AttackTarget == null)
+            ActorManager who = networkObject.GetComponent<ActorManager>();
+            if (who.actorAuthority.isPlayer && actionManager.LookAt(who, config.short_View))
             {
-                State_InAttack(who);
+                who.actionManager.SetFine(500);
+                if (brainManager.allClient_actorManager_AttackTarget == null)
+                {
+                    State_SendText(word_Menace, Emoji.Menace);
+                    State_InAttack(who);
+                }
+                else
+                {
+                    if (actorNetManager.Net_HpCur * 2 <= actorNetManager.Local_HpMax)
+                        State_SendText(word_Panic, Emoji.Panic);
+                }
             }
         }
-
         base.State_Listen_MyselfHpChange(parameter, id);
     }
     public override void State_Listen_RoleSendEmoji(ActorManager actor, Emoji emoji, float distance)
@@ -173,7 +156,8 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
                 case Emoji.Yell:
                     if (brainManager.allClient_actorManager_AttackTarget == null)
                     {
-                        vector2_AttackPos = actor.transform.position;
+                        vector3_SearchPos = actor.pathManager.vector3Int_CurPos;
+                        State_SendText(word_Notice, Emoji.Puzzled);
                         State_Search();
                         pathManager.State_MoveTo(actor.pathManager.vector3Int_CurPos);
                         State_TryToSendEmoji(0.5f, 0);
@@ -183,10 +167,137 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
         }
         base.State_Listen_RoleSendEmoji(actor, emoji, distance);
     }
+    public override void State_Listen_RoleInView(ActorManager actor)
+    {
+        brainManager.actorManagers_Nearby.Add(actor);
+        base.State_Listen_RoleInView(actor);
+    }
+    public override void State_Listen_RoleOutView(ActorManager actor)
+    {
+        brainManager.actorManagers_Nearby.Remove(actor);
+        base.State_Listen_RoleInView(actor);
+    }
+    public override void State_Listen_ItemInView(ItemNetObj obj)
+    {
+        brainManager.ItemNetObj_Nearby.Add(obj);
+        base.State_Listen_ItemInView(obj);
+    }
+    public override void State_Listen_ItemOutView(ItemNetObj obj)
+    {
+        brainManager.ItemNetObj_Nearby.Remove(obj);
+        base.State_Listen_ItemOutView(obj);
+    }
+    /// <summary>
+    /// 检查附近
+    /// </summary>
+    public void State_CheckNearby()
+    {
+        if (brainManager.allClient_actorManager_AttackTarget != null)
+        {
+            if (!actionManager.LookAt(brainManager.allClient_actorManager_AttackTarget, config.short_View))
+            {
+                State_SendText(word_Pursue, Emoji.Menace);
+                State_Search();
+                State_OutAttack();
+            }
+            else
+            {
+                vector3_SearchPos = brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos;
+            }
+        }
+        else
+        {
+            if (brainManager.allClient_actorManager_AttackTargetID != new Fusion.NetworkId())
+            {
+                State_Search();
+                State_OutAttack();
+            }
+            //State_CheckNearbyItem();
+            State_CheckNearbyActor();
+        }
+    }
+    /// <summary>
+    /// 检查附近角色
+    /// </summary>
+    /// <returns>终止思考</returns>
+    private bool State_CheckNearbyActor()
+    {
+        for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
+        {
+            if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], config.short_View))
+            {
+                if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Monster_Common)
+                {
+                    State_SendText(word_FindTheMonster, Emoji.Menace);
+                    State_InAttack(brainManager.actorManagers_Nearby[i]);
+                    return true;
+                }
+                if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Animal_Common)
+                {
+                    State_SendText(word_FindTheAnimal, Emoji.Menace);
+                    State_InAttack(brainManager.actorManagers_Nearby[i]);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    #endregion
+    #region//拾取状态
+    /// <summary>
+    /// 检查拾取
+    /// </summary>
+    /// <returns>发现目标</returns>
+    private bool State_CheckToPickUp()
+    {
+        ItemNetObj target = null;
+        float distance = float.MaxValue;
+        for (int i = 0; i < brainManager.ItemNetObj_Nearby.Count; i++)
+        {
+            float temp = Vector2.Distance(transform.position, brainManager.ItemNetObj_Nearby[i].transform.position);
+            if (temp < distance)
+            {
+                distance = temp;
+                target = brainManager.ItemNetObj_Nearby[i];
+            }
+        }
+        if (target != null)
+        {
+            /*前往目标*/
+            brainManager.ItemNetObj_Target = target;
+            return true;
+        }
+        else
+        {
+            /*没有目标*/
+            brainManager.ItemNetObj_Target = null;
+            return false;
+        }
+    }
+    /// <summary>
+    /// 前往拾取
+    /// </summary>
+    /// <returns>是否可以去拾取</returns>
+    private void State_MoveToPickUp()
+    {
+        if (brainManager.ItemNetObj_Target != null)
+        {
+            Vector3Int targetPos = MapManager.Instance.grid_Ground.WorldToCell(brainManager.ItemNetObj_Target.transform.position);
+            if (pathManager.State_MoveTo(targetPos))
+            {
+                State_SendText(word_PickUp, Emoji.Happy);
+            }
+            actionManager.PickUp(1.5f);
+        }
+    }
+    #endregion
+    #region//战斗状态
+    /// <summary>
+    /// 进入攻击状态
+    /// </summary>
+    /// <param name="actor"></param>
     private void State_InAttack(ActorManager actor)
     {
-        Debug.Log("开始攻击");
-        State_TryToSendEmoji(0.1f, Emoji.Yell);
         actorNetManager.RPC_State_NpcChangeAttackTarget(actor.actorNetManager.Object.Id);
         State_PutOnHand((itemConfig) =>
         {
@@ -194,22 +305,14 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
             return false;
         });
     }
+    /// <summary>
+    /// 离开攻击状态
+    /// </summary>
     private void State_OutAttack()
     {
-        Debug.Log("停止攻击");
         actorNetManager.RPC_State_NpcChangeAttackTarget(new NetworkId());
         State_PutDownHand();
     }
-    /// <summary>
-    /// 绑定起始位置
-    /// </summary>
-    /// <param name="myTile"></param>
-    public void State_BindChoppingBoard(Vector2 pos)
-    {
-        vector2_ChoppingBoardPos = pos;
-    }
-
-    #region//战斗状态
     /// <summary>
     /// 检查攻击距离
     /// </summary>
@@ -232,7 +335,6 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
         }
         return false;
     }
-
     /// <summary>
     /// 躲避
     /// </summary>
@@ -251,9 +353,9 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     /// 追击
     /// </summary>
     /// <param name="vector2"></param>
-    private void State_Follow(Vector2 vector2)
+    private void State_Follow(Vector3Int to)
     {
-        pathManager.State_MoveTo(vector2);
+        pathManager.State_MoveTo(to);
     }
     /// <summary>
     /// 搜寻
@@ -261,11 +363,11 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     /// <param name="vector2"></param>
     private void State_Search()
     {
-        if (vector2_AttackPos != Vector2.zero)
+        if (vector3_SearchPos != Vector3Int.zero)
         {
             float_ThinkTimer = float_SearchTime;
-            pathManager.State_MoveTo(vector2_AttackPos);
-            vector2_AttackPos = Vector2.zero;
+            pathManager.State_MoveTo(vector3_SearchPos);
+            vector3_SearchPos = Vector3Int.zero;
         }
     }
     /// <summary>
@@ -281,54 +383,175 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
                 brainManager.bool_AttackState = !inputManager.Simulate_InputMousePress(dt, ActorInputManager.MouseInputType.PressRightThenPressLeft);
             }
         }
+        else
+        {
+            actionManager.FaceTo(bodyController.turnDir);
+        }
     }
-
     #endregion
     #region//闲置状态
     /// <summary>
     /// 思考该做什么
     /// </summary>
-    private void State_DoWhat()
+    private void State_Think()
     {
-        if (Vector2.Distance(transform.position, vector2_ChoppingBoardPos) > 2)
+        if (globalTime_Now == GlobalTime.Evening)
         {
-            State_GoToWork();
+            if(vector3_HomePos != pathManager.vector3Int_CurPos) State_Think_GoToWork();
         }
         else
         {
-            if (globalTime_Now == GlobalTime.Evening)
-            {
-            }
+            State_Think_Stroll();
         }
     }
     /// <summary>
-    /// 去工作
+    /// 工作
     /// </summary>
-    private void State_GoToWork()
+    private void State_Think_GoToWork()
     {
-        pathManager.State_MoveTo(vector2_ChoppingBoardPos);
+        pathManager.State_MoveTo(vector3_HomePos);
     }
-    public void AllClient_IdleLoop()
+    /// <summary>
+    /// 闲逛
+    /// </summary>
+    private void State_Think_Stroll()
     {
-        if (bool_Working)
+        int x = new System.Random().Next(-1, 1);
+        int y = new System.Random().Next(-1, 1);
+        Vector3Int dir = new Vector3Int(x, y, 0);
+        Vector3Int pos_F = pathManager.vector3Int_CurPos + dir * 3;
+        Vector3Int pos_R = pathManager.vector3Int_CurPos - dir * 3;
+        if (!pathManager.State_MoveTo(pos_F)) pathManager.State_MoveTo(pos_R);
+    }
+    #endregion
+    #region//客户端状态循环
+    private enum HunterState
+    {
+        Default, Working
+    }
+    private HunterState hunterState;
+    /// <summary>
+    /// 状态循环
+    /// </summary>
+    public void AllClient_StateLoop()
+    {
+        bool bool_InEvening = (globalTime_Now == GlobalTime.Evening);
+        bool bool_InAttack = (brainManager.allClient_actorManager_AttackTarget);
+        bool bool_InMove = (bodyController.speed != 0);
+        switch (hunterState)
         {
-            if (brainManager.allClient_actorManager_AttackTarget || bodyController.speed > 0 || globalTime_Now != GlobalTime.Evening)
-            {
-                Working(false);
-            }
+            case HunterState.Default:
+                {
+                    if (bool_InEvening && !bool_InMove && !bool_InAttack)
+                    {
+                        if (MapManager.Instance.GetBuilding(pathManager.vector3Int_CurPos, out BuildingTile buildingTile))
+                        {
+                            if(buildingTile.tileID == 8301)
+                            {
+                                hunterState = HunterState.Working;
+                            }
+                        }
+                    }
+                    break;
+                }
+            case HunterState.Working:
+                {
+                    if(!bool_InEvening || bool_InMove || bool_InAttack)
+                    {
+                        hunterState = HunterState.Default;
+                    }
+                    break;
+                }
+        }
+    }
+    /// <summary>
+    /// 状态检查
+    /// </summary>
+    private void AllClient_CheckState()
+    {
+        switch (hunterState)
+        {
+            case HunterState.Default:
+                {
+                    bodyController.SetAnimatorBool(BodyPart.Hand, "Work", false);
+                    break;
+                }
+            case HunterState.Working:
+                {
+                    bodyController.SetAnimatorBool(BodyPart.Hand, "Work", true);
+                    break;
+                }
+        }
+
+    }
+
+    #endregion
+    #region//语言
+    /// <summary>
+    /// 发现猎物
+    /// </summary>
+    private List<string> word_FindTheAnimal = new List<string>()
+    {
+        "这可是上好的食物","狩猎时间..",
+    };
+    /// <summary>
+    /// 说话
+    /// </summary>
+    /// <param name="strings"></param>
+    /// <param name="emoji"></param>
+    private void State_SendText(List<string> strings, Emoji emoji)
+    {
+        int random = new System.Random().Next(0, strings.Count);
+        State_TryToSendText(strings[random], emoji);
+    }
+    #endregion
+    #region//交流
+    public override bool Local_Communication()
+    {
+        return true;
+    }
+    public override bool Local_Deal(out ActorManager dealActor, out List<ItemData> dealGoods, out Func<ItemData, int> dealOffer)
+    {
+        dealActor = this;
+        dealGoods = null;
+        dealOffer = Local_Offer;
+        if (globalTime_Now != GlobalTime.Evening)
+        {
+            Local_TryToSendText("交易?晚上再说吧", Emoji.Unhappy);
         }
         else
         {
-            if (!brainManager.allClient_actorManager_AttackTarget && bodyController.speed == 0 && globalTime_Now == GlobalTime.Evening)
+            if (!brainManager.bool_AttackState)
             {
-                Working(true);
+                dealGoods = new List<ItemData>();
+                List<ItemData> items = actorNetManager.Local_GetBagItem();
+                for (int i = 0; i < items.Count; i++)
+                {
+                    ItemConfig itemConfig = ItemConfigData.GetItemConfig(items[i].Item_ID);
+                    if (itemConfig.Item_Type != ItemType.Weapon)
+                    {
+                        dealGoods.Add(items[i]);
+                    }
+                }
+                return true;
             }
         }
+        return false;
     }
-    public void Working(bool work)
+    /// <summary>
+    /// 报价
+    /// </summary>
+    /// <param name="itemData"></param>
+    /// <returns></returns>
+    public int Local_Offer(ItemData itemData)
     {
-        bool_Working = work;
-        bodyController.SetAnimatorBool(BodyPart.Hand, "Work", work);
+        int offer = 0;
+        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.Item_ID);
+        if (itemConfig.Item_Type == ItemType.Food || itemConfig.Item_Type == ItemType.Ingredient)
+        {
+            offer = itemConfig.Average_Value * itemData.Item_Count * 2;
+        }
+        return offer;
     }
     #endregion
 }

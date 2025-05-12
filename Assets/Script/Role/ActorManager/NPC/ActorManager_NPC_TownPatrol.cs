@@ -160,12 +160,9 @@ public class ActorManager_NPC_TownPatrol : ActorManager_NPC
     private bool OnlyState_CanIAttack(ActorManager actor)
     {
         if (actor.statusManager.statusType == StatusType.Monster_Common) return true;
-        if (!brainManager.allClient_actorManager_AttackTarget && actor.actorNetManager.Net_Fine > 0)
+        if (!brainManager.allClient_actorManager_AttackTarget && actor.actorNetManager.Local_Fine > 0)
         {
-            if (actor.actorNetManager.statusType != StatusType.Human_Lawman)
-            {
-                return true;
-            }
+            return true;
         }
         return false;
     }

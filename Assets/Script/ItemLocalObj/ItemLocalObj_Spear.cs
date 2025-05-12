@@ -15,15 +15,48 @@ public class ItemLocalObj_Spear : ItemLocalObj
     [SerializeField]
     private SpriteRenderer spriteRenderer_RightHand;
     [SerializeField]
-    private SI_Sector sector;
-
+    private SkillIndicators skillIndicators;
+    [SerializeField, Header("Åü¿³ËÙ¶È")]
+    private float config_AttackSpeed = 1;
     [SerializeField, Header("´Á´ÌÉËº¦")]
     private short config_StabDamage;
+    [SerializeField, Header("´Á´Ì¾àÀë")]
+    private short config_StabDistance;
+    [SerializeField, Header("´Á´Ì·¶Î§")]
+    private short config_StabRange;
     [SerializeField, Header("ºáÉ¨ÉËº¦")]
     private short config_HackDamage;
-    [SerializeField, Header("¹¥»÷¾àÀë")]
-    private short config_AttackDistance;
+    [SerializeField, Header("ºáÉ¨¾àÀë")]
+    private short config_HackDistance;
+    [SerializeField, Header("ºáÉ¨·¶Î§")]
+    private short config_HackRange;
+    /// <summary>
+    /// ¹¥»÷¶¯»­Ê±³¤
+    /// </summary>
+    private float config_AttackDuraction = 1;
+    /// <summary>
+    /// ¹¥»÷CD
+    /// </summary>
+    private float config_AttackCD;
+    /// <summary>
+    /// ¹¥»÷CDµ¹Êý
+    /// </summary>
+    private float config_AttackCDRec;
+    /// <summary>
+    /// ÏÂ´Î¹¥»÷Ê±¼ä
+    /// </summary>
+    private float float_NextAttackTiming = 0;
+    private float float_TempDistance;
+    private float float_TempRange;
     private InputData inputData = new InputData();
+    private void FixedUpdate()
+    {
+        if (inputData.leftPressTimer == 0 && inputData.rightPressTimer == 0 && float_NextAttackTiming > 0)
+        {
+            float_NextAttackTiming -= Time.fixedDeltaTime;
+        }
+    }
+
     public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
     {
         actorManager = owner;
@@ -38,6 +71,10 @@ public class ItemLocalObj_Spear : ItemLocalObj
         spriteRenderer_RightHand.sprite = body.transform_LeftHand.GetComponent<SpriteRenderer>().sprite;
         body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
+
+        config_AttackCD = config_AttackDuraction / config_AttackSpeed;
+        config_AttackCDRec = config_AttackSpeed / config_AttackDuraction;
+
         base.HoldingByHand(owner, body, data);
     }
     public void FaceTo(Vector3 dir)
@@ -56,34 +93,56 @@ public class ItemLocalObj_Spear : ItemLocalObj
     {
         inputData.mousePosition = mouse;
         FaceTo(mouse);
+        if (actorManager.actorAuthority.isLocal && actorManager.actorAuthority.isPlayer)
+        {
+            float alpht = (float_NextAttackTiming - inputData.leftPressTimer) * config_AttackCDRec;
+            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, float_TempDistance, float_TempRange, alpht);
+        }
+
         base.UpdateMousePos(mouse);
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
-        if (inputData.leftPressTimer == 0)
+        if (inputData.leftPressTimer >= float_NextAttackTiming)
         {
+            float_NextAttackTiming += config_AttackCD + 0.1f;
             animator.SetTrigger("Stab");
+            animator.speed = config_AttackSpeed;
         }
+        float_TempDistance = config_StabDistance;
+        float_TempRange = config_StabRange;
         inputData.leftPressTimer = time;
         return base.PressLeftMouse(time, actorAuthority);
     }
     public override bool PressRightMouse(float time, ActorAuthority actorAuthority)
     {
-        if (inputData.rightPressTimer == 0)
+        if (inputData.rightPressTimer >= float_NextAttackTiming)
         {
+            float_NextAttackTiming += config_AttackCD + 0.1f;
             animator.SetTrigger("Hack");
+            animator.speed = config_AttackSpeed;
         }
+        float_TempDistance = config_HackDistance;
+        float_TempRange = config_HackRange;
         inputData.rightPressTimer = time;
         return base.PressRightMouse(time, actorAuthority);
     }
     public override void ReleaseLeftMouse()
     {
-        inputData.leftPressTimer = 0;
+        if (inputData.leftPressTimer > 0)
+        {
+            float_NextAttackTiming -= inputData.leftPressTimer;
+            inputData.leftPressTimer = 0;
+        }
         base.ReleaseLeftMouse();
     }
     public override void ReleaseRightMouse()
     {
-        inputData.rightPressTimer = 0;
+        if (inputData.rightPressTimer > 0)
+        {
+            float_NextAttackTiming -= inputData.rightPressTimer;
+            inputData.rightPressTimer = 0;
+        }
         base.ReleaseRightMouse();
     }
     public void Stab()
@@ -91,19 +150,24 @@ public class ItemLocalObj_Spear : ItemLocalObj
         if (actorManager.actorAuthority.isLocal)
         {
             sbyte temp = 0;
-            sector.Checkout_SIsector
-                (inputData.mousePosition, config_AttackDistance, 5, out Transform[] targetTile);
-            for (int i = 0; i < targetTile.Length; i++)
+            skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_StabDistance, config_StabRange, out Collider2D[] colliders);
+            for (int i = 0; i < colliders.Length; i++)
             {
-                if (targetTile[i].TryGetComponent(out ActorManager actor))
+                if (colliders[i].tag.Equals("Actor"))
                 {
-                    if (actor != actorManager)
+                    if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        actor.AllClient_Listen_TakeDamage(config_StabDamage, actorManager.actorNetManager);
-                        temp = -2;
+                        if (actor == actorManager) { continue; }
+                        else
+                        {
+                            actor.AllClient_Listen_TakeAttackDamage(config_StabDamage, actorManager.actorNetManager);
+                            temp = -2;
+                        }
                     }
                 }
             }
+
             ChangeDurability(temp);
         }
     }
@@ -112,16 +176,20 @@ public class ItemLocalObj_Spear : ItemLocalObj
         if (actorManager.actorAuthority.isLocal)
         {
             sbyte temp = 0;
-            sector.Checkout_SIsector
-                (inputData.mousePosition, config_AttackDistance, 60, out Transform[] targetTile);
-            for (int i = 0; i < targetTile.Length; i++)
+            skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_HackDistance, config_HackRange, out Collider2D[] colliders);
+            for (int i = 0; i < colliders.Length; i++)
             {
-                if (targetTile[i].TryGetComponent(out ActorManager actor))
+                if (colliders[i].tag.Equals("Actor"))
                 {
-                    if (actor != actorManager)
+                    if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        actor.AllClient_Listen_TakeDamage(config_HackDamage, actorManager.actorNetManager);
-                        temp = -2;
+                        if (actor == actorManager) { continue; }
+                        else
+                        {
+                            actor.AllClient_Listen_TakeAttackDamage(config_HackDamage, actorManager.actorNetManager);
+                            temp = -2;
+                        }
                     }
                 }
             }
@@ -144,7 +212,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
             else
             {
                 _newItem.Item_Durability += val;
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
                 {
                     oldItem = _oldItem,
                     newItem = _newItem,

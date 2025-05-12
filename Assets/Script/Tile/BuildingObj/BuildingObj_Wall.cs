@@ -6,11 +6,10 @@ public class BuildingObj_Wall : BuildingObj
 {
     public Sprite[] sprite;
     public SpriteRenderer spriteRenderer;
-    public override void Draw()
+    public override void All_Draw()
     {
-        Debug.Log("aaaa");
         spriteRenderer.sprite = sprite[GetInde(MapManager.Instance.CheckBuilding_EightSide(buildingTile.tileID, buildingTile.tilePos))];
-        base.Draw();
+        base.All_Draw();
     }
     private int GetInde(Around aroundState)
     {
@@ -341,12 +340,8 @@ public class BuildingObj_Wall : BuildingObj
         }
         return val;
     }
-    public override void TakeDamage(int val)
+    public override void All_Broken()
     {
-        base.TakeDamage(val);
-    }
-    public override void Broken()
-    {
-        base.Broken();
+        base.All_Broken();
     }
 }

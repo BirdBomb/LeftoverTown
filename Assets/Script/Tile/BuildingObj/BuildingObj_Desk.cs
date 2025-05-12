@@ -14,7 +14,7 @@ public class BuildingObj_Desk : BuildingObj
     private Sprite Desk_Left;
     [SerializeField]
     private Sprite Desk_Right;
-    public override void Draw()
+    public override void All_Draw()
     {
         Around around = MapManager.Instance.CheckBuilding_TwoSide(buildingTile.tileID, buildingTile.tilePos);
         if (around.L && around.R)
@@ -33,6 +33,6 @@ public class BuildingObj_Desk : BuildingObj
         {
             spriteRenderer.sprite = Desk_Single;
         }
-        base.Draw();
+        base.All_Draw();
     }
 }

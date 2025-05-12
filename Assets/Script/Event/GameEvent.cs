@@ -15,19 +15,52 @@ public class GameEvent
         public PlayerCoreLocal playerCore;
     }
     /// <summary>
+    /// 本地端:增加一小时
+    /// </summary>
+    public class GameEvent_State_AddOneHour
+    {
+
+    }
+    /// <summary>
     /// 本地端:时间变更
     /// </summary>
     public class GameEvent_State_ChangeTime
     {
-        public int hour;
+        public short hour;
     }
     /// <summary>
-    /// 本地端:时间更新
+    /// 本地端:更改天气
     /// </summary>
-    public class GameEvent_AllClient_UpdateTime
+    public class GameEvent_Local_ChangeWeather
+    {
+        public short index;
+    }
+    /// <summary>
+    /// 服务端:时间更新
+    /// </summary>
+    public class GameEvent_State_UpdateTime
     {
         public int hour;
         public int date;
+        public GlobalTime now;
+    }
+    /// <summary>
+    /// 客户端:秒更新
+    /// </summary>
+    public class GameEvent_All_UpdateSecond
+    {
+        public int second;
+        public int hour;
+        public int day;
+        public GlobalTime now;
+    }
+    /// <summary>
+    /// 客户端:小时更新
+    /// </summary>
+    public class GameEvent_All_UpdateHour
+    {
+        public int hour;
+        public int day;
         public GlobalTime now;
     }
     /// <summary>

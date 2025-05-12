@@ -23,7 +23,7 @@ public class BuildingObj_ChoppingBoard : BuildingObj
                 hunter = actor.GetComponent<ActorManager_NPC_Hunter>();
                 if (hunter.TryGetComponent(out ActorManager_NPC_Hunter actorManager_NPC_Hunter))
                 {
-                    //actorManager_NPC_Hunter.State_BindChoppingBoard(bindTile);
+                    hunter.State_BindChoppingBoard(buildingTile.tilePos);
                 }
             })
 

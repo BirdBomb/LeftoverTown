@@ -7,10 +7,15 @@ public class BuildingObj_Rock : BuildingObj
     public Sprite[] sprite;
     public SpriteRenderer spriteRenderer;
     public ParticleSystem bitsParticle;
-    public override void Draw()
+    [SerializeField, Header("常态基本掉落物")]
+    private List<BaseLootInfo> baseLootInfos = new List<BaseLootInfo>();
+    [SerializeField, Header("常态额外掉落物")]
+    private List<ExtraLootInfo> extraLootInfos = new List<ExtraLootInfo>();
+
+    public override void All_Draw()
     {
         spriteRenderer.sprite = sprite[GetInde(MapManager.Instance.CheckBuilding_EightSide(buildingTile.tileID, buildingTile.tilePos))];
-        base.Draw();
+        base.All_Draw();
     }
     private int GetInde(Around aroundState)
     {
@@ -341,15 +346,23 @@ public class BuildingObj_Rock : BuildingObj
         }
         return val;
     }
-    public override void TakeDamage(int val)
+    public override void All_PlayHpDown()
     {
         bitsParticle.Play();
         AudioManager.Instance.PlayEffect(1004, transform.position);
-        base.TakeDamage(val);
+        base.All_PlayHpDown();
     }
-    public override void Broken()
+    public override void All_PlayBroken()
     {
         AudioManager.Instance.PlayEffect(1005, transform.position);
-        base.Broken();
+        base.All_PlayBroken();
+    }
+    public override void All_Broken()
+    {
+        if (MapManager.Instance.mapNetManager.Object.HasStateAuthority)
+        {
+            State_CreateLootItem(State_GetLootItem(baseLootInfos, extraLootInfos));
+        }
+        base.All_Broken();
     }
 }

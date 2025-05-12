@@ -19,56 +19,60 @@ public class ItemConfigData
      */
     public readonly static List<ItemConfig> itemConfigs = new List<ItemConfig>()
     {
-        new ItemConfig(){ Item_ID = 0,Item_Name = "空气",ItemRarity = 0,Item_Desc = "空气",
+        new ItemConfig(){ Item_ID = 0,Item_Name = "",ItemRarity = 0,Item_Desc = "",
             Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Default,Average_Value = 0 ,},
         #region//1000-1999材料
         #region//1000-1099一级材料
         new ItemConfig(){ Item_ID = 1000,Item_Name = "原木",ItemRarity = 0,Item_Desc = "砍伐树木得到的原木，加工成木材之后用来建造",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1001,Item_Name = "树枝",ItemRarity = 0,Item_Desc = "随处可见的树枝，加工一下可能会有用",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 1002,Item_Name = "干草",ItemRarity = 0,Item_Desc = "这是草",
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1010,Item_Name = "石头",ItemRarity = 0,Item_Desc = "坚硬的石头,除了用来建造还可以拿在手上攻击",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1011,Item_Name = "煤炭",ItemRarity = 0,Item_Desc = "平常但是又极度重要的资源",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1012,Item_Name = "金矿石",ItemRarity = 0,Item_Desc = "稀有且珍贵的矿石，用来冶炼金锭",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1013,Item_Name = "铁矿石",ItemRarity = 0,Item_Desc = "用来冶炼铁锭",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 1014,Item_Name = "高能矿",ItemRarity = 0,Item_Desc = "稀有且珍贵的矿石，用来冶炼高能水晶",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 1015,Item_Name = "翡翠原石",ItemRarity = 0,Item_Desc = "稀有且珍贵的矿石，用来加工成宝石",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 1016,Item_Name = "硝矿石",ItemRarity = 0,Item_Desc = "用来冶炼硝石",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 1014,Item_Name = "水晶矿石",ItemRarity = 0,Item_Desc = "稀有且珍贵的矿石，用来冶炼高能水晶",
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 1015,Item_Name = "翡翠矿石",ItemRarity = 0,Item_Desc = "稀有且珍贵的矿石，用来加工成宝石",
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 1016,Item_Name = "硝矿石",ItemRarity = 0,Item_Desc = "研磨一下看看",
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1017,Item_Name = "红水晶原石",ItemRarity = 0,Item_Desc = "稀有且珍贵的矿石，用来加工成宝石",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 300 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 300 },
         new ItemConfig(){ Item_ID = 1018,Item_Name = "蛋白原石",ItemRarity = 0,Item_Desc = "稀有且珍贵的矿石，用来加工成蛋白石",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 20,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         #endregion
         #region//1100-1199二级材料
         new ItemConfig(){ Item_ID = 1100,Item_Name = "木材",ItemRarity = 0,Item_Desc = "加工原木得到的木材",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 0,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1110,Item_Name = "铁锭",ItemRarity = 0,Item_Desc = "制造开始的第一步，以及之后的每一步",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1111,Item_Name = "金锭",ItemRarity = 0,Item_Desc = "价值极高的金锭，贸易中的硬通货",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1112,Item_Name = "高能水晶",ItemRarity = 0,Item_Desc = "蕴含巨大能量的水晶，可以作为高效动力源",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1113,Item_Name = "翡翠",ItemRarity = 0,Item_Desc = "价值极高的宝石，贸易中的硬通货",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 245 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 245 },
         new ItemConfig(){ Item_ID = 1114,Item_Name = "硝石碎",ItemRarity = 0,Item_Desc = "由硝石加工而来，虽具有能量但极其不稳定",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 1115,Item_Name = "红水晶",ItemRarity = 0,Item_Desc = "价值极高的宝石，贸易中的硬通货",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 300 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 300 },
         new ItemConfig(){ Item_ID = 1116,Item_Name = "蛋白石",ItemRarity = 0,Item_Desc = "价值极高的宝石，贸易中的硬通货",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         #endregion
         #region//1200-1299三级材料
-        new ItemConfig(){ Item_ID = 1200,Item_Name = "机械元件",ItemRarity = 0,Item_Desc = "稀有且珍贵的矿石，用来加工成蛋白石",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 1201,Item_Name = "高能芯片",ItemRarity = 0,Item_Desc = "稀有且珍贵的矿石，用来加工成蛋白石",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 1200,Item_Name = "机械元件",ItemRarity = 0,Item_Desc = "由铁加工而成，制作各种精密器械的基本材料",
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 1201,Item_Name = "电子元件",ItemRarity = 0,Item_Desc = "它代表了另一种魔法",
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 1202,Item_Name = "枪械元件",ItemRarity = 0,Item_Desc = "对强度要求更高的机械元件,很难量产",
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 40,Attack_Distance = 1,Item_Type = ItemType.Materials,Average_Value = 1 },
         #endregion
         #endregion
         #region//2000-2999工具
@@ -178,17 +182,17 @@ public class ItemConfigData
         #endregion
         #region//4100-4199烹饪
         new ItemConfig(){ Item_ID = 4100,Item_Name = "失败菜肴",ItemRarity = 0,Item_Desc = "虽然烹饪失败，不过不是不能吃",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Ingredient,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Food,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4101,Item_Name = "薯果肉煲",ItemRarity = 2,Item_Desc = "由薯果和肉制成的热气腾腾的菜肴，过久的烹饪时间是肉质软烂薯果松软的原因",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Ingredient,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Food,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4102,Item_Name = "炖杂果",ItemRarity = 2,Item_Desc = "水果制成的菜肴，甜腻温热的水果让有些人不太习惯，往往是为了处理不新鲜的水果",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Ingredient,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Food,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4103,Item_Name = "抓肉",ItemRarity = 2,Item_Desc = "由带皮肉和带骨肉制成的简单肉食，不添加任何其他佐料的存粹肉食",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Ingredient,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Food,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4104,Item_Name = "果渍风味烧",ItemRarity = 3,Item_Desc = "由水果调味的薄片烤肉，因为沁满了烧制浓稠的果汁所以烤肉看上去晶莹剔透，需用新鲜水果",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Ingredient,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Food,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 4105,Item_Name = "水煮鱼",ItemRarity = 3,Item_Desc = "加入大量辣椒的鱼片汤",
-            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Ingredient,Average_Value = 1 },
+            Item_Size = ItemSize.AsGroup,Item_MaxCount = 9,Attack_Distance = 0,Item_Type = ItemType.Food,Average_Value = 1 },
         #endregion
         #region//药剂
         new ItemConfig(){ Item_ID = 4200,Item_Name = "鸟果汁",ItemRarity = 0,Item_Desc = "鸟果榨出来的果汁，不知为何变得比果实更甜了",
@@ -211,6 +215,8 @@ public class ItemConfigData
             Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
         new ItemConfig(){ Item_ID = 5006,Item_Name = "熊皮帽",ItemRarity = 2,Item_Desc = "就跟真的似的",
             Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
+        new ItemConfig(){ Item_ID = 5007,Item_Name = "木盔",ItemRarity = 2,Item_Desc = "就跟真的似的",
+            Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Hat,Average_Value = 1 ,},
         #endregion
         #region//5100-5199衣服
         new ItemConfig(){ Item_ID = 5100,Item_Name = "巡逻衣",ItemRarity = 2,Item_Desc = "治安官套装之一，不提供护甲值",
@@ -223,6 +229,8 @@ public class ItemConfigData
             Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Clothes,Average_Value = 1 ,},
         new ItemConfig(){ Item_ID = 5104,Item_Name = "铁甲",ItemRarity = 2,Item_Desc = "可以抵御一定程度的攻击",
             Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Clothes,Average_Value = 1 ,},
+        new ItemConfig(){ Item_ID = 5105,Item_Name = "木甲",ItemRarity = 2,Item_Desc = "可以抵御一定程度的攻击",
+            Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Clothes,Average_Value = 1 ,},
         #endregion
         #endregion
         #region//9000-9999其他
@@ -231,8 +239,10 @@ public class ItemConfigData
             Item_Size = ItemSize.AsGroup,Item_MaxCount = 99,Attack_Distance = 1,Item_Type = ItemType.Arrow,Average_Value = 1 },
         new ItemConfig(){ Item_ID = 9001,Item_Name = "精致木箭",ItemRarity = 0,Item_Desc = "用树枝制成的弓箭，加装金属箭头提高速度与杀伤力",
             Item_Size = ItemSize.AsGroup,Item_MaxCount = 99,Attack_Distance = 1,Item_Type = ItemType.Arrow,Average_Value = 1 },
-        new ItemConfig(){ Item_ID = 9010,Item_Name = "弹丸",ItemRarity = 0,Item_Desc = "受管控的工业子弹，省着点用",
+        new ItemConfig(){ Item_ID = 9010,Item_Name = "铁制弹丸",ItemRarity = 0,Item_Desc = "受管控的工业子弹，省着点用",
             Item_Size = ItemSize.AsGroup,Item_MaxCount = 99,Attack_Distance = 1,Item_Type = ItemType.Bullet,Average_Value = 1 },
+        new ItemConfig(){ Item_ID = 9020,Item_Name = "次元弹匣",ItemRarity = 6,Item_Desc = "看着不大，却能装下难以想象的子弹数量",
+            Item_Size = ItemSize.AsOne,Item_MaxCount = 1,Attack_Distance = 1,Item_Type = ItemType.Bullet,Average_Value = 6 },
         #endregion
         #region//9900-9999测试
         new ItemConfig(){ Item_ID = 9900,Item_Name = "神秘书页",ItemRarity = 6,Item_Desc = "从某本书上撕下的神秘纸张，念出上述咒语召唤造物",
@@ -278,7 +288,7 @@ public struct ItemConfig
     [SerializeField]/*攻击最大距离*/
     public float Attack_Distance;
     [SerializeField]/*价值*/
-    public float Average_Value;
+    public int Average_Value;
 }
 [Serializable]
 public enum ItemType 
@@ -343,4 +353,34 @@ public enum ItemSize
     /// 可容纳
     /// </summary>
     AsContainer,
+}
+public struct ItemRaw
+{
+    public short ID;
+    public short Count;
+    public ItemRaw(short id, short count)
+    {
+        ID = id;
+        Count = count;
+    }
+}
+[Serializable]
+public struct BaseLootInfo
+{
+    [SerializeField, Header("基本掉落物编号")]
+    public short ID;
+    [SerializeField, Header("最小掉落物数量")]
+    public short CountMin;
+    [SerializeField, Header("最大掉落物数量")]
+    public short CountMax;
+}
+[Serializable]
+public struct ExtraLootInfo
+{
+    [SerializeField, Header("额外掉落物编号")]
+    public short ID;
+    [SerializeField, Header("额外掉落物数量")]
+    public short Count;
+    [SerializeField, Header("额外掉落物权重(1/1000)")]
+    public short Weight;
 }

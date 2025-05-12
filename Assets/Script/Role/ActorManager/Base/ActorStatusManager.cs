@@ -22,7 +22,7 @@ public class ActorStatusManager
         handItemID = who.actorNetManager.Net_ItemInHand.Item_ID;
         headItemID = who.actorNetManager.Net_ItemOnHead.Item_ID;
         bodyItemID = who.actorNetManager.Net_ItemOnBody.Item_ID;
-        fine = who.actorNetManager.Net_Fine;
+        fine = who.actorNetManager.Local_Fine;
     }
     /// <summary>
     /// 通用方法(检查身份)

@@ -13,7 +13,12 @@ public class NetEvent
     }
     public class NetEvent_JoinGame
     {
+        public SessionInfo RoomInfo;
         public string RoomName;
+    }
+    public class NetEvent_QuitGame
+    {
+        
     }
     public class NetEvent_SessionListUpdated
     {

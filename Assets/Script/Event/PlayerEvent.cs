@@ -5,48 +5,58 @@ using UnityEngine;
 
 public class PlayerEvent 
 {
+    #region//玩家背包
     /// <summary>
-    /// 本地玩家:尝试给修改物体
+    /// 本地玩家:消耗背包物体
     /// </summary>
-    public class PlayerEvent_Local_TryChangeItemInBag
+    public class PlayerEvent_Local_TryExpendItemInBag
     {
-        public ItemData oldItem;
-        public ItemData newItem;
-    }
-
-    /// <summary>
-    /// 本地玩家:尝试从背包移除物体
-    /// </summary>
-    public class PlayerEvent_Local_TrySubItemInBag
-    {
-        public ItemData item;
+        public int itemID;
+        public int itemCount;
     }
     /// <summary>
-    /// 本地玩家:尝试给背包添加物体
+    /// 本地玩家:添加背包物体
     /// </summary>
     public class PlayerEvent_Local_TryAddItemInBag
     {
-        public ItemData item;
+        public int index;
+        public ItemData itemData;
     }
-
     /// <summary>
-    /// 本地玩家:尝试从手部移除物体
+    /// 本地玩家:更改背包物体
     /// </summary>
-    public class PlayerEvent_Local_TrySubItemOnHand
+    public class PlayerEvent_Local_TryChangeItemInBag
     {
-        public ItemData item;
+        public ItemData itemData;
+        public int index;
     }
+    #endregion
+    #region//玩家手持
     /// <summary>
-    /// 本地玩家:尝试给手部添加物体
+    /// 本地玩家:添加手部物体
     /// </summary>
     public class PlayerEvent_Local_TryAddItemOnHand
     {
         public ItemData item;
         public Action<ItemData> itemResidueBack;
     }
-
-
-
+    /// <summary>
+    /// 本地玩家:移除手部物体
+    /// </summary>
+    public class PlayerEvent_Local_TrySubItemOnHand
+    {
+        public ItemData item;
+    }
+    /// <summary>
+    /// 本地玩家:更改手部物体
+    /// </summary>
+    public class PlayerEvent_Local_TryChangeItemOnHand
+    {
+        public ItemData oldItem;
+        public ItemData newItem;
+    }
+    #endregion
+    #region//玩家头部
     /// <summary>
     /// 本地玩家:尝试从头顶移除物体
     /// </summary>
@@ -62,7 +72,17 @@ public class PlayerEvent
         public ItemData item;
         public Action<ItemData> itemResidueBack;
     }
+    /// <summary>
+    /// 本地玩家:更改头部物体
+    /// </summary>
+    public class PlayerEvent_Local_TryChangeItemOnHead
+    {
+        public ItemData oldItem;
+        public ItemData newItem;
+    }
 
+    #endregion
+    #region//玩家身体
     /// <summary>
     /// 本地玩家:尝试从身体移除物体
     /// </summary>
@@ -78,6 +98,18 @@ public class PlayerEvent
         public ItemData item;
         public Action<ItemData> itemResidueBack;
     }
+    /// <summary>
+    /// 本地玩家:更改身体物体
+    /// </summary>
+    public class PlayerEvent_Local_TryChangeItemOnBody
+    {
+        public ItemData oldItem;
+        public ItemData newItem;
+    }
+
+    #endregion
+
+
 
 
     /// <summary>
@@ -106,10 +138,17 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:发送一个表情
     /// </summary>
-    public class PlayerEvent_Local_Emoji
+    public class PlayerEvent_Local_SendEmoji
     {
         public int id;
         public Emoji emoji;
+    }
+    /// <summary>
+    /// 本地玩家:发送一段话
+    /// </summary>
+    public class PlayerEvent_Local_SendText
+    {
+        public string text;
     }
 
     /// <summary>

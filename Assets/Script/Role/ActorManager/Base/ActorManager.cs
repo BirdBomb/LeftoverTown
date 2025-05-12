@@ -10,8 +10,8 @@ using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
+using static Fusion.Allocator;
 using static GameEvent;
-using static UnityEngine.UI.GridLayoutGroup;
 /// <summary>
 /// 角色管理器
 /// </summary>
@@ -91,7 +91,10 @@ public class ActorManager : MonoBehaviour
     }
     /*初始化*/
     #region
-    public virtual void AllClient_Init()
+    /// <summary>
+    /// 客户端初始化
+    /// </summary>
+    public virtual void Client_Init()
     {
         transform.localScale = Vector3.one;
         transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
@@ -100,10 +103,34 @@ public class ActorManager : MonoBehaviour
         
         actorAuthority.isLocal = actorNetManager.Object.HasStateAuthority;
         actorAuthority.isState = actorNetManager.Object.HasStateAuthority;
+        actorNetManager.Client_RequestInfo();
     }
+    /// <summary>
+    /// 服务器初始化
+    /// </summary>
     public virtual void State_Init()
     {
-
+        actorNetManager.State_SendInfoToAll();
+    }
+    public void State_SetHeadAndBody(ItemData headItem, ItemData bodyItem)
+    {
+        actorNetManager.Net_ItemOnHead = headItem;
+        actorNetManager.Net_ItemOnBody = bodyItem;
+    }
+    public void State_SetFace(string name,short eyeID,short hairID,Color32 hairColor)
+    {
+        actorNetManager.Local_Name = name;
+        actorNetManager.Local_EyeID = eyeID;
+        actorNetManager.Local_HairID = hairID;
+        actorNetManager.Local_HairColor = hairColor;
+    }
+    public void State_SetAbilityData(short Hp, short armor, short resistance, short speed)
+    {
+        actorNetManager.Net_HpCur = Hp;
+        actorNetManager.Local_HpMax = Hp;
+        actorNetManager.Net_Armor = armor;
+        actorNetManager.Net_Resistance = resistance;
+        actorNetManager.Net_SpeedCommon = speed;
     }
     #endregion
     /*绑定玩家*/
@@ -127,6 +154,22 @@ public class ActorManager : MonoBehaviour
     /// 开始监听
     /// </summary>
     public virtual void AllClient_AddListener()
+    {
+
+    }
+    /// <summary>
+    /// 监听某物进入视野范围(服务器)
+    /// </summary>
+    /// <param name="obj"></param>
+    public virtual void State_Listen_ItemInView(ItemNetObj obj)
+    {
+
+    }
+    /// <summary>
+    /// 监听某物离开视野范围(服务器)
+    /// </summary>
+    /// <param name="obj"></param>
+    public virtual void State_Listen_ItemOutView(ItemNetObj obj)
     {
 
     }
@@ -277,7 +320,14 @@ public class ActorManager : MonoBehaviour
     {
         if (parameter <= 0)
         {
-            AllClient_ShowText(parameter.ToString(), new Color32(255, 50, 50, 255), 64, Vector2.up);
+            if(actorAuthority.isPlayer && actorAuthority.isLocal)
+            {
+                AllClient_ShowText(parameter.ToString(), new Color32(255, 0, 0, 255));
+            }
+            else
+            {
+                AllClient_ShowText(parameter.ToString(), new Color32(255, 100, 0, 255));
+            }
             actionManager.PlayTakeDamage(1);
         }
     }
@@ -313,6 +363,7 @@ public class ActorManager : MonoBehaviour
     public virtual void AllClient_Listen_ChangeAttackTarget(NetworkId id)
     {
         brainManager.allClient_actorManager_AttackTarget = (id == new NetworkId()) ? null : actorNetManager.Runner.FindObject(id).GetComponent<ActorManager>();
+        brainManager.allClient_actorManager_AttackTargetID = id;
     }
     /// <summary>
     /// 监听攻击目标变化(主机)
@@ -327,9 +378,13 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     /// <param name="val"></param>
     /// <param name="from"></param>
-    public virtual void AllClient_Listen_TakeDamage(int val, ActorNetManager from)
+    public virtual void AllClient_Listen_TakeAttackDamage(int val, ActorNetManager from)
     {
-        actionManager.TakeDamage(val, from);
+        actionManager.TakeAttackDamage(val, from);
+    }
+    public virtual void AllClient_Listen_TakeMagicDamage(int val, ActorNetManager from)
+    {
+
     }
     /// <summary>
     /// 监听治疗(客户端)
@@ -344,7 +399,7 @@ public class ActorManager : MonoBehaviour
     /// <param name="id"></param>
     /// <param name="vector3"></param>
     /// <param name="networkId"></param>
-    public virtual void AllClient_Listen_NpcAction(int id, Vector3 vector3, Fusion.NetworkId networkId)
+    public virtual void AllClient_Listen_NpcAction(int id, Vector3Int vector3, Fusion.NetworkId networkId)
     {
 
     }
@@ -405,11 +460,17 @@ public class ActorManager : MonoBehaviour
         AllClient_SecondUpdate();
         if (actorAuthority.isState) { State_SecondUpdate(); }
     }
+    /// <summary>
+    /// 客户端自定义更新
+    /// </summary>
     public virtual void AllClient_CustomUpdate()
     {
         actionManager.Listen_UpdateCustom(const_customUpdateTime);
         pathManager.AllClient_CheckTile();
     }
+    /// <summary>
+    /// 服务器自定义更新
+    /// </summary>
     public virtual void State_CustomUpdate()
     {
 
@@ -427,19 +488,38 @@ public class ActorManager : MonoBehaviour
     #endregion
     /*UI*/
     #region
-    public virtual void AllClient_ShowText(string val,Color32 color,int size,Vector2 offset)
+    public virtual void AllClient_ShowText(string val,Color32 color)
     {
-        offset = offset + 0.01f * new Vector2(new System.Random().Next(-10, 10), new System.Random().Next(-10, 10));
-        GameObject obj_num = UIManager.Instance.ShowUI("UI/UI_DamageNum", (Vector2)transform.position + offset);
-        obj_num.GetComponent<UI_DamageNum>().Play(val, color, size);
+        Vector2 offset = 0.025f * new Vector2(new System.Random().Next(-10, 10), new System.Random().Next(-5, 5));
+        Effect_DamageUI damageUI = PoolManager.Instance.GetObject("Effect/Effect_DamageUI").GetComponent<Effect_DamageUI>();
+        damageUI.transform.position = (Vector2)transform.position + Vector2.up;
+        damageUI.PlayShow(val, color, offset);
     }
     public virtual void AllClient_UpdateHpBar(float val)
     {
         actorUI.UpdateHPBar(val);
     }
-    public virtual void AllClient_UpdateEnBar(float val)
+    #endregion
+    /*交互*/
+    #region
+    /// <summary>
+    /// 尝试交流
+    /// </summary>
+    /// <returns>是否成功开始交流</returns>
+    public virtual bool Local_Communication()
     {
-        actorUI.UpdateENBar(val);
+        return false;
+    }
+    /// <summary>
+    /// 尝试交易
+    /// </summary>
+    /// <returns>是否成功开始交易</returns>
+    public virtual bool Local_Deal(out ActorManager dealActor, out List<ItemData> dealGoods, out Func<ItemData, int> dealOffer)
+    {
+        dealActor = null;
+        dealGoods = null;
+        dealOffer = null;
+        return false;
     }
     #endregion
 }

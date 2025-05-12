@@ -16,13 +16,18 @@ public class NavManager : MonoBehaviour
     /// 选中列表
     /// </summary>
     private List<GroundTile> groundTiles_CloseList = new List<GroundTile>();
-    public List<GroundTile> FindPath(GroundTile to, GroundTile from, int maxStep = 50)
+    public List<GroundTile> FindPath(Vector3Int toPos, Vector3Int fromPos, int maxStep = 50)
     {
-        to.ResetTilePathInfo();
-        from.ResetTilePathInfo();
-        if (!to.offset_Pass)
+        if (mapManager.GetGround(toPos, out GroundTile to)) to.ResetTilePathInfo();
+        if (mapManager.GetGround(fromPos, out GroundTile from)) from.ResetTilePathInfo();
+        if (to == null || !to.offset_Pass)
         {
-            Debug.Log("终点不可去");
+            Debug.Log("终点阻塞");
+            return new List<GroundTile> { };
+        }
+        if (from == null || !from.offset_Pass)
+        {
+            Debug.Log("起点阻塞");
             return new List<GroundTile> { };
         }
         if (to.tilePos == from.tilePos)
@@ -202,7 +207,7 @@ public class NavManager : MonoBehaviour
     /// <returns></returns>
     private void CalcF(GroundTile now, GroundTile end)
     {
-        float h = MathF.Abs(end.tileWorldPos.x - now.tileWorldPos.x) + MathF.Abs(end.tileWorldPos.y - now.tileWorldPos.y);
+        float h = MathF.Abs(end.tilePos.x - now.tilePos.x) + MathF.Abs(end.tilePos.y - now.tilePos.y);
         float g;
         if (now._temp_fatherTile == null)
         {
@@ -210,7 +215,7 @@ public class NavManager : MonoBehaviour
         }
         else
         {
-            g = Vector2.Distance(now.tileWorldPos, now._temp_fatherTile.tileWorldPos) + now._temp_DistanceToFrom;
+            g = Vector3.Distance(now.tilePos, now._temp_fatherTile.tilePos) + now._temp_DistanceToFrom;
         }
         float f = g + h + now.offset_Drag;
         now._temp_DistanceMain = f;

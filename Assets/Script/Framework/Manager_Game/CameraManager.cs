@@ -20,7 +20,6 @@ public class CameraManager : SingleTon<CameraManager>, ISingleTon
     public Vector3 vector3_curPos;
     public void Init()
     {
-        
     }
     public void Shake(float time, float strength)
     {

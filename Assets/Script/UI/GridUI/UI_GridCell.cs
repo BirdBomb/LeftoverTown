@@ -34,11 +34,11 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     private Transform panel_Bar;
     [SerializeField, Header("滑动条填充")]
     private Image image_Bar;
-    private bool _sleeping = false;
-    private bool _pointing = false;
+    private bool bool_Pointing = false;
+    private bool bool_Showing = false;
 
-    private Action<ItemData> action_PutIn;
-    private Func<ItemData, ItemData> action_PutOut;
+    private Action<ItemData,ItemPath> action_PutIn;
+    private Func<ItemData, ItemData, ItemPath, ItemData> action_PutOut;
     private Action<UI_GridCell> action_ClickLeft;
     private Action<UI_GridCell> action_ClickRight;
     private string str_itemName = "";
@@ -46,9 +46,10 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     private string str_itemInfo = "";
 
     public ItemBase _bindItemBase = null;
+    public ItemPath itemPath_Bind= new ItemPath();
     public void OnDisable()
     {
-        if (_pointing)
+        if (bool_Pointing)
         {
             MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
             {
@@ -58,12 +59,22 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     }
 
     #region//UI绑定
-    public void BindAction(Action<ItemData> putIn, Func<ItemData, ItemData> putOut, Action<UI_GridCell> clickLeft, Action<UI_GridCell> clickRight)
+    /// <summary>
+    /// 绑定
+    /// </summary>
+    /// <param name="itemPath"></param>
+    /// <param name="putIn"></param>
+    /// <param name="putOut"></param>
+    /// <param name="clickLeft"></param>
+    /// <param name="clickRight"></param>
+    public void BindGrid(ItemPath itemPath, Action<ItemData, ItemPath> putIn, Func<ItemData, ItemData, ItemPath, ItemData> putOut, Action<UI_GridCell> clickLeft, Action<UI_GridCell> clickRight)
     {
+        itemPath_Bind = itemPath;
         action_PutIn = putIn;
         action_PutOut = putOut;
         action_ClickLeft = clickLeft;
         action_ClickRight = clickRight;
+        if (grid_Child) { grid_Child.BindCell(itemPath); }
     }
     #endregion
     #region//更新格子
@@ -74,8 +85,7 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     {
         if (_bindItemBase == null || _bindItemBase.itemData.Item_ID != data.Item_ID)
         {
-            ResetCell();
-            BindItemBase(data);
+            CreateItemBase(data, itemPath_Bind);
             UpdateItemBase(data);
             ColourCell(_bindItemBase.itemConfig.Item_Name, _bindItemBase.itemConfig.Item_Desc, _bindItemBase.itemConfig.ItemRarity);
         }
@@ -86,24 +96,18 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         return _bindItemBase;
     }
     /// <summary>
-    /// 清空数据
-    /// </summary>
-    public virtual void CleanData()
-    {
-        if(_bindItemBase != null)
-        {
-            _bindItemBase = null;
-            ResetCell();
-        }
-    }
-    /// <summary>
-    /// 绑定实例
+    /// 创建实例
     /// </summary>
     /// <param name="data"></param>
-    private void BindItemBase(ItemData data)
+    private void CreateItemBase(ItemData data,ItemPath path)
     {
+        ResetCell();
         Type type = Type.GetType("Item_" + data.Item_ID.ToString());
-        if (type != null) _bindItemBase = (ItemBase)Activator.CreateInstance(type);
+        if (type != null)
+        {
+            _bindItemBase = (ItemBase)Activator.CreateInstance(type);
+            _bindItemBase.BindPath(path);
+        }
         else _bindItemBase = null;
     }
     /// <summary>
@@ -113,11 +117,22 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     private void UpdateItemBase(ItemData data)
     {
         _bindItemBase.UpdateDataFromNet(data);
-        _bindItemBase.DrawGridCell(this);
+        _bindItemBase.GridCell_Draw(this);
         if (grid_Child)
         {
             grid_Child.UpdateGrid(data);
             grid_Child.DrawCell(data);
+        }
+    }
+    /// <summary>
+    /// 清空数据
+    /// </summary>
+    public void CleanItemBase()
+    {
+        if(_bindItemBase != null)
+        {
+            _bindItemBase = null;
+            ResetCell();
         }
     }
     #endregion
@@ -132,6 +147,7 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// <param name="info"></param>
     public void DrawCell(string mainIcon, string backGround, string name, string info)
     {
+        bool_Showing = true;
         image_IconBG.gameObject.SetActive(true);
         image_IconMain.sprite = spriteAtlas_ItemIcon.GetSprite(mainIcon);
         image_IconBG.sprite = spriteAtlas_ItemBG.GetSprite(backGround);
@@ -144,7 +160,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     private void ResetCell()
     {
         FreezeCell(false);
-        SleepCell(false);
         CleanCell();
     }
     /// <summary>
@@ -152,6 +167,7 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// </summary>
     public void CleanCell()
     {
+        bool_Showing = false;
         text_CornerMark.text = "";
         str_itemName = "";
         str_itemDesc = "";
@@ -160,7 +176,7 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         image_IconBG.gameObject.SetActive(false);
         panel_Bar.gameObject.SetActive(false);
         image_Bar.transform.localScale = Vector3.one;
-        if (_pointing)
+        if (bool_Pointing)
         {
             MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
             {
@@ -178,38 +194,38 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// <param name="nameStr"></param>
     /// <param name="descStr"></param>
     /// <param name="rarity"></param>
-    private void ColourCell(string nameStr, string descStr, int rarity)
+    public void ColourCell(string nameStr, string descStr, int rarity)
     {
-        str_itemName = nameStr;
-        str_itemDesc = descStr;
         if (rarity == 0)
         {
-            str_itemName = "<color=#9A9A9A>" + str_itemName + "</color>";
+            nameStr = "<color=#9A9A9A>" + nameStr + "</color>";
         }
         else if (rarity == 1)
         {
-            str_itemName = "<color=#43C743>" + str_itemName + "</color>";
+            nameStr = "<color=#43C743>" + nameStr + "</color>";
         }
         else if (rarity == 2)
         {
-            str_itemName = "<color=#4487C7>" + str_itemName + "</color>";
+            nameStr = "<color=#4487C7>" + nameStr + "</color>";
         }
         else if (rarity == 3)
         {
-            str_itemName = "<color=#d507c6>" + str_itemName + "</color>";
+            nameStr = "<color=#d507c6>" + nameStr + "</color>";
         }
         else if (rarity == 4)
         {
-            str_itemName = "<color=#FF9D09>" + str_itemName + "</color>";
+            nameStr = "<color=#FF9D09>" + nameStr + "</color>";
         }
         else if (rarity == 5)
         {
-            str_itemName = "<color=#FF090E>" + str_itemName + "</color>";
+            nameStr = "<color=#FF090E>" + nameStr + "</color>";
         }
         else if (rarity == 6)
         {
-            str_itemName = "<color=#D59DD6>" + str_itemName + "</color>";
+            nameStr = "<color=#D59DD6>" + nameStr + "</color>";
         }
+        str_itemName = nameStr;
+        str_itemDesc = descStr;
         str_itemInfo = str_itemName + "\n" + str_itemDesc;
     }
     /// <summary>
@@ -218,29 +234,7 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// <param name="freeze"></param>
     public void FreezeCell(bool freeze)
     {
-        if (freeze) 
-        {
-            image_Bar.color = new Color(0.5f, 1, 1, 1);
-        }
         image_IconMask.gameObject.SetActive(freeze);
-    }
-    /// <summary>
-    /// 休眠格子
-    /// </summary>
-    /// <param name="sleep"></param>
-    public void SleepCell(bool sleep)
-    {
-        if (sleep)
-        {
-            image_IconMain.color = new Color(1, 0.5f, 0.5f, 0.5f);
-            text_CornerMark.color = new Color(1, 0.25f, 0.25f, 1);
-        }
-        else
-        {
-            image_IconMain.color = new Color(1, 1, 1, 1);
-            text_CornerMark.color = new Color(1, 1, 1, 1);
-        }
-        _sleeping = sleep;
     }
     #endregion
     #region//滑动条
@@ -261,10 +255,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// <param name="eventData"></param>
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (_sleeping)
-        {
-            return;
-        }
         if (eventData.button == PointerEventData.InputButton.Left)
         {
             ClickLeft();
@@ -280,9 +270,9 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// <param name="eventData"></param>
     public void OnPointerEnter(PointerEventData eventData)
     {
-        _pointing = true;
-        if (!_sleeping)
+        if (bool_Showing)
         {
+            bool_Pointing = true;
             transform.DOKill();
             transform.localScale = Vector3.one;
             transform.DOScale(new Vector3(1.1f, 1.1f, 1.1f), 0.2f);
@@ -299,9 +289,9 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// <param name="eventData"></param>
     public void OnPointerExit(PointerEventData eventData)
     {
-        _pointing = false;
-        if (!_sleeping)
+        if (bool_Showing)
         {
+            bool_Pointing = false;
             transform.DOKill();
             transform.localScale = Vector3.one;
             MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
@@ -319,12 +309,12 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         {
             action_ClickLeft.Invoke(this);
         }
-        Keeping();
+        MouseHolding();
     }
     /// <summary>
     /// 鼠标右击
     /// </summary>
-    private void ClickRight()
+    public void ClickRight()
     {
         if (action_ClickRight != null)
         {
@@ -339,7 +329,7 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     {
         if (action_PutIn != null)
         {
-            action_PutIn.Invoke(data);
+            action_PutIn.Invoke(data, itemPath_Bind);
         }
     }
     /// <summary>
@@ -347,11 +337,11 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
-    public ItemData PutOut(ItemData data)
+    public ItemData PutOut(ItemData itemData_From, ItemData itemData_Out)
     {
         if(action_PutOut != null)
         {
-            return action_PutOut.Invoke(data);
+            return action_PutOut.Invoke(itemData_From, itemData_Out, itemPath_Bind);
         }
         else
         {
@@ -361,18 +351,32 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// <summary>
     /// 鼠标持有
     /// </summary>
-    public void Keeping()
+    public void MouseHolding()
     {
-        ItemData temp = new ItemData();
+        ItemData itemData_Out = new ItemData();
+        ItemData itemData_From = new ItemData();
         if (_bindItemBase != null)
         {
-            temp = _bindItemBase.itemData;
-            temp.Item_Count = (Input.GetKey(KeyCode.LeftControl)) ? (short)(Mathf.FloorToInt(_bindItemBase.itemData.Item_Count * 0.5f)) : _bindItemBase.itemData.Item_Count;
+            itemData_From = _bindItemBase.itemData; 
+            itemData_Out = itemData_From;
+            if (Input.GetKey(KeyCode.LeftControl))
+            {
+                itemData_Out.Item_Count = (short)(Mathf.CeilToInt(itemData_From.Item_Count * 0.5f));
+            }
+            else if (Input.GetKey(KeyCode.LeftShift))
+            {
+                itemData_Out.Item_Count = 1;
+            }
+            else
+            {
+                itemData_Out.Item_Count = itemData_From.Item_Count;
+            }
         }
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_StartKeepingItem()
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_StartHoldingItem()
         {
             itemCell = this,
-            itemData = temp
+            itemData_From = itemData_From,
+            itemData_Out = itemData_Out
         });
     }
     #endregion

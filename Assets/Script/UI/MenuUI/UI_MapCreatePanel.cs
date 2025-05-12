@@ -122,13 +122,13 @@ public class UI_MapCreatePanel : MonoBehaviour
         switch (dropdown_MapType.value)
         {
             case 0:/*小地图*/
-                config.map_Size = 100;
+                config.map_Size = 50;
                 break;
             case 1:/*中地图*/
-                config.map_Size = 1000;
+                config.map_Size = 100;
                 break;
             case 2:/*大地图*/
-                config.map_Size = 2000;
+                config.map_Size = 200;
                 break;
         }
 

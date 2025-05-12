@@ -58,6 +58,7 @@ public class GameNetManager : NetworkBehaviour
             GameObject obj = Resources.Load<GameObject>("ItemObj/ItemNetObj");
             NetworkObject networkPlayerObject = Runner.Spawn(obj, postion, Quaternion.identity, Object.StateAuthority);
             networkPlayerObject.GetComponent<ItemNetObj>().data = data;
+            networkPlayerObject.GetComponent<ItemNetObj>().CombineItem();
         }
     }
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]

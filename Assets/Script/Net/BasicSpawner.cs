@@ -5,6 +5,7 @@ using Fusion;
 using Fusion.Sockets;
 using System;
 using UniRx;
+using UnityEngine.EventSystems;
 
 public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
 {
@@ -14,7 +15,7 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
     private float local_rightPressTimer;
     private void Update()
     {
-        if (Input.GetKey(KeyCode.Mouse0))
+        if (Input.GetKey(KeyCode.Mouse0) && !EventSystem.current.IsPointerOverGameObject())
         {
             local_leftPressTimer += Time.deltaTime;
         }
@@ -22,7 +23,7 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
         {
             local_leftPressTimer = 0;
         }
-        if (Input.GetKey(KeyCode.Mouse1))
+        if (Input.GetKey(KeyCode.Mouse1) && !EventSystem.current.IsPointerOverGameObject())
         {
             local_rightPressTimer += Time.deltaTime;
         }
