@@ -66,10 +66,14 @@ MonoBehaviour:
   transform_Root: {fileID: 9006075663463388185}
   spriteRenderer_LeftHand: {fileID: 6323341964343768311}
   spriteRenderer_RightHand: {fileID: 3733979328871554077}
-  sector: {fileID: 152273646348326270}
-  config_StabDamage: 0
-  config_HackDamage: 0
-  config_AttackDistance: 1
+  skillIndicators: {fileID: 8988073064415954997}
+  config_AttackSpeed: 1
+  config_StabDamage: 3
+  config_StabDistance: 2
+  config_StabRange: 10
+  config_HackDamage: 2
+  config_HackDistance: 2
+  config_HackRange: 60
 --- !u!95 &4074755626576388706
 Animator:
   serializedVersion: 5
@@ -196,7 +200,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -280,7 +284,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: e22e4a19088fcbd43b1cae0f065d2293, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -364,7 +368,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -459,26 +463,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6279983902349122353, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
       propertyPath: m_Name
-      value: SI
+      value: SkillIndicators
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
---- !u!114 &152273646348326270 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5051398570620429348, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
-  m_PrefabInstance: {fileID: 4901834147330388314}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bebb11da7fe73e428a2b3fa0ad784bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1092177315131652558 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5417515156419152020, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
   m_PrefabInstance: {fileID: 4901834147330388314}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8988073064415954997 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4087822583733746031, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
+  m_PrefabInstance: {fileID: 4901834147330388314}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c4b2b45aafc5c743a9e098aaad4a613, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

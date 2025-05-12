@@ -71,7 +71,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: abaa8033d0ff41e4b8684fbb50fd35de, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -188,7 +188,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -265,10 +265,11 @@ MonoBehaviour:
       Item_DurabilityPoint: 0
   animator: {fileID: 5135846156824241615}
   spriteRenderer_Hand: {fileID: 4649035725232228292}
-  sector: {fileID: 4279949725172458800}
-  config_hackDamage: 5
-  config_hackMaxRange: 60
-  config_hackMaxDistance: 1
+  skillIndicators: {fileID: 5027599787480103035}
+  config_HackSpeed: 1
+  config_HackDamage: 6
+  config_HackMaxRange: 60
+  config_HackMaxDistance: 1
 --- !u!95 &5135846156824241615
 Animator:
   serializedVersion: 5
@@ -340,7 +341,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6279983902349122353, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
       propertyPath: m_Name
-      value: SI
+      value: SkillIndicators
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -352,14 +353,14 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5417515156419152020, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
   m_PrefabInstance: {fileID: 9043020956453323028}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4279949725172458800 stripped
+--- !u!114 &5027599787480103035 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5051398570620429348, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
+  m_CorrespondingSourceObject: {fileID: 4087822583733746031, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
   m_PrefabInstance: {fileID: 9043020956453323028}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bebb11da7fe73e428a2b3fa0ad784bc, type: 3}
+  m_Script: {fileID: 11500000, guid: 2c4b2b45aafc5c743a9e098aaad4a613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

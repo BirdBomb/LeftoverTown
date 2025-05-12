@@ -13,250 +13,218 @@ MonoBehaviour:
   m_Name: MapModData0
   m_EditorClassIdentifier: 
   data_mapFloor:
+  - key: {x: -5, y: -2}
+    value: 1001
+  - key: {x: -5, y: -1}
+    value: 1001
+  - key: {x: -5, y: 0}
+    value: 1001
+  - key: {x: -5, y: 1}
+    value: 1001
+  - key: {x: -5, y: 2}
+    value: 1001
+  - key: {x: -5, y: 3}
+    value: 1001
+  - key: {x: -5, y: 4}
+    value: 1001
+  - key: {x: -5, y: 5}
+    value: 1001
+  - key: {x: -4, y: -3}
+    value: 1001
+  - key: {x: -4, y: -2}
+    value: 1001
+  - key: {x: -4, y: -1}
+    value: 9999
+  - key: {x: -4, y: 0}
+    value: 9999
+  - key: {x: -4, y: 1}
+    value: 9999
+  - key: {x: -4, y: 2}
+    value: 9999
+  - key: {x: -4, y: 3}
+    value: 9999
+  - key: {x: -4, y: 4}
+    value: 9999
+  - key: {x: -4, y: 5}
+    value: 1001
+  - key: {x: -4, y: 6}
+    value: 1001
+  - key: {x: -3, y: -3}
+    value: 1001
   - key: {x: -3, y: -2}
     value: 1001
   - key: {x: -3, y: -1}
-    value: 1001
+    value: 9999
+  - key: {x: -3, y: 0}
+    value: 2000
   - key: {x: -3, y: 1}
-    value: 1001
+    value: 2000
   - key: {x: -3, y: 2}
-    value: 1001
+    value: 2000
   - key: {x: -3, y: 3}
-    value: 1001
+    value: 2000
   - key: {x: -3, y: 4}
+    value: 9999
+  - key: {x: -3, y: 5}
+    value: 9999
+  - key: {x: -3, y: 6}
+    value: 1001
+  - key: {x: -2, y: -3}
     value: 1001
   - key: {x: -2, y: -2}
     value: 1001
   - key: {x: -2, y: -1}
-    value: 1001
+    value: 2000
   - key: {x: -2, y: 0}
-    value: 1001
+    value: 2000
   - key: {x: -2, y: 1}
-    value: 1001
+    value: 2000
   - key: {x: -2, y: 2}
-    value: 1001
+    value: 2000
   - key: {x: -2, y: 3}
-    value: 1001
+    value: 2000
   - key: {x: -2, y: 4}
+    value: 2000
+  - key: {x: -2, y: 5}
+    value: 9999
+  - key: {x: -2, y: 6}
+    value: 1001
+  - key: {x: -1, y: -3}
+    value: 1001
+  - key: {x: -1, y: -2}
     value: 1001
   - key: {x: -1, y: -1}
-    value: 1001
+    value: 2000
   - key: {x: -1, y: 0}
-    value: 1001
+    value: 2000
   - key: {x: -1, y: 1}
-    value: 1001
+    value: 2000
   - key: {x: -1, y: 2}
-    value: 1001
+    value: 2000
   - key: {x: -1, y: 3}
+    value: 2000
+  - key: {x: -1, y: 4}
+    value: 2000
+  - key: {x: -1, y: 5}
+    value: 9999
+  - key: {x: -1, y: 6}
+    value: 1001
+  - key: {x: 0, y: -3}
+    value: 1001
+  - key: {x: 0, y: -2}
     value: 1001
   - key: {x: 0, y: -1}
-    value: 1001
+    value: 2000
   - key: {x: 0, y: 0}
-    value: 1001
+    value: 2000
   - key: {x: 0, y: 1}
-    value: 1001
+    value: 2000
   - key: {x: 0, y: 2}
-    value: 1001
+    value: 2000
   - key: {x: 0, y: 3}
-    value: 1001
+    value: 2000
   - key: {x: 0, y: 4}
+    value: 2000
+  - key: {x: 0, y: 5}
+    value: 9999
+  - key: {x: 0, y: 6}
+    value: 1001
+  - key: {x: 1, y: -3}
     value: 1001
   - key: {x: 1, y: -2}
     value: 1001
   - key: {x: 1, y: -1}
-    value: 1001
+    value: 2000
   - key: {x: 1, y: 0}
-    value: 1001
+    value: 2000
   - key: {x: 1, y: 1}
-    value: 1001
+    value: 2000
   - key: {x: 1, y: 2}
-    value: 1001
+    value: 2000
   - key: {x: 1, y: 3}
-    value: 1001
+    value: 2000
   - key: {x: 1, y: 4}
+    value: 2000
+  - key: {x: 1, y: 5}
+    value: 9999
+  - key: {x: 1, y: 6}
+    value: 1001
+  - key: {x: 2, y: -3}
     value: 1001
   - key: {x: 2, y: -2}
     value: 1001
   - key: {x: 2, y: -1}
-    value: 1001
+    value: 2000
   - key: {x: 2, y: 0}
-    value: 1001
+    value: 2000
   - key: {x: 2, y: 1}
-    value: 1001
+    value: 2000
   - key: {x: 2, y: 2}
-    value: 1001
+    value: 2000
   - key: {x: 2, y: 3}
+    value: 2000
+  - key: {x: 2, y: 4}
+    value: 2000
+  - key: {x: 2, y: 5}
+    value: 9999
+  - key: {x: 2, y: 6}
+    value: 1001
+  - key: {x: 3, y: -3}
     value: 1001
   - key: {x: 3, y: -2}
     value: 1001
   - key: {x: 3, y: -1}
-    value: 1001
+    value: 9999
+  - key: {x: 3, y: 0}
+    value: 2000
   - key: {x: 3, y: 1}
-    value: 1001
+    value: 2000
   - key: {x: 3, y: 2}
-    value: 1001
+    value: 2000
+  - key: {x: 3, y: 3}
+    value: 2000
   - key: {x: 3, y: 4}
+    value: 9999
+  - key: {x: 3, y: 5}
+    value: 9999
+  - key: {x: 3, y: 6}
+    value: 1001
+  - key: {x: 4, y: -3}
+    value: 1001
+  - key: {x: 4, y: -2}
+    value: 1001
+  - key: {x: 4, y: -1}
+    value: 9999
+  - key: {x: 4, y: 0}
+    value: 9999
+  - key: {x: 4, y: 1}
+    value: 9999
+  - key: {x: 4, y: 2}
+    value: 9999
+  - key: {x: 4, y: 3}
+    value: 9999
+  - key: {x: 4, y: 4}
+    value: 9999
+  - key: {x: 4, y: 5}
+    value: 1001
+  - key: {x: 4, y: 6}
+    value: 1001
+  - key: {x: 5, y: -2}
+    value: 1001
+  - key: {x: 5, y: -1}
+    value: 1001
+  - key: {x: 5, y: 0}
+    value: 1001
+  - key: {x: 5, y: 1}
+    value: 1001
+  - key: {x: 5, y: 2}
+    value: 1001
+  - key: {x: 5, y: 3}
+    value: 1001
+  - key: {x: 5, y: 4}
+    value: 1001
+  - key: {x: 5, y: 5}
     value: 1001
   data_mapBuilding:
-  - key: {x: -4, y: -3}
-    value: 0
-  - key: {x: -4, y: -2}
-    value: 0
-  - key: {x: -4, y: -1}
-    value: 0
-  - key: {x: -4, y: 0}
-    value: 0
-  - key: {x: -4, y: 1}
-    value: 0
-  - key: {x: -4, y: 2}
-    value: 0
-  - key: {x: -4, y: 3}
-    value: 0
-  - key: {x: -4, y: 4}
-    value: 0
-  - key: {x: -4, y: 5}
-    value: 0
-  - key: {x: -3, y: -3}
-    value: 0
-  - key: {x: -3, y: -2}
-    value: 0
-  - key: {x: -3, y: -1}
-    value: 0
-  - key: {x: -3, y: 0}
-    value: 0
-  - key: {x: -3, y: 1}
-    value: 0
-  - key: {x: -3, y: 2}
-    value: 0
-  - key: {x: -3, y: 3}
-    value: 0
-  - key: {x: -3, y: 4}
-    value: 0
-  - key: {x: -3, y: 5}
-    value: 0
-  - key: {x: -2, y: -3}
-    value: 0
-  - key: {x: -2, y: -2}
-    value: 0
-  - key: {x: -2, y: -1}
-    value: 0
-  - key: {x: -2, y: 0}
-    value: 0
-  - key: {x: -2, y: 1}
-    value: 0
-  - key: {x: -2, y: 2}
-    value: 0
-  - key: {x: -2, y: 3}
-    value: 0
-  - key: {x: -2, y: 4}
-    value: 0
-  - key: {x: -2, y: 5}
-    value: 0
-  - key: {x: -1, y: -3}
-    value: 0
-  - key: {x: -1, y: -2}
-    value: 0
-  - key: {x: -1, y: -1}
-    value: 0
-  - key: {x: -1, y: 0}
-    value: 0
-  - key: {x: -1, y: 1}
-    value: 0
-  - key: {x: -1, y: 2}
-    value: 0
-  - key: {x: -1, y: 3}
-    value: 0
-  - key: {x: -1, y: 4}
-    value: 0
-  - key: {x: -1, y: 5}
-    value: 0
-  - key: {x: 0, y: -3}
-    value: 0
-  - key: {x: 0, y: -2}
-    value: 0
-  - key: {x: 0, y: -1}
-    value: 0
   - key: {x: 0, y: 0}
-    value: 0
-  - key: {x: 0, y: 1}
-    value: 8000
-  - key: {x: 0, y: 2}
-    value: 0
-  - key: {x: 0, y: 3}
-    value: 0
-  - key: {x: 0, y: 4}
-    value: 0
-  - key: {x: 0, y: 5}
-    value: 0
-  - key: {x: 1, y: -3}
-    value: 0
-  - key: {x: 1, y: -2}
-    value: 0
-  - key: {x: 1, y: -1}
-    value: 0
-  - key: {x: 1, y: 0}
-    value: 0
-  - key: {x: 1, y: 1}
-    value: 0
-  - key: {x: 1, y: 2}
-    value: 0
-  - key: {x: 1, y: 3}
-    value: 0
-  - key: {x: 1, y: 4}
-    value: 0
-  - key: {x: 1, y: 5}
-    value: 0
-  - key: {x: 2, y: -3}
-    value: 0
-  - key: {x: 2, y: -2}
-    value: 0
-  - key: {x: 2, y: -1}
-    value: 0
-  - key: {x: 2, y: 0}
-    value: 0
-  - key: {x: 2, y: 1}
-    value: 0
-  - key: {x: 2, y: 2}
-    value: 0
-  - key: {x: 2, y: 3}
-    value: 0
-  - key: {x: 2, y: 4}
-    value: 0
-  - key: {x: 2, y: 5}
-    value: 0
-  - key: {x: 3, y: -3}
-    value: 0
-  - key: {x: 3, y: -2}
-    value: 0
-  - key: {x: 3, y: -1}
-    value: 0
-  - key: {x: 3, y: 0}
-    value: 0
-  - key: {x: 3, y: 1}
-    value: 0
-  - key: {x: 3, y: 2}
-    value: 0
-  - key: {x: 3, y: 3}
-    value: 0
-  - key: {x: 3, y: 4}
-    value: 0
-  - key: {x: 3, y: 5}
-    value: 0
-  - key: {x: 4, y: -3}
-    value: 0
-  - key: {x: 4, y: -2}
-    value: 0
-  - key: {x: 4, y: -1}
-    value: 0
-  - key: {x: 4, y: 0}
-    value: 0
-  - key: {x: 4, y: 1}
-    value: 0
-  - key: {x: 4, y: 2}
-    value: 0
-  - key: {x: 4, y: 3}
-    value: 0
-  - key: {x: 4, y: 4}
-    value: 0
-  - key: {x: 4, y: 5}
-    value: 0
+    value: 2000

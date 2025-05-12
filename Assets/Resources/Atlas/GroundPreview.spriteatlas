@@ -39,18 +39,24 @@ SpriteAtlas:
     packedSpriteRenderDataKeys:
     - c51619b056d863a4e90b78c08c53d8de: 21300000
     - b7c65ce3045b9cd42b2767e5a813bd48: 21300000
+    - 279388b78b4d3e04da085c33877cfbda: 21300000
     - a1494519df35be844b67218f10816f78: 21300000
+    - 873e9c991f2c5d9419d8e3dd562ef7de: 21300000
     - 65fc41def31cf0a4e8d594c031a1c6c7: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: c51619b056d863a4e90b78c08c53d8de, type: 3}
   - {fileID: 21300000, guid: b7c65ce3045b9cd42b2767e5a813bd48, type: 3}
+  - {fileID: 21300000, guid: 279388b78b4d3e04da085c33877cfbda, type: 3}
   - {fileID: 21300000, guid: a1494519df35be844b67218f10816f78, type: 3}
+  - {fileID: 21300000, guid: 873e9c991f2c5d9419d8e3dd562ef7de, type: 3}
   - {fileID: 21300000, guid: 65fc41def31cf0a4e8d594c031a1c6c7, type: 3}
   m_PackedSpriteNamesToIndex:
   - 9000
   - 9999
+  - 2001
   - 1000
+  - 2000
   - 1001
   m_RenderDataMap: {}
   m_Tag: GroundPreview

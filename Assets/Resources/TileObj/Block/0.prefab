@@ -75,7 +75,7 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 165fcc96cb0a0614e86ec136fb668278, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -99,3 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
+  hp: 0
+  armor: 0
+  baseLoots: []
+  extraLoots: []

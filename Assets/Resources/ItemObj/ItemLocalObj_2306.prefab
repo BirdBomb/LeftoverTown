@@ -24,8 +24,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 134143963214733776}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.38268343, w: 0.92387956}
-  m_LocalPosition: {x: 0.9, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1, y: 0.09, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -134,7 +134,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -218,7 +218,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 598843d6c6ad80d4eb081f8702053dec, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -280,24 +280,19 @@ MonoBehaviour:
   actorManager: {fileID: 0}
   itemData:
     Item_ID: 0
-    Item_Seed: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
-    Item_DurabilityPoint: 0
+    Item_SignTime: 0
     Item_Content:
       Item_ID: 0
-      Item_Seed: 0
       Item_Count: 0
       Item_Info: 0
       Item_Durability: 0
       Item_DurabilityPoint: 0
-  spriteRenderer_RightHand: {fileID: 5362645331195621912}
-  spriteRenderer_LeftHand: {fileID: 995918153900148255}
   transform_Root: {fileID: 9146774181741358179}
+  transform_Body: {fileID: 2906562438965581118}
   transform_Muzzle: {fileID: 6168647542898519913}
-  transform_Rifle: {fileID: 2906562438965581118}
-  sector: {fileID: 8919616579191043122}
   config_AimDistance: 2
   config_AimMaxRange: 20
   config_AimMinRange: 5
@@ -305,9 +300,13 @@ MonoBehaviour:
   config_ShotAimTime: 0.75
   config_ShotCD: 0.12
   config_ShotRecoilTime: 0.15
-  config_ShotMaxTime: 3
   vector3_KickBack: {x: -0.1, y: 0, z: 0}
   float_KickOn: 0
+  config_NPCAddBulletCount: 5
+  skillIndicators: {fileID: 389606184067672441}
+  spriteRenderer_RightHand: {fileID: 5362645331195621912}
+  spriteRenderer_LeftHand: {fileID: 995918153900148255}
+  transform_Rifle: {fileID: 2906562438965581118}
 --- !u!1 &7197835668705033740
 GameObject:
   m_ObjectHideFlags: 0
@@ -414,7 +413,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -477,26 +476,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6279983902349122353, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
       propertyPath: m_Name
-      value: SI
+      value: SkillIndicators
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
---- !u!4 &8573751348842616962 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5417515156419152020, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
-  m_PrefabInstance: {fileID: 4454891510493794326}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8919616579191043122 stripped
+--- !u!114 &389606184067672441 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5051398570620429348, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
+  m_CorrespondingSourceObject: {fileID: 4087822583733746031, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
   m_PrefabInstance: {fileID: 4454891510493794326}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bebb11da7fe73e428a2b3fa0ad784bc, type: 3}
+  m_Script: {fileID: 11500000, guid: 2c4b2b45aafc5c743a9e098aaad4a613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &8573751348842616962 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5417515156419152020, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
+  m_PrefabInstance: {fileID: 4454891510493794326}
+  m_PrefabAsset: {fileID: 0}

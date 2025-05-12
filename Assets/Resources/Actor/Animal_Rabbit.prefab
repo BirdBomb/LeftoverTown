@@ -105,7 +105,7 @@ Transform:
   m_GameObject: {fileID: 3023741466038223626}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -126,7 +126,7 @@ GameObject:
   - component: {fileID: 5614024351997551555}
   - component: {fileID: 706930447501670027}
   - component: {fileID: 1871608857187948625}
-  - component: {fileID: 1601061789579836308}
+  - component: {fileID: 2588767178164515165}
   - component: {fileID: 4934783304059163558}
   - component: {fileID: 1196993711045735988}
   - component: {fileID: 6152101677706244354}
@@ -145,7 +145,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6825515710627865195}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -271,7 +271,7 @@ SortingGroup:
   m_GameObject: {fileID: 6825515710627865195}
   m_Enabled: 1
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_SortAtRoot: 0
 --- !u!114 &1871608857187948625
@@ -293,7 +293,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 4934783304059163558}
   - {fileID: 6152101677706244354}
---- !u!114 &1601061789579836308
+--- !u!114 &2588767178164515165
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -302,11 +302,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 6825515710627865195}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2cf216ddc963dbb458bebcd1f974a997, type: 3}
+  m_Script: {fileID: 11500000, guid: 1f78292ffc692b645a3f1f3b724e7906, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0
   faceDir: {x: 0, y: 0}
+  turnDir: {x: 0, y: 0}
   transform_Body: {fileID: 3745865599466536371}
   animator_Body: {fileID: 9184514597382638217}
   animaEventListen_Body: {fileID: 11997612467697869}
@@ -347,14 +348,16 @@ MonoBehaviour:
   rigidbody2: {fileID: 5614024351997551555}
   actorUI: {fileID: 7074665964387966742}
   actorNetManager: {fileID: 6152101677706244354}
-  bodyController: {fileID: 1601061789579836308}
+  bodyController: {fileID: 2588767178164515165}
   actorState: 0
   viewManager: {fileID: 4909571679106528117}
+  float_ThinkCD: 3
   config:
     status_Type: 4
     short_Hp: 10
-    short_Speed: 60
-    float_Stroll: 5
+    short_MoveSpeed: 60
+    short_MoveStep: 1
+    float_ViewDistance: 20
     lootInfos_Base:
     - ID: 3101
       CountMin: 1
@@ -576,7 +579,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 2
   m_Sprite: {fileID: -1884656967, guid: 2e58376649e22374e988806ef341e6e1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -588,7 +591,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!114 &11997612467697869
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -609,10 +612,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4156479446529762255}
     m_Modifications:
-    - target: {fileID: 280313593101455128, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
-      propertyPath: m_text
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 3753366501118518783, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_Name
       value: ActorUI
@@ -623,7 +622,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5677282177641982469, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 5677282177641982469, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_LocalPosition.z

@@ -71,7 +71,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 71bc168169fde084482a3c64ee2310e5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -133,8 +133,9 @@ MonoBehaviour:
   vectoe3_MoveDir: {x: 0, y: 0, z: 0}
   vectoe3_CurPos: {x: 0, y: 0, z: 0}
   vectoe3_LastPos: {x: 0, y: 0, z: 0}
-  float_MoveSpeed: 0
-  float_Force: 0
+  float_BulletDemage: 0
+  float_BulletSpeed: 0
+  float_BulletForce: 0
   float_Life: 3
   config_Damage: 5
   config_Speed: 40
@@ -143,7 +144,12 @@ MonoBehaviour:
   layerMask_Target:
     serializedVersion: 2
     m_Bits: 1088
-  speedDown: 40
+  float_ArrowSpeedDown: 40
+  config_BaseDamage: 5
+  config_BaseSpeed: 40
+  config_BaseForce: 0
+  int_ArrowID: 9000
+  int_ArrowRecoveryProbability: 400
 --- !u!1 &8439158991072856255
 GameObject:
   m_ObjectHideFlags: 0
@@ -215,7 +221,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: dae299b22ea2cfa4d97d9c72fe39061e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

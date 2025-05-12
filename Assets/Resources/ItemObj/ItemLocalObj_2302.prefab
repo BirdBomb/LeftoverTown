@@ -71,7 +71,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 3326e1cd72c0ef5408e8fda8579d7330, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -222,7 +222,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -259,8 +259,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4930545658852571127}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.38268343, w: 0.92387956}
-  m_LocalPosition: {x: 0.9, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1, y: 0.045, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -315,24 +315,19 @@ MonoBehaviour:
   actorManager: {fileID: 0}
   itemData:
     Item_ID: 0
-    Item_Seed: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
-    Item_DurabilityPoint: 0
+    Item_SignTime: 0
     Item_Content:
       Item_ID: 0
-      Item_Seed: 0
       Item_Count: 0
       Item_Info: 0
       Item_Durability: 0
       Item_DurabilityPoint: 0
-  spriteRenderer_RightHand: {fileID: 4975940963106823922}
-  spriteRenderer_LeftHand: {fileID: 3582086643038827242}
   transform_Root: {fileID: 830163241578776676}
+  transform_Body: {fileID: 5170891920119161530}
   transform_Muzzle: {fileID: 164077799251476259}
-  transform_Rifle: {fileID: 5170891920119161530}
-  sector: {fileID: 5921646669512395678}
   config_AimDistance: 2
   config_AimMaxRange: 60
   config_AimMinRange: 10
@@ -340,9 +335,13 @@ MonoBehaviour:
   config_ShotAimTime: 1
   config_ShotCD: 0.15
   config_ShotRecoilTime: 0.25
-  config_ShotMaxTime: 3
   vector3_KickBack: {x: -0.2, y: 0, z: 0}
   float_KickOn: 10
+  config_NPCAddBulletCount: 5
+  skillIndicators: {fileID: 3210251256397469397}
+  spriteRenderer_RightHand: {fileID: 4975940963106823922}
+  spriteRenderer_LeftHand: {fileID: 3582086643038827242}
+  transform_Rifle: {fileID: 5170891920119161530}
 --- !u!1 &7909545406217783844
 GameObject:
   m_ObjectHideFlags: 0
@@ -414,7 +413,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -477,22 +476,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6279983902349122353, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
       propertyPath: m_Name
-      value: SI
+      value: SkillIndicators
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
---- !u!114 &5921646669512395678 stripped
+--- !u!114 &3210251256397469397 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5051398570620429348, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
+  m_CorrespondingSourceObject: {fileID: 4087822583733746031, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
   m_PrefabInstance: {fileID: 1456851227489234874}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bebb11da7fe73e428a2b3fa0ad784bc, type: 3}
+  m_Script: {fileID: 11500000, guid: 2c4b2b45aafc5c743a9e098aaad4a613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &6852551385984984878 stripped

@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45a37e370e4ee754ea637535f1acc1a4, type: 3}
   m_Name: 0
   m_EditorClassIdentifier: 
-  config_Sprite: {fileID: 21300000, guid: 0f5bce8a489e27245a8ea6d68300bb54, type: 3}
+  config_Sprite: {fileID: 21300000, guid: 165fcc96cb0a0614e86ec136fb668278, type: 3}
   config_InstancedGameObject: {fileID: 223198607764510710, guid: 6120b18c2294c8d48a02a0cb75dd1f3a, type: 3}
-  config_Pass: 0
+  config_Pass: 1
   config_Drag: 0
   tileID: 0
   tilePos: {x: 0, y: 0, z: 0}

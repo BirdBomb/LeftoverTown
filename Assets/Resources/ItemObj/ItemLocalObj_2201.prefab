@@ -71,7 +71,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -156,7 +156,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -240,9 +240,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: e709499e3eb5e0c4b8831628c765d035, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 15395481228adfb44a64b16ffe3ca79b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -324,7 +324,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: ad126aa04f109ae4bb5db8a306bd8097, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -420,14 +420,12 @@ MonoBehaviour:
   actorManager: {fileID: 0}
   itemData:
     Item_ID: 0
-    Item_Seed: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
-    Item_DurabilityPoint: 0
+    Item_SignTime: 0
     Item_Content:
       Item_ID: 0
-      Item_Seed: 0
       Item_Count: 0
       Item_Info: 0
       Item_Durability: 0
@@ -437,15 +435,16 @@ MonoBehaviour:
   spriteRenderer_Arrow: {fileID: 7447736411314209986}
   transform_LeftHand: {fileID: 8424816464667044136}
   transform_RightHand: {fileID: 6879173388419971424}
-  spriteAtlas: {fileID: 4343727234628468602, guid: dfcef9f411b96c442835a10515a64459, type: 2}
-  skillSector: {fileID: 6814193817515875030}
-  config_aimDistance: 1
-  config_aimMaxRange: 90
-  config_aimMinRange: 20
-  config_shotReadyTime: 0.5
-  config_shotAimTime: 1
-  config_shotCD: 1
-  config_shotRecoilTime: 1.2
+  spriteAtlas_Item: {fileID: 4343727234628468602, guid: dfcef9f411b96c442835a10515a64459, type: 2}
+  skillIndicators: {fileID: 2319373510709446557}
+  config_AimDistance: 1
+  config_AimMaxRange: 90
+  config_AimMinRange: 20
+  config_ShotReadyTime: 0.5
+  config_ShotAimTime: 1
+  config_ShotCD: 1
+  config_ShotRecoilTime: 1.2
+  config_NPCAddBulletCount: 4
 --- !u!95 &8896004701202270447
 Animator:
   serializedVersion: 5
@@ -550,26 +549,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6279983902349122353, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
       propertyPath: m_Name
-      value: SI
+      value: SkillIndicators
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
---- !u!4 &6026990875398501990 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5417515156419152020, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
-  m_PrefabInstance: {fileID: 1768451272552054514}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6814193817515875030 stripped
+--- !u!114 &2319373510709446557 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5051398570620429348, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
+  m_CorrespondingSourceObject: {fileID: 4087822583733746031, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
   m_PrefabInstance: {fileID: 1768451272552054514}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bebb11da7fe73e428a2b3fa0ad784bc, type: 3}
+  m_Script: {fileID: 11500000, guid: 2c4b2b45aafc5c743a9e098aaad4a613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &6026990875398501990 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5417515156419152020, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
+  m_PrefabInstance: {fileID: 1768451272552054514}
+  m_PrefabAsset: {fileID: 0}

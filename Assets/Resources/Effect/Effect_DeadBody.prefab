@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8181634874334091006}
   - component: {fileID: 5915776147742614987}
   - component: {fileID: 7213909382814082342}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ChildPart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,10 +100,10 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8, g: 0.8, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -143,7 +143,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7911999670299559690}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   - component: {fileID: 6175927367538213011}
   - component: {fileID: 1938747885849285610}
   - component: {fileID: 7814154698099734867}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: MainPart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,10 +242,10 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: e5bd90ce04c79f4458911dfb90b518c8, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -277,7 +277,7 @@ Rigidbody2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
@@ -336,7 +336,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6441642933523141370}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: HandRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -368,7 +368,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6303389879416993310}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: HandLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -401,7 +401,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1264281771918479362}
   - component: {fileID: 3027552388655669668}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -462,7 +462,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 400a3a73585b6b6429ae74da780384f9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -485,7 +485,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2435008354294178826}
   - component: {fileID: 1331207367389649270}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Hair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -546,7 +546,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 9ef67a89c43e2d642b1fdafc22062ac5, type: 3}
   m_Color: {r: 0.32704395, g: 0.32704395, b: 0.32704395, a: 1}
@@ -571,7 +571,7 @@ GameObject:
   - component: {fileID: 1018048927255454036}
   - component: {fileID: 3732846892056995476}
   - component: {fileID: 3839276455130103737}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ChildPart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -659,10 +659,10 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -705,7 +705,7 @@ GameObject:
   - component: {fileID: 7769213382867459801}
   - component: {fileID: 600501845199150778}
   - component: {fileID: 2015648086231776817}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ChildPart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -795,10 +795,10 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 098d5fe8f893a574bb6bec42340c7f20, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -844,7 +844,7 @@ GameObject:
   - component: {fileID: 1095026407490818120}
   - component: {fileID: 7570129799221889980}
   - component: {fileID: 8271001384906327821}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Effect_DeadBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -893,7 +893,7 @@ SortingGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7399881422802536828}
   m_Enabled: 1
-  m_SortingLayerID: 680613467
+  m_SortingLayerID: -2008615703
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: 99
   m_SortAtRoot: 0

@@ -71,7 +71,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -150,10 +150,14 @@ MonoBehaviour:
   transform_Root: {fileID: 5616016518448572830}
   spriteRenderer_LeftHand: {fileID: 6010624025757309242}
   spriteRenderer_RightHand: {fileID: 4364093267704502517}
-  sector: {fileID: 3471981198303671547}
-  config_StabDamage: 0
-  config_HackDamage: 0
-  config_AttackDistance: 1
+  skillIndicators: {fileID: 5660466484560947632}
+  config_AttackSpeed: 1
+  config_StabDamage: 5
+  config_StabDistance: 2
+  config_StabRange: 10
+  config_HackDamage: 4
+  config_HackDistance: 2
+  config_HackRange: 60
 --- !u!95 &6672081616972106929
 Animator:
   serializedVersion: 5
@@ -246,7 +250,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -364,7 +368,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: d00eab2e25542e344867a967e1aa699c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -459,26 +463,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6279983902349122353, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
       propertyPath: m_Name
-      value: SI
+      value: SkillIndicators
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
---- !u!114 &3471981198303671547 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5051398570620429348, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
-  m_PrefabInstance: {fileID: 8517671104394203359}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bebb11da7fe73e428a2b3fa0ad784bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &4402895260555810891 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5417515156419152020, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
   m_PrefabInstance: {fileID: 8517671104394203359}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5660466484560947632 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4087822583733746031, guid: c2e5a9756ef3b914d9a2c20526814c99, type: 3}
+  m_PrefabInstance: {fileID: 8517671104394203359}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c4b2b45aafc5c743a9e098aaad4a613, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
