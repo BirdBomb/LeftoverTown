@@ -34,7 +34,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Animation_Effect105_0_0
+      name: Animation_BulletBoom_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 40
-        height: 40
+        width: 10
+        height: 10
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,20 +124,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 593746b8b7e707a458073f587c000237
-      internalID: -1883247876
+      spriteID: 0acb49f5fbd6d64459f0573e077a884b
+      internalID: 166189630
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Animation_Effect105_0_1
+      name: Animation_BulletBoom_1
       rect:
         serializedVersion: 2
-        x: 40
+        x: 10
         y: 0
-        width: 40
-        height: 40
+        width: 10
+        height: 10
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -145,20 +145,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 13fdefe882bd85944aa0c3c5a5bf6cbc
-      internalID: 2068591531
+      spriteID: aac887237535d67439b580cb2409f25c
+      internalID: -396372040
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Animation_Effect105_0_2
+      name: Animation_BulletBoom_2
       rect:
         serializedVersion: 2
-        x: 80
+        x: 20
         y: 0
-        width: 40
-        height: 40
+        width: 10
+        height: 10
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -166,20 +166,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c10842950a9e49847af42d73a0b78035
-      internalID: 1633513781
+      spriteID: 2a28f6c830b68b549a1188401976a417
+      internalID: 415987917
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Animation_Effect105_0_3
+      name: Animation_BulletBoom_3
       rect:
         serializedVersion: 2
-        x: 120
+        x: 30
         y: 0
-        width: 40
-        height: 40
+        width: 10
+        height: 10
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -187,8 +187,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 89601ab716100be4494b1cb2d2520111
-      internalID: -1557388432
+      spriteID: a391bda62fe4e214ab7c8dad781bce13
+      internalID: 550910709
       vertices: []
       indices: 
       edges: []
@@ -204,10 +204,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Animation_Effect105_0_0: -1883247876
-      Animation_Effect105_0_1: 2068591531
-      Animation_Effect105_0_2: 1633513781
-      Animation_Effect105_0_3: -1557388432
+      Animation_BulletBoom_0: 166189630
+      Animation_BulletBoom_1: -396372040
+      Animation_BulletBoom_2: 415987917
+      Animation_BulletBoom_3: 550910709
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

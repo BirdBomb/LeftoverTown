@@ -34,7 +34,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -110,106 +110,127 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Animation_Effect101_0
+      name: Animation_MuzzleFire_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 40
-        height: 40
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.2, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 298854c20daf70a42bd1fbfb6b9a3c90
-      internalID: -1950909578
+      spriteID: 5242ab288bc62e9429c1f39dcd0ef667
+      internalID: 1888890999
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Animation_Effect101_1
+      name: Animation_MuzzleFire_1
       rect:
         serializedVersion: 2
-        x: 40
+        x: 14
         y: 0
-        width: 40
-        height: 40
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.2, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 71d275d0c1b1e7f488a63a78a253ed77
-      internalID: -619088179
+      spriteID: 479a42f4790c009469d77b3b94be38d4
+      internalID: -1515516668
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Animation_Effect101_2
+      name: Animation_MuzzleFire_2
       rect:
         serializedVersion: 2
-        x: 80
+        x: 28
         y: 0
-        width: 40
-        height: 40
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.2, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 48d861c874bbaff4bb9511550bab7743
-      internalID: 502122700
+      spriteID: f788e5351cfd0934fa00e5f275e76af2
+      internalID: -1719274698
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Animation_Effect101_3
+      name: Animation_MuzzleFire_3
       rect:
         serializedVersion: 2
-        x: 120
+        x: 42
         y: 0
-        width: 40
-        height: 40
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.2, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9e5f9579ab01faa4a83475cb9e46e391
-      internalID: 1646571132
+      spriteID: 9b8cfb3aaded8134f83de08dc6af39e8
+      internalID: -536713888
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Animation_Effect101_4
+      name: Animation_MuzzleFire_4
       rect:
         serializedVersion: 2
-        x: 160
+        x: 56
         y: 0
-        width: 40
-        height: 40
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.2, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 26362a4e4c5c7074f90200273ea9aa85
-      internalID: -1443468538
+      spriteID: 9cad74337ca914a4795de752f1edafd5
+      internalID: -194460634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Animation_MuzzleFire_5
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.2, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b36cde2ede0223b41a912bbded204b4d
+      internalID: -2032340463
       vertices: []
       indices: 
       edges: []
@@ -225,11 +246,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Animation_Effect101_0: -1950909578
-      Animation_Effect101_1: -619088179
-      Animation_Effect101_2: 502122700
-      Animation_Effect101_3: 1646571132
-      Animation_Effect101_4: -1443468538
+      Animation_MuzzleFire_0: 1888890999
+      Animation_MuzzleFire_1: -1515516668
+      Animation_MuzzleFire_2: -1719274698
+      Animation_MuzzleFire_3: -536713888
+      Animation_MuzzleFire_4: -194460634
+      Animation_MuzzleFire_5: -2032340463
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
