@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: LiquidWaveMat
+  m_Name: Distort
   m_Shader: {fileID: -6465566751694194690, guid: a847ca550821bb44a98f6815f5a18844, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -62,7 +62,7 @@ Material:
     - _Off: 0.001
     - _Speed: 1
     m_Colors:
-    - _HcTrans: {r: 4.592802, g: -1.3892276, b: 50, a: 50}
-    - _HoTrans: {r: 4.5932097, g: -1.3892263, b: 50, a: 50}
-    - _HpTrans: {r: 4.5919013, g: -1.3892306, b: 50, a: 50}
+    - _HcTrans: {r: 2.1562488, g: -6.3108597, b: 50, a: 50}
+    - _HoTrans: {r: 2.1562488, g: -6.3108597, b: 50, a: 50}
+    - _HpTrans: {r: 2.1562488, g: -6.3108597, b: 50, a: 50}
   m_BuildTextureStacks: []

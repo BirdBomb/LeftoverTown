@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: LiquidWaveView
+  m_Name: DistortView
   m_Shader: {fileID: -6465566751694194690, guid: 6ba128d5eab3624408e9dc2e06eaa4e3, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
