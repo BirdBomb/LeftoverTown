@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Actor
+  - Item
+  - BuildingNatural
+  - BuildingManmade
   layers:
   - Default
   - TransparentFX
@@ -21,8 +24,8 @@ TagManager:
   - TileObj_Floor
   - TileObj_Liquid
   - TileObj_UnderGround
-  - 
-  - 
+  - TileObj_Reflection
+  - DeadBody
   - 
   - 
   - 
