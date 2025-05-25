@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: UI_String Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: UI_String
+  m_TableCollectionNameGuidString: c4a48e7e483cbb847a644c76feccdd1f
+  m_Entries:
+  - m_Id: 169838223360
+    m_Key: CreateGame
+    m_Metadata:
+      m_Items: []
+  - m_Id: 367402524672
+    m_Key: JoinGame
+    m_Metadata:
+      m_Items: []
+  - m_Id: 481827332096
+    m_Key: Setting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 880282017792
+    m_Key: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 221062099214336
+    m_Key: Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 221122857902080
+    m_Key: Hair
+    m_Metadata:
+      m_Items: []
+  - m_Id: 221192651120640
+    m_Key: Eye
+    m_Metadata:
+      m_Items: []
+  - m_Id: 221242584309760
+    m_Key: Color
+    m_Metadata:
+      m_Items: []
+  - m_Id: 255830325043200
+    m_Key: Size
+    m_Metadata:
+      m_Items: []
+  - m_Id: 256433319157760
+    m_Key: Refresh
+    m_Metadata:
+      m_Items: []
+  - m_Id: 256709140783104
+    m_Key: Seed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 265160692703232
+    m_Key: Type
+    m_Metadata:
+      m_Items: []
+  - m_Id: 708450491670528
+    m_Key: Head
+    m_Metadata:
+      m_Items: []
+  - m_Id: 708494611554304
+    m_Key: Body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 708633254273024
+    m_Key: Hand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 708875315945472
+    m_Key: Bag
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 1077783413863219224
+  references:
+    version: 2
+    RefIds:
+    - rid: 1077783413863219224
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1747249063479

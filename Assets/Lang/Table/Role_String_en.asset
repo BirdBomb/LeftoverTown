@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Role_String_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 9b2bfa0e5f8c90e47a921d5c56408835, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 20349034496
+    m_Localized: RockMan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 293419196416
+    m_Localized: Since I was trapped here, the altar inside hasn't been tended to
+      for a long time. Maybe you could go and take a look.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 405874772647936
+    m_Localized: Hunter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 405974890684416
+    m_Localized: What?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 406697724452864
+    m_Localized: 'You have some goods? '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 407023873531904
+    m_Localized: Nothing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 407457916887040
+    m_Localized: May be later! Try evening!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 407778105860096
+    m_Localized: Ok
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_String_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: c4a48e7e483cbb847a644c76feccdd1f, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 169838223360
+    m_Localized: CreateGame
+    m_Metadata:
+      m_Items: []
+  - m_Id: 367402524672
+    m_Localized: JoinGame
+    m_Metadata:
+      m_Items: []
+  - m_Id: 481827332096
+    m_Localized: Setting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 880282017792
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 221062099214336
+    m_Localized: 'Name
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 221122857902080
+    m_Localized: 'Hair
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 221192651120640
+    m_Localized: Eye
+    m_Metadata:
+      m_Items: []
+  - m_Id: 221242584309760
+    m_Localized: Color
+    m_Metadata:
+      m_Items: []
+  - m_Id: 255830325043200
+    m_Localized: Size
+    m_Metadata:
+      m_Items: []
+  - m_Id: 256433319157760
+    m_Localized: Refresh
+    m_Metadata:
+      m_Items: []
+  - m_Id: 256709140783104
+    m_Localized: Seed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 265160692703232
+    m_Localized: Type
+    m_Metadata:
+      m_Items: []
+  - m_Id: 708450491670528
+    m_Localized: Head
+    m_Metadata:
+      m_Items: []
+  - m_Id: 708494611554304
+    m_Localized: Body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 708633254273024
+    m_Localized: Hand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 708875315945472
+    m_Localized: Bag
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
