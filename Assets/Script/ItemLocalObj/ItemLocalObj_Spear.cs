@@ -67,8 +67,8 @@ public class ItemLocalObj_Spear : ItemLocalObj
         transform.localRotation = Quaternion.identity;
         transform.localPosition = Vector3.zero;
         transform.localScale = Vector3.one;
-        spriteRenderer_LeftHand.sprite = body.transform_LeftHand.GetComponent<SpriteRenderer>().sprite;
-        spriteRenderer_RightHand.sprite = body.transform_LeftHand.GetComponent<SpriteRenderer>().sprite;
+        spriteRenderer_LeftHand.color = body.transform_LeftHand.GetComponent<SpriteRenderer>().color;
+        spriteRenderer_RightHand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
 

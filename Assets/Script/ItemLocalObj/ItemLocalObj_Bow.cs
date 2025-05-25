@@ -72,9 +72,9 @@ public class ItemLocalObj_Bow : ItemLocalObj
         transform.localPosition = new Vector3(0.1f, 0, 0);
         transform.localScale = Vector3.one;
 
-        transform_LeftHand.GetComponent<SpriteRenderer>().sprite = body.transform_LeftHand.GetComponent<SpriteRenderer>().sprite;
+        transform_LeftHand.GetComponent<SpriteRenderer>().color = body.transform_LeftHand.GetComponent<SpriteRenderer>().color;
         body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
-        transform_RightHand.GetComponent<SpriteRenderer>().sprite = body.transform_RightHand.GetComponent<SpriteRenderer>().sprite;
+        transform_RightHand.GetComponent<SpriteRenderer>().color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
 
         itemData = data;

@@ -183,8 +183,9 @@ public class BuildingObj : MonoBehaviour
     #endregion
     #region//生命值
     /// <summary>
-    /// 受伤
+    /// 本地端造成伤害
     /// </summary>
+    /// <param name="val"></param>
     public virtual void Local_TakeDamage(int val)
     {
         if (val > armor)
@@ -202,6 +203,10 @@ public class BuildingObj : MonoBehaviour
         damageUI.transform.position = (Vector2)transform.position + Vector2.up + offset;
         damageUI.PlayShow((-val).ToString(), Color.white, offset);
     }
+    /// <summary>
+    /// 本地端修改生命值
+    /// </summary>
+    /// <param name="offset"></param>
     public virtual void Local_ChangeHp(int offset)
     {
         MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingHp()

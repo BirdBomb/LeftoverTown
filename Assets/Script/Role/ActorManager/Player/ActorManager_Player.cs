@@ -16,10 +16,7 @@ public class ActorManager_Player : ActorManager
         if (actorAuthority.isLocal)
         {
             brainManager.actorManagers_Nearby.Add(actor);
-            if (actor.Local_Communication())
-            {
-                actor.actorUI.ShowSingal(true);
-            }
+            actor.Local_InPlayerView(this);
         }
         base.AllClient_Listen_RoleInView(actor);
     }
@@ -28,8 +25,7 @@ public class ActorManager_Player : ActorManager
         if (actorAuthority.isLocal)
         {
             brainManager.actorManagers_Nearby.Remove(actor);
-            actor.actorUI.ShowSingal(false);
-            if (actorManager_DealWith == actor) { Local_TryToOverDeal (); }
+            actor.Local_OutPlayerView(this);
         }
         base.AllClient_Listen_RoleOutView(actor);
     }
@@ -37,41 +33,10 @@ public class ActorManager_Player : ActorManager
     {
         if(keyCode == KeyCode.F)
         {
-            Local_TryToStartDeal();
-        }
-    }
-    #region//交易
-    private ActorManager actorManager_DealWith = null;
-    /// <summary>
-    /// 尝试开始交易
-    /// </summary>
-    public void Local_TryToStartDeal()
-    {
-        for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
-        {
-            if (brainManager.actorManagers_Nearby[i].Local_Deal(out ActorManager dealActor, out List<ItemData> dealGoods, out Func<ItemData, int> dealOffer))
+            for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
             {
-                actorManager_DealWith = brainManager.actorManagers_Nearby[0];
-                MessageBroker.Default.Publish(new UIEvent.UIEvent_StartDeal()
-                {
-                    dealActor = dealActor,
-                    dealGoods = dealGoods,
-                    dealOffer = dealOffer,
-                });
-                return;
+                brainManager.actorManagers_Nearby[i].Local_GetPlayerInput(keyCode,this);
             }
         }
     }
-    /// <summary>
-    /// 尝试结束交易
-    /// </summary>
-    public void Local_TryToOverDeal()
-    {
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_OverDeal()
-        {
-            dealActor = actorManager_DealWith
-        });
-        actorManager_DealWith = null;
-    }
-    #endregion
 }

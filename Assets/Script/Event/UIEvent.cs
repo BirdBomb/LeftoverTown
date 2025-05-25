@@ -21,6 +21,13 @@ public static class UIEvent
         public int index;
     }
     /// <summary>
+    /// UI_添加背包物体
+    /// </summary>
+    public class UIEvent_PutItemInBag
+    {
+        public ItemData item;
+    }
+    /// <summary>
     /// UI-打开持有物体
     /// </summary>
     public class UIEvent_OpenItemInHand
@@ -122,6 +129,13 @@ public static class UIEvent
         public int Fine;
     }
     /// <summary>
+    /// UI-更新延迟
+    /// </summary>
+    public class UIEvent_UpdatePing
+    {
+        public double ping;
+    }
+    /// <summary>
     /// 添加buff
     /// </summary>
     public class UIEvent_AddBuff
@@ -185,21 +199,5 @@ public static class UIEvent
         /// 取出的部分
         /// </summary>
         public ItemData itemData_Out;
-    }
-    /// <summary>
-    /// 开始交易
-    /// </summary>
-    public class UIEvent_StartDeal
-    {
-        public ActorManager dealActor;
-        public List<ItemData> dealGoods;
-        public Func<ItemData, int> dealOffer;
-    }
-    /// <summary>
-    /// 结束交易
-    /// </summary>
-    public class UIEvent_OverDeal
-    {
-        public ActorManager dealActor;
     }
 }

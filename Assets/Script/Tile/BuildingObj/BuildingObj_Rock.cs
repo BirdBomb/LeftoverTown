@@ -349,12 +349,12 @@ public class BuildingObj_Rock : BuildingObj
     public override void All_PlayHpDown()
     {
         bitsParticle.Play();
-        AudioManager.Instance.PlayEffect(1004, transform.position);
+        AudioManager.Instance.Play3DEffect(3002, transform.position);
         base.All_PlayHpDown();
     }
     public override void All_PlayBroken()
     {
-        AudioManager.Instance.PlayEffect(1005, transform.position);
+        AudioManager.Instance.Play3DEffect(3003, transform.position);
         base.All_PlayBroken();
     }
     public override void All_Broken()

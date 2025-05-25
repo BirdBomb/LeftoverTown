@@ -13,7 +13,7 @@ public class ActorInputManager
         this.actorManager = actorManager;
     }
     #region//ÕÊº“ ‰»Î
-    private Action<ActorManager, float, Vector2, bool> action_InputMove = null;
+    private Action<ActorManager, float, Vector2> action_InputMove = null;
     private List<Action<ActorManager, KeyCode>> actions_InputKeycode = new List<Action<ActorManager, KeyCode>>();
     private int int_SwitchIndex = 0;
     public void InputKeycode(KeyCode keyCode,bool on = true)
@@ -80,7 +80,7 @@ public class ActorInputManager
             actorManager.itemManager.itemBase_OnHand.OnHand_ReleaseRightPress(hasStateAuthority, hasInputAuthority, true);
         }
     }
-    public void InputFace(Vector2 dir, bool hasStateAuthority, bool hasInputAuthority)
+    public void InputFace(Vector2 dir)
     {
         actorManager.actionManager.FaceTo(dir);
         if (actorManager.itemManager.itemBase_OnHand != null)
@@ -88,15 +88,19 @@ public class ActorInputManager
             actorManager.itemManager.itemBase_OnHand.OnHand_UpdateMousePos(dir);
         }
     }
-    public void InputMove(float deltaTime, Vector2 dir, bool speedUp, bool hasStateAuthority, bool hasInputAuthority)
+    public void InputMove(float deltaTime, Vector2 dir)
     {
-        action_InputMove?.Invoke(actorManager, deltaTime, dir, speedUp);
-
         dir = dir.normalized;
         float speed = actorManager.actorNetManager.Net_SpeedCommon * 0.1f;
         Vector2 velocity = new Vector2(dir.x * speed, dir.y * speed);
         Vector3 newPos = actorManager.transform.position + new UnityEngine.Vector3(velocity.x * deltaTime, velocity.y * deltaTime, 0);
-        actorManager.actorNetManager.OnlyState_UpdateNetworkRigidbody(newPos, velocity.magnitude);
+        actorManager.actorNetManager.State_UpdateNetworkRigidbody(newPos, velocity.magnitude);
+    }
+    public void SimulationMove(float deltaTime, Vector2 dir)
+    {
+        dir = dir.normalized;
+        float speed = actorManager.actorNetManager.Net_SpeedCommon * 0.1f;
+        actorManager.playerSimulation.SetSimulation(dir, speed);
     }
     public void Local_AddInputKeycodeAction(Action<ActorManager, KeyCode> action)
     {
@@ -112,11 +116,11 @@ public class ActorInputManager
             actions_InputKeycode.Remove(action);
         }
     }
-    public void AllClient_AddInputMove(Action<ActorManager, float, Vector2, bool> action)
+    public void AllClient_AddInputMove(Action<ActorManager, float, Vector2> action)
     {
         action_InputMove = action;
     }
-    public void AllClient_RemoveInputMove(Action<ActorManager, float, Vector2, bool> action)
+    public void AllClient_RemoveInputMove(Action<ActorManager, float, Vector2> action)
     {
         action_InputMove = null;
     }

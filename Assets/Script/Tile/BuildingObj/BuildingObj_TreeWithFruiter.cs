@@ -104,6 +104,7 @@ public class BuildingObj_TreeWithFruiter : BuildingObj
         {
             case TreeState.Stump:
                 hp = int_StumpHp;
+                AudioManager.Instance.Play3DEffect(3000, transform.position);
                 spriteRenderer_Tree.sprite = sprites_Stump[new System.Random().Next(0, sprites_Stump.Length)];
                 break;
             case TreeState.Tree:
@@ -115,6 +116,16 @@ public class BuildingObj_TreeWithFruiter : BuildingObj
                 spriteRenderer_Tree.sprite = sprites_Fruiter[new System.Random().Next(0, sprites_Fruiter.Length)];
                 break;
         }
+    }
+    public override void All_PlayHpDown()
+    {
+        AudioManager.Instance.Play3DEffect(3000, transform.position);
+        base.All_PlayHpDown();
+    }
+    public override void All_PlayBroken()
+    {
+        AudioManager.Instance.Play3DEffect(3000, transform.position);
+        base.All_PlayBroken();
     }
     public override void All_UpdateInfo(string info)
     {

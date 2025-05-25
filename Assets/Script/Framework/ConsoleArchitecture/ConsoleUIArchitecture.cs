@@ -357,7 +357,7 @@ public class ConsoleBuildingListSystem : IConsoleBuildingListSystem
         int startIndex = iconCount * page + index;
         if (tileTargetConfigs.Count > startIndex)
         {
-            MapPreviewManager.Instance.PreviewOpen(tileTargetConfigs[startIndex], MapPreviewManager.BuildState.ForceBuildBuilding);
+            MapPreviewManager.Instance.Init(tileTargetConfigs[startIndex], MapPreviewManager.BuildState.ForceBuildBuilding);
         }
     }
     public IArchitecture GetArchitecture()
@@ -430,7 +430,7 @@ public class ConsoleFloorListSystem : IConsoleFloorListSystem
         int startIndex = iconCount * page + index;
         if (tileTargetConfigs.Count > startIndex)
         {
-            MapPreviewManager.Instance.PreviewOpen(tileTargetConfigs[startIndex], MapPreviewManager.BuildState.ForceBuildFloor);
+            MapPreviewManager.Instance.Init(tileTargetConfigs[startIndex], MapPreviewManager.BuildState.ForceBuildFloor);
         }
     }
     public IArchitecture GetArchitecture()

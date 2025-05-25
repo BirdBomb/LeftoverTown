@@ -129,7 +129,7 @@ public class ActorNetManager : NetworkBehaviour
     }
     #endregion
     #region//外貌和名字(只在本地端计算)
-    public string Local_Name { get; set; } = "无名氏";
+    public string Local_Name { get; set; } = "";
     public short Local_Seed { get; set; } = 0;
     public short Local_EyeID { get; set; } = 0;
     public short Local_HairID { get; set; } = 0;
@@ -605,6 +605,10 @@ public class ActorNetManager : NetworkBehaviour
                     itemData = resData
                 });
             }
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
+            {
+                item = addData
+            }) ;
         }
     }
     /// <summary>
@@ -692,13 +696,18 @@ public class ActorNetManager : NetworkBehaviour
     /// 本地端更改玩家位置
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_UpdateNetworkTransform(Vector3 pos, float speed)
+    public void RPC_Local_SetNetworkTransform(Vector3 pos)
     {
-        OnlyState_UpdateNetworkRigidbody(pos, speed);
+        State_SetNetworkRigidbody(pos);
     }
-    public void OnlyState_UpdateNetworkRigidbody(Vector3 pos, float speed)
+    private void State_SetNetworkRigidbody(Vector3 pos)
     {
-        if (networkRigidbody && actorManager_Local.actorAuthority.isState)
+        networkRigidbody.Rigidbody.velocity = Vector2.zero;
+        networkRigidbody.Rigidbody.position = (pos);
+    }
+    public void State_UpdateNetworkRigidbody(Vector3 pos, float speed)
+    {
+        if (networkRigidbody/* && actorManager_Local.actorAuthority.isState*/)
         {
             if (networkRigidbody.Rigidbody.velocity.magnitude <= speed)
             {
@@ -736,6 +745,10 @@ public class ActorNetManager : NetworkBehaviour
     {
         void OnlyState_PickItem(string val)
         {
+            if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
+            {
+                AudioManager.Instance.Play2DEffect(1003);
+            }
             if (Object.HasStateAuthority && val.Equals("Pick"))
             {
                 NetworkObject networkPlayerObject = Runner.FindObject(id);

@@ -62,7 +62,7 @@ public class ItemLocalObj_Axe : ItemLocalObj
         config_HackCD = config_HackDuraction / config_HackSpeed;
         config_HackCDRec = config_HackSpeed / config_HackDuraction;
 
-        spriteRenderer_Hand.sprite = body.transform_RightHand.GetComponent<SpriteRenderer>().sprite;
+        spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingByHand(owner, body, data);
     }

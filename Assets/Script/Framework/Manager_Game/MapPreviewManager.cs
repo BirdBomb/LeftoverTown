@@ -6,6 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.U2D;
+using static Fusion.Allocator;
 
 public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
 {
@@ -41,7 +42,6 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     private Transform tran_Preview_LeftClickUI;
     [Header("预览中击UI"), SerializeField]
     private Transform tran_Preview_MiddleClickUI;
-    private BuildState buildState = BuildState.Sleep;
     public enum BuildState
     {
         Sleep,
@@ -59,28 +59,28 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     {
         if (bool_InPreview)
         {
-            PreviewUpdate();
+            UpdatePos();
             if (Input.GetKeyDown(KeyCode.Mouse0) && !EventSystem.current.IsPointerOverGameObject())
             {
-                PreviewBuild();
+                Build();
             }
             if (Input.GetKeyDown(KeyCode.Mouse1))
             {
-                PreviewClose();
+                Close();
             }
-            if (buildState == BuildState.ForceBuildBuilding || buildState == BuildState.TryBuildBuilding)
+            if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.TryBuildBuilding)
             {
                 if (Input.GetAxis("Mouse ScrollWheel") > 0)
                 {
                     int_GroupIndex += 1;
                     int_GroupIndex = Mathf.Abs(int_GroupIndex);
-                    UpdateSprite(buildingConfig_Target);
+                    UpdateSprite();
                 }
                 if (Input.GetAxis("Mouse ScrollWheel") < 0)
                 {
                     int_GroupIndex -= 1;
                     int_GroupIndex = Mathf.Abs(int_GroupIndex);
-                    UpdateSprite(buildingConfig_Target);
+                    UpdateSprite();
                 }
             }
         }
@@ -90,43 +90,47 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     #region
     private BuildingConfig buildingConfig_Target;
     private GroundConfig groundConfig_Target;
+    private BuildState buildState_Target = BuildState.Sleep;
     private bool bool_GetAllRaw = false;
     private int int_GroupIndex = 0;
-    public void PreviewOpen(BuildingConfig config, BuildState state)
+    public void Init(BuildingConfig buildingConfig, BuildState buildState)
     {
-        spriteRenderer_Preview.gameObject.SetActive(true);
-        buildingConfig_Target = config;
+        buildingConfig_Target = buildingConfig;
+        buildState_Target = buildState;
         int_GroupIndex = 0;
-        bool_InPreview = true;
-        buildState = state;
-        if (buildState == BuildState.ForceBuildBuilding)
-        {
-            bool_GetAllRaw = true;
-        }
-        else
-        {
-            bool_GetAllRaw = CheckRaw(config.Building_Raw);
-        }
-        UpdateSprite(config);
+        Open();
+        CheckRow();
+        UpdateSprite();
     }
-    public void PreviewOpen(GroundConfig config, BuildState state)
+    public void Init(GroundConfig groundConfig, BuildState buildState)
     {
-        spriteRenderer_Preview.gameObject.SetActive(true);
-        spriteRenderer_Preview.sprite = spriteAtlas_GroundPreview.GetSprite(config.Ground_ID.ToString());
-        groundConfig_Target = config;
-        bool_InPreview = true;
-        buildState = state;
-        if (buildState == BuildState.ForceBuildFloor)
-        {
-            bool_GetAllRaw = true;
-        }
-        else
-        {
-            bool_GetAllRaw = CheckRaw(config.Ground_Raw);
-        }
-        UpdateSprite(config);
+        groundConfig_Target = groundConfig;
+        buildState_Target = buildState;
+        int_GroupIndex = 0;
+        Open();
+        CheckRow();
+        UpdateSprite();
     }
-    public void PreviewUpdate()
+    private void UpdateSprite()
+    {
+        if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.TryBuildBuilding)
+        {
+            if (buildingConfig_Target.Building_Group != null && buildingConfig_Target.Building_Group.Count > 0)
+            {
+                int index = int_GroupIndex % buildingConfig_Target.Building_Group.Count;
+                spriteRenderer_Preview.sprite = spriteAtlas_BuildingPreview.GetSprite(buildingConfig_Target.Building_Group[index].ToString());
+            }
+            else
+            {
+                spriteRenderer_Preview.sprite = spriteAtlas_BuildingPreview.GetSprite(buildingConfig_Target.Building_ID.ToString());
+            }
+        }
+        if (buildState_Target == BuildState.ForceBuildFloor || buildState_Target == BuildState.TryBuildFloor)
+        {
+            spriteRenderer_Preview.sprite = spriteAtlas_GroundPreview.GetSprite(groundConfig_Target.Ground_ID.ToString());
+        }
+    }
+    private void UpdatePos()
     {
         Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         vector3_CurPreviewPos = pos;
@@ -142,28 +146,23 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
             else { UpdateColor(true); }
         }
     }
-    private void UpdateSprite(BuildingConfig config)
+    private void UpdateColor(bool red)
     {
-        if (config.Building_Group != null && config.Building_Group.Count > 0)
+        if (red)
         {
-            int index = int_GroupIndex % config.Building_Group.Count;
-            spriteRenderer_Preview.sprite = spriteAtlas_BuildingPreview.GetSprite(config.Building_Group[index].ToString());
+            spriteRenderer_Preview.color = new Color(1, 0, 0, 0.5f);
         }
         else
         {
-            spriteRenderer_Preview.sprite = spriteAtlas_BuildingPreview.GetSprite(config.Building_ID.ToString());
+            spriteRenderer_Preview.color = new Color(1, 1, 1, 0.5f);
         }
     }
-    private void UpdateSprite(GroundConfig config)
-    {
-        spriteRenderer_Preview.sprite = spriteAtlas_GroundPreview.GetSprite(config.Ground_ID.ToString());
-    }
-    public void PreviewBuild()
+    public void Build()
     {
         if (bool_InPreview)
         {
             spriteRenderer_Preview.color = new Color(1, 0, 0, 0.5f);
-            switch (buildState)
+            switch (buildState_Target)
             {
                 case BuildState.ForceBuildBuilding:
                     PlayBuild(true);
@@ -248,12 +247,18 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
             }
         }
     }
-    public void PreviewClose()
+    public void Open()
+    {
+        bool_InPreview = true;
+        spriteRenderer_Preview.gameObject.SetActive(true);
+        CursorManager.Instance.AddCursor(CursorManager.CursorType.Build);
+    }
+    public void Close()
     {
         bool_InPreview = false;
-        buildState = BuildState.Sleep;
+        buildState_Target = BuildState.Sleep;
         spriteRenderer_Preview.gameObject.SetActive(false);
-        CursorManager.Instance.ChangeCursor(CursorManager.CursorType.Common);
+        CursorManager.Instance.SubCursor(CursorManager.CursorType.Build);
     }
 
     /// <summary>
@@ -264,13 +269,13 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     private bool CheckPostion(Vector3 pos)
     {
         bool temp = false;
-        if (buildState == BuildState.ForceBuildFloor || buildState == BuildState.ForceBuildBuilding)
+        if (buildState_Target == BuildState.ForceBuildFloor || buildState_Target == BuildState.ForceBuildBuilding)
         {
             temp = true;
         }
         else
         {
-            if (buildState == BuildState.TryBuildBuilding)
+            if (buildState_Target == BuildState.TryBuildBuilding)
             {
                 if (buildingConfig_Target.Building_Group != null && buildingConfig_Target.Building_Group.Count > 0)
                 {
@@ -289,7 +294,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
                     }
                 }
             }
-            if (buildState == BuildState.TryBuildFloor)
+            if (buildState_Target == BuildState.TryBuildFloor)
             {
                 if (MapManager.Instance.CheckBuildingEmpty(pos, AreaSize._1X1))
                 {
@@ -298,6 +303,28 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
             }
         }
         return temp;
+    }
+    /// <summary>
+    /// 检查材料
+    /// </summary>
+    /// <returns></returns>
+    private void CheckRow()
+    {
+        if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.ForceBuildFloor)
+        {
+            bool_GetAllRaw = true;
+        }
+        else
+        {
+            if (buildState_Target == BuildState.TryBuildBuilding)
+            {
+                bool_GetAllRaw = CheckRaw(buildingConfig_Target.Building_Raw);
+            }
+            if (buildState_Target == BuildState.TryBuildFloor)
+            {
+                bool_GetAllRaw = CheckRaw(groundConfig_Target.Ground_Raw);
+            }
+        }
     }
     /// <summary>
     /// 检查材料
@@ -311,7 +338,6 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         List<ItemData> data = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
         for (int i = 0; i < raws.Count; i++)
         {
-            ItemConfig itemConfig = ItemConfigData.GetItemConfig(raws[i].ID);
             int itemCount = 0;
             for (int j = 0; j < data.Count; j++)
             {
@@ -343,21 +369,6 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         }
 
     }
-    /// <summary>
-    /// 更新颜色
-    /// </summary>
-    /// <param name="red"></param>
-    public void UpdateColor(bool red)
-    {
-        if (red)
-        {
-            spriteRenderer_Preview.color = new Color(1, 0, 0, 0.5f);
-        }
-        else
-        {
-            spriteRenderer_Preview.color = new Color(1, 1, 1, 0.5f);
-        }
-    }
     private void PlayBuild(bool succes)
     {
         if (succes)
@@ -365,12 +376,14 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
             spriteRenderer_Preview.transform.DOKill();
             spriteRenderer_Preview.transform.localScale = Vector3.one;
             spriteRenderer_Preview.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 1), 0.5f);
+            AudioManager.Instance.Play2DEffect(1004);
         }
         else
         {
             spriteRenderer_Preview.transform.DOKill();
             spriteRenderer_Preview.transform.localScale = Vector3.one;
             spriteRenderer_Preview.transform.DOShakePosition(0.2f, new Vector3(0.1f, 0.1f, 1), 100, 500);
+            AudioManager.Instance.Play2DEffect(1001);
         }
     }
     #endregion

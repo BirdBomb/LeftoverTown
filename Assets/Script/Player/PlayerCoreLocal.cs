@@ -179,13 +179,12 @@ public class PlayerCoreLocal : MonoBehaviour
         }
         if (bool_State)
         {
-            //actor.actorNetManager.Object.AssignInputAuthority(playerCoreNet.Object.InputAuthority);
             State_BindActor();
         }
     }
     public void Local_BindActor()
     {
-        CameraManager.Instance.tran_target = actorManager_Bind.transform;
+        CameraManager.Instance.tran_target = actorManager_Bind.playerSimulation.transform;
         MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_BindLocalPlayer()
         {
             playerCore = this
@@ -193,7 +192,7 @@ public class PlayerCoreLocal : MonoBehaviour
     }
     public void State_BindActor()
     {
-
+        //actor.actorNetManager.Object.AssignInputAuthority(playerCoreNet.Object.InputAuthority);
     }
     #endregion
     #region//角色信息
@@ -225,7 +224,7 @@ public class PlayerCoreLocal : MonoBehaviour
             //Debug.Log("--初始化玩家数据");
             actorManager_Bind.actorNetManager.RPC_LocalInput_InitPlayerCommonData(Local_CreatePlayerNetData(playerData_Local), playerData_Local.Name);
             Debug.Log("--初始化玩家位置");
-            actorManager_Bind.actorNetManager.RPC_LocalInput_UpdateNetworkTransform(Vector3Int.zero, 999);
+            actorManager_Bind.actorNetManager.RPC_Local_SetNetworkTransform(Vector3Int.zero);
             Local_UpdateMapInView(Vector3Int.zero);
         }
         else
@@ -309,6 +308,7 @@ public class PlayerCoreLocal : MonoBehaviour
     /// </summary>
     public void Local_UpdateMapInView(Vector3Int pos)
     {
+        GameUI_MiniMap.Instance.ChangePlayerPos((Vector2Int)pos);
         if (Mathf.Abs(pos.x - vector3Int_mapCenter.x) > config_MapView || Mathf.Abs(pos.y - vector3Int_mapCenter.y) > config_MapView)
         {
             Debug.Log($"超出地图绘制范围,绘制新区域。当前位置({pos})地图锚点({vector3Int_mapCenter})");

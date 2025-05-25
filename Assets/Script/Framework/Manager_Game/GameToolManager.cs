@@ -24,12 +24,12 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
         if (itemData_CombineA.Item_ID > 0)
         {
             ItemConfig config = ItemConfigData.GetItemConfig(itemData_CombineA.Item_ID);
-            if (config.Item_Size == ItemSize.AsGroup)
+            if (config.Item_Size == ItemSize.Gro)
             {
                 if (itemData_CombineA.Item_ID == itemData_CombineB.Item_ID)
                 {
                     Type type = Type.GetType("Item_" + itemData_CombineA.Item_ID.ToString());
-                    ((ItemBase)Activator.CreateInstance(type)).StaticAction_Combine(itemData_CombineA, itemData_CombineB, config.Item_MaxCount, out ItemData newData, out itemData_CombineB);
+                    ((ItemBase)Activator.CreateInstance(type)).StaticAction_Combine(itemData_CombineA, itemData_CombineB, config.Item_Max, out ItemData newData, out itemData_CombineB);
                     itemData_CombineA = newData;
                 }
             }
@@ -51,7 +51,7 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
     public ItemData SplitItem(ItemData itemData_SplitBase, ItemData itemData_Split)
     {
         ItemConfig config = ItemConfigData.GetItemConfig(itemData_SplitBase.Item_ID);
-        if (config.Item_Size == ItemSize.AsGroup)
+        if (config.Item_Size == ItemSize.Gro)
         {
             /*©ирт╡П╥ж*/
             if (itemData_SplitBase.Item_ID == itemData_Split.Item_ID)
@@ -157,7 +157,7 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
             else
             {
                 ItemConfig config = ItemConfigData.GetItemConfig(itemData_Add.Item_ID);
-                if (config.Item_Size == ItemSize.AsGroup && itemDatas_List[index].Item_ID == itemData_Add.Item_ID)
+                if (config.Item_Size == ItemSize.Gro && itemDatas_List[index].Item_ID == itemData_Add.Item_ID)
                 {
                     itemDatas_List[index] = CombineItem(itemDatas_List[index], itemData_Add, out itemData_Add);
                 }
@@ -169,7 +169,7 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
                         {
                             break;
                         }
-                        if (itemDatas_List[i].Item_ID == itemData_Add.Item_ID && config.Item_Size == ItemSize.AsGroup)
+                        if (itemDatas_List[i].Item_ID == itemData_Add.Item_ID && config.Item_Size == ItemSize.Gro)
                         {
                             ItemData itemData_A = itemDatas_List[i];
                             ItemData itemData_B = itemData_Add;
@@ -217,7 +217,7 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
                     {
                         break;
                     }
-                    if (itemDatas_New[j].Item_ID == itemData.Item_ID && config.Item_Size == ItemSize.AsGroup)
+                    if (itemDatas_New[j].Item_ID == itemData.Item_ID && config.Item_Size == ItemSize.Gro)
                     {
                         ItemData itemData_A = itemDatas_New[j];
                         ItemData itemData_B = itemData;

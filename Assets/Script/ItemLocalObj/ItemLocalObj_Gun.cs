@@ -260,7 +260,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
     /// </summary>
     public virtual void Dull()
     {
-        AudioManager.Instance.PlayEffect(1002, transform.position);
+        AudioManager.Instance.Play3DEffect(2000, transform_Muzzle.position);
     }
     /// <summary>
     /// Ãé×¼
@@ -310,7 +310,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
         muzzleSmoke.transform.localScale = Vector3.one;
         muzzleSmoke.transform.position = transform_Muzzle.position;
         muzzleSmoke.transform.rotation = Quaternion.identity;
-        AudioManager.Instance.PlayEffect(2001, transform.position);
+        AudioManager.Instance.Play3DEffect(2001, transform_Muzzle.position);
     }
     /// <summary>
     /// ºó×ø

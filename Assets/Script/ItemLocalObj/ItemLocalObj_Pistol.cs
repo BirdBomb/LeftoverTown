@@ -24,7 +24,7 @@ public class ItemLocalObj_Pistol : ItemLocalObj_Gun
 
         temp_NextAimPoint = config_ShotAimTime;
 
-        spriteRenderer_RightHand.sprite = body.transform_RightHand.GetComponent<SpriteRenderer>().sprite;
+        spriteRenderer_RightHand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingByHand(owner, body, data);
     }

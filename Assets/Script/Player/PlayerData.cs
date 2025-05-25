@@ -6,7 +6,7 @@ public class PlayerData
 {
     public PlayerData()
     {
-        Name = "ÎŞÃûÊÏ";
+        Name = "";
         Hp_Cur = 100;
         Hp_Max = 100;
         Armor_Cur = 0;

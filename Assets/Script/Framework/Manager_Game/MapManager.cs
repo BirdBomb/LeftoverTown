@@ -12,7 +12,6 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 using UnityEngine.UIElements;
-using static Fusion.Sockets.NetBitBuffer;
 
 public class MapManager : SingleTon<MapManager>,ISingleTon
 {
@@ -198,13 +197,15 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     /// <summary>
     /// 生成地面
     /// </summary>
-    public void CreateGround(int id, Vector3Int tilePos)
+    public void CreateGround(int id, Vector3Int pos)
     {
         GroundTile groundTile = ScriptableObject.CreateInstance<GroundTile>();
-        groundTile.InitData(GetGroundConfig(id), tilePos, id);
-        if (tilemap_Ground.HasTile(tilePos)) DeleteGround(tilePos);
-        tilemap_Ground.SetTile(tilePos, groundTile);
-        groundTile.BindObj(GetGroundObj(tilePos));
+        groundTile.InitData(GetGroundConfig(id), pos, id);
+        if (tilemap_Ground.HasTile(pos)) DeleteGround(pos);
+        tilemap_Ground.SetTile(pos, groundTile);
+        groundTile.BindObj(GetGroundObj(pos));
+
+        GameUI_MiniMap.Instance.ChangeGroundInMap(id, pos);
     }
     /// <summary>
     /// 删除地面

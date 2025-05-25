@@ -94,11 +94,11 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     {
         base.State_SecondUpdate();
     }
-    public override void AllClient_SecondUpdate()
+    public override void Local_SecondUpdate()
     {
         AllClient_StateLoop();
         AllClient_CheckState();
-        base.AllClient_SecondUpdate();
+        base.Local_SecondUpdate();
     }
     #region//初始化
     /// <summary>
@@ -135,13 +135,13 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
                 who.actionManager.SetFine(500);
                 if (brainManager.allClient_actorManager_AttackTarget == null)
                 {
-                    State_SendText(word_Menace, Emoji.Menace);
+                    State_TryToSendEmoji(0, Emoji.Menace);
                     State_InAttack(who);
                 }
                 else
                 {
                     if (actorNetManager.Net_HpCur * 2 <= actorNetManager.Local_HpMax)
-                        State_SendText(word_Panic, Emoji.Panic);
+                        State_TryToSendEmoji(0, Emoji.Panic);
                 }
             }
         }
@@ -157,10 +157,9 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
                     if (brainManager.allClient_actorManager_AttackTarget == null)
                     {
                         vector3_SearchPos = actor.pathManager.vector3Int_CurPos;
-                        State_SendText(word_Notice, Emoji.Puzzled);
+                        State_TryToSendEmoji(0, Emoji.Puzzled);
                         State_Search();
                         pathManager.State_MoveTo(actor.pathManager.vector3Int_CurPos);
-                        State_TryToSendEmoji(0.5f, 0);
                     }
                     break;
             }
@@ -196,7 +195,7 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
         {
             if (!actionManager.LookAt(brainManager.allClient_actorManager_AttackTarget, config.short_View))
             {
-                State_SendText(word_Pursue, Emoji.Menace);
+                State_TryToSendEmoji(0, Emoji.Search);
                 State_Search();
                 State_OutAttack();
             }
@@ -228,13 +227,13 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
             {
                 if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Monster_Common)
                 {
-                    State_SendText(word_FindTheMonster, Emoji.Menace);
+                    State_TryToSendEmoji(0, Emoji.Attack);
                     State_InAttack(brainManager.actorManagers_Nearby[i]);
                     return true;
                 }
                 if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Animal_Common)
                 {
-                    State_SendText(word_FindTheAnimal, Emoji.Menace);
+                    State_TryToSendEmoji(0, Emoji.Happy);
                     State_InAttack(brainManager.actorManagers_Nearby[i]);
                     return true;
                 }
@@ -285,7 +284,7 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
             Vector3Int targetPos = MapManager.Instance.grid_Ground.WorldToCell(brainManager.ItemNetObj_Target.transform.position);
             if (pathManager.State_MoveTo(targetPos))
             {
-                State_SendText(word_PickUp, Emoji.Happy);
+                State_TryToSendEmoji(0, Emoji.Happy);
             }
             actionManager.PickUp(1.5f);
         }
@@ -319,21 +318,15 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     /// <returns></returns>
     public bool State_CheckingAttackingDistance()
     {
-        if (itemManager.itemBase_OnHand.itemData.Item_ID != 0)
+        float distance = WeaponConfigData.GetWeaponConfig(itemManager.itemBase_OnHand.itemData.Item_ID).Distance;
+        if (Vector3.Distance(brainManager.allClient_actorManager_AttackTarget.transform.position, transform.position) < distance)
         {
-            if (Vector3.Distance(brainManager.allClient_actorManager_AttackTarget.transform.position, transform.position) < itemManager.itemBase_OnHand.itemConfig.Attack_Distance + 0.5f)
-            {
-                return true;
-            }
+            return true;
         }
         else
         {
-            if (Vector3.Distance(brainManager.allClient_actorManager_AttackTarget.transform.position, transform.position) < 1)
-            {
-                return true;
-            }
+            return false;
         }
-        return false;
     }
     /// <summary>
     /// 躲避
@@ -437,7 +430,7 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     {
         bool bool_InEvening = (globalTime_Now == GlobalTime.Evening);
         bool bool_InAttack = (brainManager.allClient_actorManager_AttackTarget);
-        bool bool_InMove = (bodyController.speed != 0);
+        bool bool_InMove = (bodyController.float_Speed != 0);
         switch (hunterState)
         {
             case HunterState.Default:
@@ -486,60 +479,165 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     }
 
     #endregion
-    #region//语言
-    /// <summary>
-    /// 发现猎物
-    /// </summary>
-    private List<string> word_FindTheAnimal = new List<string>()
+    #region//交互
+    [SerializeField]
+    private GameObject prefab_DialogUI;
+    [SerializeField]
+    private GameObject prefab_DealUI;
+    private TileUI_Dialog tileUI_Dialog;
+    private TileUI_DealUI tileUI_Deal;
+    private bool bool_Dialog = false;
+    private bool bool_Deal = false;
+    public override void Local_InPlayerView(ActorManager actor)
     {
-        "这可是上好的食物","狩猎时间..",
-    };
-    /// <summary>
-    /// 说话
-    /// </summary>
-    /// <param name="strings"></param>
-    /// <param name="emoji"></param>
-    private void State_SendText(List<string> strings, Emoji emoji)
-    {
-        int random = new System.Random().Next(0, strings.Count);
-        State_TryToSendText(strings[random], emoji);
+        actorUI.ShowSingalF();
+        base.Local_InPlayerView(actor);
     }
-    #endregion
-    #region//交流
-    public override bool Local_Communication()
+    public override void Local_OutPlayerView(ActorManager actor)
     {
-        return true;
+        actorUI.HideSingal();
+        Local_OverDialog(actor);
+        Local_OverDeal(actor);
+        base.Local_OutPlayerView(actor);
     }
-    public override bool Local_Deal(out ActorManager dealActor, out List<ItemData> dealGoods, out Func<ItemData, int> dealOffer)
+    public override void Local_GetPlayerInput(KeyCode keyCode, ActorManager actor)
     {
-        dealActor = this;
-        dealGoods = null;
-        dealOffer = Local_Offer;
-        if (globalTime_Now != GlobalTime.Evening)
+        actorUI.ShowSingalTalk();
+        if (!bool_Dialog)
         {
-            Local_TryToSendText("交易?晚上再说吧", Emoji.Unhappy);
-        }
-        else
-        {
-            if (!brainManager.bool_AttackState)
+            if (globalTime_Now == GlobalTime.Evening)
             {
-                dealGoods = new List<ItemData>();
-                List<ItemData> items = actorNetManager.Local_GetBagItem();
-                for (int i = 0; i < items.Count; i++)
-                {
-                    ItemConfig itemConfig = ItemConfigData.GetItemConfig(items[i].Item_ID);
-                    if (itemConfig.Item_Type != ItemType.Weapon)
-                    {
-                        dealGoods.Add(items[i]);
-                    }
-                }
-                return true;
+                Local_StartDialog(actor, 2);
+            }
+            else
+            {
+                Local_StartDialog(actor, 0);
             }
         }
-        return false;
+        base.Local_GetPlayerInput(keyCode, actor);
     }
     /// <summary>
-    /// 报价
+    /// 开始谈话
+    /// </summary>
+    /// <param name="actor"></param>
+    /// <param name="index"></param>
+    private void Local_StartDialog(ActorManager actor, int index)
+    {
+        bool_Dialog = true;
+        if (actor != null && actor.actorNetManager.Object != null)
+        {
+            actorNetManager.RPC_State_NpcUseSkill(0, actor.pathManager.vector3Int_CurPos, actor.actorNetManager.Object.Id);
+            UIManager.Instance.ShowTileUI(prefab_DialogUI, out TileUI tileUI);
+            tileUI_Dialog = tileUI.GetComponent<TileUI_Dialog>();
+
+            List<DialogOption> dialogOptions = new List<DialogOption>();
+            DialogOption dialogOption_0 = new DialogOption();
+            DialogOption dialogOption_1 = new DialogOption();
+            switch (index)
+            {
+                case 0:
+                    dialogOption_0.optionTable = "Role_String";
+                    dialogOption_0.optionEntry = "Hunter_Dialog0_Option0";
+                    dialogOption_0.optionAction = (() =>
+                    {
+                        Local_OverDialog(actor);
+                    });
+                    dialogOption_1.optionTable = "Role_String";
+                    dialogOption_1.optionEntry = "Hunter_Dialog0_Option1";
+                    dialogOption_1.optionAction = (() =>
+                    {
+                        Local_StartDialog(actor, 1);
+                    });
+                    dialogOptions.Add(dialogOption_0);
+                    dialogOptions.Add(dialogOption_1);
+                    tileUI_Dialog.InitDialog("Role_String", "Hunter_Name", "Role_String", "Hunter_Dialog0");
+                    tileUI_Dialog.InitOption(dialogOptions);
+                    break;
+                case 1:
+                    dialogOption_0.optionTable = "Role_String";
+                    dialogOption_0.optionEntry = "Hunter_Dialog1_Option0";
+                    dialogOption_0.optionAction = (() =>
+                    {
+                        Local_OverDialog(actor);
+                    });
+                    dialogOptions.Add(dialogOption_0);
+                    tileUI_Dialog.InitDialog("Role_String", "Hunter_Name", "Role_String", "Hunter_Dialog1");
+                    tileUI_Dialog.InitOption(dialogOptions);
+                    break;
+                case 2:
+                    dialogOption_0.optionTable = "Role_String";
+                    dialogOption_0.optionEntry = "Hunter_Dialog2_Option0";
+                    dialogOption_0.optionAction = (() =>
+                    {
+                        Local_OverDialog(actor);
+                    });
+                    dialogOption_1.optionTable = "Role_String";
+                    dialogOption_1.optionEntry = "Hunter_Dialog2_Option1";
+                    dialogOption_1.optionAction = (() =>
+                    {
+                        Local_StartDeal(actor);
+                    });
+                    dialogOptions.Add(dialogOption_0);
+                    dialogOptions.Add(dialogOption_1);
+                    tileUI_Dialog.InitDialog("Role_String", "Hunter_Name", "Role_String", "Hunter_Dialog2");
+                    tileUI_Dialog.InitOption(dialogOptions);
+                    break;
+                case 3:
+                    break;
+            }
+        }
+    }
+    /// <summary>
+    /// 结束谈话
+    /// </summary>
+    /// <param name="actor"></param>
+    private void Local_OverDialog(ActorManager actor)
+    {
+        if (bool_Dialog && actor != null && actor.actorNetManager.Object != null)
+        {
+            bool_Dialog = false;
+            actorNetManager.RPC_State_NpcUseSkill(1, actor.pathManager.vector3Int_CurPos, actor.actorNetManager.Object.Id);
+            UIManager.Instance.HideTileUI(tileUI_Dialog);
+        }
+    }
+    /// <summary>
+    /// 开始交易
+    /// </summary>
+    /// <param name="actor"></param>
+    private void Local_StartDeal(ActorManager actor)
+    {
+        bool_Deal = true;
+        if (actor != null && actor.actorNetManager.Object != null)
+        {
+            UIManager.Instance.ShowTileUI(prefab_DealUI, out TileUI tileUI);
+            tileUI_Deal = tileUI.GetComponent<TileUI_DealUI>();
+            List<ItemData> itemsDatas_Bag = actorNetManager.Local_GetBagItem();
+            List<ItemData> itemDatas_Goods = new List<ItemData>();
+            for (int i = 0; i < itemsDatas_Bag.Count; i++)
+            {
+                ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemsDatas_Bag[i].Item_ID);
+                if (itemConfig.Item_Type != ItemType.Weapon)
+                {
+                    itemDatas_Goods.Add(itemsDatas_Bag[i]);
+                }
+            }
+            tileUI_Deal.Init(this, itemDatas_Goods, Local_Offer);
+        }
+    }
+    /// <summary>
+    /// 结束谈话
+    /// </summary>
+    /// <param name="actor"></param>
+    private void Local_OverDeal(ActorManager actor)
+    {
+        if (bool_Deal && actor != null && actor.actorNetManager.Object != null)
+        {
+            bool_Deal = false;
+            UIManager.Instance.HideTileUI(tileUI_Deal);
+        }
+    }
+    /// <summary>
+    /// 收购
     /// </summary>
     /// <param name="itemData"></param>
     /// <returns></returns>
@@ -547,11 +645,49 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     {
         int offer = 0;
         ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.Item_ID);
-        if (itemConfig.Item_Type == ItemType.Food || itemConfig.Item_Type == ItemType.Ingredient)
+        if (itemConfig.Item_Type == ItemType.Dishes || itemConfig.Item_Type == ItemType.Food)
         {
-            offer = itemConfig.Average_Value * itemData.Item_Count * 2;
+            offer = itemConfig.Item_Value * itemData.Item_Count * 2;
         }
         return offer;
+    }
+
+    #endregion
+    #region//技能
+    public override void AllClient_Listen_NpcAction(int id, Vector3Int vector3, NetworkId networkId)
+    {
+        if (id == 0)
+        {
+            AllClient_StartTalk(vector3, networkId);
+        }
+        else if (id == 1)
+        {
+            AllClient_OverTalk(vector3, networkId);
+        }
+        base.AllClient_Listen_NpcAction(id, vector3, networkId);
+    }
+    private void AllClient_StartTalk(Vector3Int vector3, NetworkId networkId)
+    {
+        if (actorAuthority.isState)
+        {
+            Vector3 dir = (actorNetManager.Runner.FindObject(networkId).transform.position - transform.position).normalized;
+            if (dir.x > 0)
+            {
+                bodyController.TurnRight();
+            }
+            else
+            {
+                bodyController.TurnLeft();
+            }
+            pathManager.State_StandDown(999);
+        }
+    }
+    private void AllClient_OverTalk(Vector3Int vector3, NetworkId networkId)
+    {
+        if (actorAuthority.isState)
+        {
+            pathManager.State_StandDown(1);
+        }
     }
     #endregion
 }

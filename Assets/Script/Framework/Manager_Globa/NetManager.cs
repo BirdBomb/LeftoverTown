@@ -98,7 +98,7 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
         }
         await networkRunner.StartGame(new StartGameArgs()
         {
-            GameMode = GameMode.Shared,
+            GameMode = GameMode.Client,
             SessionName = roomName,
             Scene = scene,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()

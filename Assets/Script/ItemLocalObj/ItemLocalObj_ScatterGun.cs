@@ -26,10 +26,10 @@ public class ItemLocalObj_ScatterGun : ItemLocalObj_Gun
 
         temp_NextAimPoint = config_ShotAimTime;
 
-        spriteRenderer_RightHand.sprite = body.transform_RightHand.GetComponent<SpriteRenderer>().sprite;
+        spriteRenderer_RightHand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
 
-        spriteRenderer_LeftHand.sprite = body.transform_LeftHand.GetComponent<SpriteRenderer>().sprite;
+        spriteRenderer_LeftHand.color = body.transform_LeftHand.GetComponent<SpriteRenderer>().color;
         body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingByHand(owner, body, data);
     }
@@ -100,7 +100,7 @@ public class ItemLocalObj_ScatterGun : ItemLocalObj_Gun
         muzzleSmoke.transform.localScale = Vector3.one;
         muzzleSmoke.transform.position = transform_Muzzle.position;
         muzzleSmoke.transform.rotation = Quaternion.identity;
-        AudioManager.Instance.PlayEffect(2000, transform.position);
+        AudioManager.Instance.Play3DEffect(2002, transform_Muzzle.position);
     }
     public override void KickBack()
     {
@@ -109,7 +109,7 @@ public class ItemLocalObj_ScatterGun : ItemLocalObj_Gun
         transform_Body.DOPunchPosition(vector3_KickBack, config_ShotCD).OnComplete(() =>
         {
             spriteRenderer_LeftHand.transform.DOLocalMoveX(-0.1f, 0.1f).SetLoops(2, LoopType.Yoyo);
-            AudioManager.Instance.PlayEffect(1003, transform.position);
+            AudioManager.Instance.Play3DEffect(2003, transform_Muzzle.position);
         });
         transform_Body.localRotation = Quaternion.identity;
         transform_Body.DOPunchRotation(new Vector3(0, 0, float_KickOn), config_ShotCD);

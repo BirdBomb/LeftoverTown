@@ -13,33 +13,13 @@ public class ActorActionManager
     private BodyController_Base bodyController;
     private LayerMask layerMask_ItemObj;
     private LayerMask layerMask_Wall;
-    private Vector2 vector2_Last;
-    private Vector2 vector2_Cur;
     public Action<int, ActorNetManager> action_TakeDamage;
     public void Bind(ActorManager actorManager)
     {
         this.actorManager = actorManager;
         bodyController = actorManager.bodyController;
-        vector2_Last = actorManager.transform.position;
-        vector2_Cur = actorManager.transform.position;
         layerMask_ItemObj = LayerMask.GetMask("ItemObj");
         layerMask_Wall = LayerMask.GetMask("TileObj_Wall");
-    }
-    public void Listen_UpdateCustom(float dt)
-    {
-        vector2_Cur = actorManager.transform.position;
-        float distance = Vector2.Distance(vector2_Last, vector2_Cur);
-        float speed = distance * 10;
-        if (speed > 0.1f)
-        {
-            PlayMove(speed);
-            TurnTo(vector2_Cur - vector2_Last);
-        }
-        else
-        {
-            PlayStop();
-        }
-        vector2_Last = vector2_Cur;
     }
     public void AddForce(Vector3 dir, float force)
     {
@@ -334,7 +314,7 @@ public class ActorActionManager
     #region//Play
     public void PlayMove(float speed)
     {
-        bodyController.speed = speed;
+        bodyController.float_Speed = speed;
         bodyController.SetAnimatorFloat(BodyPart.Body, "Speed", speed);
         bodyController.SetAnimatorBool(BodyPart.Body, "Walk", true);
         bodyController.SetAnimatorFloat(BodyPart.Hand, "Speed", speed);
@@ -342,7 +322,7 @@ public class ActorActionManager
     }
     public void PlayStop()
     {
-        bodyController.speed = 0;
+        bodyController.float_Speed = 0;
         bodyController.SetAnimatorFloat(BodyPart.Body, "Speed", 1);
         bodyController.SetAnimatorBool(BodyPart.Body, "Walk", false);
         bodyController.SetAnimatorFloat(BodyPart.Hand, "Speed", 1);

@@ -4,6 +4,8 @@ using UnityEngine;
 using System.IO;
 using UnityEngine.Audio;
 using DG.Tweening;
+using UnityEngine.Rendering.Universal;
+using System.Runtime.CompilerServices;
 
 public class AudioManager : SingleTon<AudioManager>, ISingleTon
 {
@@ -39,30 +41,81 @@ public class AudioManager : SingleTon<AudioManager>, ISingleTon
         return Mathf.Log10(x) * 20.0f;
 
     }
-
+    #region//BGM
+    private float volume_Music;
     /// <summary>
     /// 播放BGM
     /// </summary>
     /// <param name="AudioName"></param>
-    /// <param name="isLoop"></param>
-    public void PlayMusic(int AudioID, bool isLoop, Transform root = null)
+    /// <param name="loop"></param>
+    public void PlayMusic(int AudioID, float volume, bool loop)
     {
         AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
         SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
-        if (isLoop)
-        {
-            sourceManager.MusicSource.loop = true;
-        }
-        else
-        {
-            sourceManager.MusicSource.loop = false;
-        }
         if (tmpClips == null)
         {
             return;
         }
-        tmpClips.Play(sourceManager.GetMusicAudio());
+        else
+        {
+            SetMusicLoop(loop);
+            SetMusicVolume(volume);
+            tmpClips.Play(sourceManager.GetMusicAudio());
+        }
     }
+    private void SetMusicLoop(bool loop)
+    {
+        sourceManager.MusicSource.loop = loop;
+    }
+    private void SetMusicVolume(float volume)
+    {
+        sourceManager.MusicSource.volume = 0;
+        DOTween.To(() => volume_Music, x => volume_Music = x, volume, 5f).OnUpdate(() =>
+        {
+            sourceManager.MusicSource.volume = volume_Music;
+        });
+    }
+    #endregion
+    #region//Effect
+    /// <summary>
+    /// 播放音效
+    /// </summary>
+    /// <param name="AudioID"></param>
+    /// <param name="pos"></param>
+    public void Play3DEffect(int AudioID, Vector3 pos)
+    {
+        AudioSource tempSource = sourceManager.GetFreeAudio();
+        tempSource.spatialBlend = 1;
+
+        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
+        tempSource.maxDistance = audioConfig.Audio_MaxDistance;
+        SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
+
+        tempSource.transform.position = pos + new Vector3(0, 0, -10);
+        if (tmpClips != null)
+        {
+            tmpClips.Play(tempSource);
+        }
+    }
+    /// <summary>
+    /// 播放音效
+    /// </summary>
+    /// <param name="AudioID"></param>
+    public void Play2DEffect(int AudioID)
+    {
+        AudioSource tempSource = sourceManager.GetFreeAudio();
+        tempSource.spatialBlend = 0;
+
+        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
+        tempSource.maxDistance = audioConfig.Audio_MaxDistance;
+        SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
+
+        if (tmpClips != null)
+        {
+            tmpClips.Play(tempSource);
+        }
+    }
+    #endregion
     /// <summary>
     /// 播放音效
     /// </summary>
@@ -85,24 +138,4 @@ public class AudioManager : SingleTon<AudioManager>, ISingleTon
             tmpClips.Play(tempSource);
         }
     }
-    /// <summary>
-    /// 播放音效
-    /// </summary>
-    /// <param name="AudioID"></param>
-    /// <param name="pos"></param>
-    public void PlayEffect(int AudioID,Vector3 pos)
-    {
-        AudioSource tempSource = sourceManager.GetFreeAudio();
-
-        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
-
-        tempSource.maxDistance = audioConfig.Audio_MaxDistance;
-        SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
-        tempSource.transform.position = pos + new Vector3(0, 0, -10);
-        if (tmpClips != null)
-        {
-            tmpClips.Play(tempSource);
-        }
-    }
-
 }

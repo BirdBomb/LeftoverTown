@@ -113,10 +113,10 @@ public class ActorManager_NPC_Security : ActorManager_NPC
     {
         base.State_SecondUpdate();
     }
-    public override void AllClient_SecondUpdate()
+    public override void Local_SecondUpdate()
     {
         AllClient_IdleLoop();
-        base.AllClient_SecondUpdate();
+        base.Local_SecondUpdate();
     }
     /// <summary>
     /// 检查威胁
@@ -127,7 +127,7 @@ public class ActorManager_NPC_Security : ActorManager_NPC
         {
             if (!actionManager.LookAt(brainManager.allClient_actorManager_AttackTarget, config.short_View))
             {
-                State_SendText(word_Pursue, Emoji.Menace);
+                State_TryToSendEmoji(0, Emoji.Menace);
                 State_Search();
                 State_OutAttack();
             }
@@ -145,13 +145,13 @@ public class ActorManager_NPC_Security : ActorManager_NPC
                     if (brainManager.actorManagers_Nearby[i].actorNetManager.Local_Fine > 0)
                     {
 
-                        State_SendText(word_FindTheCulprit, Emoji.Menace);
+                        State_TryToSendEmoji(0, Emoji.Menace);
                         State_InAttack(brainManager.actorManagers_Nearby[i]);
                         return;
                     }
                     if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Monster_Common)
                     {
-                        State_SendText(word_FindTheMonster, Emoji.Menace);
+                        State_TryToSendEmoji(0, Emoji.Menace);
                         State_InAttack(brainManager.actorManagers_Nearby[i]);
                         return;
                     }
@@ -172,13 +172,13 @@ public class ActorManager_NPC_Security : ActorManager_NPC
                 who.actionManager.SetFine(500);
                 if (brainManager.allClient_actorManager_AttackTarget == null)
                 {
-                    State_SendText(word_Menace, Emoji.Menace);
+                    State_TryToSendEmoji(0, Emoji.Menace);
                     State_InAttack(who);
                 }
                 else
                 {
                     if (actorNetManager.Net_HpCur * 2 <= actorNetManager.Local_HpMax)
-                    State_SendText(word_Panic, Emoji.Panic);
+                        State_TryToSendEmoji(0, Emoji.Panic);
                 }
             }
         }
@@ -194,7 +194,7 @@ public class ActorManager_NPC_Security : ActorManager_NPC
                     if (brainManager.allClient_actorManager_AttackTarget == null)
                     {
                         vector3_AttackPos = actor.pathManager.vector3Int_CurPos;
-                        State_SendText(word_Notice, Emoji.Puzzled); 
+                        State_TryToSendEmoji(0, Emoji.Puzzled);
                         State_Search();
                         pathManager.State_MoveTo(actor.pathManager.vector3Int_CurPos);
                     }
@@ -235,21 +235,15 @@ public class ActorManager_NPC_Security : ActorManager_NPC
     /// <returns></returns>
     public bool State_CheckingAttackingDistance()
     {
-        if (itemManager.itemBase_OnHand.itemData.Item_ID != 0)
+        float distance = WeaponConfigData.GetWeaponConfig(itemManager.itemBase_OnHand.itemData.Item_ID).Distance;
+        if (Vector3.Distance(brainManager.allClient_actorManager_AttackTarget.transform.position, transform.position) < distance)
         {
-            if (Vector3.Distance(brainManager.allClient_actorManager_AttackTarget.transform.position, transform.position) < itemManager.itemBase_OnHand.itemConfig.Attack_Distance + 0.5f)
-            {
-                return true;
-            }
+            return true;
         }
         else
         {
-            if (Vector3.Distance(brainManager.allClient_actorManager_AttackTarget.transform.position, transform.position) < 1)
-            {
-                return true;
-            }
+            return false;
         }
-        return false;
     }
 
     /// <summary>
@@ -336,25 +330,25 @@ public class ActorManager_NPC_Security : ActorManager_NPC
     {
         if (pathManager.State_MoveTo(vector3_StationPos))
         {
-            State_SendText(word_BackToWork, Emoji.Unhappy);
+            State_TryToSendEmoji(0, Emoji.Unhappy);
         }
         else
         {
-            State_SendText(word_Lost, Emoji.Puzzled);
+            State_TryToSendEmoji(0, Emoji.Puzzled);
         }
     }
     public void AllClient_IdleLoop()
     {
         if (bool_Sleeping)
         {
-            if (brainManager.allClient_actorManager_AttackTarget || bodyController.speed > 0 || globalTime_Now != GlobalTime.Evening)
+            if (brainManager.allClient_actorManager_AttackTarget || bodyController.float_Speed > 0 || globalTime_Now != GlobalTime.Evening)
             {
                 Sleeping(false);
             }
         }
         else
         {
-            if (!brainManager.allClient_actorManager_AttackTarget && bodyController.speed == 0 && globalTime_Now == GlobalTime.Evening)
+            if (!brainManager.allClient_actorManager_AttackTarget && bodyController.float_Speed == 0 && globalTime_Now == GlobalTime.Evening)
             {
                 Sleeping(true);
             }
@@ -364,39 +358,6 @@ public class ActorManager_NPC_Security : ActorManager_NPC
     {
         bool_Sleeping = sleep;
         bodyController.SetAnimatorBool(BodyPart.Head, "Sleep", sleep);
-    }
-    #endregion
-    #region//语言
-    /// <summary>
-    /// 发现犯罪
-    /// </summary>
-    private List<string> word_FindTheCulprit = new List<string>()
-    {
-        "嘿,你等一下","你这罪犯","站住","别动!"
-    };
-    /// <summary>
-    /// 回去工作
-    /// </summary>
-    private List<string> word_BackToWork = new List<string>()
-    {
-        "浪费时间","但愿别再出乱子了","别再来了","这附近不安全","回去吧"
-    };
-    /// <summary>
-    /// 迷路
-    /// </summary>
-    private List<string> word_Lost = new List<string>()
-    {
-        "什么鬼地方?","这是哪？"
-    };
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="strings"></param>
-    /// <param name="emoji"></param>
-    private void State_SendText(List<string> strings,Emoji emoji)
-    {
-        int random = new System.Random().Next(0,strings.Count);
-        State_TryToSendText(strings[random],emoji);
     }
     #endregion
 }

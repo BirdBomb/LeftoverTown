@@ -63,7 +63,8 @@ public class ItemBase
     /// </summary>
     public virtual void GridCell_Draw(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
+        string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemName, itemData.Item_Count.ToString());
     }
     /// <summary>
     /// ×ó»÷¸ñ×Ó
@@ -293,7 +294,8 @@ public class ItemBase_Materials : ItemBase
 {
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
+        string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemName, itemData.Item_Count.ToString());
     }
 }
 /// <summary>
@@ -366,8 +368,10 @@ public class ItemBase_Food : ItemBase
     }
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Count.ToString());
-        gridCell.ColourCell(itemConfig.Item_Name, itemConfig.Item_Desc, itemConfig.ItemRarity);
+        string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+        string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemName, itemData.Item_Count.ToString());
+        gridCell.ColourCell(itemName, itemDesc, itemConfig.Item_Rarity);
         gridCell.SetSliderVal(itemData.Item_Durability / 100f);
         if (itemData.Item_Info == 0)
         {
@@ -449,7 +453,16 @@ public class ItemBase_Weapon : ItemBase
     }
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(),"ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Durability.ToString() + "%");
+        string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(),"ItemBG_" + (int)itemConfig.Item_Rarity, itemName, itemData.Item_Durability.ToString() + "%");
+    }
+    public override void OnHand_Start(ActorManager owner, BodyController_Human body)
+    {
+        CursorManager.Instance.AddCursor(CursorManager.CursorType.Weapon);
+    }
+    public override void OnHand_Over(ActorManager owner, BodyController_Human body)
+    {
+        CursorManager.Instance.SubCursor(CursorManager.CursorType.Weapon);
     }
 }
 /// <summary>
@@ -465,7 +478,16 @@ public class ItemBase_Tool : ItemBase
     }
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Durability.ToString() + "%");
+        string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemName, itemData.Item_Durability.ToString() + "%");
+    }
+    public override void OnHand_Start(ActorManager owner, BodyController_Human body)
+    {
+        CursorManager.Instance.AddCursor(CursorManager.CursorType.Tool);
+    }
+    public override void OnHand_Over(ActorManager owner, BodyController_Human body)
+    {
+        CursorManager.Instance.SubCursor(CursorManager.CursorType.Tool);
     }
 }
 /// <summary>
@@ -475,7 +497,16 @@ public class ItemBase_Gun : ItemBase
 {
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + itemConfig.ItemRarity, itemConfig.Item_Name.ToString(), itemData.Item_Content.Item_Count.ToString());
+        string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemName, itemData.Item_Content.Item_Count.ToString());
+    }
+    public override void OnHand_Start(ActorManager owner, BodyController_Human body)
+    {
+        CursorManager.Instance.AddCursor(CursorManager.CursorType.Aim);
+    }
+    public override void OnHand_Over(ActorManager owner, BodyController_Human body)
+    {
+        CursorManager.Instance.SubCursor(CursorManager.CursorType.Aim);
     }
 }
 /// <summary>

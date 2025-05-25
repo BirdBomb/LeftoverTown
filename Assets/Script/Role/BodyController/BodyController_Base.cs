@@ -8,9 +8,44 @@ using UnityEngine;
 public class BodyController_Base : MonoBehaviour
 {
     [HideInInspector]
-    public float speed = 0;
+    public float float_Speed = 0;
 
-
+    #region//检查
+    private Vector2 vector2_Last;
+    private Vector2 vector2_Cur;
+    public void Local_CheckPos(float dt)
+    {
+        vector2_Cur = transform.position;
+        float distance = Vector2.Distance(vector2_Last, vector2_Cur);
+        float speed = distance / dt;
+        if (speed > 0.1f)
+        {
+            PlayMove(speed);
+            TurnTo(vector2_Cur - vector2_Last);
+        }
+        else
+        {
+            PlayStop(0);
+        }
+        vector2_Last = vector2_Cur;
+    }
+    public void PlayMove(float speed)
+    {
+        float_Speed = speed;
+        SetAnimatorFloat(BodyPart.Body, "Speed", speed);
+        SetAnimatorBool(BodyPart.Body, "Walk", true);
+        SetAnimatorFloat(BodyPart.Hand, "Speed", speed);
+        SetAnimatorBool(BodyPart.Hand, "Walk", true);
+    }
+    public void PlayStop(float speed)
+    {
+        float_Speed = speed;
+        SetAnimatorFloat(BodyPart.Body, "Speed", 1);
+        SetAnimatorBool(BodyPart.Body, "Walk", false);
+        SetAnimatorFloat(BodyPart.Hand, "Speed", 1);
+        SetAnimatorBool(BodyPart.Hand, "Walk", false);
+    }
+    #endregion
     #region//脸部
     /// <summary>
     /// 绘制脸庞
@@ -48,7 +83,12 @@ public class BodyController_Base : MonoBehaviour
     public Vector2 turnDir;
     protected bool turnRight = true;
     protected bool faceRight = true;
-
+    public void FaceTo(Vector2 dir)
+    {
+        faceDir = dir.normalized;
+        if (dir.x > 0) FaceRight();
+        else FaceLeft();
+    }
     /// <summary>
     /// 面向左边
     /// </summary>
@@ -73,6 +113,12 @@ public class BodyController_Base : MonoBehaviour
     }
     public virtual void Face(bool right)
     {
+    }
+    public void TurnTo(Vector2 dir)
+    {
+        turnDir = dir.normalized;
+        if (dir.x > 0.1f) TurnRight();
+        if (dir.x < -0.1f) TurnLeft();
     }
     public void TurnLeft()
     {

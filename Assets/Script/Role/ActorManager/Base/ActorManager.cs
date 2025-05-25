@@ -4,6 +4,7 @@ using Fusion.Addons.Physics;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Policy;
 using UniRx;
 using Unity.VisualScripting;
 using UnityEditor.Rendering;
@@ -25,7 +26,8 @@ public class ActorManager : MonoBehaviour
     public ActorNetManager actorNetManager;
     [Header("身体控制器")]
     public BodyController_Base bodyController;
-
+    [Header("预测输入")]
+    public PlayerSimulation playerSimulation;
     [HideInInspector]
     public ActorState actorState;
     [HideInInspector]
@@ -452,21 +454,21 @@ public class ActorManager : MonoBehaviour
     }
     public void CustomUpdate()
     {
-        AllClient_CustomUpdate();
+        Local_CustomUpdate();
         if (actorAuthority.isState) { State_CustomUpdate(); }
     }
     public void SecondUpdate()
     {
-        AllClient_SecondUpdate();
+        Local_SecondUpdate();
         if (actorAuthority.isState) { State_SecondUpdate(); }
     }
     /// <summary>
     /// 客户端自定义更新
     /// </summary>
-    public virtual void AllClient_CustomUpdate()
+    public virtual void Local_CustomUpdate()
     {
-        actionManager.Listen_UpdateCustom(const_customUpdateTime);
-        pathManager.AllClient_CheckTile();
+        bodyController.Local_CheckPos(const_customUpdateTime);
+        pathManager.Local_CheckTile();
     }
     /// <summary>
     /// 服务器自定义更新
@@ -475,7 +477,7 @@ public class ActorManager : MonoBehaviour
     {
 
     }
-    public virtual void AllClient_SecondUpdate()
+    public virtual void Local_SecondUpdate()
     {
         hungryManager.Listen_UpdateSecond();
         buffManager.Listen_UpdateSecond();
@@ -503,23 +505,25 @@ public class ActorManager : MonoBehaviour
     /*交互*/
     #region
     /// <summary>
-    /// 尝试交流
+    /// 进入玩家视野
     /// </summary>
-    /// <returns>是否成功开始交流</returns>
-    public virtual bool Local_Communication()
+    public virtual void Local_InPlayerView(ActorManager actor)
     {
-        return false;
+
     }
     /// <summary>
-    /// 尝试交易
+    /// 离开玩家视野
     /// </summary>
-    /// <returns>是否成功开始交易</returns>
-    public virtual bool Local_Deal(out ActorManager dealActor, out List<ItemData> dealGoods, out Func<ItemData, int> dealOffer)
+    public virtual void Local_OutPlayerView(ActorManager actor)
     {
-        dealActor = null;
-        dealGoods = null;
-        dealOffer = null;
-        return false;
+
+    }
+    /// <summary>
+    /// 获取玩家输入
+    /// </summary>
+    public virtual void Local_GetPlayerInput(KeyCode keyCode, ActorManager actor)
+    {
+
     }
     #endregion
 }

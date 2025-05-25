@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using UniRx;
+using Fusion.Sockets;
 /// <summary>
 /// Íæ¼ÒºËÐÄ
 /// </summary>
@@ -22,6 +23,7 @@ public class PlayerCoreNet : NetworkBehaviour
                 State_CreateActor();
             }
         }).AddTo(this);
+        InvokeRepeating("UpdatePing", 2, 1);
     }
     public override void Spawned()
     {
@@ -128,7 +130,28 @@ public class PlayerCoreNet : NetworkBehaviour
                 {
                     vector2_MoveDir += new Vector2(0, -1);
                 }
-                playerCoreLocal.actorManager_Bind.inputManager.InputMove(dt, vector2_MoveDir, netPlayerData.PressLeftShift, Object.HasStateAuthority, Object.HasInputAuthority);
+                playerCoreLocal.actorManager_Bind.inputManager.InputMove(dt, vector2_MoveDir);
+            }
+            else if (Object.HasInputAuthority)
+            {
+                vector2_MoveDir = Vector2.zero;
+                if (netPlayerData.PressD)
+                {
+                    vector2_MoveDir += new Vector2(1, 0);
+                }
+                if (netPlayerData.PressA)
+                {
+                    vector2_MoveDir += new Vector2(-1, 0);
+                }
+                if (netPlayerData.PressW)
+                {
+                    vector2_MoveDir += new Vector2(0, 1);
+                }
+                if (netPlayerData.PressS)
+                {
+                    vector2_MoveDir += new Vector2(0, -1);
+                }
+                playerCoreLocal.actorManager_Bind.inputManager.SimulationMove(dt, vector2_MoveDir);
             }
             Net_MouseRightPressTimer = netPlayerData.MouseRightPressTimer;
             Net_MouseLeftPressTimer = netPlayerData.MouseLeftPressTimer;
@@ -140,8 +163,20 @@ public class PlayerCoreNet : NetworkBehaviour
     /// </summary>
     private void AllClient_PlayerSync()
     {
-        playerCoreLocal.actorManager_Bind.inputManager.InputFace(Net_MouseLocation, Object.HasStateAuthority, Object.HasInputAuthority);
+        playerCoreLocal.actorManager_Bind.inputManager.InputFace(Net_MouseLocation);
         playerCoreLocal.actorManager_Bind.inputManager.InputMouse(Net_MouseLeftPressTimer, Net_MouseRightPressTimer, Object.HasStateAuthority, Object.HasInputAuthority);
+    }
+    #endregion
+    #region//¼ì²éÑÓ³Ù
+    private void UpdatePing()
+    {
+        if (Object.HasInputAuthority)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdatePing()
+            {
+                ping = Runner.GetPlayerRtt(Object.InputAuthority)
+            });
+        }
     }
     #endregion
 }

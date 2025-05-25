@@ -45,7 +45,14 @@ public class BuildingObj_Door : BuildingObj
             obj_Door.transform.DOKill();
             obj_Door.transform.localScale = Vector3.one;
             obj_Door.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-            AudioManager.Instance.PlayEffect(1011, transform.position);
+            if (doorState == DoorState.Open)
+            {
+                AudioManager.Instance.Play3DEffect(3004, transform.position);
+            }
+            else
+            {
+                AudioManager.Instance.Play3DEffect(3005, transform.position);
+            }
         }
         if (doorDir == DoorDir.V)
         {

@@ -9,7 +9,10 @@ using UnityEngine.EventSystems;
 
 public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
 {
-    [SerializeField,Header("玩家预制体")] private NetworkPrefabRef _playerPrefab;
+    [SerializeField, Header("玩家预制体")]
+    private NetworkPrefabRef _playerPrefab;
+    [SerializeField, Header("鼠标偏移")]
+    private Vector3 local_MouseOffset;
     private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
     private float local_leftPressTimer;
     private float local_rightPressTimer;
@@ -69,7 +72,7 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
         #region//鼠标输入
         if (Camera.main != null)
         {
-            data.MouseLocation = Camera.main.ScreenToWorldPoint(Input.mousePosition) - Camera.main.transform.position;
+            data.MouseLocation = Camera.main.ScreenToWorldPoint(Input.mousePosition) - Camera.main.transform.position - local_MouseOffset;
         }
         data.MouseLeftPressTimer = local_leftPressTimer;
         data.MouseRightPressTimer = local_rightPressTimer;
@@ -79,7 +82,6 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
         data.PressD = Input.GetKey(KeyCode.D);
         data.PressW = Input.GetKey(KeyCode.W);
         data.PressS = Input.GetKey(KeyCode.S);
-        data.PressLeftShift = Input.GetKey(KeyCode.LeftShift);
         #endregion
         input.Set(data);
     }
@@ -192,8 +194,4 @@ public struct NetworkInputData:INetworkInput
     /// D
     /// </summary>
     public bool PressD;
-    /// <summary>
-    /// Shift
-    /// </summary>
-    public bool PressLeftShift;
 }

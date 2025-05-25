@@ -23,7 +23,7 @@ public class ActorItemManager
     public void Bind(ActorManager actorManager)
     {
         this.actorManager = actorManager;
-        bodyController = actorManager.GetComponent<BodyController_Human>();
+        bodyController = actorManager.GetComponentInChildren<BodyController_Human>();
     }
     public void Listen_UpdateSecond(int val)
     {

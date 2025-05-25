@@ -20,6 +20,7 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
     public void Init()
     {
         volume.profile.TryGet(out _whiteBalance);
+        AudioManager.Instance.PlayMusic(9000, 0.5f, true);
     }
     public void UpdateSecond(int second, int hour, int day)
     {

@@ -12,9 +12,13 @@ public class ActorUI : MonoBehaviour
     public TextMeshPro textMeshPro_Name;
     public TextMeshPro textMeshPro_Text;
 
+    public Transform transform_Bubble;
+    public Transform transform_Emoji;
     public SpriteAtlas spriteAtlas_Emoji;
     public SpriteRenderer spriteRenderer_Emoji;
     public Transform transform_Singal;
+    public Transform transform_SingalF;
+    public Transform transform_SingalTalk;
 
     public void UpdateHPBar(float val)
     {
@@ -22,44 +26,92 @@ public class ActorUI : MonoBehaviour
     }
     public void SendEmoji(Emoji emoji)
     {
-        spriteRenderer_Emoji.transform.DOKill();
-        spriteRenderer_Emoji.transform.localScale = Vector3.zero;
-        spriteRenderer_Emoji.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
-        spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite("Emoji_" + (int)emoji);
-        textMeshPro_Text.text = ""; 
-        if (IsInvoking("ResetEmoji"))
+        if (!transform_Singal.gameObject.activeSelf)
         {
-            CancelInvoke("ResetEmoji");
+            transform_Emoji.transform.DOKill();
+            transform_Emoji.transform.localScale = Vector3.zero;
+            transform_Emoji.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
+            spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite("Emoji_" + (int)emoji);
+            textMeshPro_Text.text = "";
+            if (IsInvoking("ResetEmoji"))
+            {
+                CancelInvoke("ResetEmoji");
+            }
+            Invoke("ResetEmoji", 1);
         }
-        Invoke("ResetEmoji", 1);
-    }
-    public void SendText(string text)
-    {
-        spriteRenderer_Emoji.transform.DOKill();
-        spriteRenderer_Emoji.transform.localScale = Vector3.zero;
-        spriteRenderer_Emoji.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
-        spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite("Emoji_Empty");
-        textMeshPro_Text.text = text;
-        if (IsInvoking("ResetEmoji"))
-        {
-            CancelInvoke("ResetEmoji");
-        }
-        Invoke("ResetEmoji", 1);
     }
     private void ResetEmoji()
     {
-        spriteRenderer_Emoji.transform.DOScale(Vector3.zero, 0.25f);
+        transform_Emoji.transform.DOScale(Vector3.zero, 0.25f);
+        textMeshPro_Text.text = "";
+    }
+    public void SendText(string text)
+    {
+        if (!transform_Singal.gameObject.activeSelf)
+        {
+            transform_Bubble.transform.DOKill();
+            transform_Bubble.transform.localScale = Vector3.zero;
+            transform_Bubble.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
+            textMeshPro_Text.text = text;
+            if (IsInvoking("ResetText"))
+            {
+                CancelInvoke("ResetText");
+            }
+            Invoke("ResetText", 1);
+        }
+    }
+    private void ResetText()
+    {
+        transform_Bubble.transform.DOScale(Vector3.zero, 0.25f);
         textMeshPro_Text.text = "";
     }
     public void ShowName(string str)
     {
-        textMeshPro_Name.text = str;
+        if (!str.Equals(""))
+        {
+            textMeshPro_Name.text = str;
+        }
     }
-    public void ShowSingal(bool on)
+    public void ShowSingal()
     {
-        transform_Singal.gameObject.SetActive(on);
+        ResetEmoji();
+        ResetText();
+        transform_Singal.DOKill();
+        transform_Singal.gameObject.SetActive(true);
         transform_Singal.transform.localScale = Vector3.one;
         transform_Singal.DOPunchScale(new Vector3(-0.1f, 0.1f, 0), 0.2f);
+        if (IsInvoking("HideSingal"))
+        {
+            CancelInvoke("HideSingal");
+        }
+        Invoke("HideSingal", 5);
+    }
+    public void ShowSingalF()
+    {
+        ResetEmoji();
+        ResetText();
+        transform_Singal.DOKill();
+        transform_Singal.gameObject.SetActive(true);
+        transform_SingalF.gameObject.SetActive(true);
+        transform_SingalTalk.gameObject.SetActive(false);
+        transform_Singal.transform.localScale = Vector3.one;
+        transform_Singal.DOPunchScale(new Vector3(-0.1f, 0.1f, 0), 0.2f);
+    }
+    public void ShowSingalTalk()
+    {
+        ResetEmoji();
+        ResetText();
+        transform_Singal.DOKill();
+        transform_Singal.gameObject.SetActive(true);
+        transform_SingalTalk.gameObject.SetActive(true);
+        transform_SingalF.gameObject.SetActive(false);
+        transform_Singal.transform.localScale = Vector3.one;
+        transform_Singal.DOPunchScale(new Vector3(-0.1f, 0.1f, 0), 0.2f);
+    }
+    public void HideSingal()
+    {
+        transform_Singal.gameObject.SetActive(false);
+        textMeshPro_Text.text = "";
     }
 }
 public enum Emoji
@@ -96,4 +148,12 @@ public enum Emoji
     /// ¿ªÐÄ
     /// </summary>
     Happy,
+    /// <summary>
+    /// ¹¥»÷
+    /// </summary>
+    Attack,
+    /// <summary>
+    /// ËÑÑ°
+    /// </summary>
+    Search,
 }

@@ -23,7 +23,7 @@ public class ActorPathManager
     /// <summary>
     /// 检查当前位置
     /// </summary>
-    public void AllClient_CheckTile()
+    public void Local_CheckTile()
     {
         vector3Int_CurPos = MapManager.Instance.grid_Ground.WorldToCell(actorManager.transform.position);
         vector2_CurPos = MapManager.Instance.grid_Ground.CellToWorld(vector3Int_CurPos);
@@ -163,7 +163,7 @@ public class ActorPathManager
             float commonSpeed = actorManager.actorNetManager.Net_SpeedCommon / 10f;
             Vector2 velocity = new Vector2(temp.x * commonSpeed, temp.y * commonSpeed);
             Vector3 newPos = actorManager.transform.position + new UnityEngine.Vector3(velocity.x * dt, velocity.y * dt, 0);
-            actorManager.actorNetManager.OnlyState_UpdateNetworkRigidbody(newPos, velocity.magnitude);
+            actorManager.actorNetManager.State_UpdateNetworkRigidbody(newPos, velocity.magnitude);
         }
     }
     /// <summary>

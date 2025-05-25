@@ -249,51 +249,6 @@ public class ActorManager_NPC : ActorManager
         actorNetManager.Local_SetBagItem(itemDatas);
     }
     #endregion
-    #region
-    /// <summary>
-    /// 恐慌
-    /// </summary>
-    protected List<string> word_Panic = new List<string>()
-    { 
-        "我在流血!","不要!","救我",
-    };
-    /// <summary>
-    /// 威胁
-    /// </summary>
-    protected List<string> word_Menace = new List<string>()
-    {
-        "你会后悔的","你想和我比试一下吗?","等下你就知道错了"
-    };
-    /// <summary>
-    /// 发现怪物
-    /// </summary>
-    protected List<string> word_FindTheMonster = new List<string>()
-    {
-        "怪物!","哇啊啊啊","天!这里需要更多守卫!"
-    };
-    /// <summary>
-    /// 追击
-    /// </summary>
-    protected List<string> word_Pursue = new List<string>()
-    {
-        "我找得到你","你跑不掉的"
-    };
-    /// <summary>
-    /// 注意
-    /// </summary>
-    protected List<string> word_Notice = new List<string>()
-    {
-        "嗯?","什么声音?","谁在那里?","哎?"
-    };
-    /// <summary>
-    /// 拾取
-    /// </summary>
-    protected List<string> word_PickUp = new List<string>() 
-    { 
-        "这东西不错", "好东西", "这是我的了" 
-    };
-
-    #endregion
 }
 [Serializable]
 public struct ActorConfig_NPC

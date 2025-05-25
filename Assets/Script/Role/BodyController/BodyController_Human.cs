@@ -68,6 +68,16 @@ public class BodyController_Human : BodyController_Base
 
     public Animator animator_Hand;
     public AnimaEventListen animaEventListen_Hand;
+    public void Start()
+    {
+        animaEventListen_Body.BindCommonEvent((x) => 
+        {
+            if (x.Equals("Step"))
+            {
+                AudioManager.Instance.Play3DEffect(4000,transform.position);
+            }
+        });
+    }
 
     public override void SetAnimatorTrigger(BodyPart bodyPart, string name)
     {
@@ -170,7 +180,7 @@ public class BodyController_Human : BodyController_Base
     public override void Dead()
     {
         Effect_DeadBody deadBody = PoolManager.Instance.GetObject("Effect/Effect_DeadBody").GetComponent<Effect_DeadBody>();
-        deadBody.SetBodyForce(GetComponent<NetworkRigidbody2D>(), faceRight, turnRight);
+        deadBody.SetBodyForce(GetComponentInParent<NetworkRigidbody2D>(), faceRight, turnRight);
         deadBody.SetBodyFace(spriteRenderer_Hair.sprite,spriteRenderer_Hair.color);
         deadBody.transform.position = transform.position;
         base.Dead();

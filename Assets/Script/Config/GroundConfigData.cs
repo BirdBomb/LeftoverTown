@@ -10,18 +10,17 @@ public class GroundConfigData
     }
     public readonly static List<GroundConfig> groundConfigs = new List<GroundConfig>()
     {
-        new GroundConfig(){ Ground_ID = 1000,Ground_Name ="荒地",Ground_Age = AgeGroup.Nature,
+        /*荒地*/new GroundConfig(){ Ground_ID = 1000,Ground_Age = AgeGroup.Nature,Ground_Color = new Color32(118,94,66,255),
             Ground_Raw=new List<ItemRaw>(){ new ItemRaw(1001,2) } },
-        new GroundConfig(){ Ground_ID = 1001,Ground_Name ="草地",Ground_Age = AgeGroup.Nature,
+        /*草地*/new GroundConfig(){ Ground_ID = 1001,Ground_Age = AgeGroup.Nature,Ground_Color = new Color32(27,88,33,255),
             Ground_Raw=new List<ItemRaw>(){ new ItemRaw(1001,2) } },
-        new GroundConfig(){ Ground_ID = 2000,Ground_Name ="木制地板",Ground_Age = AgeGroup.StoneAge,
+        /*木制地板*/new GroundConfig(){ Ground_ID = 2000,Ground_Age = AgeGroup.StoneAge,Ground_Color = new Color32(129,91,53,255),
             Ground_Raw=new List<ItemRaw>(){ new ItemRaw(1001,2) } },
-        new GroundConfig(){ Ground_ID = 2001,Ground_Name ="石砖地板",Ground_Age = AgeGroup.StoneAge,
+        /*石砖地板*/new GroundConfig(){ Ground_ID = 2001,Ground_Age = AgeGroup.StoneAge,Ground_Color = new Color32(93,102,116,255),
             Ground_Raw=new List<ItemRaw>(){ new ItemRaw(1001,2) } },
-
-        new GroundConfig(){ Ground_ID = 9000,Ground_Name ="水",Ground_Age = AgeGroup.Nature,
+        /*水*/new GroundConfig(){ Ground_ID = 9000,Ground_Age = AgeGroup.Nature,Ground_Color = new Color32(24,50,80,255),
             Ground_Raw=new List<ItemRaw>(){ new ItemRaw(1001,2) } },
-        new GroundConfig(){ Ground_ID = 9999,Ground_Name ="坑",Ground_Age = AgeGroup.Nature,
+        /*坑*/new GroundConfig(){ Ground_ID = 9999,Ground_Age = AgeGroup.Nature,Ground_Color = new Color32(23,12,11,255),
             Ground_Raw=new List<ItemRaw>(){ new ItemRaw(1001,2) } },
     };
 
@@ -29,10 +28,8 @@ public class GroundConfigData
 [Serializable]
 public struct GroundConfig
 {
-    [SerializeField]
     public short Ground_ID;
-    [SerializeField]
-    public string Ground_Name;
-    public List<ItemRaw> Ground_Raw;
     public AgeGroup Ground_Age;
+    public Color32 Ground_Color;
+    public List<ItemRaw> Ground_Raw;
 }

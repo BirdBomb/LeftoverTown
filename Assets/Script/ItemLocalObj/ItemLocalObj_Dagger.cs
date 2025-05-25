@@ -60,7 +60,7 @@ public class ItemLocalObj_Dagger : ItemLocalObj
         config_StabCD = config_StabDuraction / config_StabSpeed;
         config_StabCDRec = config_StabSpeed / config_StabDuraction;
 
-        spriteRenderer_Hand.sprite = body.transform_RightHand.GetComponent<SpriteRenderer>().sprite;
+        spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingByHand(owner, body, data);
     }

@@ -48,9 +48,13 @@ public class UIManager : SingleTon<UIManager>, ISingleTon
     }
 
     private TileUI tileUI_Bind;
-    public void ShowTileUI(GameObject obj,out TileUI tileUI)
+    public void ShowTileUI(GameObject obj, out TileUI tileUI)
     {
         tileUI = Instantiate(obj, transform_TileUIPanel).GetComponent<TileUI>();
+        if (tileUI_Bind)
+        {
+            HideTileUI(tileUI_Bind);
+        }
         tileUI_Bind = tileUI;
         tileUI_Bind.Show();
     }
