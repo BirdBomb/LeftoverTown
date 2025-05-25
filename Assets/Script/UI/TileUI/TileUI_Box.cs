@@ -93,7 +93,7 @@ public class TileUI_Box : TileUI
             ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.Item_ID);
             int indexInBag = i;
             int indexInBox = buildingObj_Bind.itemDatas_List.FindIndex((x) => { return x.Item_ID == itemData.Item_ID; });
-            if (indexInBox >= 0 && itemConfig.Item_Size == ItemSize.AsGroup)
+            if (indexInBox >= 0 && itemConfig.Item_Size == ItemSize.Gro)
             {
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
                 {
@@ -121,7 +121,7 @@ public class TileUI_Box : TileUI
             ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.Item_ID);
             int indexInBox = i;
             int indexInBag = itemDatas.FindIndex((x) => { return x.Item_ID == itemData.Item_ID; });
-            if (indexInBag >= 0 && itemConfig.Item_Size == ItemSize.AsGroup)
+            if (indexInBag >= 0 && itemConfig.Item_Size == ItemSize.Gro)
             {
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
                 {

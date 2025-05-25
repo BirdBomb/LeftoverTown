@@ -59,7 +59,7 @@ public class TileUI_Cook : TileUI
     public void Raw0PutIn(ItemData addData, ItemPath path)
     {
         ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.Item_ID);
-        if (itemConfig.Item_Type == ItemType.Ingredient && buildingObj_Bind.itemData_Raw0.Item_ID == 0)
+        if (itemConfig.Item_Type == ItemType.Food && buildingObj_Bind.itemData_Raw0.Item_ID == 0)
         {
             ItemData putIn = addData;
             putIn.Item_Count = 1;
@@ -88,7 +88,7 @@ public class TileUI_Cook : TileUI
     public void Raw1PutIn(ItemData addData, ItemPath path)
     {
         ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.Item_ID);
-        if (itemConfig.Item_Type == ItemType.Ingredient && buildingObj_Bind.itemData_Raw1.Item_ID == 0)
+        if (itemConfig.Item_Type == ItemType.Food && buildingObj_Bind.itemData_Raw1.Item_ID == 0)
         {
             ItemData putIn = addData;
             putIn.Item_Count = 1;
@@ -117,7 +117,7 @@ public class TileUI_Cook : TileUI
     public void Raw2PutIn(ItemData addData, ItemPath path)
     {
         ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.Item_ID);
-        if (itemConfig.Item_Type == ItemType.Ingredient && buildingObj_Bind.itemData_Raw2.Item_ID == 0)
+        if (itemConfig.Item_Type == ItemType.Food && buildingObj_Bind.itemData_Raw2.Item_ID == 0)
         {
             ItemData putIn = addData;
             putIn.Item_Count = 1;

@@ -78,13 +78,15 @@ public class TileUI_CreateItem : TileUI
             if (i + CurPage * itemCells_PoolIcon.Count < createConfigs_Pool.Count)
             {
                 CreateRawConfig createRawConfig = createConfigs_Pool[i + CurPage * itemCells_PoolIcon.Count];
+                ItemConfig itemConfig = ItemConfigData.GetItemConfig(createRawConfig.Create_TargetID);
+                Sprite icon = spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString());
+                Sprite bg = spriteAtlas_ItemBG.GetSprite("ItemBG_" + (int)itemConfig.Item_Rarity);
+                string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+                string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+                itemCells_PoolIcon[i].DrawCellInfo(createRawConfig.Create_TargetCount.ToString(), itemName, itemDesc, itemConfig.Item_Rarity);
                 if (CheckRaw(createRawConfig.Create_RawList))
                 {
-                    ItemConfig itemConfig = ItemConfigData.GetItemConfig(createRawConfig.Create_TargetID);
-                    Sprite icon = spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString());
-                    Sprite bg = spriteAtlas_ItemBG.GetSprite("ItemBG_" + itemConfig.ItemRarity);
                     itemCells_PoolIcon[i].DrawCellIcon(icon, Color.white, bg, Color.white);
-                    itemCells_PoolIcon[i].DrawCellInfo(createRawConfig.Create_TargetCount.ToString(), itemConfig.Item_Name, itemConfig.Item_Desc, itemConfig.ItemRarity);
                     itemCells_PoolIcon[i].BindAction
                         (
                             () =>
@@ -99,11 +101,7 @@ public class TileUI_CreateItem : TileUI
                 }
                 else
                 {
-                    ItemConfig itemConfig = ItemConfigData.GetItemConfig(createRawConfig.Create_TargetID);
-                    Sprite icon = spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString());
-                    Sprite bg = spriteAtlas_ItemBG.GetSprite("ItemBG_" + itemConfig.ItemRarity);
                     itemCells_PoolIcon[i].DrawCellIcon(icon, Color.red, bg, Color.red);
-                    itemCells_PoolIcon[i].DrawCellInfo(createRawConfig.Create_TargetCount.ToString(), itemConfig.Item_Name, itemConfig.Item_Desc, itemConfig.ItemRarity);
                     itemCells_PoolIcon[i].BindAction
                         (
                             () =>
@@ -113,14 +111,12 @@ public class TileUI_CreateItem : TileUI
                             null
                         );
                 }
-                
             }
             else
             {
                 itemCells_PoolIcon[i].CleanCell();
                 itemCells_PoolIcon[i].CleanAction();
             }
-
         }
     }
     private void DrawRawPanel()
@@ -133,7 +129,7 @@ public class TileUI_CreateItem : TileUI
                 {
                     ItemConfig itemConfig = ItemConfigData.GetItemConfig(createRawConfig_Temp.Create_RawList[i].ID);
                     Sprite icon = spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString());
-                    Sprite bg = spriteAtlas_ItemBG.GetSprite("ItemBG_" + itemConfig.ItemRarity);
+                    Sprite bg = spriteAtlas_ItemBG.GetSprite("ItemBG_" + (int)itemConfig.Item_Rarity);
                     List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
                     int itemCount = 0;
                     for (int k = 0; k < itemDatas.Count; k++)
@@ -144,7 +140,9 @@ public class TileUI_CreateItem : TileUI
                         }
                     }
                     string info_temp = itemCount.ToString() + "/" + createRawConfig_Temp.Create_RawList[i].Count.ToString();
-                    itemCells_RawIcon[i].DrawCellInfo(info_temp, itemConfig.Item_Name, itemConfig.Item_Desc, itemConfig.ItemRarity);
+                    string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+                    string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+                    itemCells_RawIcon[i].DrawCellInfo(info_temp, itemName, itemDesc, itemConfig.Item_Rarity);
                     if (itemCount < createRawConfig_Temp.Create_RawList[i].Count)
                     {
                         itemCells_RawIcon[i].DrawCellIcon(icon, Color.red, bg, Color.red);
@@ -210,6 +208,7 @@ public class TileUI_CreateItem : TileUI
             Type type = Type.GetType("Item_" + createRawConfig.Create_TargetID.ToString());
             ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData((short)createRawConfig.Create_TargetID, out ItemData initData);
             initData.Item_Count = (short)createRawConfig.Create_TargetCount;
+            AudioManager.Instance.Play2DEffect(1000);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
             {
                 itemData = initData,
@@ -217,6 +216,7 @@ public class TileUI_CreateItem : TileUI
         }
         else
         {
+            AudioManager.Instance.Play2DEffect(1001);
             Debug.Log("Ô­ÁÏ²»×ã");
         }
     }

@@ -57,7 +57,7 @@ public class TileUI_BoxFreeze : TileUI
     public void PutIn(ItemData addData, ItemPath path)
     {
         ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.Item_ID);
-        if (itemConfig.Item_Type == ItemType.Ingredient || itemConfig.Item_Type == ItemType.Food)
+        if (itemConfig.Item_Type == ItemType.Food || itemConfig.Item_Type == ItemType.Dishes) 
         {
             addData.Item_Info = 0;
         }
@@ -78,7 +78,7 @@ public class TileUI_BoxFreeze : TileUI
         buildingObj_Bind.itemDatas_List = GameToolManager.Instance.ChangeItemList(buildingObj_Bind.itemDatas_List, itemData_New, itemPath.itemIndex);
 
         ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData_Out.Item_ID);
-        if (itemConfig.Item_Type == ItemType.Ingredient || itemConfig.Item_Type == ItemType.Food)
+        if (itemConfig.Item_Type == ItemType.Food || itemConfig.Item_Type == ItemType.Dishes)
         {
             itemData_Out.Item_Info = 100;
         }
