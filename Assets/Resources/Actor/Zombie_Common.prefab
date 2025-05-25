@@ -12,12 +12,10 @@ GameObject:
   - component: {fileID: 2166703164904042252}
   - component: {fileID: 6484327896203855648}
   - component: {fileID: 3389420984197093135}
-  - component: {fileID: 7151385692407366181}
   - component: {fileID: 2668519655197080893}
-  - component: {fileID: 8726637039011318410}
   - component: {fileID: 6666499714398119443}
-  - component: {fileID: 5457112900996354466}
   - component: {fileID: 5061607933794539187}
+  - component: {fileID: 5457112900996354466}
   m_Layer: 6
   m_Name: Zombie_Common
   m_TagString: Actor
@@ -38,9 +36,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 673416182991028517}
   - {fileID: 3860954381428557058}
-  - {fileID: 2218325514629886627}
+  - {fileID: 673416182991028517}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!58 &2166703164904042252
@@ -150,18 +147,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!210 &7151385692407366181
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 147418315700499120}
-  m_Enabled: 1
-  m_SortingLayerID: 680613467
-  m_SortingLayer: 3
-  m_SortingOrder: 0
-  m_SortAtRoot: 0
 --- !u!114 &2668519655197080893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,24 +166,6 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 6666499714398119443}
   - {fileID: 5061607933794539187}
---- !u!114 &8726637039011318410
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 147418315700499120}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f78292ffc692b645a3f1f3b724e7906, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 0
-  faceDir: {x: 0, y: 0}
-  turnDir: {x: 0, y: 0}
-  transform_Body: {fileID: 2329605869351102004}
-  animator_Body: {fileID: 8541985279539972228}
-  animaEventListen_Body: {fileID: 3245216409284125356}
 --- !u!114 &6666499714398119443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,6 +188,62 @@ MonoBehaviour:
     Position: 0.01
     Rotation: 0.01
     Scale: 0.01
+--- !u!114 &5061607933794539187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 147418315700499120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2466aa7a23d21a4394b30cc41be8dbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  networkRigidbody: {fileID: 6666499714398119443}
+  actorManager_Local: {fileID: 5457112900996354466}
+  _Net_HpCur: 0
+  _Net_FoodCur: 0
+  _Net_SanCur: 0
+  _Net_SpeedCommon: 0
+  _Net_Armor: 0
+  _Net_Resistance: 0
+  _Net_ItemInHand:
+    Item_ID: 0
+    Item_Count: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_SignTime: 0
+    Item_Content:
+      Item_ID: 0
+      Item_Count: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
+  _Net_ItemOnHead:
+    Item_ID: 0
+    Item_Count: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_SignTime: 0
+    Item_Content:
+      Item_ID: 0
+      Item_Count: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
+  _Net_ItemOnBody:
+    Item_ID: 0
+    Item_Count: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_SignTime: 0
+    Item_Content:
+      Item_ID: 0
+      Item_Count: 0
+      Item_Info: 0
+      Item_Durability: 0
+      Item_DurabilityPoint: 0
 --- !u!114 &5457112900996354466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,7 +259,8 @@ MonoBehaviour:
   rigidbody2: {fileID: 3389420984197093135}
   actorUI: {fileID: 2374736933620961169}
   actorNetManager: {fileID: 5061607933794539187}
-  bodyController: {fileID: 8726637039011318410}
+  bodyController: {fileID: 8302949918025806900}
+  playerSimulation: {fileID: 0}
   actorState: 0
   viewManager: {fileID: 5919214210830039845}
   float_AttackCD: 2
@@ -246,6 +270,8 @@ MonoBehaviour:
   config:
     status_Type: 3
     short_Hp: 50
+    short_Armor: 0
+    short_Resistance: 0
     short_MoveSpeed: 30
     short_MoveStep: 2
     float_AttackDistance: 1
@@ -255,97 +281,6 @@ MonoBehaviour:
       CountMin: 1
       CountMax: 2
     lootInfos_Extra: []
---- !u!114 &5061607933794539187
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 147418315700499120}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2466aa7a23d21a4394b30cc41be8dbe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  networkRigidbody: {fileID: 6666499714398119443}
-  actorManager_Local: {fileID: 5457112900996354466}
-  _Net_Name: 
-  _Net_EyeID: 0
-  _Net_HairID: 0
-  _Net_HairColor:
-    serializedVersion: 2
-    rgba: 0
-  _Net_SpeedCommon: 0
-  _Net_SpeedMax: 0
-  _Net_HpCur: 0
-  _Net_HpMax: 0
-  _Net_Armor: 0
-  _Net_Resistance: 0
-  _Net_FoodCur: 0
-  _Net_FoodMax: 0
-  _Net_Water: 0
-  _Net_SanCur: 0
-  _Net_SanMax: 0
-  _Net_Happy: 0
-  _Net_Coin: 0
-  _Net_Fine: 0
-  _Net_EnMax: 0
-  _Net_EnCur: 0
-  _Net_EnRelease: 0
-  _Net_Point_Strength: 0
-  _Net_Point_Intelligence: 0
-  _Net_Point_SPower: 0
-  _Net_Point_Focus: 0
-  _Net_Point_Agility: 0
-  _Net_Point_Make: 0
-  _Net_Point_Build: 0
-  _Net_Point_Cook: 0
-  _Net_ItemsInBag: []
-  _Net_ItemsInBagCapacity: 0
-  _Net_ItemInHand:
-    Item_ID: 0
-    Item_Seed: 0
-    Item_Count: 0
-    Item_Info: 0
-    Item_Durability: 0
-    Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Seed: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
-  _Net_ItemOnHead:
-    Item_ID: 0
-    Item_Seed: 0
-    Item_Count: 0
-    Item_Info: 0
-    Item_Durability: 0
-    Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Seed: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
-  _Net_ItemOnBody:
-    Item_ID: 0
-    Item_Seed: 0
-    Item_Count: 0
-    Item_Info: 0
-    Item_Durability: 0
-    Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Seed: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
-  statusType: 0
-  _Net_Buffs: 
 --- !u!1 &1761792966591504158
 GameObject:
   m_ObjectHideFlags: 0
@@ -472,7 +407,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 2
   m_Sprite: {fileID: 1617769315, guid: 5b7bdc8d85624f74abac44f3c82a56f0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -506,6 +441,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 673416182991028517}
+  - component: {fileID: 3806495624047167073}
+  - component: {fileID: 8302949918025806900}
   m_Layer: 0
   m_Name: Role
   m_TagString: Untagged
@@ -527,8 +464,39 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2329605869351102004}
+  - {fileID: 2218325514629886627}
   m_Father: {fileID: 6173912783539968977}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!210 &3806495624047167073
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3587456383015938248}
+  m_Enabled: 1
+  m_SortingLayerID: 680613467
+  m_SortingLayer: 4
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+--- !u!114 &8302949918025806900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3587456383015938248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f78292ffc692b645a3f1f3b724e7906, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  float_Speed: 0
+  faceDir: {x: 0, y: 0}
+  turnDir: {x: 0, y: 0}
+  transform_Body: {fileID: 2329605869351102004}
+  animator_Body: {fileID: 8541985279539972228}
+  animaEventListen_Body: {fileID: 3245216409284125356}
 --- !u!1 &7819489563944998389
 GameObject:
   m_ObjectHideFlags: 0
@@ -615,11 +583,11 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 6173912783539968977}
+    m_TransformParent: {fileID: 673416182991028517}
     m_Modifications:
     - target: {fileID: 280313593101455128, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_text
-      value: 
+      value: "\u50F5\u5C38"
       objectReference: {fileID: 0}
     - target: {fileID: 3753366501118518783, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_Name
@@ -643,15 +611,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5677282177641982469, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 5677282177641982469, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 5677282177641982469, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 5677282177641982469, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

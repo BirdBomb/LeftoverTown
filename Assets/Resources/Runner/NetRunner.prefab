@@ -77,3 +77,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerPrefab:
     RawGuidValue: 38af16963665af84c9b68febde0c5e40
+  local_MouseOffset: {x: 0, y: 0.5, z: 0}

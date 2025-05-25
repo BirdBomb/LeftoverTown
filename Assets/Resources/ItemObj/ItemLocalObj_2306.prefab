@@ -134,9 +134,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6233109a8bbdbe541afda385bb594f4a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -218,7 +218,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 598843d6c6ad80d4eb081f8702053dec, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -296,7 +296,6 @@ MonoBehaviour:
   config_AimDistance: 2
   config_AimMaxRange: 20
   config_AimMinRange: 5
-  config_ShotReadyTime: 0.25
   config_ShotAimTime: 0.75
   config_ShotCD: 0.12
   config_ShotRecoilTime: 0.15
@@ -306,7 +305,6 @@ MonoBehaviour:
   skillIndicators: {fileID: 389606184067672441}
   spriteRenderer_RightHand: {fileID: 5362645331195621912}
   spriteRenderer_LeftHand: {fileID: 995918153900148255}
-  transform_Rifle: {fileID: 2906562438965581118}
 --- !u!1 &7197835668705033740
 GameObject:
   m_ObjectHideFlags: 0
@@ -413,9 +411,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6233109a8bbdbe541afda385bb594f4a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

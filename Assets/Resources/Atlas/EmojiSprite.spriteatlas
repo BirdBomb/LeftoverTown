@@ -50,42 +50,45 @@ SpriteAtlas:
     isAtlasV2: 0
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
+    - ee3304f1ebcaab84dbfc2a1666c1f8b6: 21300000
     - 99a109f1c5cd2d84e8a1d27eb88f6bb1: 21300000
-    - 8be9a124697498f4fb411a32157d3a9c: 21300000
     - 8db289f485a9cb646b61bba51237e78c: 21300000
+    - 4deb54561b16db14bb5cc37ce1ad88be: 21300000
     - 7096853756d652e469cdae26a8eb5e65: 21300000
-    - b64136e7d65e8fd4a8089950e72ced7b: 21300000
     - 59554d5824729fc438e49c60e08f972a: 21300000
-    - 945ad4ca5a5a8f5409bd7f91e43f9dcb: 21300000
+    - 4cc7fe794c47ed049b84df804c0b21e9: 21300000
     - d82eb41d3ae32c147a1078c1af88d92e: 21300000
+    - 65d5e84d1a7312043a102084fabe1f84: 21300000
     - f04e88fd4f9a92241bf9b0502c542b67: 21300000
     - 5d4c9bce695a47c449346ec52b5ed2ee: 21300000
-    - 962c3e2fceb3fca43912262e9ebc5cd4: 21300000
+    - b41ee1af23fc04640b36879012c75cc1: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
+  - {fileID: 21300000, guid: ee3304f1ebcaab84dbfc2a1666c1f8b6, type: 3}
   - {fileID: 21300000, guid: 99a109f1c5cd2d84e8a1d27eb88f6bb1, type: 3}
-  - {fileID: 21300000, guid: 8be9a124697498f4fb411a32157d3a9c, type: 3}
   - {fileID: 21300000, guid: 8db289f485a9cb646b61bba51237e78c, type: 3}
+  - {fileID: 21300000, guid: 4deb54561b16db14bb5cc37ce1ad88be, type: 3}
   - {fileID: 21300000, guid: 7096853756d652e469cdae26a8eb5e65, type: 3}
-  - {fileID: 21300000, guid: b64136e7d65e8fd4a8089950e72ced7b, type: 3}
   - {fileID: 21300000, guid: 59554d5824729fc438e49c60e08f972a, type: 3}
-  - {fileID: 21300000, guid: 945ad4ca5a5a8f5409bd7f91e43f9dcb, type: 3}
+  - {fileID: 21300000, guid: 4cc7fe794c47ed049b84df804c0b21e9, type: 3}
   - {fileID: 21300000, guid: d82eb41d3ae32c147a1078c1af88d92e, type: 3}
+  - {fileID: 21300000, guid: 65d5e84d1a7312043a102084fabe1f84, type: 3}
   - {fileID: 21300000, guid: f04e88fd4f9a92241bf9b0502c542b67, type: 3}
   - {fileID: 21300000, guid: 5d4c9bce695a47c449346ec52b5ed2ee, type: 3}
-  - {fileID: 21300000, guid: 962c3e2fceb3fca43912262e9ebc5cd4, type: 3}
+  - {fileID: 21300000, guid: b41ee1af23fc04640b36879012c75cc1, type: 3}
   m_PackedSpriteNamesToIndex:
+  - Emoji_8
   - Emoji_Empty
-  - 1X1
   - Emoji_2
+  - Emoji_6
   - Emoji_0
-  - 2X2
   - Emoji_3
-  - 2X1
+  - BubblePanel
   - Emoji_5
+  - Emoji_7
   - Emoji_4
   - Emoji_1
-  - 1X2
+  - Emoji_9
   m_RenderDataMap: {}
   m_Tag: EmojiSprite
   m_IsVariant: 0

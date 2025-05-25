@@ -130,7 +130,6 @@ MonoBehaviour:
   config_AimDistance: 1.5
   config_AimMaxRange: 35
   config_AimMinRange: 10
-  config_ShotReadyTime: 0
   config_ShotAimTime: 0.5
   config_ShotCD: 0.5
   config_ShotRecoilTime: 0.6
@@ -139,7 +138,6 @@ MonoBehaviour:
   config_NPCAddBulletCount: 4
   skillIndicators: {fileID: 2203761512694826920}
   spriteRenderer_RightHand: {fileID: 3080543039720455120}
-  transform_Pistol: {fileID: 7269847279060348467}
 --- !u!1 &7133821072469522807
 GameObject:
   m_ObjectHideFlags: 0
@@ -211,7 +209,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 703e9263938ea214bb61b97db393ef1e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -295,9 +293,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: 1c8cd35aad238ad4baf8624c08114f88, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6233109a8bbdbe541afda385bb594f4a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
