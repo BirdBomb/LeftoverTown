@@ -99,7 +99,7 @@ public class VehicleManager : MonoBehaviour
     }
     #endregion
     #region// ‰»Î
-    public virtual void AllClient_ActorInputMove(ActorManager actor, float dt, Vector2 dir, bool speed)
+    public virtual void AllClient_ActorInputMove(ActorManager actor, float dt, Vector2 dir)
     {
 
     }
