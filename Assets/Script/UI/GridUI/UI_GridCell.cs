@@ -87,7 +87,9 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         {
             CreateItemBase(data, itemPath_Bind);
             UpdateItemBase(data);
-            ColourCell(_bindItemBase.itemConfig.Item_Name, _bindItemBase.itemConfig.Item_Desc, _bindItemBase.itemConfig.ItemRarity);
+            string itemName = LocalizationManager.Instance.GetLocalization("Item_String", _bindItemBase.itemConfig.Item_ID + "_Name");
+            string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", _bindItemBase.itemConfig.Item_ID + "_Desc");
+            ColourCell(itemName, itemDesc, _bindItemBase.itemConfig.Item_Rarity);
         }
         else
         {
@@ -194,36 +196,9 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// <param name="nameStr"></param>
     /// <param name="descStr"></param>
     /// <param name="rarity"></param>
-    public void ColourCell(string nameStr, string descStr, int rarity)
+    public void ColourCell(string nameStr, string descStr, ItemRarity rarity)
     {
-        if (rarity == 0)
-        {
-            nameStr = "<color=#9A9A9A>" + nameStr + "</color>";
-        }
-        else if (rarity == 1)
-        {
-            nameStr = "<color=#43C743>" + nameStr + "</color>";
-        }
-        else if (rarity == 2)
-        {
-            nameStr = "<color=#4487C7>" + nameStr + "</color>";
-        }
-        else if (rarity == 3)
-        {
-            nameStr = "<color=#d507c6>" + nameStr + "</color>";
-        }
-        else if (rarity == 4)
-        {
-            nameStr = "<color=#FF9D09>" + nameStr + "</color>";
-        }
-        else if (rarity == 5)
-        {
-            nameStr = "<color=#FF090E>" + nameStr + "</color>";
-        }
-        else if (rarity == 6)
-        {
-            nameStr = "<color=#D59DD6>" + nameStr + "</color>";
-        }
+        nameStr = ItemConfigData.Colour(nameStr, rarity);
         str_itemName = nameStr;
         str_itemDesc = descStr;
         str_itemInfo = str_itemName + "\n" + str_itemDesc;

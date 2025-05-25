@@ -20,7 +20,7 @@ public class UI_ItemCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public Text text_Info;
     private bool hiding = true;
 
-    public void DrawCell(Sprite iconSprite,Sprite bgSprite,int rarity, string infoStr,string nameStr,string descStr)
+    public void DrawCell(Sprite iconSprite,Sprite bgSprite,ItemRarity rarity, string infoStr,string nameStr,string descStr)
     {
         image_ItemIcon.enabled = true;
         image_ItemBG.enabled = true;
@@ -42,7 +42,7 @@ public class UI_ItemCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         image_ItemBG.sprite = bgSprite;
         image_ItemBG.color = bgColor;
     }
-    public void DrawCellInfo(string infoStr, string nameStr, string descStr, int rarity)
+    public void DrawCellInfo(string infoStr, string nameStr, string descStr, ItemRarity rarity)
     {
         text_Info.text = infoStr;
         str_itemName = nameStr;
@@ -68,37 +68,9 @@ public class UI_ItemCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
             });
         }
     }
-    private void Colour(int rarity)
+    private void Colour(ItemRarity rarity)
     {
-        if (rarity == 0)
-        {
-            str_itemName = "<color=#9A9A9A>" + str_itemName + "</color>";
-        }
-        else if (rarity == 1)
-        {
-            str_itemName = "<color=#43C743>" + str_itemName + "</color>";
-        }
-        else if (rarity == 2)
-        {
-            str_itemName = "<color=#4487C7>" + str_itemName + "</color>";
-        }
-        else if (rarity == 3)
-        {
-            str_itemName = "<color=#4487C7>" + str_itemName + "</color>";
-        }
-        else if (rarity == 4)
-        {
-            str_itemName = "<color=#FF9D09>" + str_itemName + "</color>";
-        }
-        else if (rarity == 5)
-        {
-            str_itemName = "<color=#FF090E>" + str_itemName + "</color>";
-        }
-        else if (rarity == 6)
-        {
-            str_itemName = "<color=#D59DD6>" + str_itemName + "</color>";
-        }
-
+        str_itemName = ItemConfigData.Colour(str_itemName,rarity);
     }
     #region//½»»¥
     private Action action_Click;
