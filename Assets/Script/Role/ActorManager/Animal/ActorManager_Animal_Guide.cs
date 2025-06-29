@@ -14,14 +14,15 @@ public class ActorManager_Animal_Guide : ActorManager
     /// 出生点
     /// </summary>
     private Vector3Int vector3_HomePos;
-    [SerializeField]
-    private GameObject prefab_DialogUI;
-    [SerializeField]
-    private GameObject prefab_DealUI;
+    public GameObject prefab_DialogUI;
+    public GameObject prefab_DealUI;
+    public GameObject prefab_DictionayUI;
     private TileUI_Dialog tileUI_Dialog;
-    private TileUI_DealUI tileUI_Deal;
+    private TileUI_Deal tileUI_Deal;
+    private TileUI_Dictionary tileUI_Dictionary;
     private bool bool_Dialog = false;
     private bool bool_Deal = false;
+    private bool bool_Dictionay = false;
     #region//初始化
     public override void Client_Init()
     {
@@ -61,6 +62,8 @@ public class ActorManager_Animal_Guide : ActorManager
     {
         actorUI.HideSingal();
         Local_OverDialog(actor);
+        Local_OverDeal(actor);
+        Local_OverDictionary(actor);
         base.Local_OutPlayerView(actor);
     }
     public override void Local_GetPlayerInput(KeyCode keyCode, ActorManager actor)
@@ -90,32 +93,33 @@ public class ActorManager_Animal_Guide : ActorManager
             switch (index)
             {
                 case 0:
+                    tileUI_Dialog.InitDialog("Role_String", "Guide_Name", "Role_String", "Guide_Dialog0");
                     dialogOption_0.optionTable = "Role_String";
                     dialogOption_0.optionEntry = "Guide_Dialog0_Option0";
                     dialogOption_0.optionAction = (() =>
                     {
-                        Local_OverDialog(actor);
+                        Local_StartDialog(actor, 1);
                     });
                     dialogOption_1.optionTable = "Role_String";
                     dialogOption_1.optionEntry = "Guide_Dialog0_Option1";
                     dialogOption_1.optionAction = (() =>
                     {
-                        Local_StartDialog(actor, 2);
+                        Local_StartDeal(actor);
                     });
                     dialogOption_2.optionTable = "Role_String";
                     dialogOption_2.optionEntry = "Guide_Dialog0_Option2";
                     dialogOption_2.optionAction = (() =>
                     {
-                        Local_StartDialog(actor, 1);
+                        Local_StartDictionary(actor);
                     });
 
                     dialogOptions.Add(dialogOption_0);
                     dialogOptions.Add(dialogOption_1);
                     dialogOptions.Add(dialogOption_2);
-                    tileUI_Dialog.InitDialog("Role_String", "Guide_Name", "Role_String", "Guide_Dialog0");
                     tileUI_Dialog.InitOption(dialogOptions);
                     break;
                 case 1:
+                    tileUI_Dialog.InitDialog("Role_String", "Guide_Name", "Role_String", "Guide_Dialog1");
                     dialogOption_0.optionTable = "Role_String";
                     dialogOption_0.optionEntry = "Guide_Dialog1_Option0";
                     dialogOption_0.optionAction = (() =>
@@ -126,112 +130,41 @@ public class ActorManager_Animal_Guide : ActorManager
                     dialogOption_1.optionEntry = "Guide_Dialog1_Option1";
                     dialogOption_1.optionAction = (() =>
                     {
-                        Local_StartDialog(actor, 4);
+                        Local_StartDialog(actor, 2);
                     });
-
                     dialogOption_2.optionTable = "Role_String";
                     dialogOption_2.optionEntry = "Guide_Dialog1_Option2";
                     dialogOption_2.optionAction = (() =>
                     {
                         Local_StartDialog(actor, 3);
                     });
-
                     dialogOptions.Add(dialogOption_0);
                     dialogOptions.Add(dialogOption_1);
                     dialogOptions.Add(dialogOption_2);
-                    tileUI_Dialog.InitDialog("Role_String", "Guide_Name", "Role_String", "Guide_Dialog1");
                     tileUI_Dialog.InitOption(dialogOptions);
                     break;
                 case 2:
+                    tileUI_Dialog.InitDialog("Role_String", "Guide_Name", "Role_String", "Guide_Dialog2");
                     dialogOption_0.optionTable = "Role_String";
                     dialogOption_0.optionEntry = "Guide_Dialog2_Option0";
                     dialogOption_0.optionAction = (() =>
                     {
                         Local_OverDialog(actor);
                     });
-                    dialogOption_1.optionTable = "Role_String";
-                    dialogOption_1.optionEntry = "Guide_Dialog2_Option1";
-                    dialogOption_1.optionAction = (() =>
-                    {
-                        Local_StartDialog(actor, 4);
-                    });
-
-                    dialogOption_2.optionTable = "Role_String";
-                    dialogOption_2.optionEntry = "Guide_Dialog2_Option2";
-                    dialogOption_2.optionAction = (() =>
-                    {
-                        Local_StartDialog(actor, 3);
-                    });
 
                     dialogOptions.Add(dialogOption_0);
-                    dialogOptions.Add(dialogOption_1);
-                    dialogOptions.Add(dialogOption_2);
-                    tileUI_Dialog.InitDialog("Role_String", "Guide_Name", "Role_String", "Guide_Dialog2");
                     tileUI_Dialog.InitOption(dialogOptions);
                     break;
                 case 3:
+                    tileUI_Dialog.InitDialog("Role_String", "Guide_Name", "Role_String", "Guide_Dialog3");
                     dialogOption_0.optionTable = "Role_String";
                     dialogOption_0.optionEntry = "Guide_Dialog3_Option0";
                     dialogOption_0.optionAction = (() =>
                     {
                         Local_OverDialog(actor);
                     });
-                    dialogOption_1.optionTable = "Role_String";
-                    dialogOption_1.optionEntry = "Guide_Dialog3_Option1";
-                    dialogOption_1.optionAction = (() =>
-                    {
-                        Local_StartDialog(actor, 4);
-                    });
-
-                    dialogOption_2.optionTable = "Role_String";
-                    dialogOption_2.optionEntry = "Guide_Dialog3_Option2";
-                    dialogOption_2.optionAction = (() =>
-                    {
-                        Local_StartDialog(actor, 5);
-                    });
 
                     dialogOptions.Add(dialogOption_0);
-                    dialogOptions.Add(dialogOption_1);
-                    dialogOptions.Add(dialogOption_2);
-                    tileUI_Dialog.InitDialog("Role_String", "Guide_Name", "Role_String", "Guide_Dialog3");
-                    tileUI_Dialog.InitOption(dialogOptions);
-                    break;
-                case 4:
-                    dialogOption_0.optionTable = "Role_String";
-                    dialogOption_0.optionEntry = "Guide_Dialog4_Option0";
-                    dialogOption_0.optionAction = (() =>
-                    {
-                        Local_OverDialog(actor);
-                    });
-                    dialogOption_1.optionTable = "Role_String";
-                    dialogOption_1.optionEntry = "Guide_Dialog4_Option1";
-                    dialogOption_1.optionAction = (() =>
-                    {
-                        Local_StartDialog(actor, 3);
-                    });
-
-                    dialogOption_2.optionTable = "Role_String";
-                    dialogOption_2.optionEntry = "Guide_Dialog4_Option2";
-                    dialogOption_2.optionAction = (() =>
-                    {
-                        Local_StartDialog(actor, 5);
-                    });
-
-                    dialogOptions.Add(dialogOption_0);
-                    dialogOptions.Add(dialogOption_1);
-                    dialogOptions.Add(dialogOption_2);
-                    tileUI_Dialog.InitDialog("Role_String", "Guide_Name", "Role_String", "Guide_Dialog4");
-                    tileUI_Dialog.InitOption(dialogOptions);
-                    break;
-                case 5:
-                    dialogOption_0.optionTable = "Role_String";
-                    dialogOption_0.optionEntry = "Guide_Dialog5_Option0";
-                    dialogOption_0.optionAction = (() =>
-                    {
-                        Local_OverDialog(actor);
-                    });
-                    dialogOptions.Add(dialogOption_0);
-                    tileUI_Dialog.InitDialog("Role_String", "Guide_Name", "Role_String", "Guide_Dialog5");
                     tileUI_Dialog.InitOption(dialogOptions);
                     break;
             }
@@ -249,6 +182,79 @@ public class ActorManager_Animal_Guide : ActorManager
             actorNetManager.RPC_State_NpcUseSkill(1, actor.pathManager.vector3Int_CurPos, actor.actorNetManager.Object.Id);
             UIManager.Instance.HideTileUI(tileUI_Dialog);
         }
+    }
+    /// <summary>
+    /// 开始交易
+    /// </summary>
+    /// <param name="actor"></param>
+    private void Local_StartDeal(ActorManager actor)
+    {
+        bool_Deal = true;
+        if (actor != null && actor.actorNetManager.Object != null)
+        {
+            UIManager.Instance.ShowTileUI(prefab_DealUI, out TileUI tileUI);
+            tileUI_Deal = tileUI.GetComponent<TileUI_Deal>();
+            List<ItemData> itemsDatas_Bag = actorNetManager.Local_GetBagItem();
+            List<ItemData> itemDatas_Goods = new List<ItemData>();
+            for (int i = 0; i < itemsDatas_Bag.Count; i++)
+            {
+                ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemsDatas_Bag[i].Item_ID);
+                if (itemConfig.Item_Type != ItemType.Weapon)
+                {
+                    itemDatas_Goods.Add(itemsDatas_Bag[i]);
+                }
+            }
+            tileUI_Deal.Init(this, itemDatas_Goods, Local_Offer);
+        }
+    }
+    /// <summary>
+    /// 结束交易
+    /// </summary>
+    /// <param name="actor"></param>
+    private void Local_OverDeal(ActorManager actor)
+    {
+        if (bool_Deal && actor != null && actor.actorNetManager.Object != null)
+        {
+            bool_Deal = false;
+            UIManager.Instance.HideTileUI(tileUI_Deal);
+        }
+    }
+    /// <summary>
+    /// 开始字典
+    /// </summary>
+    /// <param name="actor"></param>
+    private void Local_StartDictionary(ActorManager actor)
+    {
+        bool_Dictionay = true;
+        if (actor != null && actor.actorNetManager.Object != null)
+        {
+            UIManager.Instance.ShowTileUI(prefab_DictionayUI, out TileUI tileUI);
+            tileUI_Dictionary = tileUI.GetComponent<TileUI_Dictionary>();
+            tileUI_Dictionary.Init();
+        }
+    }
+    /// <summary>
+    /// 结束字典
+    /// </summary>
+    /// <param name="actor"></param>
+    private void Local_OverDictionary(ActorManager actor)
+    {
+        if (bool_Dictionay && actor != null && actor.actorNetManager.Object != null)
+        {
+            bool_Dictionay = false;
+            UIManager.Instance.HideTileUI(tileUI_Dictionary);
+        }
+    }
+    /// <summary>
+    /// 收购
+    /// </summary>
+    /// <param name="itemData"></param>
+    /// <returns></returns>
+    public int Local_Offer(ItemData itemData)
+    {
+        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.Item_ID);
+        int offer = itemConfig.Item_Value * itemData.Item_Count;
+        return offer;
     }
 
     #endregion

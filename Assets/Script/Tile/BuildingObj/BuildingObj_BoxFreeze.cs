@@ -6,13 +6,13 @@ using UnityEngine;
 
 public class BuildingObj_BoxFreeze : BuildingObj
 {
-    [SerializeField]
-    private GameObject obj_Singal;
+    public GameObject obj_SingalUI;
+    public GameObject obj_SingalAwakeUI;
+    public GameObject obj_HightlightUI;
     [SerializeField]
     private GameObject prefab_UI;
     public List<ItemData> itemDatas_List = new List<ItemData>();
     private TileUI_BoxFreeze tileUI_Bind;
-    private bool bool_OpenUI = false;
 
     #region//信息更新与上传
     public override void All_UpdateInfo(string info)
@@ -57,58 +57,77 @@ public class BuildingObj_BoxFreeze : BuildingObj
         Local_ChangeInfo(builder.ToString());
     }
     #endregion
+    #region//瓦片交互
     public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
-            OpenOrCloseSingal(bool_OpenUI);
-            OpenOrCloseCabinetUI(!bool_OpenUI);
+            OpenOrCloseUI(tileUI_Bind == null);
         }
         base.All_ActorInputKeycode(actor, code);
     }
-    public override bool All_PlayerHolding(PlayerCoreLocal player)
+    public override void All_PlayerHighlight(bool on)
     {
-        /*靠近是我自己*/
-        if (player.bool_Local)
-        {
-            OpenOrCloseSingal(true);
-            return true;
-        }
-        return false;
+        OpenOrCloseHighlightUI(on);
+        base.All_PlayerHighlight(on);
     }
-    public override bool All_PlayerRelease(PlayerCoreLocal player)
+    public override void All_PlayerFaraway()
     {
-        /*离开是我自己*/
-        if (player.bool_Local)
-        {
-            OpenOrCloseSingal(false);
-            OpenOrCloseCabinetUI(false);
-            return true;
-        }
-        return false;
+        OpenOrCloseUI(false);
+        base.All_PlayerFaraway();
     }
-    private void OpenOrCloseSingal(bool open)
+    public override void OpenOrCloseHighlightUI(bool open)
     {
-        obj_Singal.transform.DOKill();
+        obj_SingalUI.transform.DOKill();
         if (open)
         {
-            obj_Singal.SetActive(true);
-            obj_Singal.transform.localScale = Vector3.one;
-            obj_Singal.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_SingalUI.SetActive(true);
+            obj_SingalUI.transform.localScale = Vector3.one;
+            obj_SingalUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
         }
         else
         {
-            obj_Singal.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
+            obj_SingalUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
             {
-                obj_Singal.SetActive(false);
+                obj_SingalUI.SetActive(false);
+            });
+        }
+        obj_HightlightUI.transform.DOKill();
+        if (open)
+        {
+            obj_HightlightUI.SetActive(true);
+            obj_HightlightUI.transform.localScale = Vector3.one;
+            obj_HightlightUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+        }
+        else
+        {
+            obj_HightlightUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
+            {
+                obj_HightlightUI.SetActive(false);
             });
         }
     }
-    private void OpenOrCloseCabinetUI(bool open)
+    public override void OpenOrCloseAwakeUI(bool open)
+    {
+        obj_SingalAwakeUI.transform.DOKill();
+        if (open)
+        {
+            obj_SingalAwakeUI.SetActive(true);
+            obj_SingalAwakeUI.transform.localScale = Vector3.one;
+            obj_SingalAwakeUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+        }
+        else
+        {
+            obj_SingalAwakeUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
+            {
+                obj_SingalAwakeUI.SetActive(false);
+            });
+        }
+    }
+    public override void OpenOrCloseUI(bool open)
     {
         if (open)
         {
-            bool_OpenUI = true;
             UIManager.Instance.ShowTileUI(prefab_UI, out TileUI tileUI);
             tileUI_Bind = tileUI.GetComponent<TileUI_BoxFreeze>();
             tileUI_Bind.BindBuilding(this);
@@ -116,9 +135,13 @@ public class BuildingObj_BoxFreeze : BuildingObj
         }
         else
         {
-            bool_OpenUI = false;
             if (tileUI_Bind) UIManager.Instance.HideTileUI(tileUI_Bind);
             if (tileUI_Bind) tileUI_Bind = null;
         }
     }
+    public override bool CanHighlight()
+    {
+        return true;
+    }
+    #endregion
 }

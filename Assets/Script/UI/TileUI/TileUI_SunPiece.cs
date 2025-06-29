@@ -23,18 +23,29 @@ public class TileUI_SunPiece : TileUI
     {
         BindAllCell();
     }
-    public void BindBuilding(BuildingObj_SunPiece buildingObj)
+    public override void Show()
     {
-        buildingObj_Bind = buildingObj;
         transform_Panel.DOKill();
         transform_Panel.localScale = Vector3.one;
         transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        base.Show();
+    }
+    public override void Hide()
+    {
+        buildingObj_Bind.OpenOrCloseAwakeUI(false);
+        base.Hide();
+    }
+
+    public void BindBuilding(BuildingObj_SunPiece buildingObj)
+    {
+        buildingObj_Bind = buildingObj;
+        buildingObj_Bind.OpenOrCloseAwakeUI(true);
         btn_Sure.onClick.AddListener(ClickSure);
         DrawInfo();
         DrawCell();
         CheckCell();
     }
-    private void BindAllCell()
+    public void BindAllCell()
     {
         gridCell_Food.BindGrid(new ItemPath(ItemFrom.Default, 0), PutIn, PutOut, null, null);
     }

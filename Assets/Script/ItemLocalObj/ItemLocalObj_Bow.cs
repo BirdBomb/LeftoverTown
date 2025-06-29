@@ -291,7 +291,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
         ItemData _oldItem = itemData;
         ItemData _newItem = _oldItem;
         _newItem.Item_Content.Item_Count--;
-        _newItem.Item_Info--;
+        _newItem.Item_Durability--;
         UpdateDataByLocal(_newItem);
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {

@@ -42,6 +42,7 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     private Action<UI_GridCell> action_ClickLeft;
     private Action<UI_GridCell> action_ClickRight;
     private string str_itemName = "";
+    private string str_itemQuality = "";
     private string str_itemDesc = "";
     private string str_itemInfo = "";
 
@@ -87,9 +88,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         {
             CreateItemBase(data, itemPath_Bind);
             UpdateItemBase(data);
-            string itemName = LocalizationManager.Instance.GetLocalization("Item_String", _bindItemBase.itemConfig.Item_ID + "_Name");
-            string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", _bindItemBase.itemConfig.Item_ID + "_Desc");
-            ColourCell(itemName, itemDesc, _bindItemBase.itemConfig.Item_Rarity);
         }
         else
         {
@@ -157,6 +155,16 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         text_CornerMark.text = info;
     }
     /// <summary>
+    /// 设置格子
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="quality"></param>
+    /// <param name="desc"></param>
+    public void SetCell(string info)
+    {
+        str_itemInfo = info;
+    }
+    /// <summary>
     /// 重设格子
     /// </summary>
     private void ResetCell()
@@ -189,19 +197,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         {
             grid_Child.CloseGrid();
         }
-    }
-    /// <summary>
-    /// 染色格子
-    /// </summary>
-    /// <param name="nameStr"></param>
-    /// <param name="descStr"></param>
-    /// <param name="rarity"></param>
-    public void ColourCell(string nameStr, string descStr, ItemRarity rarity)
-    {
-        nameStr = ItemConfigData.Colour(nameStr, rarity);
-        str_itemName = nameStr;
-        str_itemDesc = descStr;
-        str_itemInfo = str_itemName + "\n" + str_itemDesc;
     }
     /// <summary>
     /// 冰冻格子

@@ -226,8 +226,22 @@ public class Item_2030 : ItemBase
     public override void StaticAction_InitData(short id, out ItemData data)
     {
         base.StaticAction_InitData(id, out data);
-        data.Item_Info = (short)new System.Random().Next(0, short.MaxValue);
+        data.Item_Info = (short)new System.Random().Next(short.MinValue, short.MaxValue);
     }
+    public override void GridCell_Draw(UI_GridCell gridCell)
+    {
+        string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+        string stringDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+        string stringQuality = LocalizationManager.Instance.GetLocalization("Item_String", "_ItemQuality_" + (int)itemQuality);
+        stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
+        stringQuality = ItemConfigData.Colour(stringQuality, itemQuality);
+
+        string stringInfo = stringName + "\n" + stringQuality + "\n" + stringDesc;
+
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Count.ToString());
+        gridCell.SetCell(stringInfo);
+    }
+
     #region//使用逻辑 
     private ItemLocalObj_FishRod itemLocalObj_FishRod;
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
@@ -275,6 +289,48 @@ public class Item_2030 : ItemBase
     }
     #endregion
 }
+/// <summary>
+/// 木锄
+/// </summary>
+public class Item_2040 : ItemBase_Tool
+{
+    #region//使用逻辑
+    private ItemLocalObj_Hoe itemLocalObj_Hoe;
+    public override void OnHand_Start(ActorManager owner, BodyController_Human body)
+    {
+        this.owner = owner;
+        itemLocalObj_Hoe = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2040").GetComponent<ItemLocalObj_Hoe>();
+        itemLocalObj_Hoe.HoldingByHand(owner, body, itemData);
+        base.OnHand_Start(owner, body);
+    }
+    public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
+    {
+        return itemLocalObj_Hoe.PressLeftMouse(pressTimer, owner.actorAuthority);
+    }
+    public override void OnHand_ReleaseLeftPress(bool state, bool input, bool player)
+    {
+        itemLocalObj_Hoe.ReleaseLeftMouse();
+        base.OnHand_ReleaseLeftPress(state, input, player);
+    }
+    public override void OnHand_UpdateMousePos(Vector3 mouse)
+    {
+        itemLocalObj_Hoe.UpdateMousePos(mouse);
+        inputData.mousePosition = mouse;
+        base.OnHand_UpdateMousePos(mouse);
+    }
+    public override void UpdateDataFromNet(ItemData data)
+    {
+        if (itemLocalObj_Hoe) itemLocalObj_Hoe.UpdateDataByNet(data);
+        base.UpdateDataFromNet(data);
+    }
+    public override void UpdateDataFromLocal(ItemData data)
+    {
+        if (itemLocalObj_Hoe) itemLocalObj_Hoe.UpdateDataByLocal(data);
+        base.UpdateDataFromLocal(data);
+    }
+    #endregion
+}
+
 #endregion
 #region//近战武器
 /// <summary>

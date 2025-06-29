@@ -14,6 +14,10 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     public Transform transform_Preview;
     [Header("预览图片")]
     public SpriteRenderer spriteRenderer_Preview;
+    [Header("标识位置")]
+    public Transform transform_Singal;
+    [Header("标识图片")]
+    public SpriteRenderer spriteRenderer_Singal;
     [Header("建筑预览图集")]
     public SpriteAtlas spriteAtlas_BuildingPreview;
     [Header("地面预览图集")]
@@ -22,6 +26,10 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// 正在预览
     /// </summary>
     private bool bool_InPreview = false;
+    /// <summary>
+    /// 正在标识位置
+    /// </summary>
+    private bool bool_InSingal = false;
     /// <summary>
     /// 当前预览位置
     /// </summary>
@@ -53,7 +61,13 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
 
     public void Init()
     {
-        
+        MessageBroker.Default.Receive<GameEvent.GameEvent_AllClient_SomeoneMove>().Subscribe(_ =>
+        {
+            if (_.moveActor.actorAuthority.isLocal && _.moveActor.actorAuthority.isPlayer)
+            {
+                UpdateSingalPos(_.movePos);
+            }
+        }).AddTo(this);
     }
     public void Update()
     {
@@ -385,6 +399,49 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
             spriteRenderer_Preview.transform.DOShakePosition(0.2f, new Vector3(0.1f, 0.1f, 1), 100, 500);
             AudioManager.Instance.Play2DEffect(1001);
         }
+    }
+    #endregion
+    /*地图高亮*/
+    #region
+    public Vector3Int vector3Int_SingalOffset;
+    public Vector3Int vector3Int_SingalPos;
+    private void UpdateSingalPos(Vector3Int pos)
+    {
+        vector3Int_SingalPos = pos;
+        transform_Singal.position = MapManager.Instance.tilemap_Building.CellToWorld(vector3Int_SingalPos + vector3Int_SingalOffset) + new Vector3(0.5f, 0.5f, 0);
+        transform_Singal.DOKill();
+        transform_Singal.localScale = Vector3.one;
+        transform_Singal.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.2f);
+        spriteRenderer_Singal.DOKill();
+        spriteRenderer_Singal.color = new Color(1, 1, 1, 0.8f);
+        spriteRenderer_Singal.DOFade(0f, 1);
+    }
+    public void ShowSingal(Vector3Int offset)
+    {
+        vector3Int_SingalOffset = offset;
+        UpdateSingalPos(vector3Int_SingalPos);
+        bool_InSingal = true;
+        spriteRenderer_Singal.gameObject.SetActive(true);
+    }
+    public void HideSingal()
+    {
+        bool_InSingal = false;
+        if(spriteRenderer_Singal != null)
+        {
+            spriteRenderer_Singal.gameObject.SetActive(false);
+        }
+    }
+    public void SuccesSingal()
+    {
+
+    }
+    public void FailSingal(float val)
+    {
+        spriteRenderer_Singal.DOComplete();
+        spriteRenderer_Singal.color = new Color(1, 0, 0, 0.8f);
+        spriteRenderer_Singal.DOFade(0f, 1);
+        spriteRenderer_Singal.transform.DOShakePosition(0.2f, new Vector3(0.05f, 0.05f, 1), 100, 200);
+        AudioManager.Instance.Play2DEffect(1001);
     }
     #endregion
 }

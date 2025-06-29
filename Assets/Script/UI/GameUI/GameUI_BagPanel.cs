@@ -44,13 +44,27 @@ public class GameUI_BagPanel : MonoBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_PutItemInBag>().Subscribe(_ =>
         {
-            AddInBagInfo putInBagInfo = new AddInBagInfo();
-            putInBagInfo.id = _.item.Item_ID;
-            putInBagInfo.count = _.item.Item_Count;
-            ShowInfo(putInBagInfo);
+            if (_.item.Item_ID > 0)
+            {
+                AddInBagInfo putInBagInfo = new AddInBagInfo();
+                putInBagInfo.id = _.item.Item_ID;
+                putInBagInfo.count = _.item.Item_Count;
+                AddInfo(putInBagInfo);
+            }
         }).AddTo(this);
-
+        MessageBroker.Default.Receive<UIEvent.UIEvent_PutItemOutBag>().Subscribe(_ =>
+        {
+            if (_.item.Item_ID > 0)
+            {
+                AddInBagInfo putInBagInfo = new AddInBagInfo();
+                putInBagInfo.id = _.item.Item_ID;
+                putInBagInfo.count = -_.item.Item_Count;
+                Debug.Log(_.item.Item_ID);
+                AddInfo(putInBagInfo);
+            }
+        }).AddTo(this);
         BindAllCell();
+        InvokeRepeating("ShowNextInfo", 2, float_DurTime);
     }
     private void BindAllCell()
     {
@@ -137,6 +151,7 @@ public class GameUI_BagPanel : MonoBehaviour
     [Header("所有面板")]
     public List<Transform> transforms_AllPanel = new List<Transform>();
     private List<Transform> transforms_AwakePanel = new List<Transform>();
+    private List<AddInBagInfo> inBagInfos = new List<AddInBagInfo>();
     [Header("两个面板间隔")]
     public float float_PutInBagInfoPanelDistance;
     [Header("面板默认横坐标")]
@@ -145,6 +160,18 @@ public class GameUI_BagPanel : MonoBehaviour
     private float float_WaitTimer = 2.0f;
     private float float_DurTime = 0.2f;
 
+    private void AddInfo(AddInBagInfo addInBagInfo)
+    {
+        inBagInfos.Add(addInBagInfo);
+    }
+    private void ShowNextInfo()
+    {
+        if (inBagInfos.Count > 0)
+        {
+            ShowInfo(inBagInfos[0]);
+            inBagInfos.RemoveAt(0);
+        }
+    }
     public void ShowInfo(AddInBagInfo addInBagInfo)
     {
         CancelInvoke("HideAllPanel");
@@ -183,7 +210,15 @@ public class GameUI_BagPanel : MonoBehaviour
         string itemName = LocalizationManager.Instance.GetLocalization("Item_String", info.id + "_Name");
         itemName = ItemConfigData.Colour(itemName, ItemConfigData.GetItemConfig(info.id).Item_Rarity);
         string itemCount = info.count.ToString();
-        panel.Find("Text").GetComponent<TextMeshProUGUI>().text = itemName + "*" + itemCount;
+        panel.Find("Name").GetComponent<TextMeshProUGUI>().text = itemName;
+        if (info.count > 0)
+        {
+            panel.Find("Count").GetComponent<Text>().text = "+" + itemCount;
+        }
+        else
+        {
+            panel.Find("Count").GetComponent<Text>().text = itemCount;
+        }
         panel.Find("Icon").GetComponent<Image>().sprite = spriteAtlas_Item.GetSprite("Item_" + info.id.ToString());
         AudioManager.Instance.Play2DEffect(1002);
     }

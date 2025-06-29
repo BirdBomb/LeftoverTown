@@ -18,14 +18,24 @@ public class TileUI_BoxFreeze : TileUI
     {
         BindAllCell();
     }
-    public void BindBuilding(BuildingObj_BoxFreeze buildingObj)
+    public override void Show()
     {
-        buildingObj_Bind = buildingObj;
         transform_Panel.DOKill();
         transform_Panel.localScale = Vector3.one;
         transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        base.Show();
     }
-    private void BindAllCell()
+    public override void Hide()
+    {
+        buildingObj_Bind.OpenOrCloseAwakeUI(false);
+        base.Hide();
+    }
+    public void BindBuilding(BuildingObj_BoxFreeze buildingObj)
+    {
+        buildingObj_Bind = buildingObj;
+        buildingObj_Bind.OpenOrCloseAwakeUI(true);
+    }
+    public void BindAllCell()
     {
         for (int i = 0; i < gridCells_List.Count; i++)
         {

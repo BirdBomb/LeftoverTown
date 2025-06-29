@@ -340,8 +340,4 @@ public class BuildingObj_Wall : BuildingObj
         }
         return val;
     }
-    public override void All_Broken()
-    {
-        base.All_Broken();
-    }
 }

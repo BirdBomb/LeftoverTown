@@ -11,6 +11,13 @@ public class LocalizationManager : SingleTon<LocalizationManager>,ISingleTon
     }
     public string GetLocalization(string table, string entry)
     {
-        return LocalizationSettings.StringDatabase.GetTable(table).GetEntry(entry).GetLocalizedString();
+        if (LocalizationSettings.StringDatabase.GetTable(table).GetEntry(entry) != null)
+        {
+            return LocalizationSettings.StringDatabase.GetTable(table).GetEntry(entry).GetLocalizedString();
+        }
+        else
+        {
+            return "NoData";
+        }
     }
 }

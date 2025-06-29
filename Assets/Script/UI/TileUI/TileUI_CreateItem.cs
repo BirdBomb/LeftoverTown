@@ -22,6 +22,7 @@ public class TileUI_CreateItem : TileUI
     [Header("工具台名称")]
     public TextMeshProUGUI textMeshPro_Name;
     public Transform transform_Panel;
+    private BuildingObj buildingObj_Bind;
     [SerializeField]
     private List<UI_ItemCell> itemCells_PoolIcon = new List<UI_ItemCell>();
     [SerializeField]
@@ -49,6 +50,24 @@ public class TileUI_CreateItem : TileUI
         button_LastPage.onClick.AddListener(ClickLastPageBtn);
         button_NextPage.onClick.AddListener(ClickNextPageBtn);
     }
+    public override void Show()
+    {
+        transform_Panel.DOKill();
+        transform_Panel.localScale = Vector3.one;
+        transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        base.Show();
+    }
+    public override void Hide()
+    {
+        buildingObj_Bind.OpenOrCloseAwakeUI(false);
+        base.Hide();
+    }
+    public void BindBuilding(BuildingObj buildingObj)
+    {
+        buildingObj_Bind = buildingObj;
+        buildingObj_Bind.OpenOrCloseAwakeUI(true);
+    }
+
     private void Start()
     {
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>

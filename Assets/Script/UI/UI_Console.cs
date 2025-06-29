@@ -22,6 +22,7 @@ public class UI_Console : MonoBehaviour
         btn_changeItemType_3000.onClick.AddListener(() => { ChangeItemType(3); });
         btn_changeItemType_4000.onClick.AddListener(() => { ChangeItemType(4); });
         btn_changeItemType_5000.onClick.AddListener(() => { ChangeItemType(5); });
+        btn_changeItemType_6000.onClick.AddListener(() => { ChangeItemType(6); });
         btn_changeItemType_9000.onClick.AddListener(() => { ChangeItemType(9); });
         btn_changeBuildingType.onClick.AddListener(() => { ChangeBuildingType(); });
         btn_changeFloorType.onClick.AddListener(() => { ChangeFloorType(); });
@@ -60,6 +61,8 @@ public class UI_Console : MonoBehaviour
     private Button btn_changeItemType_4000;
     [SerializeField, Header("切换衣物")]
     private Button btn_changeItemType_5000;
+    [SerializeField, Header("切换衣物")]
+    private Button btn_changeItemType_6000;
     [SerializeField, Header("切换杂项")]
     private Button btn_changeItemType_9000;
     [SerializeField, Header("切换建筑建造")]

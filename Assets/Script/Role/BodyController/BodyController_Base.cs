@@ -75,9 +75,17 @@ public class BodyController_Base : MonoBehaviour
     {
 
     }
+    public virtual void Shake()
+    {
+
+    }
+    public virtual void Flash()
+    {
+
+    }
     #endregion
     #region//×ªÏò
-    [HideInInspector]
+[HideInInspector]
     public Vector2 faceDir;
     [HideInInspector]
     public Vector2 turnDir;

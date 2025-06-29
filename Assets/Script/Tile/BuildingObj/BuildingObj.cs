@@ -11,7 +11,7 @@ public class BuildingObj : MonoBehaviour
 {
     [HideInInspector]
     public BuildingTile buildingTile;
-    [Header("信息")]
+    [HideInInspector, Header("信息")]
     public string info;
     [Header("生命值")]
     public int hp = 0;
@@ -31,29 +31,33 @@ public class BuildingObj : MonoBehaviour
     }
     #region//交互
     /// <summary>
-    /// 输入
+    /// 角色输入
     /// </summary>
     public virtual void All_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
 
     }
     /// <summary>
-    /// 持有
+    /// 玩家高亮
     /// </summary>
-    /// <param name="player"></param>
-    /// <returns></returns>
-    public virtual bool All_PlayerHolding(PlayerCoreLocal player)
+    /// <param name="on"></param>
+    public virtual void All_PlayerHighlight(bool on)
     {
-        return false;
+
     }
     /// <summary>
-    /// 释放
+    /// 玩家靠近
     /// </summary>
-    /// <param name="player"></param>
-    /// <returns></returns>
-    public virtual bool All_PlayerRelease(PlayerCoreLocal player)
+    public virtual void All_PlayerNearby()
     {
-        return false;
+
+    }
+    /// <summary>
+    /// 玩家远离
+    /// </summary>
+    public virtual void All_PlayerFaraway()
+    {
+
     }
     /// <summary>
     /// 角色靠近
@@ -75,6 +79,23 @@ public class BuildingObj : MonoBehaviour
     /// </summary>
     /// <returns></returns>
     public virtual bool All_ActorFaraway(ActorManager actor)
+    {
+        return false;
+    }
+    public virtual void OpenOrCloseHighlightUI(bool open)
+    {
+    }
+    public virtual void OpenOrCloseAwakeUI(bool open)
+    {
+    }
+    public virtual void OpenOrCloseUI(bool open)
+    {
+    }
+    /// <summary>
+    /// 是否可以高亮
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool CanHighlight()
     {
         return false;
     }

@@ -18,12 +18,25 @@ public class TileUI_Cook : TileUI
     private UI_GridCell gridCell_Raw2;
     [SerializeField]
     private UI_GridCell gridCell_Food;
-    private BuildingObj_Cook buildingObj_Bind;
+    private BuildingObj_Machine_Cook buildingObj_Bind;
     private void Awake()
     {
         BindAllCell();
     }
-    public void BindBuilding(BuildingObj_Cook buildingObj)
+    public override void Show()
+    {
+        transform_Panel.DOKill();
+        transform_Panel.localScale = Vector3.one;
+        transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        base.Show();
+    }
+    public override void Hide()
+    {
+        buildingObj_Bind.OpenOrCloseAwakeUI(false);
+        base.Hide();
+    }
+
+    public void BindBuilding(BuildingObj_Machine_Cook buildingObj)
     {
         buildingObj_Bind = buildingObj;
         transform_Panel.DOKill();

@@ -485,7 +485,7 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     [SerializeField]
     private GameObject prefab_DealUI;
     private TileUI_Dialog tileUI_Dialog;
-    private TileUI_DealUI tileUI_Deal;
+    private TileUI_Deal tileUI_Deal;
     private bool bool_Dialog = false;
     private bool bool_Deal = false;
     public override void Local_InPlayerView(ActorManager actor)
@@ -610,7 +610,7 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
         if (actor != null && actor.actorNetManager.Object != null)
         {
             UIManager.Instance.ShowTileUI(prefab_DealUI, out TileUI tileUI);
-            tileUI_Deal = tileUI.GetComponent<TileUI_DealUI>();
+            tileUI_Deal = tileUI.GetComponent<TileUI_Deal>();
             List<ItemData> itemsDatas_Bag = actorNetManager.Local_GetBagItem();
             List<ItemData> itemDatas_Goods = new List<ItemData>();
             for (int i = 0; i < itemsDatas_Bag.Count; i++)
@@ -625,7 +625,7 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
         }
     }
     /// <summary>
-    /// 结束谈话
+    /// 结束交易
     /// </summary>
     /// <param name="actor"></param>
     private void Local_OverDeal(ActorManager actor)
@@ -636,6 +636,7 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
             UIManager.Instance.HideTileUI(tileUI_Deal);
         }
     }
+
     /// <summary>
     /// 收购
     /// </summary>

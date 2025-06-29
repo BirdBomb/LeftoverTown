@@ -139,9 +139,16 @@ public class ItemLocalObj_Gun : ItemLocalObj
         {
             if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
             {
-                bulletID = itemData.Item_Content.Item_ID;
-                if (bulletID == 9020) { bulletID = 9010; }
-                else { UseBullet(); }
+                if (itemData.Item_Content.Item_ID == 9020) 
+                { 
+                    bulletID = 9010;
+                    UseBullet(0);
+                }
+                else 
+                {
+                    bulletID = itemData.Item_Content.Item_ID;
+                    UseBullet(1); 
+                }
                 return true;
             }
             else
@@ -157,7 +164,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
                 AddBullet();
             }
             bulletID = itemData.Item_Content.Item_ID;
-            UseBullet();
+            UseBullet(1);
             return true;
         }
     }
@@ -174,11 +181,12 @@ public class ItemLocalObj_Gun : ItemLocalObj
     /// <summary>
     /// 消耗子弹
     /// </summary>
-    public virtual void UseBullet()
+    public virtual void UseBullet(int count)
     {
         ItemData _oldItem = itemData;
         ItemData _newItem = _oldItem;
-        _newItem.Item_Content.Item_Count--;
+        _newItem.Item_Content.Item_Count = (short)(_newItem.Item_Content.Item_Count - count);
+        _newItem.Item_Durability--;
         UpdateDataByLocal(_newItem);
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
@@ -208,8 +216,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
     /// <returns></returns>
     public virtual Vector3 GetRandomDir(float offset)
     {
-        UnityEngine.Random.InitState(itemData.Item_Info + itemData.Item_Content.Item_Count);
-        itemData.Item_Info++;
+        UnityEngine.Random.InitState(itemData.Item_Durability + itemData.Item_Content.Item_Count);
         //获得随机偏转角
         float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, UnityEngine.Random.Range(0f, 1f));
         // 将角度转换为Quaternion

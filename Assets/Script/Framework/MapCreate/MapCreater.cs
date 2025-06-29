@@ -2,10 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Net;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Accessibility;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using static Fusion.Allocator;
@@ -13,16 +15,36 @@ using static Fusion.Sockets.NetBitBuffer;
 
 public class MapCreater 
 {
-    private MapConfig config_Map;
-    private int seed_Offset;
-    private Slider slider_Waiting;
-    private TextMeshProUGUI text_Waiting;
-    private MapTileTypeData data_mapGroundData;
-    private MapTileTypeData data_mapBuildingData;
-
+    public MapConfig config_Map;
+    public int seed_Offset;
+    public Slider slider_Waiting;
+    public TextMeshProUGUI text_Waiting;
+    /// <summary>
+    /// 地面数据
+    /// </summary>
+    public MapTileTypeData data_mapGroundData;
+    /// <summary>
+    /// 建筑数据
+    /// </summary>
+    public MapTileTypeData data_mapBuildingData;
+    public MapCreate_Land mapCreate_Land = new MapCreate_Land();
+    public MapCreate_Snowland mapCreate_Snowland = new MapCreate_Snowland();
+    public MapCreate_Desert mapCreate_Desert = new MapCreate_Desert();
+    public MapCreate_InlandSea mapCreate_InlandSea = new MapCreate_InlandSea();
+    public MapCreate_River mapCreate_River = new MapCreate_River();
+    public MapCreate_Lake mapCreate_Lake = new MapCreate_Lake();
+    public MapCreate_Road mapCreate_Road = new MapCreate_Road();
+    public MapCreate_Forest mapCreate_Forest = new MapCreate_Forest();
+    public MapCreate_Mining mapCreate_Mining = new MapCreate_Mining();
+    public MapCreate_Animal mapCreate_Animal = new MapCreate_Animal();
+    public MapCreate_Monster mapCreate_Monster = new MapCreate_Monster();
+    public MapCreate_RandomBuilding mapCreate_RandomBuilding = new MapCreate_RandomBuilding();
+    public MapCreate_ConfigBuilding mapCreate_ConfigBuilding = new MapCreate_ConfigBuilding();
+    public MapCreate_Supply mapCreate_Supply = new MapCreate_Supply();
+    public MapCreate_GroupPlant mapCreate_GroupPlant = new MapCreate_GroupPlant();
+    public MapCreate_SinglePlant mapCreate_SinglePlant = new MapCreate_SinglePlant();
     public async Task CreateMapGroundAndBuilding(MapConfig config, Slider slider, TextMeshProUGUI text, Action<MapTileTypeData, MapTileTypeData> callBack_ReturnData)
     {
-        Debug.Log(config.map_Seed);
         seed_Offset = config.map_Seed;
         config_Map = config;
         slider_Waiting = slider;
@@ -30,578 +52,25 @@ public class MapCreater
         data_mapGroundData = new MapTileTypeData();
         data_mapBuildingData = new MapTileTypeData();
 
-        await CreateIslandArea();
-        await CreateLake();
-        await CreateForest();
-        await CreateMining();
-        await CreateAnimal();
-        await CreateMonster();
-        await CreateRandomBuilding();
-        await CreateConfigBuilding();
-        await CreateSupply();
-        await CreateGroupPlant();
-        await CreateSinglePlant();
+        await mapCreate_Land.CreateIslandArea(this);
+        await mapCreate_Snowland.CreateSnowland(this);
+        await mapCreate_Desert.CreateDesert(this);
+        await mapCreate_InlandSea.CreateInlandSea(this);
+        await mapCreate_InlandSea.CreateIslet(this);
+        await mapCreate_River.CreateRiver(this);
+        await mapCreate_Lake.CreateLake(this);
+        await mapCreate_Mining.CreateMining(this);
+        await mapCreate_Forest.CreateForest(this);
+        await mapCreate_Road.CreateRoad(this);
+        await mapCreate_Animal.CreateAnimal(this);
+        await mapCreate_Monster.CreateMonster(this);
+        await mapCreate_RandomBuilding.CreateRandomBuilding(this);
+        await mapCreate_ConfigBuilding.CreateConfigBuilding(this);
+        await mapCreate_Supply.CreateSupply(this);
+        await mapCreate_GroupPlant.CreateGroupPlant(this);
+        await mapCreate_SinglePlant.CreateSinglePlant(this);
         callBack_ReturnData.Invoke(data_mapGroundData, data_mapBuildingData);
     }
-    #region//生成大陆
-    /// <summary>
-    /// 大海权重
-    /// </summary>
-    private float ocean_Weight = 0.5f;
-    /// <summary>
-    /// 海岸权重
-    /// </summary>
-    private float ocean_EdgeWeight = 0.15f;
-    /// <summary>
-    /// 生成大陆
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateIslandArea()
-    {
-        text_Waiting.text = "正在生成大陆";
-        IslandAreaConfig config;
-        config = new IslandAreaConfig()
-        {
-            island_Center = Vector2.zero,
-            island_WholeSize = config_Map.map_Size,
-            island_FillSize = config_Map.map_Size - 20f,
-            island_DistanceWeight = 0.5f,
-            noise_Offset = GetRandomOffset(),
-            noise_Sacle = 10,
-        };
-        await GenerateIslandArea(config, (index, val) =>
-        {
-            if (val < ocean_Weight)
-            {
-                if (data_mapGroundData.tileDic.ContainsKey(index))
-                {
-                    data_mapGroundData.tileDic[index] = 9000;
-                }
-                else
-                {
-                    data_mapGroundData.tileDic.Add(index, 9000);
-                }
-            }
-            else if (val < ocean_Weight + ocean_EdgeWeight)
-            {
-                if (data_mapGroundData.tileDic.ContainsKey(index))
-                {
-                    data_mapGroundData.tileDic[index] = 1000;
-                }
-                else
-                {
-                    data_mapGroundData.tileDic.Add(index, 1000);
-                }
-            }
-            else
-            {
-                if (data_mapGroundData.tileDic.ContainsKey(index))
-                {
-                    data_mapGroundData.tileDic[index] = 1001;
-                }
-                else
-                {
-                    data_mapGroundData.tileDic.Add(index, 1001);
-                }
-            }
-        });
-    }
-    #endregion
-    #region//生成湖泊
-    /// <summary>
-    /// 湖泊密度(平方米/个)
-    /// </summary>
-    private int lake_Density = 4000;
-    /// <summary>
-    /// 湖泊半径
-    /// </summary>
-    private float lake_Size = 10;
-    /// <summary>
-    /// 湖泊权重
-    /// </summary>
-    private float lake_Weight = 0.5f;
-    /// <summary>
-    /// 湖泊边缘权重
-    /// </summary>
-    private float lake_EdgeWeight = 0.2f;
-    /// <summary>
-    /// 生成湖泊
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateLake()
-    {
-        int lake_Count = (config_Map.map_Size * 2) * (config_Map.map_Size * 2) / lake_Density;
-        text_Waiting.text = "正在生成湖泊" + lake_Count;
-        for (int i = 0;i< lake_Count; i++)
-        {
-            IslandAreaConfig config;
-            config = new IslandAreaConfig()
-            {
-                island_Center = new Vector2(new System.Random().Next(-config_Map.map_Size + 20, config_Map.map_Size - 20), new System.Random().Next(-config_Map.map_Size + 20, config_Map.map_Size - 20)),
-                island_WholeSize = lake_Size,
-                island_FillSize = lake_Size - 5,
-                island_DistanceWeight = 0.5f,
-                noise_Offset = GetRandomOffset(),
-                noise_Sacle = 5,
-            };
-            await GenerateIslandArea(config, (index, val) =>
-            {
-                if (val > (1 - lake_Weight))
-                {
-                    if (data_mapGroundData.tileDic.ContainsKey(index))
-                    {
-                        data_mapGroundData.tileDic[index] = 9000;
-                    }
-                    else
-                    {
-                        data_mapGroundData.tileDic.Add(index, 9000);
-                    }
-                }
-                if(val> (1 - lake_Weight - lake_EdgeWeight))
-                {
-                    if (data_mapGroundData.tileDic.ContainsKey(index))
-                    {
-                        if (data_mapGroundData.tileDic[index] != 9000)
-                        {
-                            data_mapGroundData.tileDic[index] = 1000;
-                        }
-                    }
-                    else
-                    {
-                        data_mapGroundData.tileDic.Add(index, 1000);
-                    }
-                }
-            });
-        }
-    }
-    #endregion
-    #region //生成森林
-    /// <summary>
-    /// 湖泊密度(平方米/个)
-    /// </summary>
-    private int forest_Density = 3000;
-    /// <summary>
-    /// 森林面积
-    /// </summary>
-    private int forest_Size = 40;
-    /// <summary>
-    /// 森林紧密度0-1
-    /// </summary>
-    private float forest_Compactness = 0.15f;
-    /// <summary>
-    /// 草地树木种类
-    /// </summary>
-    private List<short> treeIDs_GrassTreeID = new List<short>() { 1000,1003 };
-    /// <summary>
-    /// 生成树木
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateForest()
-    {
-        int forest_Count = (config_Map.map_Size * 2) * (config_Map.map_Size * 2) / forest_Density;
-        text_Waiting.text = "正在生成树林" + forest_Count;
-
-        for (int i = 0; i < forest_Count; i++)
-        {
-            RandomPointsAreaConfig config = new RandomPointsAreaConfig()
-            {
-                pointsArea_Center = new Vector2Int(new System.Random().Next(-config_Map.map_Size, config_Map.map_Size), new System.Random().Next(-config_Map.map_Size, config_Map.map_Size)),
-                pointsArea_Count = (int)(forest_Compactness * forest_Size * forest_Size),
-                pointsArea_SizeWhole = forest_Size,
-                pointsArea_SizeFill = forest_Size - 10,
-            };
-            await GenerateRandomPointsArea_Gradual(config, (index) =>
-            {
-                if (data_mapGroundData.tileDic.ContainsKey(index) && data_mapGroundData.tileDic[index] == 1001)
-                {
-                    short treeID = treeIDs_GrassTreeID[new System.Random().Next(0, treeIDs_GrassTreeID.Count)];
-                    if (data_mapBuildingData.tileDic.ContainsKey(index))
-                    {
-                        data_mapBuildingData.tileDic[index] = treeID;
-                    }
-                    else
-                    {
-                        data_mapBuildingData.tileDic.Add(index, treeID);
-                    }
-                }
-            });
-        }
-    }
-    #endregion
-
-    #region//生成整群植物
-    /// <summary>
-    /// 植物密度0-1
-    /// </summary>
-    private float plantGroup_Density = 0.01f;
-    /// <summary>
-    /// 植物扩张趋势0 - 100
-    /// </summary>
-    private int plantGroup_Expand = 70;
-    /// <summary>
-    /// 草地上的植物
-    /// </summary>
-    private List<short> plantGroupIDs_Grass = new List<short>() { 1001 };
-    /// <summary>
-    /// 生成成群植物
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateGroupPlant()
-    {
-        text_Waiting.text = "正在生成大型植被";
-        RandomExpandPointsAreaConfig config = new RandomExpandPointsAreaConfig()
-        {
-            pointsArea_Center = Vector2Int.zero,
-            pointsArea_Count = (int)(plantGroup_Density * (config_Map.map_Size * 2) * (config_Map.map_Size * 2)),
-            pointsArea_SizeWhole = config_Map.map_Size,
-            pointsArea_Expand = plantGroup_Expand,
-        };
-        await GenerateRandomExpandPointsArea(config, (index) =>
-        {
-            if (data_mapGroundData.tileDic.ContainsKey(index) && data_mapGroundData.tileDic[index] == 1001)
-            {
-                short stuffID = plantGroupIDs_Grass[new System.Random().Next(0, plantGroupIDs_Grass.Count)];
-                if (!data_mapBuildingData.tileDic.ContainsKey(index))
-                {
-                    data_mapBuildingData.tileDic.Add(index, stuffID);
-                }
-            }
-        });
-    }
-    #endregion
-    #region//生成单个植物
-    /// <summary>
-    /// 植物密度0-1
-    /// </summary>
-    private float plantSingle_Density = 0.01f;
-    /// <summary>
-    /// 草地上的植物
-    /// </summary>
-    private List<short> plantSingleIDs_Grass = new List<short>() { 1000 };
-    /// <summary>
-    /// 生成单个植物
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateSinglePlant()
-    {
-        text_Waiting.text = "正在生成植物";
-        RandomPointsAreaConfig config = new RandomPointsAreaConfig()
-        {
-            pointsArea_Center = Vector2Int.zero,
-            pointsArea_Count = (int)(plantSingle_Density * (config_Map.map_Size * 2) * (config_Map.map_Size * 2)),
-            pointsArea_SizeWhole = config_Map.map_Size,
-            pointsArea_SizeFill = config_Map.map_Size,
-        };
-        await GenerateRandomPointsArea_Hard(config, (index) =>
-        {
-            if (data_mapGroundData.tileDic.ContainsKey(index) && data_mapGroundData.tileDic[index] == 1001)
-            {
-                short stuffID = plantSingleIDs_Grass[new System.Random().Next(0, plantSingleIDs_Grass.Count)];
-                if (!data_mapBuildingData.tileDic.ContainsKey(index))
-                {
-                    data_mapBuildingData.tileDic.Add(index, stuffID);
-                }
-            }
-        });
-    }
-    #endregion
-    #region//生成矿区
-    /// <summary>
-    /// 湖泊密度(平方米/个)
-    /// </summary>
-    private int mining_Density = 3500;
-    /// <summary>
-    /// 矿区权重
-    /// </summary>
-    private float mining_Weight = 0.5f;
-    /// <summary>
-    /// 矿区周围清空权重
-    /// </summary>
-    private float mining_EdgeWeight = 0.1f;
-    /// <summary>
-    /// 矿区尺寸
-    /// </summary>
-    private float mining_Size = 15;
-    /// <summary>
-    /// 生成矿区
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateMining()
-    {
-        int mining_Count = (config_Map.map_Size * 2) * (config_Map.map_Size * 2) / mining_Density;
-        text_Waiting.text = "正在生成矿区" + mining_Count;
-
-        for (int i = 0; i < mining_Count; i++)
-        {
-            IslandAreaConfig config;
-            config = new IslandAreaConfig()
-            {
-                island_Center = new Vector2(new System.Random().Next(-config_Map.map_Size + 20, config_Map.map_Size - 20), new System.Random().Next(-config_Map.map_Size + 20, config_Map.map_Size - 20)),
-                island_WholeSize = mining_Size,
-                island_FillSize = 5,
-                island_DistanceWeight = 0.4f,
-                noise_Offset = GetRandomOffset(),
-                noise_Sacle = 10,
-            };
-            await GenerateIslandArea(config, (index, val) =>
-            {
-                if (val > (1 - mining_Weight))
-                {
-                    if (data_mapGroundData.tileDic.ContainsKey(index) && data_mapGroundData.tileDic[index] < 9000)
-                    {
-                        if (data_mapBuildingData.tileDic.ContainsKey(index))
-                        {
-                            data_mapBuildingData.tileDic[index] = 1002;
-                        }
-                        else
-                        {
-                            data_mapBuildingData.tileDic.Add(index, 1002);
-                        }
-                        data_mapGroundData.tileDic[index] = 1000;
-                    }
-                }
-                else if (val > (1 - mining_Weight - mining_EdgeWeight))
-                {
-                    data_mapBuildingData.tileDic.Remove(index);
-                    data_mapGroundData.tileDic[index] = 1000;
-                }
-            });
-        }
-    }
-    #endregion
-    #region//添加地图资源点
-    /// <summary>
-    /// 资源点密度0-1
-    /// </summary>
-    private float supply_Density = 0.005f;
-    /// <summary>
-    /// 草地资源点种类
-    /// </summary>
-    private List<short> supplyIDs_Grass = new List<short>() { 1004 };
-    /// <summary>
-    /// 生成地图资源点
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateSupply()
-    {
-        text_Waiting.text = "正在生成地图资源点";
-        RandomPointsAreaConfig config = new RandomPointsAreaConfig()
-        {
-            pointsArea_Center = Vector2Int.zero,
-            pointsArea_Count = (int)(supply_Density * (config_Map.map_Size * 2) * (config_Map.map_Size * 2)),
-            pointsArea_SizeWhole = config_Map.map_Size,
-            pointsArea_SizeFill = config_Map.map_Size,
-        };
-        await GenerateRandomPointsArea_Hard(config, (index) =>
-        {
-            if (data_mapGroundData.tileDic.ContainsKey(index) && data_mapGroundData.tileDic[index] == 1001)
-            {
-                short stuffID = supplyIDs_Grass[new System.Random().Next(0, supplyIDs_Grass.Count)];
-                if (!data_mapBuildingData.tileDic.ContainsKey(index))
-                {
-                    data_mapBuildingData.tileDic.Add(index, stuffID);
-                }
-            }
-        });
-    }
-    #endregion
-
-    #region//丰富环境
-    /// <summary>
-    /// 小玩意密度0-1
-    /// </summary>
-    private float stuff_Density = 0.2f;
-    /// <summary>
-    /// 草地小玩意种类
-    /// </summary>
-    private List<short> stuffIDs_Grass = new List<short>() { 1004 };
-    /// <summary>
-    /// 生成其他小玩意
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateOtherStuff()
-    {
-        text_Waiting.text = "正在生成其他小玩意";
-        RandomPointsAreaConfig config = new RandomPointsAreaConfig()
-        {
-            pointsArea_Center = Vector2Int.zero,
-            pointsArea_Count = (int)(stuff_Density * (config_Map.map_Size * 2) * (config_Map.map_Size * 2)),
-            pointsArea_SizeWhole = config_Map.map_Size,
-            pointsArea_SizeFill = config_Map.map_Size,
-        };
-        await GenerateRandomPointsArea_Hard(config, (index) =>
-        {
-            if (data_mapGroundData.tileDic.ContainsKey(index) && data_mapGroundData.tileDic[index] == 1001)
-            {
-                short stuffID = stuffIDs_Grass[new System.Random().Next(0, stuffIDs_Grass.Count)];
-                if (!data_mapBuildingData.tileDic.ContainsKey(index))
-                {
-                    data_mapBuildingData.tileDic.Add(index, stuffID);
-                }
-            }
-        });
-    }
-    #endregion
-    #region//生成中立生物
-    /// <summary>
-    /// 生成中立生物
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateAnimal()
-    {
-        text_Waiting.text = "正在诞生没头脑";
-        PoissonPointsAreaConfig config = new PoissonPointsAreaConfig()
-        {
-            pointsArea_Center = Vector2Int.zero,
-            pointsArea_Size = config_Map.map_Size,
-            pointsArea_MinDistance = 20,
-            pointsArea_MaxSamples = 20
-        };
-        await GeneratePoissonPointsArea(config, (index) =>
-        {
-            if (data_mapGroundData.tileDic.ContainsKey(index) && data_mapGroundData.tileDic[index] == 1001)
-            {
-                if (!data_mapBuildingData.tileDic.ContainsKey(index))
-                {
-                    data_mapBuildingData.tileDic.Add(index, 2001);
-                }
-            }
-        });
-    }
-    #endregion
-    #region//生成敌对生物
-    /// <summary>
-    /// 生成敌对生物
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateMonster()
-    {
-        text_Waiting.text = "正在诞生不高兴";
-        PoissonPointsAreaConfig config = new PoissonPointsAreaConfig()
-        {
-            pointsArea_Center = Vector2Int.zero,
-            pointsArea_Size = config_Map.map_Size,
-            pointsArea_MinDistance = 30,
-            pointsArea_MaxSamples = 20
-        };
-        await GeneratePoissonPointsArea(config, (index) =>
-        {
-            if (data_mapGroundData.tileDic.ContainsKey(index) && data_mapGroundData.tileDic[index] == 1001)
-            {
-                if (!data_mapBuildingData.tileDic.ContainsKey(index))
-                {
-                    data_mapBuildingData.tileDic.Add(index, 2002);
-                }
-            }
-        });
-    }
-
-    #endregion
-    #region//生成随机建筑
-    /// <summary>
-    /// 建筑之间最小距离
-    /// </summary>
-    private float building_MinDistance = 40;
-    /// <summary>
-    /// 生成随机建筑
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateRandomBuilding()
-    {
-        text_Waiting.text = "正在添加人类踪迹";
-        PoissonPointsAreaConfig config = new PoissonPointsAreaConfig()
-        {
-            pointsArea_Center = Vector2Int.zero,
-            pointsArea_Size = config_Map.map_Size,
-            pointsArea_MinDistance = building_MinDistance,
-            pointsArea_MaxSamples = 20
-        };
-        await GeneratePoissonPointsArea(config, (pos) =>
-        {
-            int index = Vector2ToIndex(pos.x, pos.y);
-            if (data_mapGroundData.tileDic.ContainsKey(index))
-            {
-                List<MapModConfig> list = MapModConfigData.mapModConfigs.FindAll((x) => { return x.MapMod_Base == data_mapGroundData.tileDic[index]; });
-                if (list.Count > 0)
-                {
-                    MapModConfig mapModConfig = list[new System.Random().Next(0, list.Count)];
-                    CreateMapMod(pos, mapModConfig);
-                }
-            }
-        });
-    }
-    private void CreateMapMod(Vector2Int center, MapModConfig mapModConfig)
-    {
-        MapModData data_Map = Resources.Load<MapModData>($"MapModData/MapModData{mapModConfig.MapMod_ID}");
-        foreach (KeyValuePair<Vector2Int, short> pair in data_Map.data_mapFloor)
-        {
-            int tempX = pair.key.x + (int)center.x + 30000;
-            int tempY = pair.key.y + (int)center.y + 30000;
-            int tempIndex;
-            if (tempY > tempX)
-            {
-                tempIndex = tempY * tempY + tempY + tempY - tempX;
-            }
-            else
-            {
-                tempIndex = tempX * tempX + tempY;
-            }
-            if (data_mapGroundData.tileDic.ContainsKey(tempIndex))
-            {
-                data_mapGroundData.tileDic[tempIndex] = pair.value;
-            }
-            else
-            {
-                data_mapGroundData.tileDic.Add(tempIndex, pair.value);
-            }
-            if (data_mapBuildingData.tileDic.ContainsKey(tempIndex))
-            {
-                data_mapBuildingData.tileDic.Remove(tempIndex);
-            }
-        }
-        foreach (KeyValuePair<Vector2Int, short> pair in data_Map.data_mapBuilding)
-        {
-            int tempX = pair.key.x + (int)center.x + 30000;
-            int tempY = pair.key.y + (int)center.y + 30000;
-            int tempIndex;
-            if (tempY > tempX)
-            {
-                tempIndex = tempY * tempY + tempY + tempY - tempX;
-            }
-            else
-            {
-                tempIndex = tempX * tempX + tempY;
-            }
-            if (data_mapBuildingData.tileDic.ContainsKey(tempIndex))
-            {
-                data_mapBuildingData.tileDic[tempIndex] = pair.value;
-            }
-            else
-            {
-                data_mapBuildingData.tileDic.Add(tempIndex, pair.value);
-            }
-        }
-
-    }
-    #endregion
-    #region//生成固定建筑
-    /// <summary>
-    /// 生成固定建筑
-    /// </summary>
-    /// <returns></returns>
-    private async Task CreateConfigBuilding()
-    {
-        text_Waiting.text = "太阳正在坠落";
-        MapModConfig mapConfig_0 = MapModConfigData.GetMapModConfig(0);
-        CreateMapMod(Vector2Int.zero, mapConfig_0);
-        await Task.Yield();
-        text_Waiting.text = "正在进行一场失败的实验";
-        MapModConfig mapConfig_100 = MapModConfigData.GetMapModConfig(100);
-        CreateMapMod(new Vector2Int((int)(-config_Map.map_Size * 0.5f), (int)(config_Map.map_Size * 0.5f)), mapConfig_100);
-    }
-
-    #endregion
-
     #region//生成区域
     /// <summary>
     /// 填充一个区域(简单)
@@ -748,7 +217,7 @@ public class MapCreater
     /// 获得随机偏移
     /// </summary>
     /// <returns></returns>
-    private Vector2 GetRandomOffset()
+    public Vector2 GetRandomOffset()
     {
         seed_Offset++;
         UnityEngine.Random.InitState(seed_Offset);
@@ -761,7 +230,7 @@ public class MapCreater
 
     #endregion
     #region//柏林岛状中心扩散区域
-    struct IslandAreaConfig
+    public struct IslandAreaConfig
     {
         /// <summary>
         /// 岛屿整体尺寸
@@ -772,15 +241,11 @@ public class MapCreater
         /// </summary>
         public float island_FillSize;
         /// <summary>
-        /// 岛屿距离权重0-1
-        /// </summary>
-        public float island_DistanceWeight;
-        /// <summary>
         /// 岛屿中心
         /// </summary>
         public Vector2 island_Center;
         /// <summary>
-        /// 噪声尺寸 1-20
+        /// 噪声尺寸 1-20(边缘毛躁半径)
         /// </summary>
         public float noise_Sacle;
         /// <summary>
@@ -788,7 +253,7 @@ public class MapCreater
         /// </summary>
         public Vector2 noise_Offset;
     }
-    private async Task GenerateIslandArea(IslandAreaConfig islandArea, Action<int, float> action)
+    public async Task GenerateIslandArea_Large(IslandAreaConfig islandArea, Action<int, float> action)
     {
         float reciprocal_size = 1f / islandArea.island_WholeSize;
         float size_Empty = islandArea.island_WholeSize - islandArea.island_FillSize;
@@ -796,15 +261,21 @@ public class MapCreater
         int to_x = (int)(islandArea.island_Center.x + islandArea.island_WholeSize);
         int from_y = (int)(islandArea.island_Center.y - islandArea.island_WholeSize);
         int to_y = (int)(islandArea.island_Center.y + islandArea.island_WholeSize);
+        Debug.Log(from_x + "/" + to_x);
+        Debug.Log(from_y + "/" + to_y);
 
         /*噪声图采样中心*/
         Vector2 noise_Center = islandArea.noise_Offset;
         /*噪声图采样尺寸(1-0)*/
         float noise_Scale = (1f / islandArea.noise_Sacle);
-        /*获得的噪声值(0-1)*/
-        float perlinNoise;
         /*到中心的距离*/
         float distance;
+        /*柏林噪声(0-1)*/
+        float perlinNoise;
+        /*距离值(0-1)*/
+        float distanceValue;
+        /*实际噪声(0-1)*/
+        float realNoise;
         for (int i = from_x; i < to_x; i++)
         {
             for (int j = from_y; j < to_y; j++)
@@ -814,23 +285,72 @@ public class MapCreater
                 distance = Vector2.Distance(new Vector2(x, y), islandArea.island_Center);
                 if (distance > islandArea.island_FillSize)
                 {
-                    float distanceLerp = Mathf.Lerp(0, 1, (islandArea.island_WholeSize - distance) / size_Empty);
+                    /*0-1*/
+                    distanceValue = Mathf.Lerp(0, 1, (islandArea.island_WholeSize - distance) / size_Empty);
+                    /*0-1*/
                     perlinNoise = Mathf.PerlinNoise(noise_Center.x + (x + from_x) * noise_Scale, noise_Center.y + (y + from_y) * noise_Scale);
-                    perlinNoise = distanceLerp * islandArea.island_DistanceWeight + perlinNoise * (1 - islandArea.island_DistanceWeight);
+                    realNoise = Mathf.Lerp(perlinNoise, distanceValue, Mathf.Abs(distanceValue - 0.5f) * 2);
                 }
                 else
                 {
-                    perlinNoise = 1;
+                    realNoise = 1;
                 }
-                action.Invoke(Vector2ToIndex(x, y), perlinNoise);
+                action.Invoke(Vector2ToIndex(x, y), realNoise);
             }
             await Task.Yield();
             slider_Waiting.value = (i - from_x) * reciprocal_size;
         }
     }
+    public async Task GenerateIslandArea_Tiny(IslandAreaConfig islandArea, Action<int, float, float> action)
+    {
+        float reciprocal_size = 1f / islandArea.island_WholeSize;
+        float size_Empty = islandArea.island_WholeSize - islandArea.island_FillSize;
+        int from_x = (int)(islandArea.island_Center.x - islandArea.island_WholeSize);
+        int to_x = (int)(islandArea.island_Center.x + islandArea.island_WholeSize);
+        int from_y = (int)(islandArea.island_Center.y - islandArea.island_WholeSize);
+        int to_y = (int)(islandArea.island_Center.y + islandArea.island_WholeSize);
+        Debug.Log(from_x + "/" + to_x);
+        Debug.Log(from_y + "/" + to_y);
+
+        /*噪声图采样中心*/
+        Vector2 noise_Center = islandArea.noise_Offset;
+        /*噪声图采样尺寸(1-0)*/
+        float noise_Scale = (1f / islandArea.noise_Sacle);
+        /*到中心的距离*/
+        float distance;
+        /*柏林噪声(0-1)*/
+        float perlinNoise;
+        /*距离值(0-1)*/
+        float distanceValue;
+        /*实际噪声(0-1)*/
+        float realNoise;
+        for (int i = from_x; i < to_x; i++)
+        {
+            for (int j = from_y; j < to_y; j++)
+            {
+                int x = i;
+                int y = j;
+                distance = Vector2.Distance(new Vector2(x, y), islandArea.island_Center);
+                perlinNoise = Mathf.PerlinNoise(noise_Center.x + (x + from_x) * noise_Scale, noise_Center.y + (y + from_y) * noise_Scale);
+                if (distance > islandArea.island_FillSize)
+                {
+                    /*0-1*/
+                    distanceValue = Mathf.Lerp(0, 1, (islandArea.island_WholeSize - distance) / size_Empty);
+                    /*0-1*/
+                    realNoise = Mathf.Lerp(perlinNoise, distanceValue, Mathf.Abs(distanceValue - 0.5f) * 2);
+                }
+                else
+                {
+                    realNoise = 1;
+                }
+                action.Invoke(Vector2ToIndex(x, y), perlinNoise, realNoise);
+            }
+        }
+        await Task.Yield();
+    }
     #endregion
     #region//泊松单点均匀分布区域
-    private struct PoissonPointsAreaConfig
+    public struct PoissonPointsAreaConfig
     {
         /// <summary>
         /// 中心
@@ -849,13 +369,15 @@ public class MapCreater
         /// </summary>
         public int pointsArea_MaxSamples;
     }
-    private async Task GeneratePoissonPointsArea(PoissonPointsAreaConfig areaConfig, Action<int> action)
+    public async Task GeneratePoissonPointsArea(PoissonPointsAreaConfig areaConfig, Action<int> action)
     {
         List<Vector2Int> poissonPoints = new List<Vector2Int>();
         List<Vector2Int> spawnPoints = new List<Vector2Int>();
         float cellSize = areaConfig.pointsArea_MinDistance / Mathf.Sqrt(2);
 
         int[,] grid = new int[Mathf.CeilToInt(areaConfig.pointsArea_Size / cellSize), Mathf.CeilToInt(areaConfig.pointsArea_Size / cellSize)];
+        int step = 0;
+        int val = 0;
 
         spawnPoints.Add(Vector2Int.zero); // 从地图中心开始
         while (spawnPoints.Count > 0)
@@ -884,7 +406,24 @@ public class MapCreater
             {
                 spawnPoints.RemoveAt(spawnIndex); // 如果没有有效点，移除当前生成点
             }
-            await Task.Yield();
+            if (step < 200)
+            {
+                step += 1;
+            }
+            else
+            {
+                if (val < 100)
+                {
+                    val += 1;
+                    slider_Waiting.value = val * 0.01f;
+                }
+                else
+                {
+                    val = 0;
+                }
+                await Task.Yield();
+                step = 0;
+            }
         }
         Vector2Int offset = new Vector2Int(areaConfig.pointsArea_Center.x - areaConfig.pointsArea_Size / 2, areaConfig.pointsArea_Center.y - areaConfig.pointsArea_Size / 2);
         for (int i = 0; i < poissonPoints.Count; i++)
@@ -892,14 +431,15 @@ public class MapCreater
             action.Invoke(Vector2ToIndex(offset.x + poissonPoints[i].x, offset.y + poissonPoints[i].y));
         }
     }
-    private async Task GeneratePoissonPointsArea(PoissonPointsAreaConfig areaConfig, Action<Vector2Int> action)
+    public async Task GeneratePoissonPointsArea(PoissonPointsAreaConfig areaConfig, Action<Vector2Int> action)
     {
         List<Vector2Int> poissonPoints = new List<Vector2Int>();
         List<Vector2Int> spawnPoints = new List<Vector2Int>();
         float cellSize = areaConfig.pointsArea_MinDistance / Mathf.Sqrt(2);
 
         int[,] grid = new int[Mathf.CeilToInt(areaConfig.pointsArea_Size / cellSize), Mathf.CeilToInt(areaConfig.pointsArea_Size / cellSize)];
-
+        int step = 0;
+        int val = 0;
         spawnPoints.Add(Vector2Int.zero); // 从地图中心开始
         while (spawnPoints.Count > 0)
         {
@@ -927,7 +467,24 @@ public class MapCreater
             {
                 spawnPoints.RemoveAt(spawnIndex); // 如果没有有效点，移除当前生成点
             }
-            await Task.Yield();
+            if (step < 200)
+            {
+                step += 1;
+            }
+            else
+            {
+                if (val < 100)
+                {
+                    val += 1;
+                    slider_Waiting.value = val * 0.01f;
+                }
+                else
+                {
+                    val = 0;
+                }
+                await Task.Yield();
+                step = 0;
+            }
         }
         Vector2Int offset = new Vector2Int(areaConfig.pointsArea_Center.x - areaConfig.pointsArea_Size / 2, areaConfig.pointsArea_Center.y - areaConfig.pointsArea_Size / 2);
         for (int i = 0; i < poissonPoints.Count; i++)
@@ -970,8 +527,206 @@ public class MapCreater
         return true; // 候选点有效
     }
     #endregion
+    #region//柏林河流曲线生成
+    public struct RiverConfig
+    {
+        /// <summary>
+        /// 河流起点
+        /// </summary>
+        public Vector2 vector2_Start;
+        /// <summary>
+        /// 河流终点
+        /// </summary>
+        public Vector2 vector2_End;
+        /// <summary>
+        /// 河流噪声尺寸
+        /// </summary>
+        public float river_NoiseScale;
+        /// <summary>
+        /// 河流噪声偏移
+        /// </summary>
+        public Vector2 river_NoiseOffset;
+        /// <summary>
+        /// 河流曲度
+        /// </summary>
+        public float river_Curvature;
+        /// <summary>
+        /// 河流大致方向影响
+        /// </summary>
+        public float river_DirectionInfluence;
+        /// <summary>
+        /// 河流宽度
+        /// </summary>
+        public int river_Width;
+        /// <summary>
+        /// 河流分叉概率1/1000
+        /// </summary>
+        public int river_Forking;
+        /// <summary>
+        /// 河流最大分叉次数
+        /// </summary>
+        public int river_ForkCount;
+    }
+    /// <summary>
+    /// 主河流
+    /// </summary>
+    /// <param name="mainRiverConfig"></param>
+    /// <param name="mainRiverAction"></param>
+    /// <returns></returns>
+    public async Task GenerateMainRiver(RiverConfig mainRiverConfig, RiverConfig childRiverConfig, Action<int, bool> mainRiverAction, Action<int, bool> childRiverAction)
+    {
+        Vector2 currentPos = mainRiverConfig.vector2_Start;
+        Vector2 direction = (mainRiverConfig.vector2_End - mainRiverConfig.vector2_Start).normalized;
+
+        /*噪声图采样中心*/
+        Vector2 noise_Center = mainRiverConfig.river_NoiseOffset;
+        /*噪声图采样尺寸(1-0)*/
+        float noise_Scale = (1f / mainRiverConfig.river_NoiseScale);
+        /*河流宽度*/
+        int width = 0;
+        /*河流分叉*/
+        int fork = 0;
+        int step = 0;
+        int val = 0;
+        while (Vector2.Distance(currentPos, mainRiverConfig.vector2_End) > 1.0f)
+        {
+            if (fork < mainRiverConfig.river_ForkCount && new System.Random().Next(0, 1000) < mainRiverConfig.river_Forking)
+            {
+                fork++;
+                Vector2 vector2_Start = currentPos;
+                Vector2 vector2_End = UnityEngine.Random.insideUnitCircle.normalized * config_Map.map_Size;
+                childRiverConfig.vector2_Start = vector2_Start;
+                childRiverConfig.vector2_End = vector2_End;
+                await GenerateChildRiver(childRiverConfig, childRiverAction);
+            }
+            // 添加噪声使路径弯曲
+            float noise = Mathf.PerlinNoise(currentPos.x * noise_Scale + noise_Center.x, currentPos.y * noise_Scale + noise_Center.y);
+            float angle = (noise - 0.5f) * mainRiverConfig.river_Curvature;
+
+            // 旋转方向
+            direction = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg) * direction;
+
+            // 确保大致朝向终点
+            Vector2 toEnd = (mainRiverConfig.vector2_End - currentPos).normalized;
+            direction = (direction * (1 - mainRiverConfig.river_DirectionInfluence) + toEnd * mainRiverConfig.river_DirectionInfluence).normalized;
+
+            // 移动当前位置
+            currentPos += direction;
+            // 河流宽度
+            width = mainRiverConfig.river_Width;
+
+            // 绘制河流（包括周围像素使河流更宽）
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < width; y++)
+                {
+                    Vector2Int pixelPos = new Vector2Int(Mathf.RoundToInt(currentPos.x + x), Mathf.RoundToInt(currentPos.y + y));
+                    if (y == 0 || y == width - 1 || x == 0 || x == width - 1)
+                    {
+                        mainRiverAction.Invoke(Vector2ToIndex(pixelPos.x, pixelPos.y), true);
+                    }
+                    else
+                    {
+                        mainRiverAction.Invoke(Vector2ToIndex(pixelPos.x, pixelPos.y), false);
+                    }
+                }
+            }
+            if (step < 200)
+            {
+                step += 1;
+            }
+            else 
+            {
+                if (val < 100) 
+                {
+                    val += 1;
+                    slider_Waiting.value = val * 0.01f;
+                }
+                else
+                {
+                    val = 0;
+                }
+                await Task.Yield();
+                step = 0; 
+            }
+        }
+    }
+    /// <summary>
+    /// 子河流
+    /// </summary>
+    /// <param name="riverConfig"></param>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    private async Task GenerateChildRiver(RiverConfig riverConfig, Action<int, bool> action)
+    {
+        Vector2 currentPos = riverConfig.vector2_Start;
+        Vector2 direction = (riverConfig.vector2_End - riverConfig.vector2_Start).normalized;
+        /*噪声图采样中心*/
+        Vector2 noise_Center = riverConfig.river_NoiseOffset;
+        /*噪声图采样尺寸(1-0)*/
+        float noise_Scale = (1f / riverConfig.river_NoiseScale);
+        /*河流宽度*/
+        int width;
+        /*运行次数*/
+        int step = 0;
+        int val = 0;
+        while (Vector2.Distance(currentPos, riverConfig.vector2_End) > 1.0f)
+        {
+            // 添加噪声使路径弯曲(0,1)
+            float noise = Mathf.PerlinNoise(currentPos.x * noise_Scale + noise_Center.x, currentPos.y * noise_Scale + noise_Center.y);
+            float angle = (noise - 0.5f) * riverConfig.river_Curvature;
+
+
+            // 旋转方向
+            direction = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg) * direction;
+
+            // 确保大致朝向终点
+            Vector2 toEnd = (riverConfig.vector2_End - currentPos).normalized;
+            direction = (direction * (1 - riverConfig.river_DirectionInfluence) + toEnd * riverConfig.river_DirectionInfluence).normalized;
+
+            // 移动当前位置
+            currentPos = currentPos + direction;
+            // 河流宽度
+            width = riverConfig.river_Width;
+            // 绘制河流（包括周围像素使河流更宽）
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < width; y++)
+                {
+                    Vector2Int pixelPos = new Vector2Int(Mathf.RoundToInt(currentPos.x + x), Mathf.RoundToInt(currentPos.y + y));
+                    if (y == 0 || y == width - 1 || x == 0 || x == width - 1)
+                    {
+                        action.Invoke(Vector2ToIndex(pixelPos.x, pixelPos.y), true);
+                    }
+                    else
+                    {
+                        action.Invoke(Vector2ToIndex(pixelPos.x, pixelPos.y), false);
+                    }
+                }
+            }
+            if (step < 200)
+            {
+                step += 1;
+            }
+            else
+            {
+                if (val < 100)
+                {
+                    val += 1;
+                    slider_Waiting.value = val * 0.01f;
+                }
+                else
+                {
+                    val = 0;
+                }
+                await Task.Yield();
+                step = 0;
+            }
+        }
+    }
+    #endregion
     #region//随机单点分布区域(渐变/不渐变)
-    private struct RandomPointsAreaConfig
+    public struct RandomPointsAreaConfig
     {
         /// <summary>
         /// 中心
@@ -990,7 +745,7 @@ public class MapCreater
         /// </summary>
         public int pointsArea_SizeFill;
     }
-    private async Task GenerateRandomPointsArea_Gradual(RandomPointsAreaConfig areaConfig, Action<int> action)
+    public async Task GenerateRandomPointsArea_Gradual(RandomPointsAreaConfig areaConfig, Action<int> action)
     {
         float reciprocal_size = 1f / areaConfig.pointsArea_SizeWhole;
         float reciprocal_Count = 1f / areaConfig.pointsArea_Count;
@@ -1002,7 +757,8 @@ public class MapCreater
         int to_y = (areaConfig.pointsArea_Center.y + areaConfig.pointsArea_SizeWhole);
         /*到中心的距离*/
         float distance;
-
+        int step = 0;
+        int val = 0;
         for (int i = 0; i < areaConfig.pointsArea_Count; i++)
         {
             // 随机生成位置
@@ -1021,11 +777,27 @@ public class MapCreater
             {
                 action.Invoke(Vector2ToIndex(randomX, randomY));
             }
-            await Task.Yield();
-            slider_Waiting.value = (i * reciprocal_Count);
+            if (step < 500)
+            {
+                step += 1;
+            }
+            else
+            {
+                if (val < 100)
+                {
+                    val += 1;
+                    slider_Waiting.value = (i * reciprocal_Count);
+                }
+                else
+                {
+                    val = 0;
+                }
+                await Task.Yield();
+                step = 0;
+            }
         }
     }
-    private async Task GenerateRandomPointsArea_Hard(RandomPointsAreaConfig areaConfig, Action<int> action)
+    public async Task GenerateRandomPointsArea_Hard(RandomPointsAreaConfig areaConfig, Action<int> action)
     {
         float reciprocal_Count = 1f / areaConfig.pointsArea_Count;
 
@@ -1035,7 +807,8 @@ public class MapCreater
         int to_y = (areaConfig.pointsArea_Center.y + areaConfig.pointsArea_SizeWhole);
         /*到中心的距离*/
         float distance;
-
+        int step = 0;
+        int val = 0;
         for (int i = 0; i < areaConfig.pointsArea_Count; i++)
         {
             // 随机生成位置
@@ -1043,12 +816,29 @@ public class MapCreater
             int randomY = new System.Random().Next(from_y, to_y);
             distance = Vector2.Distance(new Vector2(randomX, randomY), areaConfig.pointsArea_Center);
             action.Invoke(Vector2ToIndex(randomX, randomY)); await Task.Yield();
-            slider_Waiting.value = (i * reciprocal_Count);
+            if (step < 500)
+            {
+                step += 1;
+            }
+            else
+            {
+                if (val < 100)
+                {
+                    val += 1;
+                    slider_Waiting.value = (i * reciprocal_Count);
+                }
+                else
+                {
+                    val = 0;
+                }
+                await Task.Yield();
+                step = 0;
+            }
         }
     }
     #endregion
     #region//随机扩张单点组分布区域(不渐变)
-    private struct RandomExpandPointsAreaConfig
+    public struct RandomExpandPointsAreaConfig
     {
         /// <summary>
         /// 中心
@@ -1067,7 +857,7 @@ public class MapCreater
         /// </summary>
         public int pointsArea_SizeWhole;
     }
-    private async Task GenerateRandomExpandPointsArea(RandomExpandPointsAreaConfig areaConfig, Action<int> action)
+    public async Task GenerateRandomExpandPointsArea(RandomExpandPointsAreaConfig areaConfig, Action<int> action)
     {
         float reciprocal_Count = 1f / areaConfig.pointsArea_Count;
 
@@ -1075,7 +865,8 @@ public class MapCreater
         int to_x = (areaConfig.pointsArea_Center.x + areaConfig.pointsArea_SizeWhole);
         int from_y = (areaConfig.pointsArea_Center.y - areaConfig.pointsArea_SizeWhole);
         int to_y = (areaConfig.pointsArea_Center.y + areaConfig.pointsArea_SizeWhole);
-
+        int step = 0;
+        int val = 0;
         for (int i = 0; i < areaConfig.pointsArea_Count; i++)
         {
             // 随机生成位置
@@ -1095,13 +886,30 @@ public class MapCreater
                 action.Invoke(Vector2ToIndex(randomX + tempX, randomY + tempY));
                 random = new System.Random().Next(0, 100);
             }
-            await Task.Yield();
-            slider_Waiting.value = (i * reciprocal_Count);
+
+            if (step < 200)
+            {
+                step += 1;
+            }
+            else
+            {
+                if (val < 100)
+                {
+                    val += 1;
+                    slider_Waiting.value = (i * reciprocal_Count);
+                }
+                else
+                {
+                    val = 0;
+                }
+                await Task.Yield();
+                step = 0;
+            }
         }
     }
 
     #endregion
-    private int Vector2ToIndex(int x,int y)
+    public int Vector2ToIndex(int x,int y)
     {
         int tempX = x + 30000;
         int tempY = y + 30000;
@@ -1117,12 +925,1297 @@ public class MapCreater
         return tempIndex;
     }
 }
+/// <summary>
+/// 大陆生成器
+/// </summary>
+public class MapCreate_Land
+{
+    /// <summary>
+    /// 大陆混合区域宽度
+    /// </summary>
+    public float land_EdgeWidth = 50f;
+    /// <summary>
+    /// 大陆边界噪声半径
+    /// </summary>
+    public float land_NoiseSacle = 10;
+    /// <summary>
+    /// 大陆边界海洋权重
+    /// </summary>
+    public float land_OceanWeight = 0.5f;
+    /// <summary>
+    /// 大陆边界沙滩权重
+    /// </summary>
+    public float land_BeachWeight = 0.2f;
+
+    public async Task CreateIslandArea(MapCreater mapCreater)
+    {
+        mapCreater.text_Waiting.text = "正在生成大陆";
+        MapCreater.IslandAreaConfig config;
+        config = new MapCreater.IslandAreaConfig()
+        {
+            island_Center = Vector2.zero,
+            island_WholeSize = mapCreater.config_Map.map_Size,
+            island_FillSize = mapCreater.config_Map.map_Size - land_EdgeWidth,
+            noise_Offset = mapCreater.GetRandomOffset(),
+            noise_Sacle = land_NoiseSacle,
+        };
+        await mapCreater.GenerateIslandArea_Large(config, (index, val) =>
+        {
+            if (val < land_OceanWeight)
+            {
+                if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index))
+                {
+                    mapCreater.data_mapGroundData.tileDic[index] = 9000;
+                }
+                else
+                {
+                    mapCreater.data_mapGroundData.tileDic.Add(index, 9000);
+                }
+            }
+            else if (val < land_OceanWeight + land_BeachWeight)
+            {
+                if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index))
+                {
+                    mapCreater.data_mapGroundData.tileDic[index] = 1000;
+                }
+                else
+                {
+                    mapCreater.data_mapGroundData.tileDic.Add(index, 1000);
+                }
+            }
+            else
+            {
+                if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index))
+                {
+                    mapCreater.data_mapGroundData.tileDic[index] = 1001;
+                }
+                else
+                {
+                    mapCreater.data_mapGroundData.tileDic.Add(index, 1001);
+                }
+            }
+        });
+    }
+} 
+/// <summary>
+/// 雪原生成器
+/// </summary>
+public class MapCreate_Snowland
+{
+    /// <summary>
+    /// 雪原相对中心
+    /// </summary>
+    private Vector2 snowland_Center = new Vector2(-0.5f, 0.5f);
+    /// <summary>
+    /// 雪原相对整体尺寸
+    /// </summary>
+    private float snowland_WholeSize = 0.33f;
+    /// <summary>
+    /// 雪原边界宽度
+    /// </summary>
+    private float snowland_Width = 50f;
+    /// <summary>
+    /// 雪原噪声半径
+    /// </summary>
+    private float snowland_NoiseSacle = 10;
+    /// <summary>
+    /// 雪原雪地权重
+    /// </summary>
+    private float snowland_SnowlandWeight = 0.3f;
+    /// <summary>
+    /// 雪原苔原权重
+    /// </summary>
+    private float snowland_TundraWeight = 0.2f;
+    /// <summary>
+    /// 生成雪原
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateSnowland(MapCreater mapCreater)
+    {
+        mapCreater.text_Waiting.text = "正在生成雪原";
+        MapCreater.IslandAreaConfig config;
+        config = new MapCreater.IslandAreaConfig()
+        {
+            island_Center = snowland_Center * mapCreater.config_Map.map_Size,
+            island_WholeSize = mapCreater.config_Map.map_Size * snowland_WholeSize,
+            island_FillSize = mapCreater.config_Map.map_Size * snowland_WholeSize - snowland_Width,
+            noise_Offset = mapCreater.GetRandomOffset(),
+            noise_Sacle = snowland_NoiseSacle,
+        };
+        await mapCreater.GenerateIslandArea_Large(config, (index, val) =>
+        {
+            /*有这个地块且不为海洋*/
+            if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] != 9000)
+            {
+                if (val > (1 - snowland_SnowlandWeight))
+                {
+                    mapCreater.data_mapGroundData.tileDic[index] = 1004;
+                }
+                else if (val > (1 - snowland_SnowlandWeight - snowland_TundraWeight))
+                {
+                    mapCreater.data_mapGroundData.tileDic[index] = 1003;
+                }
+                else
+                {
+
+                }
+            }
+        });
+
+    }
+
+}
+/// <summary>
+/// 沙漠生成器
+/// </summary>
+public class MapCreate_Desert
+{
+    /// <summary>
+    /// 沙漠相对中心
+    /// </summary>
+    private Vector2 desert_Center = new Vector2(0.5f, -0.5f);
+    /// <summary>
+    /// 沙漠相对整体尺寸
+    /// </summary>
+    private float desert_WholeSize = 0.33f;
+    /// <summary>
+    /// 沙漠边界宽度
+    /// </summary>
+    private float desert_Width = 50f;
+    /// <summary>
+    /// 沙漠噪声半径
+    /// </summary>
+    private float desert_NoiseSacle = 10;
+    /// <summary>
+    /// 沙漠权重
+    /// </summary>
+    private float desert_SandWeight = 0.3f;
+    /// <summary>
+    /// 荒地权重
+    /// </summary>
+    private float desert_GroundWeight = 0.2f;
+    /// <summary>
+    /// 生成雪原
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateDesert(MapCreater mapCreater)
+    {
+        mapCreater.text_Waiting.text = "正在生成沙漠";
+        MapCreater.IslandAreaConfig config;
+        config = new MapCreater.IslandAreaConfig()
+        {
+            island_Center = desert_Center * mapCreater.config_Map.map_Size,
+            island_WholeSize = mapCreater.config_Map.map_Size * desert_WholeSize,
+            island_FillSize = mapCreater.config_Map.map_Size * desert_WholeSize - desert_Width,
+            noise_Offset = mapCreater.GetRandomOffset(),
+            noise_Sacle = desert_NoiseSacle,
+        };
+        await mapCreater.GenerateIslandArea_Large(config, (index, val) =>
+        {
+            /*有这个地块且不为海洋*/
+            if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] != 9000)
+            {
+                if (val > (1 - desert_SandWeight))
+                {
+                    mapCreater.data_mapGroundData.tileDic[index] = 1005;
+                }
+                else if (val > (1 - desert_SandWeight - desert_GroundWeight))
+                {
+                    mapCreater.data_mapGroundData.tileDic[index] = 1000;
+                }
+                else
+                {
+
+                }
+            }
+        });
+    }
+}
+/// <summary>
+/// 内陆海生成器
+/// </summary>
+public class MapCreate_InlandSea
+{
+    /// <summary>
+    /// 内陆海相对中心
+    /// </summary>
+    private Vector2 inlandSea_Center = new Vector2(0.5f, 0.5f);
+    /// <summary>
+    /// 内陆海相对整体尺寸
+    /// </summary>
+    private float inlandSea_WholeSize = 0.2f;
+    /// <summary>
+    /// 内陆海边界宽度
+    /// </summary>
+    private float inlandSea_Width = 20f;
+    /// <summary>
+    /// 内陆海噪声半径
+    /// </summary>
+    private float inlandSea_NoiseSacle = 10;
+    /// <summary>
+    /// 内陆海海洋权重
+    /// </summary>
+    private float inlandSea_SnowlandWeight = 0.3f;
+    /// <summary>
+    /// 内陆海沙滩权重
+    /// </summary>
+    private float inlandSea_TundraWeight = 0.2f;
+    /// <summary>
+    /// 生成内陆海
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateInlandSea(MapCreater mapCreater)
+    {
+        mapCreater.text_Waiting.text = "正在生成内陆海";
+        MapCreater.IslandAreaConfig config;
+        config = new MapCreater.IslandAreaConfig()
+        {
+            island_Center = inlandSea_Center * mapCreater.config_Map.map_Size,
+            island_WholeSize = mapCreater.config_Map.map_Size * inlandSea_WholeSize,
+            island_FillSize = mapCreater.config_Map.map_Size * inlandSea_WholeSize - inlandSea_Width,
+            noise_Offset = mapCreater.GetRandomOffset(),
+            noise_Sacle = inlandSea_NoiseSacle,
+        };
+        await mapCreater.GenerateIslandArea_Large(config, (index, val) =>
+        {
+            /*有这个地块且不为海洋*/
+            if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] != 9000)
+            {
+                if (val > (1 - inlandSea_SnowlandWeight))
+                {
+                    mapCreater.data_mapGroundData.tileDic[index] = 9000;
+                }
+                else if (val > (1 - inlandSea_SnowlandWeight - inlandSea_TundraWeight))
+                {
+                    mapCreater.data_mapGroundData.tileDic[index] = 1005;
+                }
+                else
+                {
+
+                }
+            }
+        });
+
+    }
+
+    /// <summary>
+    /// 群岛相对中心
+    /// </summary>
+    private Vector2 islet_Center = new Vector2(0.5f, 0.5f);
+    /// <summary>
+    /// 群岛相对整体尺寸
+    /// </summary>
+    private float islet_WholeSize = 0.1f;
+    /// <summary>
+    /// 内陆海边界宽度
+    /// </summary>
+    private float islet_Width = 20f;
+    /// <summary>
+    /// 群岛噪声半径
+    /// </summary>
+    private float islet_NoiseSacle = 20;
+    /// <summary>
+    /// 群岛大陆权重
+    /// </summary>
+    private float islet_LandWeight = 0.3f;
+    /// <summary>
+    /// 群岛沙滩权重
+    /// </summary>
+    private float islet_SandWeight = 0.2f;
+    /// <summary>
+    /// 生成小岛
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateIslet(MapCreater mapCreater)
+    {
+        mapCreater.text_Waiting.text = "正在生成神秘小岛";
+        MapCreater.IslandAreaConfig config;
+        config = new MapCreater.IslandAreaConfig()
+        {
+            island_Center = islet_Center * mapCreater.config_Map.map_Size,
+            island_WholeSize = mapCreater.config_Map.map_Size * islet_WholeSize,
+            island_FillSize = mapCreater.config_Map.map_Size * islet_WholeSize - islet_Width,
+            noise_Offset = mapCreater.GetRandomOffset(),
+            noise_Sacle = islet_NoiseSacle,
+        };
+        await mapCreater.GenerateIslandArea_Large(config, (index, val) =>
+        {
+            if (val > (1 - islet_LandWeight))
+            {
+                mapCreater.data_mapGroundData.tileDic[index] = 1000;
+            }
+            else if (val > (1 - islet_LandWeight - islet_SandWeight))
+            {
+                mapCreater.data_mapGroundData.tileDic[index] = 1005;
+            }
+            else
+            {
+
+            }
+        });
+
+    }
+
+}
+/// <summary>
+/// 河流生成器
+/// </summary>
+public class MapCreate_River
+{
+    MapCreater creater;
+    public async Task CreateRiver(MapCreater mapCreater)
+    {
+        creater = mapCreater;
+        creater.text_Waiting.text = "正在生成河流";
+
+        MapCreater.RiverConfig config_River0;
+        config_River0 = new MapCreater.RiverConfig()
+        {
+            vector2_Start = new Vector2(-creater.config_Map.map_Size, 0),
+            vector2_End = new Vector2(creater.config_Map.map_Size, creater.config_Map.map_Size),
+            river_NoiseScale = 20f,
+            river_NoiseOffset = creater.GetRandomOffset(),
+            river_Curvature = 3,
+            river_DirectionInfluence = 0.25f,
+            river_Width = 6,
+            river_Forking = 3,
+            river_ForkCount = 4
+        };
+        MapCreater.RiverConfig config_River1;
+        config_River1 = new MapCreater.RiverConfig()
+        {
+            vector2_Start = new Vector2(creater.config_Map.map_Size, -creater.config_Map.map_Size),
+            vector2_End = new Vector2(-creater.config_Map.map_Size, 0),
+            river_NoiseScale = 20f,
+            river_NoiseOffset = creater.GetRandomOffset(),
+            river_Curvature = 3,
+            river_DirectionInfluence = 0.25f,
+            river_Width = 6,
+            river_Forking = 3,
+            river_ForkCount = 4
+        };
+        MapCreater.RiverConfig config_River2;
+        config_River2 = new MapCreater.RiverConfig()
+        {
+            vector2_Start = new Vector2(0, 0),
+            vector2_End = new Vector2(0, -creater.config_Map.map_Size),
+            river_NoiseScale = 20f,
+            river_NoiseOffset = creater.GetRandomOffset(),
+            river_Curvature = 3,
+            river_DirectionInfluence = 0.25f,
+            river_Width = 6,
+            river_Forking = 3,
+            river_ForkCount = 4
+        };
+
+
+        MapCreater.RiverConfig config_ChildRiver;
+        config_ChildRiver = new MapCreater.RiverConfig()
+        {
+            river_NoiseScale = 25f,
+            river_NoiseOffset = creater.GetRandomOffset(),
+            river_Curvature = 5,
+            river_DirectionInfluence = 0.25f,
+            river_Width = 3,
+        };
+
+        await mapCreater.GenerateMainRiver(config_River0, config_ChildRiver, DrawMainRiver, DrawChildRiver);
+        await mapCreater.GenerateMainRiver(config_River1, config_ChildRiver, DrawMainRiver, DrawChildRiver);
+        await mapCreater.GenerateMainRiver(config_River2, config_ChildRiver, DrawMainRiver, DrawChildRiver);
+    }
+    private void DrawMainRiver(int index, bool edge)
+    {
+        if (edge)
+        {
+            if (creater.data_mapGroundData.tileDic.ContainsKey(index) && creater.data_mapGroundData.tileDic[index] != 9000)
+            {
+                creater.data_mapGroundData.tileDic[index] = 1000;
+            }
+        }
+        else
+        {
+            if (creater.data_mapGroundData.tileDic.ContainsKey(index) && creater.data_mapGroundData.tileDic[index] != 9000)
+            {
+                creater.data_mapGroundData.tileDic[index] = 9000;
+            }
+        }
+    }
+    private void DrawChildRiver(int index, bool edge)
+    {
+        if (creater.data_mapGroundData.tileDic.ContainsKey(index) && creater.data_mapGroundData.tileDic[index] != 9000)
+        {
+            creater.data_mapGroundData.tileDic[index] = 9000;
+        }
+    }
+
+}
+/// <summary>
+/// 湖泊生成器
+/// </summary>
+public class MapCreate_Lake
+{
+    /// <summary>
+    /// 湖泊密度(平方米/个)
+    /// </summary>
+    private int lake_Density = 5000;
+    /// <summary>
+    /// 湖泊最小半径
+    /// </summary>
+    private int lake_MinSize = 10;
+    /// <summary>
+    /// 湖泊最大半径
+    /// </summary>
+    private int lake_MaxSize = 20;
+    /// <summary>
+    /// 湖泊权重
+    /// </summary>
+    private float lake_Weight = 0.5f;
+    /// <summary>
+    /// 湖泊边缘权重
+    /// </summary>
+    private float lake_EdgeWeight = 0.2f;
+    /// <summary>
+    /// 生成湖泊
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateLake(MapCreater mapCreater)
+    {
+        int lake_Count = (mapCreater.config_Map.map_Size * 2) * (mapCreater.config_Map.map_Size * 2) / lake_Density;
+        for (int i = 0; i < lake_Count; i++)
+        {
+            mapCreater.text_Waiting.text = "正在生成湖泊" + i;
+            MapCreater.IslandAreaConfig config;
+            float lakeSize = (float)new System.Random().Next(lake_MinSize, lake_MaxSize);
+            config = new MapCreater.IslandAreaConfig()
+            {
+                island_Center = new Vector2(new System.Random().Next(-mapCreater.config_Map.map_Size + 20, mapCreater.config_Map.map_Size - 20), new System.Random().Next(-mapCreater.config_Map.map_Size + 20, mapCreater.config_Map.map_Size - 20)),
+                island_WholeSize = lakeSize,
+                island_FillSize = lakeSize * 0.5f,
+                noise_Offset = mapCreater.GetRandomOffset(),
+                noise_Sacle = 5,
+            };
+            await mapCreater.GenerateIslandArea_Tiny(config, (index, perlinNoise, realNoise) =>
+            {
+                if (realNoise > (1 - lake_Weight))
+                {
+                    if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index))
+                    {
+                        mapCreater.data_mapGroundData.tileDic[index] = 9000;
+                    }
+                    else
+                    {
+                        mapCreater.data_mapGroundData.tileDic.Add(index, 9000);
+                    }
+                }
+                if (realNoise > (1 - lake_Weight - lake_EdgeWeight))
+                {
+                    if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index))
+                    {
+                        if (mapCreater.data_mapGroundData.tileDic[index] != 9000)
+                        {
+                            mapCreater.data_mapGroundData.tileDic[index] = 1000;
+                        }
+                    }
+                    else
+                    {
+                        mapCreater.data_mapGroundData.tileDic.Add(index, 1000);
+                    }
+                }
+            });
+            mapCreater.slider_Waiting.value = (float)i / (float)lake_Count;
+        }
+    }
+
+}
+/// <summary>
+/// 森林生成器
+/// </summary>
+public class MapCreate_Forest
+{
+    /// <summary>
+    /// 森林密度(平方米/个)
+    /// </summary>
+    private int forest_Density = 10000;
+    /// <summary>
+    /// 森林最小面积
+    /// </summary>
+    private int forest_MinSize = 20;
+    /// <summary>
+    /// 森林最大面积
+    /// </summary>
+    private int forest_MaxSize = 50;
+    /// <summary>
+    /// 森林紧密度0-1
+    /// </summary>
+    private float forest_Compactness = 0.1f;
+    /// <summary>
+    /// 草地树木种类
+    /// </summary>
+    private List<short> treeIDs_GrassTreeID = new List<short>() { 1000, 1003 };
+    /// <summary>
+    /// 雪地树木种类
+    /// </summary>
+    private List<short> treeIDs_SnowTreeID = new List<short>() { 1000, 1003 };
+    /// <summary>
+    /// 沙漠树木种类
+    /// </summary>
+    private List<short> treeIDs_DesertTreeID = new List<short>() { 1000, 1003 };
+    /// <summary>
+    /// 生成树木
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateForest(MapCreater mapCreater)
+    {
+        int forest_Count = (mapCreater.config_Map.map_Size * 2) * (mapCreater.config_Map.map_Size * 2) / forest_Density;
+        mapCreater.text_Waiting.text = "正在生成树林" + forest_Count;
+
+        for (int i = 0; i < forest_Count; i++)
+        {
+            UnityEngine.Random.InitState((int)(mapCreater.GetRandomOffset().x * 10000));
+            int forest_Size = UnityEngine.Random.Range(forest_MinSize, forest_MaxSize);
+            MapCreater.RandomPointsAreaConfig config = new MapCreater.RandomPointsAreaConfig()
+            {
+                pointsArea_Center = new Vector2Int(new System.Random().Next(-mapCreater.config_Map.map_Size, mapCreater.config_Map.map_Size), new System.Random().Next(-mapCreater.config_Map.map_Size, mapCreater.config_Map.map_Size)),
+                pointsArea_Count = (int)(forest_Compactness * forest_Size * forest_Size),
+                pointsArea_SizeWhole = forest_Size,
+                pointsArea_SizeFill = forest_Size - 10,
+            };
+            await mapCreater.GenerateRandomPointsArea_Gradual(config, (index) =>
+            {
+                if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] == 1001)
+                {
+                    short treeID = treeIDs_GrassTreeID[new System.Random().Next(0, treeIDs_GrassTreeID.Count)];
+                    if (mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        mapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        mapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+            });
+        }
+    }
+
+}
+/// <summary>
+/// 矿区生成器
+/// </summary>
+public class MapCreate_Mining
+{
+    MapCreater bindMapCreater;
+    /// <summary>
+    /// 矿区密度(平方米/个)
+    /// </summary>
+    private int mining_Density = 3500;
+    /// <summary>
+    /// 矿区最小尺寸
+    /// </summary>
+    private int mining_MinSize = 15;
+    /// <summary>
+    /// 矿区最大尺寸
+    /// </summary>
+    private int mining_MaxSize = 25;
+    /// <summary>
+    /// 生成矿区
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateMining(MapCreater mapCreater)
+    {
+        bindMapCreater = mapCreater;
+        int mining_Count = (bindMapCreater.config_Map.map_Size * 2) * (bindMapCreater.config_Map.map_Size * 2) / mining_Density;
+        bindMapCreater.text_Waiting.text = "正在生成矿区" + mining_Count;
+
+        for (int i = 0; i < mining_Count; i++)
+        {
+            UnityEngine.Random.InitState((int)(bindMapCreater.GetRandomOffset().x * 10000));
+            int mining_Size = UnityEngine.Random.Range(mining_MinSize, mining_MaxSize);
+            Vector2 center = new Vector2(new System.Random().Next(-bindMapCreater.config_Map.map_Size + 20, bindMapCreater.config_Map.map_Size - 20), new System.Random().Next(-bindMapCreater.config_Map.map_Size + 20, bindMapCreater.config_Map.map_Size - 20));
+            MapCreater.IslandAreaConfig config = new MapCreater.IslandAreaConfig()
+            {
+                island_Center = center,
+                island_WholeSize = mining_Size,
+                island_FillSize = 5,
+                noise_Offset = bindMapCreater.GetRandomOffset(),
+                noise_Sacle = 5,
+            };
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(bindMapCreater.Vector2ToIndex((int)(center.x), (int)(center.y))))
+            {
+                int centerGroundId = bindMapCreater.data_mapGroundData.tileDic[bindMapCreater.Vector2ToIndex((int)(center.x), (int)(center.y))];
+                if (centerGroundId == 1000)
+                {
+                    await mapCreater.GenerateIslandArea_Tiny(config, CreateRockMining);
+                }
+                else if (centerGroundId == 1000)
+                {
+                    await mapCreater.GenerateIslandArea_Tiny(config, CreateRockMining);
+                }
+                else if (centerGroundId == 1001)
+                {
+                    await mapCreater.GenerateIslandArea_Tiny(config, CreateCoalMining);
+                }
+                else if (centerGroundId == 1004 || centerGroundId == 1003)
+                {
+                    await mapCreater.GenerateIslandArea_Tiny(config, CreateIronMining);
+                }
+                else if (centerGroundId == 1005)
+                {
+                    await mapCreater.GenerateIslandArea_Tiny(config, CreateGoldMining);
+                }
+            }
+            mapCreater.slider_Waiting.value = (float)i / (float)mining_Count;
+        }
+    }
+
+    /// <summary>
+    /// 石山权重
+    /// </summary>
+    float rock_Weight = 0.3f;
+    float rockEdeg_Weight = 0.2f;
+    /// <summary>
+    /// 生成石山
+    /// </summary>
+    public void CreateRockMining(int index,float perlinNoise, float realNoise)
+    {
+        if (realNoise > (1 - rock_Weight))
+        {
+            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
+            {
+                if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
+                }
+                else
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic.Add(index, 1002);
+                }
+            }
+        }
+        else if (realNoise > (1 - coalMining_Weight - rock_Weight - rockEdeg_Weight))
+        {
+            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
+        }
+    }
+
+
+    /// <summary>
+    /// 煤矿权重
+    /// </summary>
+    float coalMining_Weight = 0.02f;
+    float coalRock_Weight = 0.3f;
+    float coalRockEdeg_Weight = 0.2f;
+    /// <summary>
+    /// 生成煤矿
+    /// </summary>
+    public void CreateCoalMining(int index, float perlinNoise, float realNoise)
+    {
+        if (realNoise > (1 - coalMining_Weight))
+        {
+            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
+            {
+                if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    if ((perlinNoise > (1 - coalMining_Weight)))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1011;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
+                    }
+                }
+                else
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic.Add(index, 1011);
+                }
+            }
+        }
+        else if (realNoise > (1 - coalMining_Weight - coalRock_Weight))
+        {
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
+            {
+                if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
+                }
+                else
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic.Add(index, 1002);
+                }
+            }
+        }
+        else if (realNoise > (1 - coalMining_Weight - coalRock_Weight - coalRockEdeg_Weight))
+        {
+            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
+        }
+    }
+    /// <summary>
+    /// 铁矿权重
+    /// </summary>
+    float ironMining_Weight = 0.05f;
+    float ironRock_Weight = 0.3f;
+    float ironRockEdeg_Weight = 0.2f;
+    /// <summary>
+    /// 生成铁矿
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="val"></param>
+    public void CreateIronMining(int index, float perlinNoise, float realNoise)
+    {
+        if (realNoise > (1 - ironMining_Weight))
+        {
+            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
+            {
+                if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    if ((perlinNoise > (1 - ironMining_Weight)))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1012;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
+                    }
+                }
+                else
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic.Add(index, 1012);
+                }
+            }
+        }
+        else if (realNoise > (1 - ironMining_Weight - ironRock_Weight))
+        {
+            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
+            {
+                if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
+                }
+                else
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic.Add(index, 1002);
+                }
+            }
+        }
+        else if (realNoise > (1 - ironMining_Weight - ironRock_Weight - ironRockEdeg_Weight))
+        {
+            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
+        }
+    }
+
+    /// <summary>
+    /// 金矿权重
+    /// </summary>
+    float goldMining_Weight = 0.05f;
+    float goldRock_Weight = 0.3f;
+    float goldRockEdeg_Weight = 0.2f;
+    /// <summary>
+    /// 生成金矿
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="val"></param>
+    public void CreateGoldMining(int index, float perlinNoise, float realNoise)
+    {
+        if (realNoise > (1 - goldMining_Weight))
+        {
+            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
+            {
+                if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    if((perlinNoise > (1 - goldMining_Weight)))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1013;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
+                    }
+                }
+                else
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic.Add(index, 1013);
+                }
+            }
+        }
+        else if (realNoise > (1 - goldMining_Weight - goldRock_Weight))
+        {
+            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
+            {
+                if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
+                }
+                else
+                {
+                    bindMapCreater.data_mapBuildingData.tileDic.Add(index, 1002);
+                }
+            }
+        }
+        else if (realNoise > (1 - goldMining_Weight - goldRock_Weight - goldRockEdeg_Weight))
+        {
+            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
+        }
+    }
+
+}
+/// <summary>
+/// 道路生成器
+/// </summary>
+public class MapCreate_Road
+{
+    MapCreater creater;
+    public async Task CreateRoad(MapCreater mapCreater)
+    {
+        creater = mapCreater;
+        creater.text_Waiting.text = "正在生成道路";
+
+        MapCreater.RiverConfig config_River0;
+        config_River0 = new MapCreater.RiverConfig()
+        {
+            vector2_Start = new Vector2(0, -creater.config_Map.map_Size),
+            vector2_End = new Vector2(-creater.config_Map.map_Size, creater.config_Map.map_Size),
+            river_NoiseScale = 50f,
+            river_NoiseOffset = creater.GetRandomOffset(),
+            river_Curvature = 2,
+            river_DirectionInfluence = 0.25f,
+            river_Width = 3,
+            river_Forking = 3,
+            river_ForkCount = 4
+        };
+        MapCreater.RiverConfig config_River1;
+        config_River1 = new MapCreater.RiverConfig()
+        {
+            vector2_Start = new Vector2(creater.config_Map.map_Size, 0),
+            vector2_End = new Vector2(-creater.config_Map.map_Size, -creater.config_Map.map_Size),
+            river_NoiseScale = 50f,
+            river_NoiseOffset = creater.GetRandomOffset(),
+            river_Curvature = 2,
+            river_DirectionInfluence = 0.25f,
+            river_Width = 3,
+            river_Forking = 3,
+            river_ForkCount = 4
+        };
+        MapCreater.RiverConfig config_River2;
+        config_River2 = new MapCreater.RiverConfig()
+        {
+            vector2_Start = new Vector2(0, creater.config_Map.map_Size),
+            vector2_End = new Vector2(0, -creater.config_Map.map_Size),
+            river_NoiseScale = 50f,
+            river_NoiseOffset = creater.GetRandomOffset(),
+            river_Curvature = 2,
+            river_DirectionInfluence = 0.25f,
+            river_Width = 3,
+            river_Forking = 3,
+            river_ForkCount = 4
+        };
+
+
+        MapCreater.RiverConfig config_ChildRiver;
+        config_ChildRiver = new MapCreater.RiverConfig()
+        {
+            river_NoiseScale = 50f,
+            river_NoiseOffset = creater.GetRandomOffset(),
+            river_Curvature = 2,
+            river_DirectionInfluence = 0.25f,
+            river_Width = 2,
+        };
+
+        await mapCreater.GenerateMainRiver(config_River0, config_ChildRiver, DrawMainRiver, DrawChildRiver);
+        await mapCreater.GenerateMainRiver(config_River1, config_ChildRiver, DrawMainRiver, DrawChildRiver);
+        await mapCreater.GenerateMainRiver(config_River2, config_ChildRiver, DrawMainRiver, DrawChildRiver);
+    }
+    private void DrawMainRiver(int index, bool edge)
+    {
+        if (creater.data_mapGroundData.tileDic.ContainsKey(index))
+        {
+            creater.data_mapGroundData.tileDic[index] = 2001;
+        }
+        if (creater.data_mapBuildingData.tileDic.ContainsKey(index))
+        {
+            creater.data_mapBuildingData.tileDic.Remove(index);
+        }
+    }
+    private void DrawChildRiver(int index, bool edge)
+    {
+        if (creater.data_mapGroundData.tileDic.ContainsKey(index))
+        {
+            creater.data_mapGroundData.tileDic[index] = 2001;
+        }
+        if (creater.data_mapBuildingData.tileDic.ContainsKey(index))
+        {
+            creater.data_mapBuildingData.tileDic.Remove(index);
+        }
+    }
+
+}
+/// <summary>
+/// 生成动物
+/// </summary>
+public class MapCreate_Animal
+{
+    /// <summary>
+    /// 中立生物最小距离
+    /// </summary>
+    private int minDistance = 20;
+    public async Task CreateAnimal(MapCreater mapCreater)
+    {
+        mapCreater.text_Waiting.text = "正在诞生没头脑";
+        MapCreater.PoissonPointsAreaConfig config = new MapCreater.PoissonPointsAreaConfig()
+        {
+            pointsArea_Center = Vector2Int.zero,
+            pointsArea_Size = mapCreater.config_Map.map_Size,
+            pointsArea_MinDistance = minDistance,
+            pointsArea_MaxSamples = 20
+        };
+        await mapCreater.GeneratePoissonPointsArea(config, (index) =>
+        {
+            if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] == 1001)
+            {
+                if (!mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    mapCreater.data_mapBuildingData.tileDic.Add(index, 2001);
+                }
+            }
+        });
+    }
+}
+/// <summary>
+/// 生成怪物
+/// </summary>
+public class MapCreate_Monster
+{
+    /// <summary>
+    /// 中立生物最小距离
+    /// </summary>
+    private int minDistance = 30;
+    public async Task CreateMonster(MapCreater mapCreater)
+    {
+        mapCreater.text_Waiting.text = "正在诞生不高兴";
+        MapCreater.PoissonPointsAreaConfig config = new MapCreater.PoissonPointsAreaConfig()
+        {
+            pointsArea_Center = Vector2Int.zero,
+            pointsArea_Size = mapCreater.config_Map.map_Size,
+            pointsArea_MinDistance = minDistance,
+            pointsArea_MaxSamples = 20
+        };
+        await mapCreater.GeneratePoissonPointsArea(config, (index) =>
+        {
+            if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] == 1001)
+            {
+                if (!mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    mapCreater.data_mapBuildingData.tileDic.Add(index, 2002);
+                }
+            }
+        });
+    }
+}
+/// <summary>
+/// 生成随机建筑
+/// </summary>
+public class MapCreate_RandomBuilding
+{
+    /// <summary>
+    /// 建筑之间最小距离
+    /// </summary>
+    private float building_MinDistance = 40;
+    private MapCreater bind_MapCreater;
+    /// <summary>
+    /// 生成随机建筑
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateRandomBuilding(MapCreater mapCreater)
+    {
+        bind_MapCreater = mapCreater;
+        bind_MapCreater.text_Waiting.text = "正在添加人类踪迹";
+        MapCreater.PoissonPointsAreaConfig config = new MapCreater.PoissonPointsAreaConfig()
+        {
+            pointsArea_Center = Vector2Int.zero,
+            pointsArea_Size = bind_MapCreater.config_Map.map_Size,
+            pointsArea_MinDistance = building_MinDistance,
+            pointsArea_MaxSamples = 20
+        };
+        await bind_MapCreater.GeneratePoissonPointsArea(config, (pos) =>
+        {
+            int index = bind_MapCreater.Vector2ToIndex(pos.x, pos.y);
+            if (bind_MapCreater.data_mapGroundData.tileDic.ContainsKey(index))
+            {
+                List<MapModConfig> list = MapModConfigData.mapModConfigs.FindAll((x) => { return x.MapMod_Base == bind_MapCreater.data_mapGroundData.tileDic[index]; });
+                if (list.Count > 0)
+                {
+                    MapModConfig mapModConfig = list[new System.Random().Next(0, list.Count)];
+                    CreateMapMod(pos, mapModConfig);
+                }
+            }
+        });
+    }
+    private void CreateMapMod(Vector2Int center, MapModConfig mapModConfig)
+    {
+        MapModData data_Map = Resources.Load<MapModData>($"MapModData/MapModData{mapModConfig.MapMod_ID}");
+        foreach (KeyValuePair<Vector2Int, short> pair in data_Map.data_mapFloor)
+        {
+            int tempX = pair.key.x + (int)center.x + 30000;
+            int tempY = pair.key.y + (int)center.y + 30000;
+            int tempIndex;
+            if (tempY > tempX)
+            {
+                tempIndex = tempY * tempY + tempY + tempY - tempX;
+            }
+            else
+            {
+                tempIndex = tempX * tempX + tempY;
+            }
+            if (bind_MapCreater.data_mapGroundData.tileDic.ContainsKey(tempIndex))
+            {
+                bind_MapCreater.data_mapGroundData.tileDic[tempIndex] = pair.value;
+            }
+            else
+            {
+                bind_MapCreater.data_mapGroundData.tileDic.Add(tempIndex, pair.value);
+            }
+            if (bind_MapCreater.data_mapBuildingData.tileDic.ContainsKey(tempIndex))
+            {
+                bind_MapCreater.data_mapBuildingData.tileDic.Remove(tempIndex);
+            }
+        }
+        foreach (KeyValuePair<Vector2Int, short> pair in data_Map.data_mapBuilding)
+        {
+            int tempX = pair.key.x + (int)center.x + 30000;
+            int tempY = pair.key.y + (int)center.y + 30000;
+            int tempIndex;
+            if (tempY > tempX)
+            {
+                tempIndex = tempY * tempY + tempY + tempY - tempX;
+            }
+            else
+            {
+                tempIndex = tempX * tempX + tempY;
+            }
+            if (bind_MapCreater.data_mapBuildingData.tileDic.ContainsKey(tempIndex))
+            {
+                bind_MapCreater.data_mapBuildingData.tileDic[tempIndex] = pair.value;
+            }
+            else
+            {
+                bind_MapCreater.data_mapBuildingData.tileDic.Add(tempIndex, pair.value);
+            }
+        }
+
+    }
+}
+/// <summary>
+/// 生成固定建筑
+/// </summary>
+public class MapCreate_ConfigBuilding
+{
+    private MapCreater bind_MapCreater;
+    public async Task CreateConfigBuilding(MapCreater mapCreater)
+    {
+        bind_MapCreater = mapCreater;
+        bind_MapCreater.text_Waiting.text = "太阳正在坠落";
+        MapModConfig mapConfig_0 = MapModConfigData.GetMapModConfig(0);
+        CreateMapMod(Vector2Int.zero, mapConfig_0);
+        await Task.Yield();
+        bind_MapCreater.text_Waiting.text = "正在进行一场失败的实验";
+        MapModConfig mapConfig_100 = MapModConfigData.GetMapModConfig(100);
+        CreateMapMod(new Vector2Int((int)(-bind_MapCreater.config_Map.map_Size * 0.5f), (int)(bind_MapCreater.config_Map.map_Size * 0.5f)), mapConfig_100);
+    }
+    private void CreateMapMod(Vector2Int center, MapModConfig mapModConfig)
+    {
+        MapModData data_Map = Resources.Load<MapModData>($"MapModData/MapModData{mapModConfig.MapMod_ID}");
+        foreach (KeyValuePair<Vector2Int, short> pair in data_Map.data_mapFloor)
+        {
+            int tempX = pair.key.x + (int)center.x + 30000;
+            int tempY = pair.key.y + (int)center.y + 30000;
+            int tempIndex;
+            if (tempY > tempX)
+            {
+                tempIndex = tempY * tempY + tempY + tempY - tempX;
+            }
+            else
+            {
+                tempIndex = tempX * tempX + tempY;
+            }
+            if (bind_MapCreater.data_mapGroundData.tileDic.ContainsKey(tempIndex))
+            {
+                bind_MapCreater.data_mapGroundData.tileDic[tempIndex] = pair.value;
+            }
+            else
+            {
+                bind_MapCreater.data_mapGroundData.tileDic.Add(tempIndex, pair.value);
+            }
+            if (bind_MapCreater.data_mapBuildingData.tileDic.ContainsKey(tempIndex))
+            {
+                bind_MapCreater.data_mapBuildingData.tileDic.Remove(tempIndex);
+            }
+        }
+        foreach (KeyValuePair<Vector2Int, short> pair in data_Map.data_mapBuilding)
+        {
+            int tempX = pair.key.x + (int)center.x + 30000;
+            int tempY = pair.key.y + (int)center.y + 30000;
+            int tempIndex;
+            if (tempY > tempX)
+            {
+                tempIndex = tempY * tempY + tempY + tempY - tempX;
+            }
+            else
+            {
+                tempIndex = tempX * tempX + tempY;
+            }
+            if (bind_MapCreater.data_mapBuildingData.tileDic.ContainsKey(tempIndex))
+            {
+                bind_MapCreater.data_mapBuildingData.tileDic[tempIndex] = pair.value;
+            }
+            else
+            {
+                bind_MapCreater.data_mapBuildingData.tileDic.Add(tempIndex, pair.value);
+            }
+        }
+
+    }
+}
+/// <summary>
+/// 生成资源点
+/// </summary>
+public class MapCreate_Supply
+{
+    /// <summary>
+    /// 资源点密度(平方米/个)
+    /// </summary>
+    private float supply_Density = 5000f;
+    /// <summary>
+    /// 草地资源点种类
+    /// </summary>
+    private List<short> supplyIDs_Grass = new List<short>() { 1004 };
+    /// <summary>
+    /// 生成地图资源点
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateSupply(MapCreater mapCreater)
+    {
+        mapCreater.text_Waiting.text = "正在生成地图资源点";
+        MapCreater.RandomPointsAreaConfig config = new MapCreater.RandomPointsAreaConfig()
+        {
+            pointsArea_Center = Vector2Int.zero,
+            pointsArea_Count = (int)((mapCreater.config_Map.map_Size * 2) * (mapCreater.config_Map.map_Size * 2)/ supply_Density),
+            pointsArea_SizeWhole = mapCreater.config_Map.map_Size,
+            pointsArea_SizeFill = mapCreater.config_Map.map_Size,
+        };
+        await mapCreater.GenerateRandomPointsArea_Hard(config, (index) =>
+        {
+            if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] == 1001)
+            {
+                short stuffID = supplyIDs_Grass[new System.Random().Next(0, supplyIDs_Grass.Count)];
+                if (!mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    mapCreater.data_mapBuildingData.tileDic.Add(index, stuffID);
+                }
+            }
+        });
+    }
+
+}
+/// <summary>
+/// 生成成群植物
+/// </summary>
+public class MapCreate_GroupPlant
+{
+    /// <summary>
+    /// 植物密度(平方米/个)
+    /// </summary>
+    private float plantGroup_Density = 100;
+    /// <summary>
+    /// 植物扩张趋势0 - 100
+    /// </summary>
+    private int plantGroup_Expand = 70;
+    /// <summary>
+    /// 草地上的植物
+    /// </summary>
+    private List<short> plantGroupIDs_Grass = new List<short>() { 1001 };
+    /// <summary>
+    /// 生成成群植物
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateGroupPlant(MapCreater mapCreater)
+    {
+        mapCreater.text_Waiting.text = "正在生成大型植被";
+        MapCreater.RandomExpandPointsAreaConfig config = new MapCreater.RandomExpandPointsAreaConfig()
+        {
+            pointsArea_Center = Vector2Int.zero,
+            pointsArea_Count = (int)((mapCreater.config_Map.map_Size * 2) * (mapCreater.config_Map.map_Size * 2) / plantGroup_Density),
+            pointsArea_SizeWhole = mapCreater.config_Map.map_Size,
+            pointsArea_Expand = plantGroup_Expand,
+        };
+        await mapCreater.GenerateRandomExpandPointsArea(config, (index) =>
+        {
+            if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] == 1001)
+            {
+                short stuffID = plantGroupIDs_Grass[new System.Random().Next(0, plantGroupIDs_Grass.Count)];
+                if (!mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    mapCreater.data_mapBuildingData.tileDic.Add(index, stuffID);
+                }
+            }
+        });
+    }
+}
+/// <summary>
+/// 生成单个植物
+/// </summary>
+public class MapCreate_SinglePlant
+{
+    /// <summary>
+    /// 植物密度(平方米/个)
+    /// </summary>
+    private float plantSingle_Density = 200f;
+    /// <summary>
+    /// 草地上的植物
+    /// </summary>
+    private List<short> plantSingleIDs_Grass = new List<short>() { 1000 };
+    /// <summary>
+    /// 生成单个植物
+    /// </summary>
+    /// <returns></returns>
+    public async Task CreateSinglePlant(MapCreater mapCreater)
+    {
+        mapCreater.text_Waiting.text = "正在生成植物" + (int)((mapCreater.config_Map.map_Size * 2) * (mapCreater.config_Map.map_Size * 2) / plantSingle_Density);
+        MapCreater.RandomPointsAreaConfig config = new MapCreater.RandomPointsAreaConfig()
+        {
+            pointsArea_Center = Vector2Int.zero,
+            pointsArea_Count = (int)((mapCreater.config_Map.map_Size * 2) * (mapCreater.config_Map.map_Size * 2)/ plantSingle_Density),
+            pointsArea_SizeWhole = mapCreater.config_Map.map_Size,
+            pointsArea_SizeFill = mapCreater.config_Map.map_Size,
+        };
+        await mapCreater.GenerateRandomPointsArea_Hard(config, (index) =>
+        {
+            if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] == 1001)
+            {
+                short stuffID = plantSingleIDs_Grass[new System.Random().Next(0, plantSingleIDs_Grass.Count)];
+                if (!mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                {
+                    mapCreater.data_mapBuildingData.tileDic.Add(index, stuffID);
+                }
+            }
+        });
+    }
+
+}
 public struct MapConfig
 {
     /// <summary>
     /// 地图尺寸(半径)
     /// </summary>
     public int map_Size;
+    /// <summary>
+    /// 地图种子
+    /// </summary>
     public int map_Seed;
 }
 public struct NoiseConfig

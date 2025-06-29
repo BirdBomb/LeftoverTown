@@ -20,7 +20,7 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
     public void Init()
     {
         volume.profile.TryGet(out _whiteBalance);
-        AudioManager.Instance.PlayMusic(9000, 0.5f, true);
+        AudioManager.Instance.PlayMusic(9000, 0, true);
     }
     public void UpdateSecond(int second, int hour, int day)
     {
@@ -106,7 +106,7 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
             {
                 _whiteBalance.tint.Override(tint);
             });
-            DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.75f, 5f);
+            DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.9f, 5f);
             DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(0.75f, 1, 1, 1), 5f);
         }
         else if (globalTime == GlobalTime.Forenoon)
@@ -119,7 +119,7 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
             {
                 _whiteBalance.tint.Override(tint);
             });
-            DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.75f, 5f);
+            DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.9f, 5f);
             DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(1, 1, 0.75f, 1), 5f);
         }
         else if (globalTime == GlobalTime.HighNoon)
@@ -145,7 +145,7 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
             {
                 _whiteBalance.tint.Override(tint);
             });
-            DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.75f, 5f);
+            DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.9f, 5f);
             DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(1, 1, 0.75f, 1), 5f);
         }
         else if (globalTime == GlobalTime.Dusk)
@@ -158,7 +158,7 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
             {
                 _whiteBalance.tint.Override(tint);
             });
-            DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.75f, 5f);
+            DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.8f, 5f);
             DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(1, 0.75f, 0.5f, 1), 5f);
         }
         else if (globalTime == GlobalTime.Evening)
@@ -171,7 +171,7 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
             {
                 _whiteBalance.tint.Override(tint);
             });
-            DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.5f, 5f);
+            DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.6f, 5f);
             DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(0.75f, 0.5f, 1, 1), 5f);
         }
         GlobalTimeNow = globalTime;

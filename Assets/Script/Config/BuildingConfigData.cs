@@ -47,6 +47,71 @@ public class BuildingConfigData : MonoBehaviour
             Building_ID = 1004,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
             Building_Raw = new List<ItemRaw>(){},
         },
+        /*Êí¹ûÖ²Öê*/new BuildingConfig()
+        {
+            Building_ID = 1005,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*À±½·Ö²Öê*/new BuildingConfig()
+        {
+            Building_ID = 1006,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*¸ÌéÙ¹àÄ¾*/new BuildingConfig()
+        {
+            Building_ID = 1007,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*¾£¼¬*/new BuildingConfig()
+        {
+            Building_ID = 1008,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*´ó¿éÑÒÊ¯*/new BuildingConfig()
+        {
+            Building_ID = 1009,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*»¨´Ô*/new BuildingConfig()
+        {
+            Building_ID = 1010,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*Ãº¿óÇ½*/new BuildingConfig()
+        {
+            Building_ID = 1011,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*Ìú¿óÇ½*/new BuildingConfig()
+        {
+            Building_ID = 1012,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*½ð¿óÇ½*/new BuildingConfig()
+        {
+            Building_ID = 1013,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*Ë®¾§Ç½*/new BuildingConfig()
+        {
+            Building_ID = 1014,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*ôä´äÇ½*/new BuildingConfig()
+        {
+            Building_ID = 1015,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*ÏõÊ¯Ç½*/new BuildingConfig()
+        {
+            Building_ID = 1016,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*±¦Ê¯Ç½*/new BuildingConfig()
+        {
+            Building_ID = 1017,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
         #endregion
         #region//·Ç×ÔÈ»½¨Öþ
         /*Ì«Ñô¼ÀÌ³*/new BuildingConfig()
@@ -142,6 +207,11 @@ public class BuildingConfigData : MonoBehaviour
         {
             Building_ID = 4004,Building_Size = AreaSize._1X1,Building_Type = BuildingType.Structure,Building_Age = AgeGroup.IronAge,
             Building_Raw = new List<ItemRaw>(){ new ItemRaw(1010,4) },
+        },
+        /*±ùÏä*/new BuildingConfig()
+        {
+            Building_ID = 4005,Building_Size = AreaSize._1X1,Building_Type = BuildingType.Structure,Building_Age = AgeGroup.IronAge,
+            Building_Raw = new List<ItemRaw>(){ new ItemRaw(1110, 4) },
         },
         #endregion
     };

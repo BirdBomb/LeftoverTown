@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,9 +9,19 @@ public class BodyController_OnlyBody : BodyController_Base
     [SerializeField]
     private Transform transform_Body;
     [SerializeField]
+    private SpriteRenderer spriteRenderer_Body;
+    [SerializeField]
     private Animator animator_Body;
     [SerializeField]
     private AnimaEventListen animaEventListen_Body;
+    private Sequence sequence;
+    private Material material;
+    public void Start()
+    {
+        material = new Material(spriteRenderer_Body.sharedMaterial);
+        spriteRenderer_Body.material = material;
+    }
+
     public override void SetAnimatorTrigger(BodyPart bodyPart, string name)
     {
         if (bodyPart == BodyPart.Body && animator_Body != null)
@@ -55,5 +66,22 @@ public class BodyController_OnlyBody : BodyController_Base
         }
         base.Turn(right);
     }
+    public override void Flash()
+    {
+        float light = 1;
+        if (sequence != null) sequence.Kill();
+        sequence = DOTween.Sequence();
+        sequence.Insert(0,
+            DOTween.To(() => light, x => light = x, 0, 0.2f).SetEase(Ease.InOutSine));
+        sequence.OnUpdate(() =>
+        { material.SetFloat("_White", light); });
 
+        base.Flash();
+    }
+    public override void Shake()
+    {
+        transform_Body.DOKill();
+        transform_Body.localScale = Vector3.one;
+        transform_Body.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.2f);
+    }
 }

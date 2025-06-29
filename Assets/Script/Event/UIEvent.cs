@@ -28,6 +28,13 @@ public static class UIEvent
         public ItemData item;
     }
     /// <summary>
+    /// UI_移除背包物体
+    /// </summary>
+    public class UIEvent_PutItemOutBag
+    {
+        public ItemData item;
+    }
+    /// <summary>
     /// UI-打开持有物体
     /// </summary>
     public class UIEvent_OpenItemInHand

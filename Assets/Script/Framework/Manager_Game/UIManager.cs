@@ -62,7 +62,7 @@ public class UIManager : SingleTon<UIManager>, ISingleTon
     {
         if(tileUI == this.tileUI_Bind)
         {
-            tileUI_Bind.Hide();
+            if (tileUI_Bind != null) tileUI_Bind.Hide();
             if (tileUI_Bind) tileUI_Bind = null;
         }
     }

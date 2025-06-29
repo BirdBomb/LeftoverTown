@@ -25,14 +25,24 @@ public class TileUI_Box : TileUI
     {
         BindAllCell();
     }
-    public void BindBuilding(BuildingObj_Box buildingObj)
+    public override void Show()
     {
-        buildingObj_Bind = buildingObj;
         transform_Panel.DOKill();
         transform_Panel.localScale = Vector3.one;
         transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        base.Show();
     }
-    private void BindAllCell()
+    public override void Hide()
+    {
+        buildingObj_Bind.OpenOrCloseAwakeUI(false);
+        base.Hide();
+    }
+    public void BindBuilding(BuildingObj_Box buildingObj)
+    {
+        buildingObj_Bind = buildingObj;
+        buildingObj_Bind.OpenOrCloseAwakeUI(true);
+    }
+    public void BindAllCell()
     {
         for (int i = 0; i < gridCells_List.Count; i++)
         {
@@ -83,7 +93,6 @@ public class TileUI_Box : TileUI
         buildingObj_Bind.WriteInfo();
         return itemData_Out;
     }
-
     private void BatchPutIn()
     {
         List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();

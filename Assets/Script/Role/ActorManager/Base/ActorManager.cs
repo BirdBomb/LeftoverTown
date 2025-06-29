@@ -393,7 +393,7 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     public virtual void AllClient_Listen_Heal(int val)
     {
-        actionManager.Heal(val);
+        actionManager.Client_HealHP(val);
     }
     /// <summary>
     /// 监听NPC行为(客户端)

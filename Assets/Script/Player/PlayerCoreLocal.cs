@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerCoreLocal : MonoBehaviour
@@ -156,6 +157,7 @@ public class PlayerCoreLocal : MonoBehaviour
         if (bool_Local)
         {
             Local_PlayerInputKey();
+            Local_FindNearestNearbyTile();
         }
     }
     #region//角色初始化
@@ -260,11 +262,7 @@ public class PlayerCoreLocal : MonoBehaviour
 
     #endregion
     #region//玩家输入
-    /// <summary>
-    /// 按键输入
-    /// </summary>
-    /// <param name="keyCode"></param>
-    public void Local_PlayerInputKey()
+    private void Local_PlayerInputKey()
     {
         if (!actorManager_Bind) return;
         if (Input.GetKeyDown(KeyCode.F))
@@ -296,11 +294,26 @@ public class PlayerCoreLocal : MonoBehaviour
             actorManager_Bind.inputManager.InputKeycode(KeyCode.C);
         }
     }
+
     #endregion
 
     #region//地图绘制
+    /// <summary>
+    /// 附近地块
+    /// </summary>
     private List<BuildingTile> buildingTiles_Nearby = new List<BuildingTile>();
-    private BuildingTile buildingTiles_Holding = null;
+    /// <summary>
+    /// 高亮地块
+    /// </summary>
+    private BuildingTile buildingTiles_HighLight = null;
+    /// <summary>
+    /// 最近地块
+    /// </summary>
+    private BuildingTile buildingTiles_Nearest = null;
+    /// <summary>
+    /// 最近距离
+    /// </summary>
+    private float distance_Nearset;
     private Vector3Int vector3Int_mapCenter = new Vector3Int(-99999, -99999);
     private const float config_MapView = 12;
     /// <summary>
@@ -325,43 +338,74 @@ public class PlayerCoreLocal : MonoBehaviour
     /// </summary>
     private void Local_UpdateNearbyTile(Vector3Int pos)
     {
-        /*周围地块*/
-        buildingTiles_Nearby = MapManager.Instance.GetNearbyBuildings_FourSide(pos, Vector3Int.zero);
-        /*更新持有地块*/
+        List<BuildingTile> temp = MapManager.Instance.GetNearbyBuildings_EightSide(pos, Vector3Int.zero);
         for (int i = 0; i < buildingTiles_Nearby.Count; i++)
         {
-            if (buildingTiles_Nearby[i] == null) { continue; }
-            if (buildingTiles_Holding != buildingTiles_Nearby[i])
+            if (buildingTiles_Nearby[i] != null)
             {
-                if (buildingTiles_Nearby[i].HoldingTileByPlayer(this))
-                {
-                    Local_UpdateHoldingTile(buildingTiles_Nearby[i]);
-                    return;
-                }
-            }
-            else
-            {
-                buildingTiles_Holding.HoldingTileByPlayer(this);
-                return;
+                buildingTiles_Nearby[i].FarawayTileByPlayer(this);
             }
         }
-        Local_UpdateHoldingTile(null);
+        for (int i = 0; i < temp.Count; i++)
+        {
+            if(temp[i] != null)
+            {
+                temp[i].NearbyTileByPlayer(this);
+            }
+        }
+        buildingTiles_Nearby.Clear();
+        for (int i = 0; i < temp.Count; i++)
+        {
+            if (temp[i] != null && temp[i].CanHighlight())
+            {
+                buildingTiles_Nearby.Add(temp[i]);
+            }
+        }
     }
     /// <summary>
-    /// 更新持有地块
+    /// 获取最近地块
+    /// </summary>
+    private void Local_FindNearestNearbyTile()
+    {
+        distance_Nearset = float.MaxValue;
+        buildingTiles_Nearest = null;
+        for (int i = 0; i < buildingTiles_Nearby.Count; i++)
+        {
+            Vector3 myPos = actorManager_Bind.transform.position + (Vector3)playerCoreNet.Net_MouseLocation * 0.75f;
+            Vector3 tilePos = buildingTiles_Nearby[i].tilePos + new Vector3(0.5f, 0.5f, 0);
+            float val = Vector3.Distance(myPos, tilePos);
+            if (val < distance_Nearset)
+            {
+                distance_Nearset = val;
+                buildingTiles_Nearest = buildingTiles_Nearby[i];
+            }
+            Debug.Log(actorManager_Bind.transform.position + "/" + actorManager_Bind.pathManager.vector3Int_CurPos);
+        }
+        if (buildingTiles_HighLight != buildingTiles_Nearest)
+        {
+            Local_HighLightTile(buildingTiles_Nearest);
+        }
+    }
+    /// <summary>
+    /// 高亮地块
     /// </summary>
     /// <param name="tile"></param>
-    private void Local_UpdateHoldingTile(BuildingTile tile)
+    private void Local_HighLightTile(BuildingTile tile)
     {
-        if (buildingTiles_Holding != null)
+        if (buildingTiles_HighLight != tile)
         {
-            buildingTiles_Holding.ReleaseTileByPlayer(this);
-            actorManager_Bind.inputManager.Local_RemoveInputKeycodeAction(buildingTiles_Holding.ActorInputKeycode);
-        }
-        buildingTiles_Holding = tile;
-        if (buildingTiles_Holding != null)
-        {
-            actorManager_Bind.inputManager.Local_AddInputKeycodeAction(buildingTiles_Holding.ActorInputKeycode);
+            if (buildingTiles_HighLight != null)
+            {
+                buildingTiles_HighLight.HighlightTileByPlayer(false);
+                actorManager_Bind.inputManager.Local_RemoveInputKeycodeAction(buildingTiles_HighLight.ActorInputKeycode);
+            }
+
+            buildingTiles_HighLight = tile;
+            if (buildingTiles_HighLight != null)
+            {
+                buildingTiles_HighLight.HighlightTileByPlayer(true);
+                actorManager_Bind.inputManager.Local_AddInputKeycodeAction(buildingTiles_HighLight.ActorInputKeycode);
+            }
         }
     }
     #endregion

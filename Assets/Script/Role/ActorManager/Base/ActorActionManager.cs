@@ -208,11 +208,18 @@ public class ActorActionManager
             });
         }
     }
-    public void Heal(int val)
+    public void Client_HealHP(int val)
     {
         if (actorManager.actorState != ActorState.Dead)
         {
             actorManager.actorNetManager.RPC_AllClient_HpChange(val, new NetworkId());
+        }
+    }
+    public void Client_IncreaseHP(int val)  
+    {
+        if (actorManager.actorState != ActorState.Dead)
+        {
+            actorManager.actorNetManager.RPC_AllClient_MaxHpChange((short)val, new NetworkId());
         }
     }
     /// <summary>
@@ -235,6 +242,8 @@ public class ActorActionManager
             {
                 actorManager.actorNetManager.RPC_AllClient_HpChange(0, networkId);
             }
+            bodyController.Flash();
+            bodyController.Shake();
         }
     }
     /// <summary>

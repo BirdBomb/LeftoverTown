@@ -6,6 +6,7 @@ using Fusion;
 using UnityEngine.U2D;
 using UniRx;
 using Fusion.Addons.Physics;
+using DG.Tweening;
 /// <summary>
 /// 人型身体控制器
 /// </summary>
@@ -22,7 +23,9 @@ public class BodyController_Human : BodyController_Base
     public Transform transform_RightHand;
     [SerializeField, Header("左手节点")]
     public Transform transform_LeftHand;
-
+    [Header("身体")]
+    public SpriteRenderer spriteRenderer_Body;
+    private Material material_Body;
     [Header("头发")]
     public SpriteRenderer spriteRenderer_Hair;
     [Header("眼睛")]
@@ -68,6 +71,7 @@ public class BodyController_Human : BodyController_Base
 
     public Animator animator_Hand;
     public AnimaEventListen animaEventListen_Hand;
+
     public void Start()
     {
         animaEventListen_Body.BindCommonEvent((x) => 
@@ -77,6 +81,8 @@ public class BodyController_Human : BodyController_Base
                 AudioManager.Instance.Play3DEffect(4000,transform.position);
             }
         });
+        material_Body = new Material(spriteRenderer_Body.sharedMaterial);
+        spriteRenderer_Body.material = material_Body;
     }
 
     public override void SetAnimatorTrigger(BodyPart bodyPart, string name)
@@ -184,5 +190,16 @@ public class BodyController_Human : BodyController_Base
         deadBody.SetBodyFace(spriteRenderer_Hair.sprite,spriteRenderer_Hair.color);
         deadBody.transform.position = transform.position;
         base.Dead();
+    }
+    public override void Flash()
+    {
+
+        base.Flash();
+    }
+    public override void Shake()
+    {
+        transform_Body.DOKill();
+        transform_Body.localScale = Vector3.one;
+        transform_Body.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.2f);
     }
 }

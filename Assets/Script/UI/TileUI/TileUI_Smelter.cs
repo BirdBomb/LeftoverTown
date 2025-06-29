@@ -20,17 +20,27 @@ public class TileUI_Smelter : TileUI
     private UI_GridCell gridCell_RefiningAfter;
     [SerializeField, Header("¡∂÷∆‘≠¡œ")]
     private UI_GridCell gridCell_Fuel;
-    private BuildingObj_Smelter buildingObj_Bind;
+    private BuildingObj_Machine_Smelter buildingObj_Bind;
     private void Awake()
     {
         BindAllCell();
     }
-    public void BindBuilding(BuildingObj_Smelter buildingObj)
+    public override void Show()
     {
-        buildingObj_Bind = buildingObj;
         transform_Panel.DOKill();
         transform_Panel.localScale = Vector3.one;
         transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        base.Show();
+    }
+    public override void Hide()
+    {
+        buildingObj_Bind.OpenOrCloseAwakeUI(false);
+        base.Hide();
+    }
+    public void BindBuilding(BuildingObj_Machine_Smelter buildingObj)
+    {
+        buildingObj_Bind = buildingObj;
+        buildingObj_Bind.OpenOrCloseAwakeUI(true);
     }
     public void BindAllCell()
     {

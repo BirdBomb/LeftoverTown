@@ -196,6 +196,24 @@ public class ActorNetManager : NetworkBehaviour
             actorManager_Local.State_Listen_MyselfHpChange(parameter, networkId);
         }
     }
+    /// <summary>
+    /// RPC:最大生命值改变
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="networkId"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_AllClient_MaxHpChange(short parameter, NetworkId networkId)
+    {
+        Local_HpMax += parameter;
+        if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateHPData()
+            {
+                HP_Cur = Net_HpCur,
+                HP_Max = Local_HpMax,
+            });
+        }
+    }
     #endregion
     #region//饥饿值(所有客户端)
     /// <summary>
@@ -605,10 +623,13 @@ public class ActorNetManager : NetworkBehaviour
                     itemData = resData
                 });
             }
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
+            if (actorManager_Local.actorAuthority.isPlayer)
             {
-                item = addData
-            }) ;
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
+                {
+                    item = addData
+                });
+            }
         }
     }
     /// <summary>
@@ -648,6 +669,45 @@ public class ActorNetManager : NetworkBehaviour
     public void Local_ChangeItemInBag(int index, ItemData itemData)
     {
         List<ItemData> itemDatas = Local_GetBagItem();
+        if (actorManager_Local.actorAuthority.isPlayer)
+        {
+            if (index < itemDatas.Count)
+            {
+                if (itemDatas[index].Item_ID == itemData.Item_ID)
+                {
+                    if(itemDatas[index].Item_Count < itemData.Item_Count)
+                    {
+                        ItemData temp = itemData;
+                        temp.Item_Count = (short)(itemData.Item_Count - itemDatas[index].Item_Count);
+                        MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
+                        {
+                            item = temp
+                        });
+                    }
+                    else if(itemDatas[index].Item_Count > itemData.Item_Count)
+                    {
+                        ItemData temp = itemData;
+                        temp.Item_Count = (short)(itemDatas[index].Item_Count - itemData.Item_Count);
+                        MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
+                        {
+                            item = temp
+                        });
+                    }
+                }
+                else
+                {
+                    MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
+                    {
+                        item = itemDatas[index]
+                    });
+                    MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
+                    {
+                        item = itemData
+                    });
+                }
+            }
+        }
+
         GameToolManager.Instance.ChangeItemList(itemDatas, itemData, index);
         Local_SetBagItem(itemDatas);
     }

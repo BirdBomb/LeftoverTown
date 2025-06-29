@@ -22,6 +22,7 @@ public class ItemNetObj : NetworkBehaviour
     [Networked, OnChangedRender(nameof(UpdateItem)), HideInInspector]
     public ItemData data { get; set; } = new ItemData();
     private ItemBase _bindItem;
+    private float radiu_Combine = 2;
     public override void Spawned()
     {
         base.Spawned();
@@ -53,7 +54,7 @@ public class ItemNetObj : NetworkBehaviour
     {
         if (Object.HasStateAuthority)
         {
-            var items = Physics2D.OverlapCircleAll(transform.position, 1, LayerMask.GetMask("ItemObj"));
+            var items = Physics2D.OverlapCircleAll(transform.position, radiu_Combine, LayerMask.GetMask("ItemObj"));
             foreach (Collider2D item in items)
             {
                 if (item.gameObject.transform.parent.TryGetComponent(out ItemNetObj obj))

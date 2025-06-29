@@ -14,12 +14,8 @@ public class TileUI_Dialog : TileUI
     private Transform transform_RealPanel;
     [SerializeField, Header("名字")]
     private LocalizeStringEvent localizeString_Name;
-    [SerializeField, Header("名字跳动")]
-    private UI_JumpTMP jumpTMP_Name;
     [SerializeField, Header("信息")]
     private LocalizeStringEvent localizeString_Info;
-    [SerializeField, Header("信息跳动")]
-    private UI_JumpTMP jumpTMP_Info; 
 
     public List<TileUI_DialogOption> dialogOptions = new List<TileUI_DialogOption>();
     public void InitDialog(string nameTable, string nameEntry, string infoTable, string infoEntry)

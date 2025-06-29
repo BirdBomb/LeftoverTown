@@ -91,30 +91,48 @@ public class BuildingTile : TileBase
     }
 
     /// <summary>
-    /// ≥÷”–Õﬂ∆¨
+    /// ÕÊº“øøΩ¸Õﬂ∆¨
     /// </summary>
-    /// <param name="who"></param>
-    /// <returns></returns>
-    public virtual bool HoldingTileByPlayer(PlayerCoreLocal player)
+    public virtual void NearbyTileByPlayer(PlayerCoreLocal player)
     {
         if (tileObj)
         {
-            return tileObj.All_PlayerHolding(player);
+            tileObj.All_PlayerNearby();
         }
-        return false;
     }
     /// <summary>
-    ///  Õ∑≈Õﬂ∆¨
+    /// ÕÊº“‘∂¿ÎÕﬂ∆¨
     /// </summary>
-    /// <param name="who"></param>
-    /// <returns></returns>
-    public virtual bool ReleaseTileByPlayer(PlayerCoreLocal player)
+    public virtual void FarawayTileByPlayer(PlayerCoreLocal player)
     {
         if (tileObj)
         {
-            return tileObj.All_PlayerRelease(player);
+            tileObj.All_PlayerFaraway();
         }
-        return false;
+    }
+    /// <summary>
+    /// ÕÊº“∏ﬂ¡¡Õﬂ∆¨
+    /// </summary>
+    public virtual void HighlightTileByPlayer(bool on)
+    {
+        if (tileObj)
+        {
+            tileObj.All_PlayerHighlight(on);
+        }
+    }
+    /// <summary>
+    ///  «∏ﬂ¡¡Õﬂ∆¨
+    /// </summary>
+    public bool CanHighlight()
+    {
+        if (tileObj)
+        {
+            return tileObj.CanHighlight();
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -127,6 +145,6 @@ public class BuildingTile : TileBase
             return;
         AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<BuildingTile>(), path);
     }
-# endif
+#endif
 
 }

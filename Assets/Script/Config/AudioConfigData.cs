@@ -24,6 +24,10 @@ public class AudioConfigData
         new AudioConfig(){ Audio_ID = 2001,Audio_Name = "ItemAudio_Shoot_0",Audio_MaxDistance = 200},
         new AudioConfig(){ Audio_ID = 2002,Audio_Name = "ItemAudio_Shoot_1",Audio_MaxDistance = 200},
         new AudioConfig(){ Audio_ID = 2003,Audio_Name = "ItemAudio_LoadRounds_0",Audio_MaxDistance = 20},
+        new AudioConfig(){ Audio_ID = 2004,Audio_Name = "ItemAudio_Eat",Audio_MaxDistance = 5},
+        new AudioConfig(){ Audio_ID = 2005,Audio_Name = "ItemAudio_Drink",Audio_MaxDistance = 5},
+        new AudioConfig(){ Audio_ID = 2006,Audio_Name = "ItemAudio_Hoe",Audio_MaxDistance = 5},
+        new AudioConfig(){ Audio_ID = 2007,Audio_Name = "ItemAudio_Spray",Audio_MaxDistance = 5},
 
         new AudioConfig(){ Audio_ID = 3000,Audio_Name = "BuildingAudio_WoodHit",Audio_MaxDistance = 20},
         new AudioConfig(){ Audio_ID = 3002,Audio_Name = "BuildingAudio_RockHit",Audio_MaxDistance = 20},

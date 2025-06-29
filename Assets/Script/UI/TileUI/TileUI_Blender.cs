@@ -15,23 +15,34 @@ public class TileUI_Blender : TileUI
     private UI_GridCell gridCell_To;
     [SerializeField, Header("¼Ó¹¤°´Å¥")]
     private Button btn_Blender;
-    private BuildingObj_Blender buildingObj_Bind;
+    private BuildingObj_Machine_Blender buildingObj_Bind;
     private void Awake()
     {
         BindAllCell();
     }
-    private void BindAllCell()
+    public override void Show()
+    {
+        transform_Panel.DOKill();
+        transform_Panel.localScale = Vector3.one;
+        transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        base.Show();
+    }
+    public override void Hide()
+    {
+        buildingObj_Bind.OpenOrCloseAwakeUI(false);
+        base.Hide();
+    }
+    public void BindBuilding(BuildingObj_Machine_Blender buildingObj)
+    {
+        buildingObj_Bind = buildingObj;
+        buildingObj_Bind.OpenOrCloseAwakeUI(true);
+    }
+
+    public void BindAllCell()
     {
         gridCell_From.BindGrid(new ItemPath(ItemFrom.Default, 0), FromPutIn, FromPutOut, null, null);
         gridCell_To.BindGrid(new ItemPath(ItemFrom.Default, 0), ToPutIn, ToPutOut, null, null);
         btn_Blender.onClick.AddListener(ClickBlenderBtn);
-    }
-    public void BindBuilding(BuildingObj_Blender buildingObj)
-    {
-        buildingObj_Bind = buildingObj;
-        transform_Panel.DOKill();
-        transform_Panel.localScale = Vector3.one;
-        transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
     }
     public void DrawAllCell()
     {

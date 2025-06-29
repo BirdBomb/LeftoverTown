@@ -12,19 +12,19 @@ public class CreateListConfigData
     {
         new CreateListConfig()
         {
-            ID = 1000,
+            ID = 3003,
             Name = "木制工具台",
-            List = new List<int> { 1100, 2000, 2010, 2020, 2030, 2100, 2200, 5001, 5007, 5105, 9000}
+            List = new List<int> { 1100, 2000, 2010, 2020, 2030,2040, 2100, 2200, 5001, 5007, 5105, 9000}
         },
         new CreateListConfig()
         {
-            ID = 1001,
+            ID = 4000,
             Name = "铁制工具台",
             List = new List<int> { 1200, 2011, 2021, 2101, 2102, 2103, 2201, 2202, 5005, 5104 }
         },
         new CreateListConfig()
         {
-            ID = 1002,
+            ID = 4001,
             Name = "枪械工具台",
             List = new List<int> { 2300, 2301, 2302, 2303, 2304, 2305, 2306, 9010}
         },

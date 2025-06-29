@@ -9,7 +9,7 @@ public class MapInfoData
     [SerializeField]
     public string seed;
     [SerializeField] 
-    public short distance = 500;
+    public short distance = 600;
     [SerializeField]
     public short date;
     [SerializeField]
