@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6f994f0a262b8a4293827c6d8e9f2b6, type: 3}
+  m_Name: 1003
+  m_EditorClassIdentifier: 
+  config_Sprite: {fileID: 21300000, guid: dfcf1a38f816a62499089c15d56e11b4, type: 3}
+  config_InstancedGameObject: {fileID: 5209698432444258495, guid: 0a2f6863c3a116748af48ed0be4f4b95, type: 3}
+  config_Pass: 1
+  offset_Pass: 0
+  config_Drag: 1
+  offset_Drag: 0
+  tileID: 0
+  tilePos: {x: 0, y: 0, z: 0}
+  tileObj: {fileID: 0}
+  _temp_DistanceMain: 0
+  _temp_DistanceToFrom: 0
+  _temp_DistanceToTarget: 0
+  _temp_fatherTile: {fileID: 0}

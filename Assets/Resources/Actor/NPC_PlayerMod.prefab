@@ -690,6 +690,7 @@ MonoBehaviour:
   transform_Hand: {fileID: 7887537800942759004}
   transform_RightHand: {fileID: 7964150492533832749}
   transform_LeftHand: {fileID: 2561347732119957886}
+  spriteRenderer_Body: {fileID: 5018012990241863071}
   spriteRenderer_Hair: {fileID: 6570184978938265637}
   spriteRenderer_Eye: {fileID: 4146553187251593735}
   transform_ItemInRightHand: {fileID: 4846937990656491236}
@@ -848,7 +849,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 0ca59c428c669644bb876a4af2f2a038, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

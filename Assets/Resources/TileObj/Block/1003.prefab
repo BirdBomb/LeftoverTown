@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8721843472562826823}
   - component: {fileID: 6114030997716344390}
   - component: {fileID: 8881614893855585948}
-  - component: {fileID: 6488567961456324858}
+  - component: {fileID: 7332507884868847045}
   m_Layer: 10
   m_Name: 1003
   m_TagString: BuildingNatural
@@ -132,7 +132,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &6488567961456324858
+--- !u!114 &7332507884868847045
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -141,34 +141,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 223198607764510710}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97d3f4c6344b9b14797df11472341401, type: 3}
+  m_Script: {fileID: 11500000, guid: 079e88d5274f9ca4db0276a842370c88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
-  hp: 10
+  hp: 12
   armor: 0
-  spriteRenderer_Tree: {fileID: 6114030997716344390}
-  sprites_Stump:
+  spriteRenderer: {fileID: 6114030997716344390}
+  sprites_State0:
   - {fileID: 21300000, guid: 4fafdfc270d221a4f8a2c0eb2686ebc7, type: 3}
-  sprites_Tree:
+  sprites_State1:
   - {fileID: 21300000, guid: bdf98da79aa85a843be76005725b6d3d, type: 3}
-  int_GrowthTime: 5
-  int_TreeHp: 10
-  int_StumpHp: 20
-  baseLootInfos_Tree:
+  int_TimeState0: 16
+  int_HpState0: 10
+  int_HpState1: 12
+  baseLootInfos_State0:
+  - ID: 1000
+    CountMin: 1
+    CountMax: 2
+  extraLootInfos_State0: []
+  baseLootInfos_State1:
   - ID: 1000
     CountMin: 1
     CountMax: 2
   - ID: 1001
     CountMin: 1
     CountMax: 2
-  extraLootInfos_Tree: []
-  baseLootInfos_Stump:
-  - ID: 1000
-    CountMin: 1
-    CountMax: 2
-  extraLootInfos_Stump: []
+  extraLootInfos_State1: []
 --- !u!1 &6587892134794002278
 GameObject:
   m_ObjectHideFlags: 0

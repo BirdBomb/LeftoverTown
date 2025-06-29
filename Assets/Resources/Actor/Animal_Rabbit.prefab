@@ -143,6 +143,7 @@ MonoBehaviour:
   faceDir: {x: 0, y: 0}
   turnDir: {x: 0, y: 0}
   transform_Body: {fileID: 3745865599466536371}
+  spriteRenderer_Body: {fileID: 4004106489946268039}
   animator_Body: {fileID: 9184514597382638217}
   animaEventListen_Body: {fileID: 11997612467697869}
 --- !u!1 &6825515710627865195
@@ -529,7 +530,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 0ca59c428c669644bb876a4af2f2a038, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

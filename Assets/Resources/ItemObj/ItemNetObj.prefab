@@ -43,7 +43,7 @@ SortingGroup:
   m_GameObject: {fileID: 787297436324995571}
   m_Enabled: 1
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_SortAtRoot: 0
 --- !u!58 &1311703191329923604
@@ -188,7 +188,7 @@ SortingGroup:
   m_GameObject: {fileID: 1872556206110142276}
   m_Enabled: 1
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_SortAtRoot: 0
 --- !u!1 &2289772824691830586
@@ -217,7 +217,7 @@ Transform:
   m_GameObject: {fileID: 2289772824691830586}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -263,7 +263,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 4eceba0987f801b43ab7952c13c5015b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -363,14 +363,12 @@ MonoBehaviour:
   textMesh_Count: {fileID: 3903504584199003142}
   _data:
     Item_ID: 0
-    Item_Seed: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
     Item_SignTime: 0
     Item_Content:
       Item_ID: 0
-      Item_Seed: 0
       Item_Count: 0
       Item_Info: 0
       Item_Durability: 0

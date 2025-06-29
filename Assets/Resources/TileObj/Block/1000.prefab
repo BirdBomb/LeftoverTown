@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8721843472562826823}
   - component: {fileID: 6114030997716344390}
   - component: {fileID: 8881614893855585948}
-  - component: {fileID: 6631894719311246179}
+  - component: {fileID: 9163297466883233185}
   m_Layer: 10
   m_Name: 1000
   m_TagString: BuildingNatural
@@ -132,7 +132,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &6631894719311246179
+--- !u!114 &9163297466883233185
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -141,35 +141,41 @@ MonoBehaviour:
   m_GameObject: {fileID: 223198607764510710}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fac4c1a6aac51647aeca0498406bc3b, type: 3}
+  m_Script: {fileID: 11500000, guid: a8f35e790ffd0c94995ad2406b385590, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
   hp: 10
   armor: 0
-  spriteRenderer_Tree: {fileID: 6114030997716344390}
-  sprites_Stump:
+  spriteRenderer: {fileID: 6114030997716344390}
+  sprites_State0:
   - {fileID: 21300000, guid: adb836e8acd62444181c92c52da13afd, type: 3}
-  sprites_Tree:
+  sprites_State1:
   - {fileID: 21300000, guid: fc16350446279264d8174cd6f65c1241, type: 3}
   - {fileID: 21300000, guid: 74d08e15c9e7d3d488efd1e346fb6c24, type: 3}
-  sprites_Fruiter:
+  sprites_State2:
   - {fileID: 21300000, guid: 38952d76c8eea054580a07bbdc2c91b8, type: 3}
   - {fileID: 21300000, guid: bbb2f01617058d643b04328da25c4a2a, type: 3}
-  int_GrowthTime: 5
-  int_FruitTime: 15
-  int_TreeHp: 10
-  int_StumpHp: 20
-  baseLootInfos_Tree:
+  int_TimeState0: 12
+  int_TimeState1: 20
+  int_HpState0: 10
+  int_HpState1: 12
+  int_HpState2: 12
+  baseLootInfos_State0:
+  - ID: 1000
+    CountMin: 2
+    CountMax: 3
+  extraLootInfos_State0: []
+  baseLootInfos_State1:
   - ID: 1000
     CountMin: 1
     CountMax: 2
   - ID: 1001
     CountMin: 1
     CountMax: 2
-  extraLootInfos_Tree: []
-  baseLootInfos_Fruiter:
+  extraLootInfos_State1: []
+  baseLootInfos_State2:
   - ID: 1000
     CountMin: 1
     CountMax: 2
@@ -179,12 +185,7 @@ MonoBehaviour:
   - ID: 3000
     CountMin: 1
     CountMax: 2
-  extraLootInfos_Fruiter: []
-  baseLootInfos_Stump:
-  - ID: 1000
-    CountMin: 2
-    CountMax: 3
-  extraLootInfos_Stump: []
+  extraLootInfos_State2: []
 --- !u!1 &6587892134794002278
 GameObject:
   m_ObjectHideFlags: 0

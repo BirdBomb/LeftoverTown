@@ -20,7 +20,20 @@ SpriteAtlas:
       readable: 0
       crunchedCompression: 0
       sRGB: 1
-    platformSettings: []
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_IgnorePlatformSupport: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
     packingSettings:
       serializedVersion: 2
       padding: 4
@@ -39,24 +52,30 @@ SpriteAtlas:
     packedSpriteRenderDataKeys:
     - 815567252c802604f84c090f513296ad: 21300000
     - f8b893564b7aa974a95fd605a8519dad: 21300000
+    - 6218bb489015c734f8b0876876f2cca2: 21300000
     - fd2584fcf5c34854fba1966bf9bd77e3: 21300000
     - 473b7abd496c29142821ccccd74b1dca: 21300000
     - 5727a82edc3dc6b41a9200282e3b0f10: 21300000
+    - ed12c94eebfce1d4fb52bb149d6ed963: 21300000
     - fcfacb4e8dd7c4f45ad2a16db1831d89: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 815567252c802604f84c090f513296ad, type: 3}
   - {fileID: 21300000, guid: f8b893564b7aa974a95fd605a8519dad, type: 3}
+  - {fileID: 21300000, guid: 6218bb489015c734f8b0876876f2cca2, type: 3}
   - {fileID: 21300000, guid: fd2584fcf5c34854fba1966bf9bd77e3, type: 3}
   - {fileID: 21300000, guid: 473b7abd496c29142821ccccd74b1dca, type: 3}
   - {fileID: 21300000, guid: 5727a82edc3dc6b41a9200282e3b0f10, type: 3}
+  - {fileID: 21300000, guid: ed12c94eebfce1d4fb52bb149d6ed963, type: 3}
   - {fileID: 21300000, guid: fcfacb4e8dd7c4f45ad2a16db1831d89, type: 3}
   m_PackedSpriteNamesToIndex:
   - 1000
   - 9999
+  - 1002
   - 2000
   - 9000
   - 1001
+  - 2002
   - 2001
   m_RenderDataMap: {}
   m_Tag: GroundIcon

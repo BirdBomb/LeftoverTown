@@ -76,7 +76,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 0ca59c428c669644bb876a4af2f2a038, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -393,6 +393,7 @@ MonoBehaviour:
     float_ViewDistance: 0
   prefab_DialogUI: {fileID: 2085238712720466970, guid: a32dd04f24d5ed74c84a933c09874aa8, type: 3}
   prefab_DealUI: {fileID: 5605293086865236521, guid: e1b6350f95aa3474eb5152aa61780bd5, type: 3}
+  prefab_DictionayUI: {fileID: 1004973812788722733, guid: 7628175c626f0954a84601a6a5f06df0, type: 3}
 --- !u!1 &5089723123130192823
 GameObject:
   m_ObjectHideFlags: 0
@@ -567,6 +568,7 @@ MonoBehaviour:
   faceDir: {x: 0, y: 0}
   turnDir: {x: 0, y: 0}
   transform_Body: {fileID: 3522904942328631546}
+  spriteRenderer_Body: {fileID: 5759111866314293309}
   animator_Body: {fileID: 1648238704149051959}
   animaEventListen_Body: {fileID: 6778132425570505072}
 --- !u!1001 &8352669359350378656
