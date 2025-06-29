@@ -62,7 +62,7 @@ Material:
     - _Off: 0.001
     - _Speed: 1
     m_Colors:
-    - _HcTrans: {r: 12.291702, g: -6.8854537, b: 50, a: 50}
-    - _HoTrans: {r: 12.291702, g: -6.8854537, b: 50, a: 50}
-    - _HpTrans: {r: 12.291702, g: -6.8854537, b: 50, a: 50}
+    - _HcTrans: {r: -2.3130646, g: 8.795006, b: 50, a: 50}
+    - _HoTrans: {r: -2.3130646, g: 8.795006, b: 50, a: 50}
+    - _HpTrans: {r: -2.3130646, g: 8.795006, b: 50, a: 50}
   m_BuildTextureStacks: []

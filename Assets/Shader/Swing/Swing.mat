@@ -48,6 +48,7 @@ Material:
     - _NoiseScale: 1
     - _Scale: 0
     - _WaveScale: 0.2
+    - _White: 0
     - _WindSpeed: 1
     - _Xoffset: 4
     - _Yoffset: 1
