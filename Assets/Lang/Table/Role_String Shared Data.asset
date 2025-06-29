@@ -59,56 +59,12 @@ MonoBehaviour:
     m_Key: Guide_Dialog2_Option0
     m_Metadata:
       m_Items: []
-  - m_Id: 591568442859520
-    m_Key: Guide_Dialog2_Option1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 591571768942592
-    m_Key: Guide_Dialog2_Option2
-    m_Metadata:
-      m_Items: []
   - m_Id: 592068072546304
     m_Key: Guide_Dialog3
     m_Metadata:
       m_Items: []
   - m_Id: 592072367513600
     m_Key: Guide_Dialog3_Option0
-    m_Metadata:
-      m_Items: []
-  - m_Id: 592074280116224
-    m_Key: Guide_Dialog3_Option1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 592537188671488
-    m_Key: Guide_Dialog3_Option2
-    m_Metadata:
-      m_Items: []
-  - m_Id: 592687017598976
-    m_Key: Guide_Dialog4
-    m_Metadata:
-      m_Items: []
-  - m_Id: 593095706386432
-    m_Key: Guide_Dialog4_Option0
-    m_Metadata:
-      m_Items: []
-  - m_Id: 593150031011840
-    m_Key: Guide_Dialog4_Option1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 593186605342720
-    m_Key: Guide_Dialog4_Option2
-    m_Metadata:
-      m_Items: []
-  - m_Id: 593418097369088
-    m_Key: Guide_Dialog5
-    m_Metadata:
-      m_Items: []
-  - m_Id: 593448128585728
-    m_Key: Guide_Dialog5_Option0
-    m_Metadata:
-      m_Items: []
-  - m_Id: 580294325673984
-    m_Key: Guide_Name
     m_Metadata:
       m_Items: []
   - m_Id: 597284775895040
@@ -157,6 +113,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 599938189074432
     m_Key: HighPrice
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2981293081006080
+    m_Key: Guide_Name
     m_Metadata:
       m_Items: []
   m_Metadata:
