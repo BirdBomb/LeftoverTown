@@ -15,19 +15,25 @@ public class PlayerCoreNet : NetworkBehaviour
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_State_RevivePlayer>().Subscribe(_ =>
         {
-            Debug.Log(_.playerRef);
-            Debug.Log(Object.InputAuthority);
             if (Object.InputAuthority == _.playerRef)
             {
-                Debug.Log("55555");
-                State_CreateActor();
+                Debug.Log("玩家死亡,正在复活玩家" + _.playerRef.RawEncoded);
+                State_ReviveActor(_.reviveTime);
             }
         }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_State_KillPlayer>().Subscribe(_ =>
+        {
+            if (Object.InputAuthority == _.playerRef)
+            {
+                State_KillActor();
+            }
+        }).AddTo(this);
+
         InvokeRepeating("UpdatePing", 2, 1);
     }
     public override void Spawned()
     {
-        playerCoreLocal.InitPlayer(Object.HasInputAuthority, Object.HasStateAuthority);
+        playerCoreLocal.AllClinet_InitPlayer(Object.HasInputAuthority, Object.HasStateAuthority);
         StartCoroutine(AllClient_Init()); 
         if (Object.HasInputAuthority) { StartCoroutine(Local_Init()); }
         if (Object.HasStateAuthority) { StartCoroutine(State_Init()); }
@@ -58,6 +64,72 @@ public class PlayerCoreNet : NetworkBehaviour
         Net_BindActorID = networkObject.Id;
     }
     #endregion
+    #region//角色销毁
+    public void State_KillActor()
+    {
+        RPC_State_KillActor();
+        State_ReviveActor(10);
+        if (playerCoreLocal.actorManager_Bind)
+        {
+            playerCoreLocal.actorManager_Bind.actionManager.Despawn();
+        }
+    }
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public void RPC_State_KillActor()
+    {
+        if (playerCoreLocal.bool_Local)
+        {
+            playerCoreLocal.Local_ResetActorData();
+        }
+    }
+
+    #endregion
+    #region//角色复活
+    public void State_ReviveActor(float time)
+    {
+        RPC_State_PlayReviveCountdown(time);
+        StartCoroutine(State_ReviveActorLater(time));
+    }
+    private IEnumerator State_ReviveActorLater(float time)
+    {
+        yield return new WaitForSeconds(time);
+        State_CreateActor();
+    }
+    /// <summary>
+    /// 通知本地播放复活动画
+    /// </summary>
+    /// <param name="time"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public void RPC_State_PlayReviveCountdown(float time)
+    {
+        if (Object.HasInputAuthority)
+        {
+            StartCoroutine(Local_PlayReviveCountdown(time));
+        }
+    }
+    /// <summary>
+    /// 本地播放复活动画
+    /// </summary>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    private IEnumerator Local_PlayReviveCountdown(float time)
+    {
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_OpenReviveCountdown() { time = time });
+        WorldManager.Instance.ChangeSaturability(-100);
+        yield return new WaitForSeconds(0.5f);
+        if (WorldManager.Instance.FindPlayer(out ActorManager player))
+        {
+            CameraManager.Instance.FollowTarget(player.transform);
+        }
+        else
+        {
+            if (WorldManager.Instance.FindActor(out ActorManager actor))
+            {
+                CameraManager.Instance.FollowTarget(actor.transform);
+            }
+        }
+    }
+    #endregion
     #region//角色绑定
     [Networked, HideInInspector, OnChangedRender(nameof(OnBindActorChange))]
     public NetworkId Net_BindActorID { get; set; } = new NetworkId();
@@ -68,7 +140,16 @@ public class PlayerCoreNet : NetworkBehaviour
             NetworkObject networkObject = Runner.FindObject(Net_BindActorID);
             if (networkObject != null)
             {
+                if (playerCoreLocal.bool_Local)
+                {
+                    MessageBroker.Default.Publish(new UIEvent.UIEvent_CloseReviveCountdown() { });
+                    WorldManager.Instance.ChangeSaturability(0);
+                }
                 playerCoreLocal.AllClinet_BindActor(networkObject.GetComponent<ActorManager>());
+            }
+            else
+            {
+                Debug.Log("未找到Net_BindActorID:" + Net_BindActorID);
             }
         }
         else
@@ -88,7 +169,7 @@ public class PlayerCoreNet : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if (playerCoreLocal.actorManager_Bind)
+        if (playerCoreLocal.actorManager_Bind && playerCoreLocal.actorManager_Bind.actorNetManager.Object)
         {
             AllClient_PlayerInput(Runner.DeltaTime);
         }

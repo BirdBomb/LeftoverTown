@@ -8,32 +8,21 @@ using static GameEvent;
 
 public class ActorManager_Animal_Chicken : ActorManager
 {
-    [SerializeField, Header("思考间隔"), Range(1, 10)]
-    public float float_ThinkCD;
-    private float float_ThinkTimer;
     [Header("鸡配置")]
     public ActorConfig_Chicken config;
-    /// <summary>
-    /// 出生点
-    /// </summary>
-    private Vector3Int vector3_HomePos;
+    private float float_ThinkCD = 2;
+    private float float_ThinkTimer;
     private GlobalTime globalTime_Cur;
-    public override void AllClient_AddListener()
-    {
-        MessageBroker.Default.Receive<GameEvent_All_UpdateHour>().Subscribe(_ =>
-        {
-            AllClient_Listen_UpdateTime(_.hour, _.day, _.now);
-        }).AddTo(this);
-        base.AllClient_AddListener();
-    }
     #region//初始化
-    public override void Client_Init()
+    public override void AllClient_Init()
     {
         statusManager.statusType = config.status_Type;
-        base.Client_Init();
+        base.AllClient_Init();
     }
     public override void State_Init()
     {
+        float_ThinkCD += new System.Random().Next(0, 100) * 0.01f;
+        float_ThinkTimer = float_ThinkCD;
         State_InitNPCData();
         base.State_Init();
     }
@@ -59,24 +48,36 @@ public class ActorManager_Animal_Chicken : ActorManager
             }
         }
         State_SetAbilityData(config.short_Hp, config.short_Armor, config.short_Resistance, config.short_MoveSpeed);
-        actorNetManager.Local_SetBagItem(itemDatas);
+        actorNetManager.Local_SetLootItems(itemDatas);
     }
-    /// <summary>
-    /// 绑定出生点
-    /// </summary>
-    /// <param name="pos"></param>
-    public void State_BindHome(Vector3Int pos)
+    public override void AllClient_AddListener()
     {
-        vector3_HomePos = pos;
+        MessageBroker.Default.Receive<GameEvent_All_UpdateHour>().Subscribe(_ =>
+        {
+            AllClient_Listen_UpdateTime(_.hour, _.day, _.now);
+        }).AddTo(this);
+        base.AllClient_AddListener();
     }
     #endregion
-    public override void AllClient_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
+    #region//时间周期
+    public override void State_FixedUpdateNetwork(float dt)
     {
-        globalTime_Cur = globalTime;
-        base.AllClient_Listen_UpdateTime(hour, date, globalTime);
+        float_ThinkTimer -= dt;
+        if (float_ThinkTimer < 0)
+        {
+            float_ThinkTimer = float_ThinkCD;
+            State_Think();
+        }
+        base.State_FixedUpdateNetwork(dt);
     }
+    public override void State_CustomUpdate()
+    {
+        State_Threatened_Check();
+        base.State_CustomUpdate();
+    }
+    #endregion
     #region//对外界的反应
-    public override void State_Listen_MyselfHpChange(int parameter, NetworkId id)
+    public override void State_Listen_MyselfHpChange(int parameter, HpChangeReason reason, NetworkId id)
     {
         NetworkObject networkObject = actorNetManager.Runner.FindObject(id);
         if (networkObject != null)
@@ -87,83 +88,13 @@ public class ActorManager_Animal_Chicken : ActorManager
                 State_Threatened_Run(who);
             }
         }
-        base.State_Listen_MyselfHpChange(parameter, id);
+        base.State_Listen_MyselfHpChange(parameter, reason, id);
     }
-    #endregion
-    #region//闲置状态
-    public override void State_SecondUpdate()
+    public override void AllClient_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
     {
-        float_ThinkTimer += 1;
-        if (float_ThinkTimer > float_ThinkCD)
-        {
-            float_ThinkTimer = 0;
-            State_Think();
-        }
-        base.State_SecondUpdate();
+        globalTime_Cur = globalTime;
+        base.AllClient_Listen_UpdateTime(hour, date, globalTime);
     }
-    /// <summary>
-    /// 思考
-    /// </summary>
-    public void State_Think()
-    {
-        if (globalTime_Cur != GlobalTime.Evening)
-        {
-            if (brainManager.actorManagers_ThreatenedTarget.Count == 0)
-            {
-                State_Think_Stroll();
-            }
-        }
-        else
-        {
-            if (brainManager.actorManagers_ThreatenedTarget.Count == 0)
-            {
-                State_Think_Stroll();
-            }
-        }
-    }
-    /// <summary>
-    /// 闲逛
-    /// </summary>
-    public void State_Think_Stroll()
-    {
-        if (vector3_HomePos.x - pathManager.vector3Int_CurPos.x > 10)
-        {
-            State_MoveSameStep(Vector3Int.right);
-        }
-        else if (vector3_HomePos.x - pathManager.vector3Int_CurPos.x < -10)
-        {
-            State_MoveSameStep(Vector3Int.left);
-        }
-        else if (vector3_HomePos.y - pathManager.vector3Int_CurPos.y > 10)
-        {
-            State_MoveSameStep(Vector3Int.up);
-        }
-        else if (vector3_HomePos.y - pathManager.vector3Int_CurPos.y < -10)
-        {
-            State_MoveSameStep(Vector3Int.down);
-        }
-        else
-        {
-            int random = new System.Random().Next(1, 4);
-            if (random == 1) State_MoveSameStep(Vector3Int.down, config.short_MoveStep);
-            if (random == 2) State_MoveSameStep(Vector3Int.up, config.short_MoveStep);
-            if (random == 3) State_MoveSameStep(Vector3Int.right, config.short_MoveStep);
-            if (random == 4) State_MoveSameStep(Vector3Int.left, config.short_MoveStep);
-        }
-    }
-    /// <summary>
-    /// 朝目标方向移动
-    /// </summary>
-    /// <param name="dir"></param>
-    /// <returns></returns>
-    public void State_MoveSameStep(Vector3Int dir, short step = 1)
-    {
-        Vector3Int pos_F = pathManager.vector3Int_CurPos + dir * step;
-        Vector3Int pos_R = pathManager.vector3Int_CurPos - dir * step;
-        if (!pathManager.State_MoveTo(pos_F)) pathManager.State_MoveTo(pos_R);
-    }
-    #endregion
-    #region//警戒状态
     public override void State_Listen_RoleInView(ActorManager actor)
     {
         if (actor.statusManager.statusType != StatusType.Animal_Common)
@@ -180,11 +111,66 @@ public class ActorManager_Animal_Chicken : ActorManager
         }
         base.State_Listen_RoleInView(actor);
     }
-    public override void State_CustomUpdate()
+    #endregion
+    #region//闲置状态
+    /// <summary>
+    /// 思考
+    /// </summary>
+    public void State_Think()
     {
-        State_Threatened_Check();
-        base.State_CustomUpdate();
+        if (globalTime_Cur != GlobalTime.Evening)
+        {
+            if (brainManager.actorManagers_ThreatenedTarget.Count == 0)
+            {
+                State_Think_Stroll(config.short_MoveStep);
+            }
+        }
+        else
+        {
+            if (brainManager.actorManagers_ThreatenedTarget.Count == 0)
+            {
+                State_Think_Stroll(config.short_MoveStep);
+            }
+        }
     }
+    private void State_Think_Stroll(int distance, int tryTime = 0)
+    {
+        if (distance < 1 || tryTime > 3)
+        {
+            /*闲逛失败*/
+        }
+        else
+        {
+            Vector3Int random = new Vector3Int(new System.Random().Next(-distance, distance + 1), new System.Random().Next(-distance, distance + 1));
+            Vector3Int offset = Vector3Int.zero;
+            if (brainManager.activityPostion.isValue)
+            {
+                if (brainManager.activityPostion.postion.x - pathManager.vector3Int_CurPos.x > 5)
+                {
+                    offset += Vector3Int.right;
+                }
+                if (brainManager.activityPostion.postion.x - pathManager.vector3Int_CurPos.x < -5)
+                {
+                    offset += Vector3Int.left;
+                }
+                if (brainManager.activityPostion.postion.y - pathManager.vector3Int_CurPos.y > 5)
+                {
+                    offset += Vector3Int.up;
+                }
+                if (brainManager.activityPostion.postion.y - pathManager.vector3Int_CurPos.y < -5)
+                {
+                    offset += Vector3Int.down;
+                }
+            }
+            if (!pathManager.State_MovePostion(pathManager.vector3Int_CurPos + random + offset))
+            {
+                /*无法抵达*/
+                State_Think_Stroll(distance - 1, tryTime + 1);
+            }
+        }
+    }
+    #endregion
+    #region//警戒状态
     /// <summary>
     /// 检查威胁
     /// </summary>
@@ -218,34 +204,65 @@ public class ActorManager_Animal_Chicken : ActorManager
     /// </summary>
     public void State_Threatened_Run(ActorManager from)
     {
-        Vector3Int dirX;
-        Vector3Int dirY;
-        if (from.transform.position.x < transform.position.x)
+        int randomX = new System.Random().Next(0, 2);
+        int randomY = new System.Random().Next(0, 2);
+        Vector3Int dirX = Vector3Int.zero;
+        Vector3Int dirY = Vector3Int.zero;
+        #region//首先尝试对角逃跑
+        if (from.pathManager.vector3Int_CurPos.x > pathManager.vector3Int_CurPos.x)
         {
-            dirX = Vector3Int.right;
+            dirX += Vector3Int.left;
+        }
+        else if (from.pathManager.vector3Int_CurPos.x < pathManager.vector3Int_CurPos.x)
+        {
+            dirX += Vector3Int.right;
+        }
+        if (from.pathManager.vector3Int_CurPos.y > pathManager.vector3Int_CurPos.y)
+        {
+            dirY += Vector3Int.down;
+        }
+        else if (from.pathManager.vector3Int_CurPos.y < pathManager.vector3Int_CurPos.y)
+        {
+            dirY += Vector3Int.up;
+        }
+        if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirX + dirY)) return;
+        #endregion
+        #region//然后尝试四向逃跑
+        int distanceX = Math.Abs(from.pathManager.vector3Int_CurPos.x - pathManager.vector3Int_CurPos.x);
+        int distanceY = Math.Abs(from.pathManager.vector3Int_CurPos.y - pathManager.vector3Int_CurPos.y);
+        if (distanceX >= distanceY)
+        {
+            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirX)) return;
+            if (randomY == 0)
+            {
+                dirY = Vector3Int.up;
+            }
+            else
+            {
+                dirY = Vector3Int.down;
+            }
+            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirY)) return;
+            dirY = -dirY;
+            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirY)) return;
         }
         else
         {
-            dirX = Vector3Int.left;
+            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirY)) return;
+            if (randomX == 0)
+            {
+                dirX = Vector3Int.right;
+            }
+            else
+            {
+                dirX = Vector3Int.left;
+            }
+            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirX)) return;
+            dirX = -dirX;
+            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirX)) return;
         }
-        if (from.pathManager.vector3Int_CurPos.y < pathManager.vector3Int_CurPos.y)
-        {
-            dirY = Vector3Int.up;
-        }
-        else if (from.pathManager.vector3Int_CurPos.y > pathManager.vector3Int_CurPos.y)
-        {
-            dirY = Vector3Int.down;
-        }
-        else
-        {
-            dirY = Vector3Int.zero;
-        }
-        if (pathManager.State_MoveTo(pathManager.vector3Int_CurPos + dirX + dirY)) return;
-        if (pathManager.State_MoveTo(pathManager.vector3Int_CurPos + dirX)) return;
-        if (pathManager.State_MoveTo(pathManager.vector3Int_CurPos + dirY)) return;
+        #endregion
     }
     #endregion
-
 }
 [Serializable]
 public struct ActorConfig_Chicken

@@ -17,7 +17,6 @@ using Vector3 = UnityEngine.Vector3;
 public class ItemBase
 {
     public ActorManager owner;
-
     #region//数据相关
     /// <summary>
     /// 物品数据
@@ -50,7 +49,7 @@ public class ItemBase
     {
         itemData = data;
         itemConfig = ItemConfigData.GetItemConfig(data.Item_ID);
-        itemQuality = UpdateQuality();
+        CalculateQuality();
     }
     /// <summary>
     /// 更新数据(本地模拟)
@@ -60,41 +59,45 @@ public class ItemBase
     {
         itemData = data;
         itemConfig = ItemConfigData.GetItemConfig(data.Item_ID);
+        CalculateQuality();
     }
-    public virtual ItemQuality UpdateQuality()
+    /// <summary>
+    /// 计算物品品质
+    /// </summary>
+    /// <returns></returns>
+    public virtual void CalculateQuality()
     {
         UnityEngine.Random.InitState(itemData.Item_Info);
         int seed = UnityEngine.Random.Range(0, 10000);
         if (seed < 7000)
         {
-            return ItemQuality.Gray;
+            itemQuality = ItemQuality.Gray;
         }
         else if (seed < 9000)
         {
-            return ItemQuality.Green;
+            itemQuality = ItemQuality.Green;
         }
         else if (seed < 9700)
         {
-            return ItemQuality.Blue;
+            itemQuality = ItemQuality.Blue;
         }
         else if (seed < 9900)
         {
-            return ItemQuality.Purple;
+            itemQuality = ItemQuality.Purple;
         }
         else if (seed < 9970)
         {
-            return ItemQuality.Gold;
+            itemQuality = ItemQuality.Gold;
         }
         else if (seed < 9990)
         {
-            return ItemQuality.Red;
+            itemQuality = ItemQuality.Red;
         }
         else
         {
-            return ItemQuality.Rainbow;
+            itemQuality = ItemQuality.Rainbow;
         }
     }
-
     #endregion
     #region//UI相关
     /// <summary>
@@ -103,12 +106,21 @@ public class ItemBase
     public virtual void GridCell_Draw(UI_GridCell gridCell)
     {
         string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-        string stringDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         string stringInfo = stringName + "\n" + stringDesc;
 
         gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Count.ToString());
         gridCell.SetCell(stringInfo);
+    }
+    /// <summary>
+    /// 修改描述
+    /// </summary>
+    /// <param name="desc"></param>
+    /// <returns></returns>
+    public virtual string GridCell_UpdateDesc(string desc)
+    {
+        return desc;
     }
     /// <summary>
     /// 左击格子
@@ -117,7 +129,7 @@ public class ItemBase
     /// <param name="itemData"></param>
     public virtual void GridCell_LeftClick(UI_GridCell gridCell, ItemData itemData)
     {
-
+        
     }
     /// <summary>
     /// 右击格子
@@ -126,7 +138,41 @@ public class ItemBase
     /// <param name="itemData"></param>
     public virtual void GridCell_RightClick(UI_GridCell gridCell, ItemData itemData)
     {
+        if (gridCell.itemPath_Bind.itemFrom == ItemFrom.Bag)
+        {
+            InBag_Use();
+        }
+        else if (gridCell.itemPath_Bind.itemFrom == ItemFrom.Hand)
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryPutAwayItemOnHand()
+            {
+                
+            });
+        }
+        else if (gridCell.itemPath_Bind.itemFrom == ItemFrom.Head)
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryPutAwayItemOnHead()
+            {
 
+            });
+
+        }
+        else if (gridCell.itemPath_Bind.itemFrom == ItemFrom.Body)
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryPutAwayItemOnBody()
+            {
+
+            });
+
+        }
+    }
+    /// <summary>
+    /// 打开子集格子
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool GridCell_OpenChildCrid()
+    {
+        return false;
     }
     /// <summary>
     /// 绘制网络物体
@@ -151,6 +197,15 @@ public class ItemBase
         {
             itemNetObj.transform_Root.transform.DOPunchScale(new Vector3(0.2f, -0.2f, 0), 0.1f).SetEase(Ease.OutBack);
         }).SetEase(Ease.InOutQuad);
+    }
+    #endregion
+    #region//在背包
+    public virtual void InBag_Use()
+    {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySwitchItemBetweenHandAndBag()
+        {
+            index = itemPath.itemIndex
+        });
     }
     #endregion
     #region//在手上
@@ -327,7 +382,6 @@ public class ItemBase
         resItem = addItem;
     }
     #endregion
-
 }
 /// <summary>
 /// -----基本材料-----
@@ -407,7 +461,7 @@ public class ItemBase_Food : ItemBase
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
         string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-        string stringDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         string stringInfo = stringName + "\n" + stringDesc;
 
@@ -431,7 +485,8 @@ public class ItemBase_Food : ItemBase
     {
         this.owner = owner;
         itemLocalObj_Food = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_Food").GetComponent<ItemLocalObj_Food>();
-        itemLocalObj_Food.HoldingByHand(owner, body, itemData);
+        itemLocalObj_Food.InitData(itemData);
+        itemLocalObj_Food.HoldingStart(owner, body);
     }
     public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
     {
@@ -448,7 +503,7 @@ public class ItemBase_Food : ItemBase
                 bodyController_Human.transform_ItemInRightHand.DOPunchScale(new Vector3(-0.2f, 0.2f, 1), 0.2f);
                 AudioManager.Instance.Play3DEffect(2004, owner.transform.position);
                 itemLocalObj_Food.PlayParticle();
-                owner.bodyController.SetAnimatorAction(BodyPart.Head, (string str) =>
+                owner.bodyController.SetAnimatorFunc(BodyPart.Head, (string str) =>
                 {
                     if (str.Equals("Eat"))
                     {
@@ -461,6 +516,11 @@ public class ItemBase_Food : ItemBase
                         {
                             Eat();
                         }
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
                     }
                 });
             }
@@ -516,23 +576,29 @@ public class ItemBase_Weapon : ItemBase
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
         string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-        string stringDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
         string stringQuality = LocalizationManager.Instance.GetLocalization("Item_String", "_ItemQuality_" + (int)itemQuality);
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         stringQuality = ItemConfigData.Colour(stringQuality, itemQuality);
 
-        string stringInfo = stringName + "\n" + stringQuality + "\n" + stringDesc;
+        string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
         gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Durability.ToString() + "%");
         gridCell.SetCell(stringInfo);
     }
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
     {
-        CursorManager.Instance.AddCursor(CursorManager.CursorType.Weapon);
+        if (owner.actorAuthority.isLocal && owner.actorAuthority.isPlayer)
+        {
+            CursorManager.Instance.AddCursor(CursorManager.CursorType.Weapon);
+        }
     }
     public override void OnHand_Over(ActorManager owner, BodyController_Human body)
     {
-        CursorManager.Instance.SubCursor(CursorManager.CursorType.Weapon);
+        if (owner.actorAuthority.isLocal && owner.actorAuthority.isPlayer)
+        {
+            CursorManager.Instance.SubCursor(CursorManager.CursorType.Weapon);
+        }
     }
 }
 /// <summary>
@@ -549,23 +615,29 @@ public class ItemBase_Tool : ItemBase
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
         string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-        string stringDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
         string stringQuality = LocalizationManager.Instance.GetLocalization("Item_String", "_ItemQuality_" + (int)itemQuality);
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         stringQuality = ItemConfigData.Colour(stringQuality, itemQuality);
 
-        string stringInfo = stringName + "\n" + stringQuality + "\n" + stringDesc;
+        string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
         gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Durability.ToString() + "%");
         gridCell.SetCell(stringInfo);
     }
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
     {
-        CursorManager.Instance.AddCursor(CursorManager.CursorType.Tool);
+        if (owner.actorAuthority.isLocal && owner.actorAuthority.isPlayer)
+        {
+            CursorManager.Instance.AddCursor(CursorManager.CursorType.Tool);
+        }
     }
     public override void OnHand_Over(ActorManager owner, BodyController_Human body)
     {
-        CursorManager.Instance.SubCursor(CursorManager.CursorType.Tool);
+        if (owner.actorAuthority.isLocal && owner.actorAuthority.isPlayer)
+        {
+            CursorManager.Instance.SubCursor(CursorManager.CursorType.Tool);
+        }
     }
 }
 /// <summary>
@@ -582,31 +654,62 @@ public class ItemBase_Gun : ItemBase
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
         string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-        string stringDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
         string stringQuality = LocalizationManager.Instance.GetLocalization("Item_String", "_ItemQuality_" + (int)itemQuality);
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         stringQuality = ItemConfigData.Colour(stringQuality, itemQuality);
 
-        string stringInfo = stringName + "\n" + stringQuality + "\n" + stringDesc;
+        string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
         gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Content.Item_Count.ToString());
         gridCell.SetCell(stringInfo);
+        if(gridCell.itemPath_Bind.itemFrom == ItemFrom.Hand) gridCell.grid_Child.OpenGrid(itemData);
+    }
+    public override void GridCell_RightClick(UI_GridCell gridCell, ItemData itemData)
+    {
+        
+        base.GridCell_RightClick(gridCell, itemData);
     }
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
     {
-        CursorManager.Instance.AddCursor(CursorManager.CursorType.Aim);
+        if (owner.actorAuthority.isLocal && owner.actorAuthority.isPlayer)
+        {
+            CursorManager.Instance.AddCursor(CursorManager.CursorType.Aim);
+        }
     }
     public override void OnHand_Over(ActorManager owner, BodyController_Human body)
     {
-        CursorManager.Instance.SubCursor(CursorManager.CursorType.Aim);
+        if (owner.actorAuthority.isLocal && owner.actorAuthority.isPlayer)
+        {
+            CursorManager.Instance.SubCursor(CursorManager.CursorType.Aim);
+        }
     }
 }
 /// <summary>
 /// -----基本服装-----
 /// </summary>
-public class ItemBase_Clothes:ItemBase
+public class ItemBase_Clothes : ItemBase
 {
-
+    public override void InBag_Use()
+    {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySwitchItemBetweenBodyAndBag()
+        {
+            index = itemPath.itemIndex
+        });
+    }
+}
+/// <summary>
+/// 基本帽子
+/// </summary>
+public class ItemBase_Hat : ItemBase
+{
+    public override void InBag_Use()
+    {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySwitchItemBetweenHeadAndBag()
+        {
+            index = itemPath.itemIndex
+        });
+    }
 }
 [Serializable]
 public struct ItemData : INetworkStruct, IEquatable<ItemData>

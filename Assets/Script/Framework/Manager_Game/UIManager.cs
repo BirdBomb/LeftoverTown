@@ -7,8 +7,10 @@ public class UIManager : SingleTon<UIManager>, ISingleTon
 {
     [SerializeField,Header("UIÃæ°å")]
     private Transform _Panel;
-    [SerializeField,Header("TileUI")]
+    [SerializeField, Header("TileUI")]
     private Transform transform_TileUIPanel;
+    [SerializeField, Header("BagUI")]
+    private GameUI_BagPanel gameUI_BagPanel;
     private Canvas _Canvas;
     private Dictionary<string, UIGroup> _Pool = new Dictionary<string, UIGroup>();
     public void Init()
@@ -57,14 +59,16 @@ public class UIManager : SingleTon<UIManager>, ISingleTon
         }
         tileUI_Bind = tileUI;
         tileUI_Bind.Show();
+        gameUI_BagPanel.ShowPanel();
     }
     public void HideTileUI(TileUI tileUI)
     {
-        if(tileUI == this.tileUI_Bind)
+        if (tileUI == this.tileUI_Bind)
         {
             if (tileUI_Bind != null) tileUI_Bind.Hide();
             if (tileUI_Bind) tileUI_Bind = null;
         }
+        gameUI_BagPanel.HidePanel();
     }
 }
 public class UIGroup

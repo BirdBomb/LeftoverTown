@@ -351,6 +351,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
             Destroy(buildingTile);
             DeleteBuildingPlaceHolding(tilePos, BuildingConfigData.GetBuildingConfig(buildingTile.tileID).Building_Size);
         }
+        UpdateGroundDrag(tilePos, true, 0);
         tilemap_Building.SetTile(tilePos, null);
     }
     /// <summary>

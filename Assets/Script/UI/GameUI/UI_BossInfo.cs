@@ -21,8 +21,11 @@ public class UI_BossInfo : SingleTon<UI_BossInfo>,ISingleTon
     {
         
     }
-    public void Show()
+    public void Show(int Hp, float Val, string Name)
     {
+        UpdateHpBar(Val);
+        UpdateHpVal(Hp);
+        UpdateName(Name);
         CancelInvoke("Hide");
         Invoke("Hide", 15f);
         if (!gameObject_BackGround.activeSelf)

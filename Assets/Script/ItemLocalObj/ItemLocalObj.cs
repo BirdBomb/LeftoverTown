@@ -9,6 +9,10 @@ public class ItemLocalObj : MonoBehaviour
     public ActorManager actorManager;
     [HideInInspector]
     public ItemData itemData;
+    public virtual void InitData(ItemData data)
+    {
+        itemData = data;
+    }
     public virtual void UpdateDataByLocal(ItemData data)
     {
         itemData = data;
@@ -17,12 +21,16 @@ public class ItemLocalObj : MonoBehaviour
     {
         itemData = data;
     }
-    public virtual void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public virtual void HoldingStart(ActorManager owner, BodyController_Human body)
+    {
+
+    }
+    public virtual void HoldingOver()
     {
 
     }
     /// <summary>
-    /// 
+    /// 按压左键
     /// </summary>
     /// <param name="time"></param>
     /// <param name="actorAuthority"></param>
@@ -32,7 +40,7 @@ public class ItemLocalObj : MonoBehaviour
         return false;
     }
     /// <summary>
-    /// 最大值
+    /// 按压右键
     /// </summary>
     /// <param name="time"></param>
     /// <param name="actorAuthority"></param>
@@ -41,18 +49,32 @@ public class ItemLocalObj : MonoBehaviour
     {
         return false;
     }
+    /// <summary>
+    /// 释放左键
+    /// </summary>
     public virtual void ReleaseRightMouse()
     {
 
     }
+    /// <summary>
+    /// 释放右键
+    /// </summary>
     public virtual void ReleaseLeftMouse()
     {
 
     }
+    /// <summary>
+    /// 更新鼠标位置
+    /// </summary>
+    /// <param name="mouse"></param>
     public virtual void UpdateMousePos(Vector3 mouse)
     {
 
     }
+    /// <summary>
+    /// 更新时间
+    /// </summary>
+    /// <param name="second"></param>
     public virtual void UpdateTime(int second)
     {
 

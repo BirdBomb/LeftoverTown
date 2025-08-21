@@ -5,37 +5,42 @@ using UnityEngine;
 
 public class Bullet_Hook : BulletBase
 {
-    private List<ActorManager> actorManagers_Ignore = new List<ActorManager>();
+    [SerializeField, Header("钩子弹头")]
     public Transform transform_Bullet;
+    [SerializeField, Header("钩子线")]
     public LineRenderer lineRenderer;
-    [SerializeField, Header("钩子伤害")]
-    public short config_BaseDamage;
+    [SerializeField, Header("钩子物理伤害")]
+    public short config_BaseAttackDamage;
+    [SerializeField, Header("钩子魔法伤害")]
+    public short config_BaseMagicDamage;
+
     [SerializeField, Header("钩子速度")]
     public short config_BaseSpeed;
     [SerializeField, Header("衰减速度")]
     public float config_DownSpeed;
     [SerializeField, Header("钩子力量")]
     public float config_BaseForce;
-    public override void Shot(Vector3 dir, int demage_Offset, float speed_Offset, float force_Offset, ActorNetManager from)
+    private bool _show = false;
+    private List<ActorManager> actorManagers_Ignore = new List<ActorManager>();
+
+    public override void InitBullet()
     {
-        gameObject.SetActive(true);
+        ShowHook();
+        transform.DOKill();
+        transform.localScale = Vector3.one;
+    }
+    public override void SetPhysics(Vector3 pos, Vector2 dir, float speedOffset, float forceOffset)
+    {
+        vectoe3_CurPos = transform.position;
+        vectoe3_LastPos = transform.position;
+        vectoe3_MoveDir = dir;
+        float_BulletSpeed = config_BaseSpeed + speedOffset;
+        float_BulletForce = config_BaseForce + forceOffset;
+        if (float_BulletSpeed < 0) { float_BulletSpeed = 1; }
+        if (float_BulletForce < 0) { float_BulletSpeed = 0; }
         transform_Bullet.localPosition = Vector3.zero;
         lineRenderer.SetPosition(0, transform_Bullet.position);
         lineRenderer.SetPosition(1, transform_Bullet.position);
-        vectoe3_MoveDir = dir;
-        float_BulletDemage = config_BaseDamage + demage_Offset;
-        float_BulletSpeed = config_BaseSpeed + speed_Offset;
-        float_BulletForce = config_BaseForce + force_Offset;
-        vectoe3_CurPos = transform.position;
-        vectoe3_LastPos = transform.position;
-        actorNetManager_Owner = from;
-        actorAuthority_Owner = actorNetManager_Owner.actorManager_Local.actorAuthority;
-
-        actorManagers_Ignore.Clear();
-        actorManagers_Ignore.Add(from.actorManager_Local);
-        transform.DOKill();
-        transform.localScale = Vector3.one;
-        base.Shot(dir, demage_Offset, speed_Offset, force_Offset, from);
         if (transform.lossyScale.x > 0)
         {
             transform.right = vectoe3_MoveDir;
@@ -44,17 +49,55 @@ public class Bullet_Hook : BulletBase
         {
             transform.right = -vectoe3_MoveDir;
         }
+        base.SetPhysics(pos, dir, speedOffset, forceOffset);
+    }
+    public override void SetDamage(int AdOffset, int MdOffset)
+    {
+        float_BulletAttackDemage = config_BaseAttackDamage + AdOffset;
+        float_BulletMagicDemage = config_BaseMagicDamage + MdOffset;
+        if (float_BulletAttackDemage < 0) { float_BulletAttackDemage = 0; }
+        if (float_BulletMagicDemage < 0) { float_BulletMagicDemage = 0; }
+        base.SetDamage(AdOffset, MdOffset);
+    }
+    public override void SetOwner(ActorManager owner)
+    {
+        actorManager_Owner = owner;
+        actorAuthority_Owner = actorManager_Owner.actorAuthority;
+        actorManagers_Ignore.Clear();
+        actorManagers_Ignore.Add(actorManager_Owner);
+
+        base.SetOwner(owner);
     }
 
-    public override void Fly(float dt)
+    public void FixedUpdate()
     {
-        SpeedDown(dt);
+        if (_show)
+        {
+            Move(Time.fixedDeltaTime);
+            SpeedDown(Time.fixedDeltaTime);
+            Check(Time.fixedDeltaTime);
+        }
+    }
+    private void Move(float dt)
+    {
+        if (float_BulletSpeed > 0)
+        {
+            transform_Bullet.position += vectoe3_MoveDir * float_BulletSpeed * dt;
+        }
+        else
+        {
+            transform_Bullet.localPosition += transform_Bullet.localPosition.normalized * float_BulletSpeed * dt;
+            if (transform_Bullet.localPosition.magnitude < 0.5f) { HideHook(); }
+        }
         transform_Bullet.position += vectoe3_MoveDir * float_BulletSpeed * dt;
         lineRenderer.SetPosition(0, transform_Bullet.position);
         lineRenderer.SetPosition(1, transform.position);
-        base.Fly(dt);
     }
-    public override void Check(float dt)
+    private void SpeedDown(float dt)
+    {
+        float_BulletSpeed -= dt * config_DownSpeed;
+    }
+    private void Check(float dt)
     {
         vectoe3_LastPos = vectoe3_CurPos;
         vectoe3_CurPos = transform_Bullet.position;
@@ -87,14 +130,20 @@ public class Bullet_Hook : BulletBase
 
             }
         }
-        base.Check(dt);
     }
     private void Attack(ActorManager actor)
     {
         if (actorAuthority_Owner.isLocal)
         {
             actor.actionManager.AddForce(-vectoe3_MoveDir, float_BulletForce);
-            actor.AllClient_Listen_TakeAttackDamage(float_BulletDemage, actorNetManager_Owner);
+            if (float_BulletAttackDemage > 0)
+            {
+                actor.AllClient_Listen_TakeAttackDamage(float_BulletAttackDemage, actorManager_Owner.actorNetManager);
+            }
+            if (float_BulletMagicDemage > 0)
+            {
+                actor.AllClient_Listen_TakeMagicDamage(float_BulletMagicDemage, actorManager_Owner.actorNetManager);
+            }
         }
     }
     private void Boom(Vector2 pos)
@@ -103,14 +152,17 @@ public class Bullet_Hook : BulletBase
         effect.transform.localScale = new Vector3(1 - (2 * new System.Random().Next(0, 2)), 1, 1);
         effect.transform.position = pos;
     }
+    public void ShowHook()
+    {
+        _show = true;
+        gameObject.SetActive(true);
+    }
+    public void HideHook()
+    {
+        _show = false;
+        gameObject.SetActive(false);
+    }
     public override void HideBullet()
     {
-        gameObject.SetActive(false);
-        float_BulletSpeed = 0;
     }
-    public void SpeedDown(float dt)
-    {
-        float_BulletSpeed -= dt * config_DownSpeed;
-    }
-
 }

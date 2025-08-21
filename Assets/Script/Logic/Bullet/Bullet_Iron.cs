@@ -6,42 +6,70 @@ using UnityEngine.Rendering.Universal;
 
 public class Bullet_Iron : BulletBase
 {
+    [Header("子弹贴图")]
     public SpriteRenderer spriteRenderer_Bullet;
+    [Header("子弹光效")]
     public Light2D light2D_Bullet;
-    private List<ActorManager> actorManagers_Ignore = new List<ActorManager>();
-
-    [SerializeField, Header("子弹伤害")]
-    public short config_BaseDamage;
-    [SerializeField, Header("子弹速度")]
+    [Header("子弹物理伤害")]
+    public short config_BaseAttackDamage;
+    [Header("子弹魔法伤害")]
+    public short config_BaseMagicDamage;
+    [Header("子弹速度")]
     public short config_BaseSpeed;
-    [SerializeField, Header("子弹力量")]
+    [Header("衰减速度")]
+    public float config_DownSpeed;
+    [Header("子弹力量")]
     public float config_BaseForce;
-    public override void Shot(Vector3 dir, int demage_Offset, float speed_Offset, float force_Offset, ActorNetManager from)
+    private List<ActorManager> actorManagers_Ignore = new List<ActorManager>();
+    public override void InitBullet()
     {
-        vectoe3_MoveDir = dir;
-        float_BulletDemage = config_BaseDamage + demage_Offset;
-        float_BulletSpeed = config_BaseSpeed + speed_Offset;
-        float_BulletForce = config_BaseForce + force_Offset;
-        vectoe3_CurPos = transform.position;
-        vectoe3_LastPos = transform.position;
-        actorNetManager_Owner = from;
-        actorAuthority_Owner = actorNetManager_Owner.actorManager_Local.actorAuthority;
-
-        actorManagers_Ignore.Clear();
-        actorManagers_Ignore.Add(from.actorManager_Local);
         transform.DOKill();
         transform.localScale = Vector3.one;
         spriteRenderer_Bullet.enabled = true;
         light2D_Bullet.enabled = true;
         light2D_Bullet.intensity = 0.5f;
-        base.Shot(dir, demage_Offset, speed_Offset, force_Offset, from);
-        transform.right = vectoe3_MoveDir;
     }
-    public override void Fly(float dt)
+    public override void SetPhysics(Vector3 pos,Vector2 dir, float speedOffset, float forceOffset)
     {
-        SpeedDown(dt);
+        transform.position = pos;
+        vectoe3_CurPos = transform.position;
+        vectoe3_LastPos = transform.position;
+        vectoe3_MoveDir = dir;
+        float_BulletSpeed = config_BaseSpeed + speedOffset;
+        float_BulletForce = config_BaseForce + forceOffset;
+        if (float_BulletSpeed < 0) { float_BulletSpeed = 1; }
+        if (float_BulletForce < 0) { float_BulletSpeed = 0; }
+        transform.right = vectoe3_MoveDir;
+        base.SetPhysics(pos, dir, speedOffset, forceOffset);
+    }
+    public override void SetDamage(int AdOffset, int MdOffset)
+    {
+        float_BulletAttackDemage = config_BaseAttackDamage + AdOffset;
+        float_BulletMagicDemage = config_BaseMagicDamage + MdOffset;
+        if (float_BulletAttackDemage < 0) { float_BulletAttackDemage = 0; }
+        if (float_BulletMagicDemage < 0) { float_BulletMagicDemage = 0; }
+        base.SetDamage(AdOffset, MdOffset);
+    }
+    public override void SetOwner(ActorManager owner)
+    {
+        actorManager_Owner = owner;
+        actorAuthority_Owner = actorManager_Owner.actorAuthority;
+        actorManagers_Ignore.Clear();
+        actorManagers_Ignore.Add(actorManager_Owner);
+        base.SetOwner(owner);
+    }
+    public void FixedUpdate()
+    {
+        if (!_hide)
+        {
+            Move(Time.fixedDeltaTime);
+            SpeedDown(Time.fixedDeltaTime);
+            Check(Time.fixedDeltaTime);
+        }
+    }
+    private void Move(float dt)
+    {
         transform.position += vectoe3_MoveDir * float_BulletSpeed * dt;
-        base.Fly(dt);
     }
     private void SpeedDown(float dt)
     {
@@ -51,14 +79,14 @@ public class Bullet_Iron : BulletBase
         }
         if (float_BulletSpeed > 0)
         {
-            float_BulletSpeed -= dt;
+            float_BulletSpeed -= dt * config_DownSpeed;
         }
         else
         {
             HideBullet();
         }
     }
-    public override void Check(float dt)
+    private void Check(float dt)
     {
         vectoe3_LastPos = vectoe3_CurPos;
         vectoe3_CurPos = transform.position;
@@ -88,16 +116,30 @@ public class Bullet_Iron : BulletBase
             }
 
         }
-        base.Check(dt);
     }
+    /// <summary>
+    /// 攻击
+    /// </summary>
+    /// <param name="actor"></param>
     private void Attack(ActorManager actor)
     {
         if (actorAuthority_Owner.isLocal)
         {
             actor.actionManager.AddForce(vectoe3_MoveDir, float_BulletForce);
-            actor.AllClient_Listen_TakeAttackDamage(float_BulletDemage, actorNetManager_Owner);
+            if (float_BulletAttackDemage > 0)
+            {
+                actor.AllClient_Listen_TakeAttackDamage(float_BulletAttackDemage, actorManager_Owner.actorNetManager);
+            }
+            if (float_BulletMagicDemage > 0)
+            {
+                actor.AllClient_Listen_TakeMagicDamage(float_BulletMagicDemage, actorManager_Owner.actorNetManager);
+            }
         }
     }
+    /// <summary>
+    /// 爆炸
+    /// </summary>
+    /// <param name="pos"></param>
     private void Boom(Vector2 pos)
     {
         GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_BulletBoom");
@@ -105,7 +147,6 @@ public class Bullet_Iron : BulletBase
         effect.transform.position = pos;
         float_BulletSpeed = 0;
     }
-
     public override void HideBullet()
     {
         _hide = true;
@@ -113,6 +154,4 @@ public class Bullet_Iron : BulletBase
         light2D_Bullet.enabled = false;
         base.HideBullet();
     }
-
-
 }

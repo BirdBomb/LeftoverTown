@@ -42,15 +42,21 @@ public class ItemLocalObj_FishRod : ItemLocalObj
     public SpriteRenderer spriteRenderer_Item;
     [Header("物品图集")]
     public SpriteAtlas spriteAtlas_Item;
-    [Header("最小钓鱼时间")]
-    public float float_MinFishTime;
-    [Header("最大钓鱼时间")]
-    public float float_MaxFishTime;
-    [Header("钓鱼脱钩时间")]
-    public float float_KeepingFishTime;
-    [Header("抛竿时间")]
+    /// <summary>
+    /// 渔力
+    /// </summary>
+    private float float_FishPower;
+    /// <summary>
+    /// 控制鱼的时间
+    /// </summary>
+    private float float_KeepingFishTime = 2;
+    /// <summary>
+    /// 抛竿时间
+    /// </summary>
     public float config_readyTime = 0.5f;
-    [Header("收杆时间")]
+    /// <summary>
+    /// 收杆时间
+    /// </summary>
     public float config_reapingTime = 0.5f;
 
     [HideInInspector]
@@ -61,7 +67,10 @@ public class ItemLocalObj_FishRod : ItemLocalObj
     private InputData inputData = new InputData();
     private void OnDisable()
     {
-        MapPreviewManager.Instance.HideSingal();
+        if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+        {
+            MapPreviewManager.Instance.Local_HideSingal();
+        }
     }
     private void Start()
     {
@@ -80,9 +89,8 @@ public class ItemLocalObj_FishRod : ItemLocalObj
     {
         DrawLine(Time.fixedDeltaTime);
     }
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
-        itemData = data;
         actorManager = owner;
 
         transform.SetParent(body.transform_RightHand);
@@ -96,7 +104,11 @@ public class ItemLocalObj_FishRod : ItemLocalObj
         tran_LeftHand.GetComponent<SpriteRenderer>().sprite = body.transform_LeftHand.GetComponent<SpriteRenderer>().sprite;
         body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
         ShowLine(false);
-        base.HoldingByHand(owner, body, data);
+        base.HoldingStart(owner, body);
+    }
+    public void UpdateFishRodData(float fishPower,ItemQuality itemQuality)
+    {
+        float_FishPower = fishPower;
     }
     public override bool PressRightMouse(float time, ActorAuthority actorAuthority)
     {
@@ -113,8 +125,6 @@ public class ItemLocalObj_FishRod : ItemLocalObj
     }
     public override void ReleaseRightMouse()
     {
-
-
         base.ReleaseRightMouse();
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
@@ -146,80 +156,51 @@ public class ItemLocalObj_FishRod : ItemLocalObj
     {
         inputData.mousePosition = mouse;
         mouse = mouse.normalized;
+        Vector3Int rodDir_New;
         if (mouse.x > 0.9f) 
         {
-            if(rodDir != Vector3Int.right)
-            {
-                rodDir = Vector3Int.right;
-                MapPreviewManager.Instance.ShowSingal(Vector3Int.right);
-            }
-            return;
+            rodDir_New = Vector3Int.right;
         }
         else if (mouse.x < -0.9f) 
         {
-            if (rodDir != Vector3Int.left)
-            {
-                rodDir = Vector3Int.left;
-                MapPreviewManager.Instance.ShowSingal(Vector3Int.left);
-            }
-            return;
+            rodDir_New = Vector3Int.left;
         }
         else if (mouse.y > 0.9f) 
         {
-            if (rodDir != Vector3Int.up)
-            {
-                rodDir = Vector3Int.up;
-                MapPreviewManager.Instance.ShowSingal(Vector3Int.up);
-            }
-            return;
+            rodDir_New = Vector3Int.up;
         }
         else if (mouse.y < -0.9f)
         {
-            if (rodDir != Vector3Int.down)
-            {
-                rodDir = Vector3Int.down;
-                MapPreviewManager.Instance.ShowSingal(Vector3Int.down);
-            }
-            return;
+            rodDir_New = Vector3Int.down;
         }
         else if (mouse.x > 0.38f && mouse.y > 0.38f)
         {
-            if (rodDir != new Vector3Int(1, 1, 0))
-            {
-                rodDir = new Vector3Int(1, 1, 0);
-                MapPreviewManager.Instance.ShowSingal(new Vector3Int(1, 1, 0));
-            }
-            return;
+            rodDir_New = new Vector3Int(1, 1, 0);
         }
         else if (mouse.x < -0.38f && mouse.y < -0.38f)
         {
-            if (rodDir != new Vector3Int(-1, -1, 0))
-            {
-                rodDir = new Vector3Int(-1, -1, 0);
-                MapPreviewManager.Instance.ShowSingal(new Vector3Int(-1, -1, 0));
-            }
-            return;
+            rodDir_New = new Vector3Int(-1, -1, 0);
         }
         else if (mouse.x > 0.38f && mouse.y < -0.38f)
         {
-            if (rodDir != new Vector3Int(1, -1, 0))
-            {
-                rodDir = new Vector3Int(1, -1, 0);
-                MapPreviewManager.Instance.ShowSingal(new Vector3Int(1, -1, 0));
-            }
-            return;
+            rodDir_New = new Vector3Int(1, -1, 0);
         }
         else if (mouse.x < -0.38f && mouse.y > 0.38f)
         {
-            if (rodDir != new Vector3Int(-1, 1, 0))
-            {
-                rodDir = new Vector3Int(-1, 1, 0);
-                MapPreviewManager.Instance.ShowSingal(new Vector3Int(-1, 1, 0));
-            }
-            return;
+            rodDir_New = new Vector3Int(-1, 1, 0);
         }
-        rodDir = Vector3Int.zero;
-        MapPreviewManager.Instance.ShowSingal(Vector3Int.zero);
+        else
+        {
+            rodDir_New = Vector3Int.zero;
+        }
+        if (rodDir != rodDir_New)
+        {
+            rodDir = rodDir_New;
+            if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+            {
+                MapPreviewManager.Instance.Local_ShowSingal(rodDir);
+            }
+        }
         base.UpdateMousePos(mouse);
     }
     #region//鱼竿
@@ -239,7 +220,7 @@ public class ItemLocalObj_FishRod : ItemLocalObj
         {
             if (actorManager.actorAuthority.isLocal)
             {
-                MapPreviewManager.Instance.FailSingal(0.2f);
+                MapPreviewManager.Instance.Local_FailSingal(0.2f);
             }
         }
     }
@@ -353,7 +334,7 @@ public class ItemLocalObj_FishRod : ItemLocalObj
         rodState = RodState.FishOff;
         float fishTime = GetFishTime();
         if (IsInvoking("GetFish")) CancelInvoke("GetFish");
-        Invoke("GetFish", fishTime);
+        if (fishTime < 10) { Invoke("GetFish", fishTime); }
         DrawWave();
     }
     /// <summary>
@@ -390,38 +371,6 @@ public class ItemLocalObj_FishRod : ItemLocalObj
         var mid = Vector3.Lerp(start, to, t);
         return new Vector3(mid.x, Func(t) + Mathf.Lerp(start.y, to.y, t), mid.z);
     }
-
-    private float GetFishTime()
-    {
-        UnityEngine.Random.InitState(itemData.Item_Info);
-        float fishTime = UnityEngine.Random.Range(float_MinFishTime, float_MaxFishTime);
-        return fishTime;
-    }
-    private short GetFishID()
-    {
-        UpdateRodData();
-        int weight = 0;
-        int val;
-        List<FishConfig> fishConfigs = FishConfigData.fishConfigs.FindAll((x) => { return x.AreaID == areaID; });
-        for (int i = 0; i < fishConfigs.Count; i++)
-        {
-            weight += fishConfigs[i].ItemWeight;
-        }
-        UnityEngine.Random.InitState(itemData.Item_Info + itemData.Item_Durability);
-        val = UnityEngine.Random.Range(0, weight);
-        for (int i = 0; i < fishConfigs.Count; i++)
-        {
-            if (fishConfigs[i].ItemWeight >= val)
-            {
-                return fishConfigs[i].ItemID;
-            }
-            else
-            {
-                val -= fishConfigs[i].ItemWeight;
-            }
-        }
-        return 0;
-    }
     private void UpdateRodData()
     {
         ItemData _oldItem = itemData;
@@ -437,7 +386,6 @@ public class ItemLocalObj_FishRod : ItemLocalObj
             });
         }
     }
-
     #endregion
     #region//鱼线
     private float float_DrawWaveCD_FishOff = 0.5f;
@@ -507,6 +455,59 @@ public class ItemLocalObj_FishRod : ItemLocalObj
     private void DrawWave()
     {
         LiquidManager.Instance.AddWave(tran_LineEnd.position);
+    }
+
+    #endregion
+    #region//渔力计算
+    /// <summary>
+    /// 获取上钩时间
+    /// </summary>
+    /// <returns></returns>
+    private float GetFishTime()
+    {
+        float temp_FishPower = 0;
+        float temp_BaseFishTime = 9999;
+        if(areaID == 9000)/*水域钓鱼*/
+        {
+            temp_FishPower = float_FishPower - 0;
+        }
+        if (temp_FishPower > 0)
+        {
+            if (temp_FishPower > 10) temp_FishPower = 10;
+            temp_BaseFishTime = Mathf.Lerp(10, 1, temp_FishPower / 10f);
+        }
+        UnityEngine.Random.InitState(itemData.Item_Info);
+        float fishTime = UnityEngine.Random.Range(temp_BaseFishTime, temp_BaseFishTime + 2);
+        return fishTime;
+    }
+    /// <summary>
+    /// 获取上钩种类
+    /// </summary>
+    /// <returns></returns>
+    private short GetFishID()
+    {
+        UpdateRodData();
+        int weight = 0;
+        int val;
+        List<FishConfig> fishConfigs = FishConfigData.fishConfigs.FindAll((x) => { return x.AreaID == areaID; });
+        for (int i = 0; i < fishConfigs.Count; i++)
+        {
+            weight += fishConfigs[i].ItemWeight;
+        }
+        UnityEngine.Random.InitState(itemData.Item_Info + itemData.Item_Durability);
+        val = UnityEngine.Random.Range(0, weight);
+        for (int i = 0; i < fishConfigs.Count; i++)
+        {
+            if (fishConfigs[i].ItemWeight >= val)
+            {
+                return fishConfigs[i].ItemID;
+            }
+            else
+            {
+                val -= fishConfigs[i].ItemWeight;
+            }
+        }
+        return 0;
     }
 
     #endregion

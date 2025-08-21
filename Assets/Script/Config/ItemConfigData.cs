@@ -23,64 +23,66 @@ public class ItemConfigData
         new ItemConfig(){ Item_ID = 0,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Def,Item_Value = 0 ,},
         #region//1000-1999²ÄÁÏ
         #region//1000-1099Ò»¼¶²ÄÁÏ
-        /*Ô­Ä¾*/new ItemConfig(){ Item_ID = 1000,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*Ê÷Ö¦*/new ItemConfig(){ Item_ID = 1001,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*¸É²Ý*/new ItemConfig(){ Item_ID = 1002,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*Ê¯Í·*/new ItemConfig(){ Item_ID = 1010,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ÃºÌ¿*/new ItemConfig(){ Item_ID = 1011,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*½ð¿ó*/new ItemConfig(){ Item_ID = 1012,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gold },
-        /*Ìú¿ó*/new ItemConfig(){ Item_ID = 1013,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*À¶¾§*/new ItemConfig(){ Item_ID = 1014,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Blue },
-        /*Óñ¿ó*/new ItemConfig(){ Item_ID = 1015,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Blue },
-        /*Ïõ¿ó*/new ItemConfig(){ Item_ID = 1016,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ºì¾§*/new ItemConfig(){ Item_ID = 1017,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Blue },
-        /*°×¾§*/new ItemConfig(){ Item_ID = 1018,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Blue },
+        /*Ô­Ä¾*/new ItemConfig(){ Item_ID = 1000,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 4,Item_Rarity = ItemRarity.Gray },
+        /*Ê÷Ö¦*/new ItemConfig(){ Item_ID = 1001,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
+        /*¸É²Ý*/new ItemConfig(){ Item_ID = 1002,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
+        /*Ê¯Í·*/new ItemConfig(){ Item_ID = 1010,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
+        /*ÃºÌ¿*/new ItemConfig(){ Item_ID = 1011,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
+        /*½ð¿ó*/new ItemConfig(){ Item_ID = 1012,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 150,Item_Rarity = ItemRarity.Gold },
+        /*Ìú¿ó*/new ItemConfig(){ Item_ID = 1013,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
+        /*Ë®¾§*/new ItemConfig(){ Item_ID = 1014,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 152,Item_Rarity = ItemRarity.Blue },
+        /*Óñ¿ó*/new ItemConfig(){ Item_ID = 1015,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 154,Item_Rarity = ItemRarity.Blue },
+        /*Ïõ¿ó*/new ItemConfig(){ Item_ID = 1016,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 15,Item_Rarity = ItemRarity.Gray },
+        /*ºì¾§*/new ItemConfig(){ Item_ID = 1017,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 152,Item_Rarity = ItemRarity.Blue },
+        /*°×¾§*/new ItemConfig(){ Item_ID = 1018,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 170,Item_Rarity = ItemRarity.Blue },
         #endregion
         #region//1100-1199¶þ¼¶²ÄÁÏ
-        /*Ä¾²Ä*/new ItemConfig(){ Item_ID = 1100,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*Ìú¶§*/new ItemConfig(){ Item_ID = 1110,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*½ð¶§*/new ItemConfig(){ Item_ID = 1111,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gold },
-        /*ÄÜÔ´Ê¯*/new ItemConfig(){ Item_ID = 1112,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Purple },
-        /*ÂÌ±¦Ê¯*/new ItemConfig(){ Item_ID = 1113,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 245,Item_Rarity = ItemRarity.Purple },
-        /*ÏõÊ¯Ëé*/new ItemConfig(){ Item_ID = 1114,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ºì±¦Ê¯*/new ItemConfig(){ Item_ID = 1115,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 300,Item_Rarity = ItemRarity.Purple },
-        /*µ°°×Ê¯*/new ItemConfig(){ Item_ID = 1116,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Purple },
+        /*Ä¾²Ä*/new ItemConfig(){ Item_ID = 1100,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
+        /*²ÝÖ½*/new ItemConfig(){ Item_ID = 1101,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 4,Item_Rarity = ItemRarity.Gray },
+        /*Ìú¶§*/new ItemConfig(){ Item_ID = 1110,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 20,Item_Rarity = ItemRarity.Gray },
+        /*½ð¶§*/new ItemConfig(){ Item_ID = 1111,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 170,Item_Rarity = ItemRarity.Gold },
+        /*ÄÜÔ´Ê¯*/new ItemConfig(){ Item_ID = 1112,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 180,Item_Rarity = ItemRarity.Purple },
+        /*ÂÌ±¦Ê¯*/new ItemConfig(){ Item_ID = 1113,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 182,Item_Rarity = ItemRarity.Purple },
+        /*ÏõÊ¯Ëé*/new ItemConfig(){ Item_ID = 1114,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
+        /*ºì±¦Ê¯*/new ItemConfig(){ Item_ID = 1115,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 186,Item_Rarity = ItemRarity.Purple },
+        /*µ°°×Ê¯*/new ItemConfig(){ Item_ID = 1116,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 195,Item_Rarity = ItemRarity.Purple },
         #endregion
         #region//1200-1299Èý¼¶²ÄÁÏ
-        /*»úÐµÔª¼þ*/new ItemConfig(){ Item_ID = 1200,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*µç×ÓÔª¼þ*/new ItemConfig(){ Item_ID = 1201,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*Ç¹ÐµÔª¼þ*/new ItemConfig(){ Item_ID = 1202,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
+        /*»úÐµÔª¼þ*/new ItemConfig(){ Item_ID = 1200,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 24,Item_Rarity = ItemRarity.Gray },
+        /*µç×ÓÔª¼þ*/new ItemConfig(){ Item_ID = 1201,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 150,Item_Rarity = ItemRarity.Gray },
+        /*Ç¹ÐµÔª¼þ*/new ItemConfig(){ Item_ID = 1202,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 80,Item_Rarity = ItemRarity.Gray },
         #endregion
         #endregion
         #region//2000-2999¹¤¾ß
         #region//2000-2099´¿¹¤¾ß
-        /*»ð°Ñ*/new ItemConfig(){ Item_ID = 2000,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*Ä¾¸«*/new ItemConfig(){ Item_ID = 2010,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*Ìú¸«*/new ItemConfig(){ Item_ID = 2011,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 1,Item_Rarity = ItemRarity.Green },
-        /*Ä¾¸ä*/new ItemConfig(){ Item_ID = 2020,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*Ìú¸ä*/new ItemConfig(){ Item_ID = 2021,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 1,Item_Rarity = ItemRarity.Green },
-        /*Ä¾¸Í*/new ItemConfig(){ Item_ID = 2030,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*Ä¾³ú*/new ItemConfig(){ Item_ID = 2040,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
+        /*»ð°Ñ*/new ItemConfig(){ Item_ID = 2000,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 8,Item_Rarity = ItemRarity.Gray },
+        /*Ä¾¸«*/new ItemConfig(){ Item_ID = 2010,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 10,Item_Rarity = ItemRarity.Gray },
+        /*Ìú¸«*/new ItemConfig(){ Item_ID = 2011,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 18,Item_Rarity = ItemRarity.Green },
+        /*·¥¸«*/new ItemConfig(){ Item_ID = 2012,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 22,Item_Rarity = ItemRarity.Blue },
+        /*Ä¾¸ä*/new ItemConfig(){ Item_ID = 2020,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 10,Item_Rarity = ItemRarity.Gray },
+        /*Ìú¸ä*/new ItemConfig(){ Item_ID = 2021,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 18,Item_Rarity = ItemRarity.Green },
+        /*Ä¾¸Í*/new ItemConfig(){ Item_ID = 2030,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 10,Item_Rarity = ItemRarity.Gray },
+        /*Ä¾³ú*/new ItemConfig(){ Item_ID = 2040,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//2100-2199½üÕ½ÎäÆ÷
-        /*Ä¾¹÷*/new ItemConfig(){ Item_ID = 2100,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*³¤Ã¬*/new ItemConfig(){ Item_ID = 2101,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Green },
-        /*Ø°Ê×*/new ItemConfig(){ Item_ID = 2102,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Green },
-        /*Ìú½£*/new ItemConfig(){ Item_ID = 2103,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Green },
+        /*Ä¾¹÷*/new ItemConfig(){ Item_ID = 2100,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 15,Item_Rarity = ItemRarity.Gray },
+        /*³¤Ã¬*/new ItemConfig(){ Item_ID = 2101,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 24,Item_Rarity = ItemRarity.Green },
+        /*Ø°Ê×*/new ItemConfig(){ Item_ID = 2102,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 26,Item_Rarity = ItemRarity.Green },
+        /*Ìú½£*/new ItemConfig(){ Item_ID = 2103,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 28,Item_Rarity = ItemRarity.Green },
         #endregion
         #region//2200-2299Ô¶³ÌÎäÆ÷
-        /*´ÖÄ¾¹­*/new ItemConfig(){ Item_ID = 2200,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Green },
-        /*¾«Ä¾¹­*/new ItemConfig(){ Item_ID = 2201,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Green },
-        /*½ðÖÊ¹­*/new ItemConfig(){ Item_ID = 2202,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Gold },
+        /*´ÖÄ¾¹­*/new ItemConfig(){ Item_ID = 2200,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 10,Item_Rarity = ItemRarity.Green },
+        /*¾«Ä¾¹­*/new ItemConfig(){ Item_ID = 2201,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 20,Item_Rarity = ItemRarity.Green },
+        /*½ðÖÊ¹­*/new ItemConfig(){ Item_ID = 2202,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 160,Item_Rarity = ItemRarity.Gold },
         #endregion
         #region//2300-2399ÈÈÎäÆ÷
-        /*ÍÁÖÊÊÖÇ¹*/new ItemConfig(){ Item_ID = 2300,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Green },
-        /*¶Ì³å·æÇ¹*/new ItemConfig(){ Item_ID = 2301,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Blue },
-        /*Ä¾±ú²½Ç¹*/new ItemConfig(){ Item_ID = 2302,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Blue },
-        /*¾«×¼ÊÖÇ¹*/new ItemConfig(){ Item_ID = 2303,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Blue },
-        /*±Ãö±µ¯Ç¹*/new ItemConfig(){ Item_ID = 2304,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Blue },
-        /*ÖØÐÍ»úÇ¹*/new ItemConfig(){ Item_ID = 2305,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Blue },
-        /*¾«×¼²½Ç¹*/new ItemConfig(){ Item_ID = 2306,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Purple },
+        /*ÍÁÖÊÊÖÇ¹*/new ItemConfig(){ Item_ID = 2300,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 55,Item_Rarity = ItemRarity.Green },
+        /*¶Ì³å·æÇ¹*/new ItemConfig(){ Item_ID = 2301,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 80,Item_Rarity = ItemRarity.Blue },
+        /*Ä¾±ú²½Ç¹*/new ItemConfig(){ Item_ID = 2302,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 84,Item_Rarity = ItemRarity.Blue },
+        /*¾«×¼ÊÖÇ¹*/new ItemConfig(){ Item_ID = 2303,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 76,Item_Rarity = ItemRarity.Blue },
+        /*±Ãö±µ¯Ç¹*/new ItemConfig(){ Item_ID = 2304,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 88,Item_Rarity = ItemRarity.Blue },
+        /*ÖØÐÍ»úÇ¹*/new ItemConfig(){ Item_ID = 2305,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 106,Item_Rarity = ItemRarity.Blue },
+        /*¾«×¼²½Ç¹*/new ItemConfig(){ Item_ID = 2306,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 142,Item_Rarity = ItemRarity.Purple },
         #endregion
         #region//2400-2499ÁéÄÜÎäÆ÷
         #endregion
@@ -94,76 +96,84 @@ public class ItemConfigData
         /*À±½·*/new ItemConfig(){ Item_ID = 3004,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//3100-3199Èâµ°
-        /*´øÆ¤Èâ*/new ItemConfig(){ Item_ID = 3100,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 20,Item_Rarity = ItemRarity.Gray },
-        /*´ø¹ÇÈâ*/new ItemConfig(){ Item_ID = 3101,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 22,Item_Rarity = ItemRarity.Gray },
-        /*ÇÝÍÈÈâ*/new ItemConfig(){ Item_ID = 3102,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 28,Item_Rarity = ItemRarity.Gray },
-        /*ÄÚÔàÈâ*/new ItemConfig(){ Item_ID = 3103,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 10,Item_Rarity = ItemRarity.Gray },
+        /*´øÆ¤Èâ*/new ItemConfig(){ Item_ID = 3100,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 10,Item_Rarity = ItemRarity.Gray },
+        /*´ø¹ÇÈâ*/new ItemConfig(){ Item_ID = 3101,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
+        /*ÇÝÍÈÈâ*/new ItemConfig(){ Item_ID = 3102,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 18,Item_Rarity = ItemRarity.Gray },
+        /*ÄÚÔàÈâ*/new ItemConfig(){ Item_ID = 3103,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 6,Item_Rarity = ItemRarity.Gray },
         /*ÎÛÈ¾Èâ*/new ItemConfig(){ Item_ID = 3104,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
-        /*öêÓã*/new ItemConfig(){ Item_ID = 3110,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 10,Item_Rarity = ItemRarity.Gray },
+        /*öêÓã*/new ItemConfig(){ Item_ID = 3110,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//3200-3299ÆäËû
-        /*Ãæ·Û*/new ItemConfig(){ Item_ID = 3200,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
+        /*Ãæ·Û*/new ItemConfig(){ Item_ID = 3200,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 8,Item_Rarity = ItemRarity.Gray },
         #endregion
-        /*¸¯ÀÃÊ³Îï*/new ItemConfig(){ Item_ID = 3999,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
+        /*¸¯ÀÃÊ³Îï*/new ItemConfig(){ Item_ID = 3999,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//4000-4999Ê³Îï
         #region//4000-4099¿¾ÖÆ
-        /*ÊìÈâ¿é*/new ItemConfig(){ Item_ID = 4001,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ÊìÈâÅÅ*/new ItemConfig(){ Item_ID = 4002,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ÊìÇÝÍÈ*/new ItemConfig(){ Item_ID = 4003,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ÊìÄÚÔà*/new ItemConfig(){ Item_ID = 4004,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*³ôÊìÈâ*/new ItemConfig(){ Item_ID = 4005,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ÊìÉß¹û*/new ItemConfig(){ Item_ID = 4006,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ÊìË®½Û*/new ItemConfig(){ Item_ID = 4007,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ÊìÊí¹û*/new ItemConfig(){ Item_ID = 4008,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
+        /*ÊìÈâ¿é*/new ItemConfig(){ Item_ID = 4001,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 15,Item_Rarity = ItemRarity.Gray },
+        /*ÊìÈâÅÅ*/new ItemConfig(){ Item_ID = 4002,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 20,Item_Rarity = ItemRarity.Gray },
+        /*ÊìÇÝÍÈ*/new ItemConfig(){ Item_ID = 4003,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 20,Item_Rarity = ItemRarity.Gray },
+        /*ÊìÄÚÔà*/new ItemConfig(){ Item_ID = 4004,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
+        /*³ôÊìÈâ*/new ItemConfig(){ Item_ID = 4005,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 8,Item_Rarity = ItemRarity.Gray },
+        /*ÊìÉß¹û*/new ItemConfig(){ Item_ID = 4006,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
+        /*ÊìË®½Û*/new ItemConfig(){ Item_ID = 4007,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
+        /*ÊìÊí¹û*/new ItemConfig(){ Item_ID = 4008,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 10,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//4100-4199Åëâ¿
-        /*Ê§°Ü²Ë*/new ItemConfig(){ Item_ID = 4100,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ÊíÈâìÒ*/new ItemConfig(){ Item_ID = 4101,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ìÀÔÓ¹û*/new ItemConfig(){ Item_ID = 4102,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ÊÖ×¥Èâ*/new ItemConfig(){ Item_ID = 4103,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*¹û×ÕÉÕ*/new ItemConfig(){ Item_ID = 4104,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*Ë®ÖóÓã*/new ItemConfig(){ Item_ID = 4105,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
+        /*Ê§°Ü²Ë*/new ItemConfig(){ Item_ID = 4100,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
+        /*ÊíÈâìÒ*/new ItemConfig(){ Item_ID = 4101,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 22,Item_Rarity = ItemRarity.Gray },
+        /*ìÀÔÓ¹û*/new ItemConfig(){ Item_ID = 4102,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 20,Item_Rarity = ItemRarity.Gray },
+        /*ÊÖ×¥Èâ*/new ItemConfig(){ Item_ID = 4103,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 38,Item_Rarity = ItemRarity.Gray },
+        /*¹û×ÕÉÕ*/new ItemConfig(){ Item_ID = 4104,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 42,Item_Rarity = ItemRarity.Gray },
+        /*Ë®ÖóÓã*/new ItemConfig(){ Item_ID = 4105,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 36,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//Ò©¼Á
-        /*Äñ¹ûÖ­*/new ItemConfig(){ Item_ID = 4200,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
+        /*Äñ¹ûÖ­*/new ItemConfig(){ Item_ID = 4200,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 16,Item_Rarity = ItemRarity.Gray },
         #endregion
         #endregion
         #region//5000-5999ÒÂÎï
         #region//5000-5099Ã±×Ó
-        /*Ñ²ÂßÃ±*/new ItemConfig(){ Item_ID = 5000,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*²ÝÃ±*/new ItemConfig(){ Item_ID = 5001,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*·À»¤¿ø*/new ItemConfig(){ Item_ID = 5002,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*¿ó¹¤Ã±*/new ItemConfig(){ Item_ID = 5003,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*ÃæÕÖ*/new ItemConfig(){ Item_ID = 5004,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*Ìú¿ø*/new ItemConfig(){ Item_ID = 5005,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*ÐÜÆ¤Ã±*/new ItemConfig(){ Item_ID = 5006,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*Ä¾¿ø*/new ItemConfig(){ Item_ID = 5007,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
+        /*Ñ²ÂßÃ±*/new ItemConfig(){ Item_ID = 5000,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 34,Item_Rarity = ItemRarity.Gray},
+        /*²ÝÃ±*/new ItemConfig(){ Item_ID = 5001,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
+        /*·À»¤¿ø*/new ItemConfig(){ Item_ID = 5002,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 166,Item_Rarity = ItemRarity.Gray},
+        /*¿ó¹¤Ã±*/new ItemConfig(){ Item_ID = 5003,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 40,Item_Rarity = ItemRarity.Gray},
+        /*ÃæÕÖ*/new ItemConfig(){ Item_ID = 5004,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 5,Item_Rarity = ItemRarity.Gray},
+        /*Ìú¿ø*/new ItemConfig(){ Item_ID = 5005,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 120,Item_Rarity = ItemRarity.Gray},
+        /*ÐÜÆ¤Ã±*/new ItemConfig(){ Item_ID = 5006,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 88,Item_Rarity = ItemRarity.Gray},
+        /*Ä¾¿ø*/new ItemConfig(){ Item_ID = 5007,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 33,Item_Rarity = ItemRarity.Gray},
+        /*³øÊ¦Ã±*/new ItemConfig(){ Item_ID = 5008,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
+        /*»ªÀöÃ±×Ó*/new ItemConfig(){ Item_ID = 5009,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 89,Item_Rarity = ItemRarity.Gray},
         #endregion
         #region//5100-5199ÒÂ·þ
-        /*Ñ²ÂßÒÂ*/new ItemConfig(){ Item_ID = 5100,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*»Ò²¼ÒÂ*/new ItemConfig(){ Item_ID = 5101,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*ºÖ²¼ÒÂ*/new ItemConfig(){ Item_ID = 5102,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*·À»¤ÒÂ*/new ItemConfig(){ Item_ID = 5103,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*Ìú¼×*/new ItemConfig(){ Item_ID = 5104,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
-        /*Ä¾¼×*/new ItemConfig(){ Item_ID = 5105,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 1,Item_Rarity = ItemRarity.Gray},
+        /*Ñ²ÂßÒÂ*/new ItemConfig(){ Item_ID = 5100,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 40,Item_Rarity = ItemRarity.Gray},
+        /*»Ò²¼ÒÂ*/new ItemConfig(){ Item_ID = 5101,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
+        /*ºÖ²¼ÒÂ*/new ItemConfig(){ Item_ID = 5102,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
+        /*·À»¤ÒÂ*/new ItemConfig(){ Item_ID = 5103,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 150,Item_Rarity = ItemRarity.Gray},
+        /*Ìú¼×*/new ItemConfig(){ Item_ID = 5104,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 132,Item_Rarity = ItemRarity.Gray},
+        /*Ä¾¼×*/new ItemConfig(){ Item_ID = 5105,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 40,Item_Rarity = ItemRarity.Gray},
+        /*¸ñ×ÓÉÀ*/new ItemConfig(){ Item_ID = 5106,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
+        /*°×²¼ÒÂ*/new ItemConfig(){ Item_ID = 5107,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
+        /*Î÷×°*/new ItemConfig(){ Item_ID = 5108,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 244,Item_Rarity = ItemRarity.Gray},
         #endregion
         #endregion
         #region//6000-6999ÏûºÄÆ·
-        /*ÉúÃüË®¾§*/new ItemConfig(){ Item_ID = 6000,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
-        /*Êí¹ûÖÖ×Ó*/new ItemConfig(){ Item_ID = 6100,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
-        /*À±½·ÖÖ×Ó*/new ItemConfig(){ Item_ID = 6101,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
+        /*ÉúÃüË®¾§*/new ItemConfig(){ Item_ID = 6000,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 500,Item_Rarity = ItemRarity.Gray },
+        /*Êí¹ûÖÖ×Ó*/new ItemConfig(){ Item_ID = 6100,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
+        /*À±½·ÖÖ×Ó*/new ItemConfig(){ Item_ID = 6101,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//9000-9999ÆäËû
         #region//9000-9099µ¯Ò©
-        /*´ÖÖÆÄ¾¼ý*/new ItemConfig(){ Item_ID = 9000,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Arrow,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*¾«ÖÂÄ¾¼ý*/new ItemConfig(){ Item_ID = 9001,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Arrow,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*ÌúÖÆµ¯Íè*/new ItemConfig(){ Item_ID = 9010,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Bullet,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*´ÎÔªµ¯Ï»*/new ItemConfig(){ Item_ID = 9020,Item_Size = ItemSize.Gro,Item_Max = 1,Item_Type = ItemType.Bullet,Item_Value = 6,Item_Rarity = ItemRarity.Gray },
+        /*´ÖÖÆÄ¾¼ý*/new ItemConfig(){ Item_ID = 9000,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Arrow,Item_Value = 3,Item_Rarity = ItemRarity.Gray },
+        /*¾«ÖÂÄ¾¼ý*/new ItemConfig(){ Item_ID = 9001,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Arrow,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
+        /*ÖÂÉËÄ¾¼ý*/new ItemConfig(){ Item_ID = 9002,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Arrow,Item_Value = 8,Item_Rarity = ItemRarity.Green },
+        /*ÐÅºÅÄ¾¼ý*/new ItemConfig(){ Item_ID = 9003,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Arrow,Item_Value = 200,Item_Rarity = ItemRarity.Green },
+        /*ÌúÖÆµ¯Íè*/new ItemConfig(){ Item_ID = 9010,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Bullet,Item_Value = 10,Item_Rarity = ItemRarity.Gray },
+        /*´ÎÔªµ¯Ï»*/new ItemConfig(){ Item_ID = 9020,Item_Size = ItemSize.Gro,Item_Max = 1,Item_Type = ItemType.Bullet,Item_Value = 1000,Item_Rarity = ItemRarity.Rainbow },
         #endregion
         #region//9900-9999²âÊÔ
-        /*ÊéÒ³*/new ItemConfig(){ Item_ID = 9900,Item_Size = ItemSize.Sin,Item_Max = 99,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
-        /*Ô¿³×*/new ItemConfig(){ Item_ID = 9901,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Weapon,Item_Value = 1,Item_Rarity = ItemRarity.Gray },
+        /*¡¶ÎÒÃÇµÄÈý¼¾Õò¡·*/new ItemConfig(){ Item_ID = 9100,Item_Size = ItemSize.Gro,Item_Max = 1,Item_Type = ItemType.Bullet,Item_Value = 62,Item_Rarity = ItemRarity.Rainbow },
+        /*ÊéÒ³*/new ItemConfig(){ Item_ID = 9900,Item_Size = ItemSize.Sin,Item_Max = 99,Item_Type = ItemType.Weapon,Item_Value = 0,Item_Rarity = ItemRarity.Gray },
+        /*Ô¿³×*/new ItemConfig(){ Item_ID = 9901,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Weapon,Item_Value = 0,Item_Rarity = ItemRarity.Gray },
         #endregion
 #endregion
     };
@@ -171,7 +181,7 @@ public class ItemConfigData
     {
         if (rarity == ItemRarity.Gray)
         {
-            str = "<color=#9A9A9A>" + str + "</color>";
+            str = "<color=#ffffff>" + str + "</color>";
         }
         else if (rarity == ItemRarity.Green)
         {
@@ -203,7 +213,7 @@ public class ItemConfigData
     {
         if (quality == ItemQuality.Gray)
         {
-            str = "<color=#9A9A9A>" + str + "</color>";
+            str = "<color=#ffffff>" + str + "</color>";
         }
         else if (quality == ItemQuality.Green)
         {
@@ -328,7 +338,7 @@ public enum ItemRarity
     Rainbow,
 }
 /// <summary>
-/// ÎïÆ·
+/// ÎïÆ·Æ·ÖÊ
 /// </summary>
 public enum ItemQuality
 {

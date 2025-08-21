@@ -8,45 +8,76 @@ using UnityEngine.UIElements;
 
 public class Bullet_Arrow : BulletBase
 {
-    [SerializeField, Header("弓箭速度衰减(m/s2)")]
+    [Header("弓箭速度衰减(m/s2)")]
     private float float_ArrowSpeedDown;
-    [SerializeField, Header("箭矢伤害")]
-    public short config_BaseDamage;
-    [SerializeField, Header("箭矢速度")]
+    [Header("箭矢物理伤害")]
+    public short config_BaseAttackDamage;
+    [Header("箭矢魔法伤害")]
+    public short config_BaseMagicDamage;
+    [Header("箭矢速度")]
     public short config_BaseSpeed;
-    [SerializeField, Header("箭矢力量")]
+    [Header("箭矢力量")]
     public float config_BaseForce;
-
-    [SerializeField, Header("弓箭ID")]
-    private short int_ArrowID;
-    [SerializeField, Header("弓箭回收几率%1000")]
-    private int int_ArrowRecoveryProbability;
+    [Header("弓箭ID")]
+    public short int_ArrowID;
+    [Header("弓箭回收几率%1000")]
+    public int int_ArrowRecoveryProbability;
     private List<ActorManager> actorManagers_Ignore = new List<ActorManager>();
-    public override void Shot(Vector3 dir, int speed_Demage, float speed_Offset, float force_Offset, ActorNetManager from)
+    public override void SetPhysics(Vector3 pos, Vector2 dir, float speedOffset, float forceOffset)
     {
-        vectoe3_MoveDir = dir;
-        float_BulletDemage = config_BaseDamage + speed_Demage;
-        float_BulletSpeed = config_BaseSpeed + speed_Offset;
-        float_BulletForce = config_BaseForce + force_Offset;
+        transform.position = pos;
         vectoe3_CurPos = transform.position;
         vectoe3_LastPos = transform.position;
-        actorNetManager_Owner = from;
-        actorAuthority_Owner = actorNetManager_Owner.actorManager_Local.actorAuthority;
-
-        actorManagers_Ignore.Clear();
-        actorManagers_Ignore.Add(from.actorManager_Local);
-        transform.DOKill();
-        transform.localScale = Vector3.one;
-        base.Shot(dir, speed_Demage, speed_Offset, force_Offset, from);
+        vectoe3_MoveDir = dir;
+        float_BulletSpeed = config_BaseSpeed + speedOffset;
+        float_BulletForce = config_BaseForce + forceOffset;
+        if (float_BulletSpeed < 0) { float_BulletSpeed = 1; }
+        if (float_BulletForce < 0) { float_BulletSpeed = 0; }
         transform.right = vectoe3_MoveDir;
+        base.SetPhysics(pos, dir, speedOffset, forceOffset);
     }
-    public override void Fly(float dt)
+    public override void SetDamage(int AdOffset, int MdOffset)
     {
-        SpeedDown(dt);
-        transform.position += vectoe3_MoveDir * float_BulletSpeed * dt;
-        base.Fly(dt);
+        float_BulletAttackDemage = config_BaseAttackDamage + AdOffset;
+        float_BulletMagicDemage = config_BaseMagicDamage + MdOffset;
+        if (float_BulletAttackDemage < 0) { float_BulletAttackDemage = 0; }
+        if (float_BulletMagicDemage < 0) { float_BulletMagicDemage = 0; }
+        base.SetDamage(AdOffset, MdOffset);
     }
-    public override void Check(float dt)
+    public override void SetOwner(ActorManager owner)
+    {
+        actorManager_Owner = owner;
+        actorAuthority_Owner = actorManager_Owner.actorAuthority;
+        actorManagers_Ignore.Clear();
+        actorManagers_Ignore.Add(actorManager_Owner);
+        base.SetOwner(owner);
+    }
+
+    public void FixedUpdate()
+    {
+        if (!_hide)
+        {
+            Move(Time.fixedDeltaTime);
+            SpeedDown(Time.fixedDeltaTime);
+            Check(Time.fixedDeltaTime);
+        }
+    }
+    private void Move(float dt)
+    {
+        transform.position += vectoe3_MoveDir * float_BulletSpeed * dt;
+    }
+    private void SpeedDown(float dt)
+    {
+        if (float_BulletSpeed > 0)
+        {
+            float_BulletSpeed -= dt * float_ArrowSpeedDown;
+        }
+        else
+        {
+            HideBullet();
+        }
+    }
+    private void Check(float dt)
     {
         vectoe3_LastPos = vectoe3_CurPos;
         vectoe3_CurPos = transform.position;
@@ -76,35 +107,21 @@ public class Bullet_Arrow : BulletBase
             }
         }
     }
-    /// <summary>
-    /// 尝试攻击
-    /// </summary>
     private void Attack(ActorManager actor)
     {
         if (actorAuthority_Owner.isLocal)
         {
-            actor.AllClient_Listen_TakeAttackDamage(float_BulletDemage, actorNetManager_Owner);
+            if (float_BulletAttackDemage > 0)
+            {
+                actor.AllClient_Listen_TakeAttackDamage(float_BulletAttackDemage, actorManager_Owner.actorNetManager);
+            }
+            if (float_BulletMagicDemage > 0)
+            {
+                actor.AllClient_Listen_TakeMagicDamage(float_BulletMagicDemage, actorManager_Owner.actorNetManager);
+            }
         }
     }
-    /// <summary>
-    /// 减速
-    /// </summary>
-    /// <param name="dt"></param>
-    public void SpeedDown(float dt)
-    {
-        if (float_BulletSpeed > 0)
-        {
-            float_BulletSpeed -= dt * float_ArrowSpeedDown;
-        }
-        else
-        {
-            HideBullet();
-        }
-    }
-    /// <summary>
-    /// 爆炸
-    /// </summary>
-    public void Boom(Vector2 pos)
+    private void Boom(Vector2 pos)
     {
         GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_WoodBoom");
         effect.transform.localScale = new Vector3(1 - (2 * new System.Random().Next(0, 2)), 1, 1);
@@ -115,7 +132,7 @@ public class Bullet_Arrow : BulletBase
             Recycle(pos);
         }
     }
-    public void Recycle(Vector2 pos)
+    private void Recycle(Vector2 pos)
     {
         if (actorAuthority_Owner.isState)
         {

@@ -26,6 +26,11 @@ public class TileUI_DialogOption : MonoBehaviour
         localizeStringEvent.StringReference.SetReference(nameTable, nameEntry);
         action_Bind = action;
     }
+    public void Hide()
+    {
+        panel.gameObject.SetActive(false);
+        action_Bind = null;
+    }
     private void Click()
     {
         if (action_Bind != null) { action_Bind(); }

@@ -7,89 +7,29 @@ using UnityEngine;
 
 public class ActorManager_Zombie_Common : ActorManager
 {
-    [SerializeField, Header("攻击间隔"), Range(1, 10)]
-    public float float_AttackCD;
-    private float float_AttackTimer;
-    [SerializeField, Header("追击间隔"), Range(1, 10)]
-    public float float_FollowCD;
-    private float float_FollowTimer;
-    [SerializeField, Header("思考间隔"), Range(1, 10)]
-    public float float_ThinkCD;
-    private float float_ThinkTimer;
-    [SerializeField, Header("搜查时长"), Range(1, 10)]
-    private float float_SearchTime;
-
     [Header("僵尸配置")]
     public ActorConfig_ZombieCommon config;
-    /// <summary>
-    /// 出生点
-    /// </summary>
-    private Vector3Int vector3_HomePos;
-    /// <summary>
-    /// 搜查点
-    /// </summary>
-    private Vector3Int vector3_SearchPos;
+    [Header("攻击间隔"), Range(1, 10)]
+    public float float_AttackCD;
+    private float float_AttackTimer;
+    private float float_FollowCD = 1f;
+    private float float_FollowTimer;
+    private float float_ThinkCD = 1f;
+    private float float_ThinkTimer;
+    private float float_SearchTime = 4f;
 
-    private int int_ThinkTimer;
-    private GlobalTime globalTime_Cur;
-    public override void AllClient_AddListener()
-    {
-        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
-        {
-            AllClient_Listen_UpdateTime(_.hour, _.day, _.now);
-        }).AddTo(this);
-        base.AllClient_AddListener();
-    }
-    public override void State_FixedUpdateNetwork(float dt)
-    {
-        if (brainManager.allClient_actorManager_AttackTarget)
-        {
-            float_AttackTimer -= dt;
-            float_FollowTimer -= dt;
-            if (float_AttackTimer < 0)
-            {
-                if (State_CheckingAttackingDistance())
-                {
-                    pathManager.State_StandDown(3);
-                    float_AttackTimer = float_AttackCD;
-                    actorNetManager.RPC_State_NpcUseSkill(0, brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos, brainManager.allClient_actorManager_AttackTarget.actorNetManager.Object.Id);
-                }
-            }
-            if (float_FollowTimer < 0)
-            {
-                float_FollowTimer = float_FollowCD;
-                if (!State_CheckingAttackingDistance())
-                {
-                    pathManager.State_MoveTo(brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos);
-                }
-            }
-
-        }
-        else
-        {
-            float_ThinkTimer -= dt;
-            if (float_ThinkTimer < 0)
-            {
-                float_ThinkTimer = float_ThinkCD;
-                State_Think();
-            }
-        }
-
-        base.State_FixedUpdateNetwork(dt);
-    }
-    public override void AllClient_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
-    {
-        globalTime_Cur = globalTime;
-        base.AllClient_Listen_UpdateTime(hour, date, globalTime);
-    }
     #region//初始化
-    public override void Client_Init()
+    public override void AllClient_Init()
     {
         statusManager.statusType = config.status_Type;
-        base.Client_Init();
+        base.AllClient_Init();
     }
     public override void State_Init()
     {
+        float_ThinkCD += new System.Random().Next(0, 100) * 0.01f;
+        float_ThinkTimer = float_ThinkCD;
+        float_FollowCD += new System.Random().Next(0, 100) * 0.01f;
+        float_FollowTimer = float_FollowCD;
         State_InitNPCData();
         base.State_Init();
     }
@@ -115,30 +55,88 @@ public class ActorManager_Zombie_Common : ActorManager
             }
         }
         State_SetAbilityData(config.short_Hp, config.short_Armor, config.short_Resistance, config.short_MoveSpeed);
-        actorNetManager.Local_SetBagItem(itemDatas);
+        actorNetManager.Local_SetLootItems(itemDatas);
     }
-    /// <summary>
-    /// 绑定出生点
-    /// </summary>
-    /// <param name="pos"></param>
-    public void State_BindHome(Vector3Int pos)
+    public override void AllClient_AddListener()
     {
-        vector3_HomePos = pos;
+        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
+        {
+            AllClient_Listen_UpdateTime(_.hour, _.day, _.now);
+        }).AddTo(this);
+        base.AllClient_AddListener();
+    }
+    #endregion
+    #region//时间周期
+    public override void State_FixedUpdateNetwork(float dt)
+    {
+        if (brainManager.allClient_actorManager_AttackTarget)
+        {
+            float_AttackTimer -= dt;
+            float_FollowTimer -= dt;
+            if (float_AttackTimer < 0)
+            {
+                if (State_CheckingBiteDistance())
+                {
+                    pathManager.State_StandDown(3);
+                    float_AttackTimer = float_AttackCD;
+                    actorNetManager.RPC_State_NpcUseSkill((int)Skill.Bite, brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos, brainManager.allClient_actorManager_AttackTarget.actorNetManager.Object.Id);
+                }
+            }
+            if (float_FollowTimer < 0)
+            {
+                float_FollowTimer = float_FollowCD;
+                if (!State_CheckingBiteDistance())
+                {
+                    pathManager.State_MovePostion(brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos);
+                }
+            }
+
+        }
+        else
+        {
+            float_ThinkTimer -= dt;
+            if (float_ThinkTimer < 0)
+            {
+                float_ThinkTimer = float_ThinkCD;
+                State_Think();
+            }
+        }
+        base.State_FixedUpdateNetwork(dt);
+    }
+    public override void State_CustomUpdate()
+    {
+        State_CheckNearby();
+        base.State_CustomUpdate();
     }
     #endregion
     #region//对外界的反应
-    public override void State_Listen_MyselfHpChange(int parameter, NetworkId id)
+    public override void State_Listen_MyselfHpChange(int parameter, HpChangeReason reason, NetworkId id)
     {
         NetworkObject networkObject = actorNetManager.Runner.FindObject(id);
         if (networkObject != null)
         {
             ActorManager who = networkObject.GetComponent<ActorManager>();
-            if (actionManager.LookAt(who, config.float_ViewDistance))
+            if (who.actorAuthority.isPlayer && actionManager.LookAt(who, config.float_ViewDistance))
             {
-                if (!brainManager.allClient_actorManager_AttackTarget) { State_InAttack(who); }
+                if (brainManager.allClient_actorManager_AttackTarget == null)
+                {
+                    State_InAttack(who);
+                }
+                else
+                {
+                    if (!brainManager.allClient_actorManager_AttackTarget.actorAuthority.isPlayer)
+                    {
+                        State_InAttack(who);
+                    }
+                }
             }
         }
-        base.State_Listen_MyselfHpChange(parameter, id);
+        base.State_Listen_MyselfHpChange(parameter, reason, id);
+    }
+    public override void AllClient_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
+    {
+        brainManager.SetTime(globalTime);
+        base.AllClient_Listen_UpdateTime(hour, date, globalTime);
     }
     public override void State_Listen_RoleInView(ActorManager actor)
     {
@@ -156,11 +154,6 @@ public class ActorManager_Zombie_Common : ActorManager
         }
         base.State_Listen_RoleInView(actor);
     }
-    public override void State_CustomUpdate()
-    {
-        State_CheckNearby();
-        base.State_CustomUpdate();
-    }
     /// <summary>
     /// 检查附近
     /// </summary>
@@ -175,7 +168,7 @@ public class ActorManager_Zombie_Common : ActorManager
             }
             else
             {
-                vector3_SearchPos = brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos;
+                brainManager.SetSearch(brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos);
             }
         }
         else
@@ -227,49 +220,59 @@ public class ActorManager_Zombie_Common : ActorManager
     /// </summary>
     public void State_Think()
     {
-        if (globalTime_Cur != GlobalTime.Evening)
+        if (brainManager.globalTime_Now == GlobalTime.Evening)
         {
-            if (brainManager.actorManagers_ThreatenedTarget.Count == 0)
-            {
-                State_Think_Stroll();
-            }
+            State_Think_Stroll(config.short_MoveStep);
         }
         else
         {
-            if (brainManager.actorManagers_ThreatenedTarget.Count == 0)
+            if (brainManager.homePostion.isValue)
             {
                 State_Think_GoHome();
+            }
+            else
+            {
+                State_Think_Stroll(config.short_MoveStep);
             }
         }
     }
     /// <summary>
     /// 闲逛
     /// </summary>
-    public void State_Think_Stroll()
+    private void State_Think_Stroll(int distance, int tryTime = 0)
     {
-        if (vector3_HomePos.x - pathManager.vector3Int_CurPos.x > 10)
+        if (distance < 1 || tryTime > 3)
         {
-            State_MoveSameStep(Vector3Int.right);
-        }
-        else if (vector3_HomePos.x - pathManager.vector3Int_CurPos.x < -10)
-        {
-            State_MoveSameStep(Vector3Int.left);
-        }
-        else if (vector3_HomePos.y - pathManager.vector3Int_CurPos.y > 10)
-        {
-            State_MoveSameStep(Vector3Int.up);
-        }
-        else if (vector3_HomePos.y - pathManager.vector3Int_CurPos.y < -10)
-        {
-            State_MoveSameStep(Vector3Int.down);
+            /*闲逛失败*/
         }
         else
         {
-            int random = new System.Random().Next(1, 4);
-            if (random == 1) State_MoveSameStep(Vector3Int.down, config.short_MoveStep);
-            if (random == 2) State_MoveSameStep(Vector3Int.up, config.short_MoveStep);
-            if (random == 3) State_MoveSameStep(Vector3Int.right, config.short_MoveStep);
-            if (random == 4) State_MoveSameStep(Vector3Int.left, config.short_MoveStep);
+            Vector3Int random = new Vector3Int(new System.Random().Next(-distance, distance + 1), new System.Random().Next(-distance, distance + 1));
+            Vector3Int offset = Vector3Int.zero;
+            if (brainManager.activityPostion.isValue)
+            {
+                if (brainManager.activityPostion.postion.x - pathManager.vector3Int_CurPos.x > 5)
+                {
+                    offset += Vector3Int.right;
+                }
+                if (brainManager.activityPostion.postion.x - pathManager.vector3Int_CurPos.x < -5)
+                {
+                    offset += Vector3Int.left;
+                }
+                if (brainManager.activityPostion.postion.y - pathManager.vector3Int_CurPos.y > 5)
+                {
+                    offset += Vector3Int.up;
+                }
+                if (brainManager.activityPostion.postion.y - pathManager.vector3Int_CurPos.y < -5)
+                {
+                    offset += Vector3Int.down;
+                }
+            }
+            if (!pathManager.State_MovePostion(pathManager.vector3Int_CurPos + random + offset))
+            {
+                /*无法抵达*/
+                State_Think_Stroll(distance - 1, tryTime + 1);
+            }
         }
     }
     /// <summary>
@@ -277,25 +280,14 @@ public class ActorManager_Zombie_Common : ActorManager
     /// </summary>
     public void State_Think_GoHome()
     {
-        if (Vector3.Distance(pathManager.vector3Int_CurPos, vector3_HomePos) < 0.5f)
+        if (Vector3.Distance(pathManager.vector3Int_CurPos, brainManager.homePostion.postion) < 0.5f)
         {
             actionManager.Despawn();
         }
         else
         {
-            pathManager.State_MoveTo(vector3_HomePos);
+            pathManager.State_MovePostion(brainManager.homePostion.postion);
         }
-    }
-    /// <summary>
-    /// 朝目标方向移动
-    /// </summary>
-    /// <param name="dir"></param>
-    /// <returns></returns>
-    public void State_MoveSameStep(Vector3Int dir, short step = 1)
-    {
-        Vector3Int pos_F = pathManager.vector3Int_CurPos + dir * step;
-        Vector3Int pos_R = pathManager.vector3Int_CurPos - dir * step;
-        if (!pathManager.State_MoveTo(pos_F)) pathManager.State_MoveTo(pos_R);
     }
     #endregion
     #region//战斗状态
@@ -318,9 +310,9 @@ public class ActorManager_Zombie_Common : ActorManager
     /// 检查攻击距离
     /// </summary>
     /// <returns></returns>
-    public bool State_CheckingAttackingDistance()
+    public bool State_CheckingBiteDistance()
     {
-        if (Vector3.Distance(brainManager.allClient_actorManager_AttackTarget.transform.position, transform.position) < config.float_AttackDistance)
+        if (Vector3.Distance(brainManager.allClient_actorManager_AttackTarget.transform.position, transform.position) < config.float_BiteDistance)
         {
             return true;
         }
@@ -335,19 +327,23 @@ public class ActorManager_Zombie_Common : ActorManager
     /// <param name="vector2"></param>
     private void State_Search()
     {
-        if (vector3_SearchPos != Vector3Int.zero)
+        if (brainManager.searchPostion.isValue)
         {
             float_ThinkTimer = float_SearchTime;
-            pathManager.State_MoveTo(vector3_SearchPos);
-            vector3_SearchPos = Vector3Int.zero;
+            pathManager.State_MovePostion(brainManager.searchPostion.postion);
+            brainManager.ResetSearch();
         }
     }
 
     #endregion
     #region//技能
+    private enum Skill
+    {
+        Bite
+    }
     public override void AllClient_Listen_NpcAction(int id, Vector3Int vector3, NetworkId networkId)
     {
-        if (id == 0)
+        if (id == (int)Skill.Bite)
         {
             AllClient_Bite(vector3, networkId);
         }
@@ -355,20 +351,13 @@ public class ActorManager_Zombie_Common : ActorManager
     }
     private void AllClient_Bite(Vector3Int vector3, NetworkId networkId)
     {
-        if (vector3.x > pathManager.vector3Int_CurPos.x)
-        {
-            bodyController.TurnRight();
-        }
-        else
-        {
-            bodyController.TurnLeft();
-        }
-        bodyController.SetAnimatorTrigger(BodyPart.Body, "Attack");
+        actionManager.TurnTo(((Vector3)(vector3 - pathManager.vector3Int_CurPos)));
+        bodyController.SetAnimatorTrigger(BodyPart.Body, "Bite");
         if (actorAuthority.isState)
         {
-            bodyController.SetAnimatorAction(BodyPart.Body, (str) =>
+            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
             {
-                if (str.Equals("Attack"))
+                if (str.Equals("Bite"))
                 {
                     RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1, Vector2.zero);
                     foreach (RaycastHit2D hit2D in raycastHit2Ds)
@@ -381,6 +370,11 @@ public class ActorManager_Zombie_Common : ActorManager
                             }
                         }
                     }
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             });
         }
@@ -403,7 +397,7 @@ public struct ActorConfig_ZombieCommon
     [Header("移动距离"), Range(1, 10)]
     public short short_MoveStep;
     [Header("攻击距离"), Range(1, 5)]
-    public float float_AttackDistance;
+    public float float_BiteDistance;
     [Header("视野距离"), Range(1, 99)]
     public float float_ViewDistance;
     [Header("基本掉落列表")]

@@ -30,15 +30,24 @@ public class ActorHungryManager
     {
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            if (actorManager.actorNetManager.Net_FoodCur + val > 0)
+            int Net_FoodNew = actorManager.actorNetManager.Net_FoodCur + val;
+            if (Net_FoodNew <= 0)
             {
-                actorManager.actorNetManager.RPC_LocalInput_FoodChange((short)(actorManager.actorNetManager.Net_FoodCur + val));
+                if (!actorManager.buffManager.Local_CheckBuff(2011))
+                {
+                    BuffData buffData = new BuffData(2011);
+                    actorManager.actorNetManager.Local_AddBuff(buffData);
+                }
             }
-            else
+            else if (Net_FoodNew < 30) 
             {
-                actorManager.actorNetManager.RPC_LocalInput_FoodChange(0);
-                actorManager.actorNetManager.RPC_AllClient_HpChange(-5, new Fusion.NetworkId());
+                if (!actorManager.buffManager.Local_CheckBuff(2010))
+                {
+                    BuffData buffData = new BuffData(2010);
+                    actorManager.actorNetManager.Local_AddBuff(buffData);
+                }
             }
+            actorManager.actorNetManager.RPC_LocalInput_FoodChange((short)val);
         }
         return actorManager.actorNetManager.Net_FoodCur;
     }
@@ -46,14 +55,7 @@ public class ActorHungryManager
     {
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            if (actorManager.actorNetManager.Net_FoodCur + val <= actorManager.actorNetManager.Local_FoodMax)
-            {
-                actorManager.actorNetManager.RPC_LocalInput_FoodChange((short)(actorManager.actorNetManager.Net_FoodCur + val));
-            }
-            else
-            {
-                actorManager.actorNetManager.RPC_LocalInput_FoodChange(actorManager.actorNetManager.Local_FoodMax);
-            }
+            actorManager.actorNetManager.RPC_LocalInput_FoodChange((short)val);
         }
         return actorManager.actorNetManager.Net_FoodCur;
     }

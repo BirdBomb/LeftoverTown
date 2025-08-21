@@ -81,11 +81,19 @@ public class GameEvent
         public System.Action<ActorManager> callBack;
     }
     /// <summary>
-    /// 服务端:召唤玩家
+    /// 服务端:杀死玩家
+    /// </summary>
+    public class GameEvent_State_KillPlayer
+    {
+        public PlayerRef playerRef;
+    }
+    /// <summary>
+    /// 服务端:复原玩家
     /// </summary>
     public class GameEvent_State_RevivePlayer
     {
         public PlayerRef playerRef;
+        public float reviveTime = 10;
     }
     /// <summary>
     /// 本地端:生成物体

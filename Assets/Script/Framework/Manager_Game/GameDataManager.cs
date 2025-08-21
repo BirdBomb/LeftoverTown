@@ -150,6 +150,11 @@ public class GameDataManager :SingleTon<GameDataManager> ,ISingleTon
             }
         }
     }
+    public void SavePlayer(PlayerData playerData)
+    {
+        Debug.Log("开始保存角色" + bind_PlayerDataPath);
+        FileManager.Instance.WriteFile(bind_PlayerDataPath, JsonConvert.SerializeObject(playerData));
+    }
 }
 //public class UnityTypeConverter : JsonConverter
 //{

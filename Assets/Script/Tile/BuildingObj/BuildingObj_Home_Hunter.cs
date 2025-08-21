@@ -6,13 +6,21 @@ using UnityEngine;
 
 public class BuildingObj_Home_Hunter : BuildingObj
 {
-    private ActorManager_NPC_Hunter hunter;
+    private ActorManager actor_Bind;
     public override void Start()
     {
-        CreateHunter();
+        CreateActor();
+        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
+        {
+            All_UpdateHour(_.hour);
+        }).AddTo(this);
         base.Start();
     }
-    private void CreateHunter()
+    public void All_UpdateHour(int hour)
+    {
+        if (actor_Bind == null && hour == 0) { CreateActor(); }
+    }
+    private void CreateActor()
     {
         MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
         {
@@ -20,13 +28,9 @@ public class BuildingObj_Home_Hunter : BuildingObj
             pos = transform.position,
             callBack = ((actor) =>
             {
-                hunter = actor.GetComponent<ActorManager_NPC_Hunter>();
-                if (hunter.TryGetComponent(out ActorManager_NPC_Hunter actorManager_NPC_Hunter))
-                {
-                    hunter.State_BindChoppingBoard(buildingTile.tilePos);
-                }
+                actor_Bind = actor.GetComponent<ActorManager>();
+                actor_Bind.brainManager.SetWork(buildingTile.tilePos);
             })
-
         });
     }
 

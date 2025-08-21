@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class ItemLocalObj_Torch : ItemLocalObj
 {
@@ -12,12 +13,13 @@ public class ItemLocalObj_Torch : ItemLocalObj
     private Transform transform_Root;
     [SerializeField]
     private SpriteRenderer spriteRenderer_Hand;
-    private int temp_BurnTimer = 0;
-    private const int config_BurnTimer = 5;
+    [SerializeField]
+    private Light2D light2D;
+    private float config_BurnTimer = 0;
+    private float temp_BurnTimer = 0;
     private InputData inputData= new InputData();
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
-        itemData = data;
         actorManager = owner;
 
         transform.SetParent(body.transform_ItemInRightHand);
@@ -28,7 +30,13 @@ public class ItemLocalObj_Torch : ItemLocalObj
 
         spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
-        base.HoldingByHand(owner, body, data);
+        base.HoldingStart(owner, body);
+    }
+    public void UpdateTorchData(float lightRange,float lightSpeed,ItemQuality itemQuality)
+    {
+        light2D.pointLightOuterRadius = lightRange;
+        if (lightSpeed <= 0) { config_BurnTimer = int.MaxValue; }
+        else { config_BurnTimer = 1f / lightSpeed; }
     }
     private void FixedUpdate()
     {

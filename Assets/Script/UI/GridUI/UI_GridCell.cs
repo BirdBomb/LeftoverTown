@@ -77,6 +77,12 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         action_ClickRight = clickRight;
         if (grid_Child) { grid_Child.BindCell(itemPath); }
     }
+    public void BindGrid(ItemPath itemPath, Action<ItemData, ItemPath> putIn, Func<ItemData, ItemData, ItemPath, ItemData> putOut)
+    {
+        itemPath_Bind = itemPath;
+        action_PutIn = putIn;
+        action_PutOut = putOut;
+    }
     #endregion
     #region//更新格子
     /// <summary>

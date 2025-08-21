@@ -22,7 +22,7 @@ public class Item_0 : ItemBase
     {
         this.owner = owner;
         itemLocalObj_Punch = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_0").GetComponent<ItemLocalObj_Punch>();
-        itemLocalObj_Punch.HoldingByHand(owner, body, itemData);
+        itemLocalObj_Punch.HoldingStart(owner, body);
     }
     #endregion
     public override void GridCell_Draw(UI_GridCell gridCell)
@@ -128,6 +128,12 @@ public class Item_1018 : ItemBase_Materials
 /// Ä¾°å
 /// </summary>
 public class Item_1100 : ItemBase_Materials
+{
+}
+/// <summary>
+/// ²ÝÖ½
+/// </summary>
+public class Item_1101 : ItemBase_Materials
 {
 }
 /// <summary>

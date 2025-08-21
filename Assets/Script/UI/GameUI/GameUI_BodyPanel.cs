@@ -7,10 +7,6 @@ public class GameUI_BodyPanel : MonoBehaviour
 {
     private void Start()
     {
-        MessageBroker.Default.Receive<UIEvent.UIEvent_OpenItemInHand>().Subscribe(_ =>
-        {
-            gridCell_Hand.ClickRight();
-        }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInHand>().Subscribe(_ =>
         {
             itemData_Hand = _.itemData;

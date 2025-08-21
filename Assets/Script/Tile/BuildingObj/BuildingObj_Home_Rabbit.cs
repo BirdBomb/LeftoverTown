@@ -6,23 +6,20 @@ using UnityEngine;
 
 public class BuildingObj_Home_Rabbit : BuildingObj
 {
-    private ActorManager_Animal_Rabbit rabbit;
+    private ActorManager actor_Bind;
     public override void Start()
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
         {
-            ListenTimeUpdate(_.now);
+            All_UpdateHour(_.hour);
         }).AddTo(this);
         base.Start();
     }
-    private void ListenTimeUpdate(GlobalTime globalTime)
+    public void All_UpdateHour(int hour)
     {
-        if (globalTime == GlobalTime.Morning)
-        {
-            if (rabbit == null) CreateRabbit();
-        }
+        if (actor_Bind == null && hour == 1) { CreateActor(); }
     }
-    private void CreateRabbit()
+    private void CreateActor()
     {
         MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
         {
@@ -30,8 +27,8 @@ public class BuildingObj_Home_Rabbit : BuildingObj
             pos = transform.position,
             callBack = ((actor) =>
             {
-                rabbit = actor.GetComponent<ActorManager_Animal_Rabbit>();
-                rabbit.State_BindRabbitHole(buildingTile.tilePos);
+                actor_Bind = actor.GetComponent<ActorManager>();
+                actor_Bind.brainManager.SetHome(buildingTile.tilePos);
             })
         });
     }

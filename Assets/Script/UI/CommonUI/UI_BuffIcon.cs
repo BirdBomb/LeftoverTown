@@ -12,14 +12,13 @@ public class UI_BuffIcon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandle
     public Image spriteRenderer_Icon;
     public GameObject obj_Desc;
     public TextMeshProUGUI text_Desc;
-    public void Draw(Sprite sprite,string buffName,string buffDesc)
+    public void DrawIcon(Sprite sprite)
     {
         obj_Icon.transform.DOKill();
         obj_Icon.transform.localScale = Vector3.one;
         obj_Icon.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
 
         spriteRenderer_Icon.sprite = sprite;
-        text_Desc.text = buffName + "\n" + buffDesc;
     }
     public void OnPointerEnter(PointerEventData eventData)
     {

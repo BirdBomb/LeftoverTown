@@ -21,7 +21,15 @@ public class BodyController_Base : MonoBehaviour
         if (speed > 0.1f)
         {
             PlayMove(speed);
-            TurnTo(vector2_Cur - vector2_Last);
+            turnDir = (vector2_Cur - vector2_Last).normalized;
+            if (turnDir.x > 0.1f) 
+            {
+                TurnRight(); 
+            }
+            if (turnDir.x < -0.1f)
+            {
+                TurnLeft();
+            }
         }
         else
         {
@@ -71,7 +79,7 @@ public class BodyController_Base : MonoBehaviour
     {
 
     }
-    public virtual void SetAnimatorAction(BodyPart bodyPart, Action<string> action)
+    public virtual void SetAnimatorFunc(BodyPart bodyPart, Func<string, bool> func)
     {
 
     }
@@ -91,63 +99,37 @@ public class BodyController_Base : MonoBehaviour
     public Vector2 turnDir;
     protected bool turnRight = true;
     protected bool faceRight = true;
-    public void FaceTo(Vector2 dir)
-    {
-        faceDir = dir.normalized;
-        if (dir.x > 0) FaceRight();
-        else FaceLeft();
-    }
     /// <summary>
     /// 面向左边
     /// </summary>
-    public void FaceLeft()
+    public virtual void FaceLeft()
     {
-        if (faceRight)
-        {
-            faceRight = false;
-            Face(faceRight);
-        }
+        faceRight = false;
     }
     /// <summary>
     /// 面向右边
     /// </summary>
-    public void FaceRight()
+    public virtual void FaceRight()
     {
-        if (!faceRight)
-        {
-            faceRight = true;
-            Face(faceRight);
-        }
+        faceRight = true;
     }
-    public virtual void Face(bool right)
+    /// <summary>
+    /// 转向左边
+    /// </summary>
+    public virtual void TurnLeft()
     {
+        turnRight = false;
+        if (faceRight) { FaceRight(); }
+        else { FaceLeft(); }
     }
-    public void TurnTo(Vector2 dir)
+    /// <summary>
+    /// 转向右边
+    /// </summary>
+    public virtual void TurnRight()
     {
-        turnDir = dir.normalized;
-        if (dir.x > 0.1f) TurnRight();
-        if (dir.x < -0.1f) TurnLeft();
-    }
-    public void TurnLeft()
-    {
-        if (turnRight)
-        {
-            turnRight = false;
-            Turn(turnRight);
-            Face(faceRight);
-        }
-    }
-    public void TurnRight()
-    {
-        if (!turnRight)
-        {
-            turnRight = true;
-            Turn(turnRight);
-            Face(faceRight);
-        }
-    }
-    public virtual void Turn(bool right)
-    {
+        turnRight = true;
+        if (faceRight) { FaceRight(); }
+        else { FaceLeft(); }
     }
     #endregion
     #region//隐藏

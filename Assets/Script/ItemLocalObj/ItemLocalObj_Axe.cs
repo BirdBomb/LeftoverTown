@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Windows;
+using static Fusion.Sockets.NetBitBuffer;
 /// <summary>
 /// ¸«×Ó
 /// </summary>
@@ -15,14 +16,27 @@ public class ItemLocalObj_Axe : ItemLocalObj
     private SpriteRenderer spriteRenderer_Hand;
     [SerializeField]
     private SkillIndicators skillIndicators;
-    [SerializeField, Header("Åü¿³ËÙ¶È")]
-    private float config_HackSpeed = 1;
-    [SerializeField, Header("Åü¿³ÉËº¦")]
-    private short config_HackDamage = 5;
-    [SerializeField, Header("Åü¿³·¶Î§")]
-    private float config_HackMaxRange = 60;
-    [SerializeField, Header("Åü¿³¾àÀë")]
-    private float config_HackMaxDistance = 1;
+    /// <summary>
+    /// Åü¿³ÉËº¦
+    /// </summary>
+    private int HackDamage;
+    /// <summary>
+    /// Åü¿³ËÙ¶È
+    /// </summary>
+    private float HackSpeed;
+    /// <summary>
+    /// Åü¿³¾àÀë
+    /// </summary>
+    private float HackDistance;
+    /// <summary>
+    /// Åü¿³·¶Î§
+    /// </summary>
+    private float HackRange = 60;
+    /// <summary>
+    /// Åü¿³Ä¥Ëð
+    /// </summary>
+    private float HackAbrasion;
+    private float HackAbrasion_Temp;
     /// <summary>
     /// Åü¿³¶¯»­Ê±³¤
     /// </summary>
@@ -32,15 +46,20 @@ public class ItemLocalObj_Axe : ItemLocalObj
     /// </summary>
     private float config_HackCD;
     /// <summary>
-    /// Åü¿³CDµ¹Êý
-    /// </summary>
-    private float config_HackCDRec;
-    /// <summary>
-    /// ÏÂ´ÎÈ­»÷Ê±¼ä
+    /// ÏÂ´ÎÅü¿³Ê±¼ä
     /// </summary>
     private float float_NextHackTiming = 0;
 
     private InputData inputData = new InputData();
+    public void UpdateAexData(int hackDamage, float hackSpeed, float hackDistance, float hackExpend, ItemQuality itemQuality)
+    {
+        HackDamage = hackDamage;
+        HackSpeed = hackSpeed;
+        HackDistance = hackDistance;
+        HackAbrasion = hackExpend;
+
+        config_HackCD = config_HackDuraction / HackSpeed;
+    }
     private void FixedUpdate()
     {
         if (inputData.leftPressTimer == 0 && float_NextHackTiming > 0)
@@ -48,9 +67,8 @@ public class ItemLocalObj_Axe : ItemLocalObj
             float_NextHackTiming -= Time.fixedDeltaTime;
         }
     }
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
-        itemData = data;
         actorManager = owner;
 
         transform.SetParent(body.transform_ItemInRightHand);
@@ -59,12 +77,9 @@ public class ItemLocalObj_Axe : ItemLocalObj
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
 
-        config_HackCD = config_HackDuraction / config_HackSpeed;
-        config_HackCDRec = config_HackSpeed / config_HackDuraction;
-
         spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
-        base.HoldingByHand(owner, body, data);
+        base.HoldingStart(owner, body);
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
@@ -72,7 +87,7 @@ public class ItemLocalObj_Axe : ItemLocalObj
         {
             float_NextHackTiming += config_HackCD + 0.1f;
             animator.SetTrigger("Hack");
-            animator.speed = config_HackSpeed;
+            animator.speed = HackSpeed;
         }
         inputData.leftPressTimer = time;
         return base.PressLeftMouse(time, actorAuthority);
@@ -91,8 +106,8 @@ public class ItemLocalObj_Axe : ItemLocalObj
         inputData.mousePosition = mouse;
         if (actorManager.actorAuthority.isLocal && actorManager.actorAuthority.isPlayer)
         {
-            float alpht = (float_NextHackTiming - inputData.leftPressTimer) * config_HackCDRec;
-            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, config_HackMaxDistance, config_HackMaxRange, alpht);
+            float alpht = (float_NextHackTiming - inputData.leftPressTimer) / config_HackCD;
+            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, HackDistance, HackRange, alpht);
         }
         base.UpdateMousePos(mouse);
     }
@@ -100,17 +115,17 @@ public class ItemLocalObj_Axe : ItemLocalObj
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            sbyte temp = 0;
+            float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
-            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_HackMaxDistance, config_HackMaxRange, out Collider2D[] colliders);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, HackDistance, HackRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].tag.Equals("BuildingNatural"))
                 {
                     if (colliders[i].TryGetComponent(out BuildingObj building))
                     {
-                        building.Local_TakeDamage(config_HackDamage);
-                        temp = -2;
+                        building.Local_TakeDamage(HackDamage);
+                        temp = HackAbrasion;
                     }
                 }
                 else if (colliders[i].tag.Equals("Actor"))
@@ -120,37 +135,48 @@ public class ItemLocalObj_Axe : ItemLocalObj
                         if (actor == actorManager) { continue; }
                         else
                         {
-                            actor.AllClient_Listen_TakeAttackDamage(config_HackDamage, actorManager.actorNetManager);
-                            temp = -1;
+                            actor.AllClient_Listen_TakeAttackDamage(HackDamage, actorManager.actorNetManager);
+                            temp = HackAbrasion;
                         }
                     }
                 }
             }
-            ChangeDurability(temp);
+            AddAbrasion(temp);
         }
     }
-    public void ChangeDurability(sbyte val)
+    /// <summary>
+    /// ÀÛ¼ÆËðºÄ
+    /// </summary>
+    /// <param name="val"></param>
+    public void AddAbrasion(float val)
     {
-        if (val != 0 && actorManager.actorAuthority.isPlayer)
+        HackAbrasion_Temp += val;
+        if (HackAbrasion_Temp >= 1)
         {
-            ItemData _oldItem = itemData;
-            ItemData _newItem = itemData;
-            if (_newItem.Item_Durability + val <= 0)
+            int offset = (int)Math.Floor(HackAbrasion_Temp);
+            HackAbrasion_Temp = HackAbrasion_Temp - offset;
+            if (val != 0 && actorManager.actorAuthority.isPlayer)
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                ItemData _oldItem = itemData;
+                ItemData _newItem = itemData;
+                if (_newItem.Item_Durability - offset <= 0)
                 {
-                    item = itemData,
-                });
-            }
-            else
-            {
-                _newItem.Item_Durability += val;
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                    {
+                        item = itemData,
+                    });
+                }
+                else
                 {
-                    oldItem = _oldItem,
-                    newItem = _newItem,
-                });
+                    _newItem.Item_Durability -= (sbyte)offset;
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    {
+                        oldItem = _oldItem,
+                        newItem = _newItem,
+                    });
+                }
             }
+
         }
     }
 }

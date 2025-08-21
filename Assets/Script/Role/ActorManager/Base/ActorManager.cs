@@ -9,6 +9,7 @@ using UniRx;
 using Unity.VisualScripting;
 using UnityEditor.Rendering;
 using UnityEngine;
+using UnityEngine.Accessibility;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 using static Fusion.Allocator;
@@ -18,16 +19,16 @@ using static GameEvent;
 /// </summary>
 public class ActorManager : MonoBehaviour
 {
-    [SerializeField, Header("物理刚体")]
-    private Rigidbody2D rigidbody2;
-    [Header("角色UI")]
-    public ActorUI actorUI;
-    [Header("网络控制器")]
-    public ActorNetManager actorNetManager;
-    [Header("身体控制器")]
-    public BodyController_Base bodyController;
-    [Header("预测输入")]
+    [Header("本地端移动预测")]
     public PlayerSimulation playerSimulation;
+    [HideInInspector]
+    public Rigidbody2D rigidbody2;
+    [HideInInspector]
+    public ActorUI actorUI;
+    [HideInInspector]
+    public ActorNetManager actorNetManager;
+    [HideInInspector]
+    public BodyController_Base bodyController;
     [HideInInspector]
     public ActorState actorState;
     [HideInInspector]
@@ -39,6 +40,10 @@ public class ActorManager : MonoBehaviour
     /// 饥饿
     /// </summary>
     public ActorHungryManager hungryManager = new ActorHungryManager();
+    /// <summary>
+    /// 精神
+    /// </summary>
+    public ActorSanManager sanManager = new ActorSanManager(); 
     /// <summary>
     /// Buff
     /// </summary>
@@ -71,11 +76,33 @@ public class ActorManager : MonoBehaviour
     /// 大脑
     /// </summary>
     public ActorBrainManager brainManager = new ActorBrainManager();
+    [HideInInspector]
     public ActorViewManager viewManager;
     public virtual void Awake()
     {
+        viewManager = transform.GetComponentInChildren<ActorViewManager>();
+        if (viewManager) { viewManager.Bind(this); }
+        else { Debug.Log("未找到视野控制器"); }
+
+        rigidbody2 = transform.GetComponent<Rigidbody2D>();
+        if (rigidbody2) {  }
+        else { Debug.Log("未找到视野控制器"); }
+
+        actorUI = transform.GetComponentInChildren<ActorUI>();
+        if (actorUI) { }
+        else { Debug.Log("未找到角色UI"); }
+
+        actorNetManager = transform.GetComponent<ActorNetManager>();
+        if (actorNetManager) { }
+        else { Debug.Log("未找到网络控制器"); }
+
+        bodyController = transform.GetComponentInChildren<BodyController_Base>();
+        if (bodyController) { }
+        else { Debug.Log("未找到身体控制器"); }
+
         rigidbody2.gravityScale = 0;
         hungryManager.Bind(this);
+        sanManager.Bind(this);
         buffManager.Bind(this);
         itemManager.Bind(this);
         statusManager.Bind(this);
@@ -84,9 +111,8 @@ public class ActorManager : MonoBehaviour
         pathManager.Bind(this);
         vehicleManager.Bind(this);
         brainManager.Bind(this);
-        viewManager = transform.GetComponentInChildren<ActorViewManager>();
-        if (viewManager) viewManager.Bind(this);
     }
+
     public virtual void FixedUpdate()
     {
 
@@ -94,18 +120,17 @@ public class ActorManager : MonoBehaviour
     /*初始化*/
     #region
     /// <summary>
-    /// 客户端初始化
+    /// 客户端初始化 
     /// </summary>
-    public virtual void Client_Init()
+    public virtual void AllClient_Init()
     {
         transform.localScale = Vector3.one;
         transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
         AllClient_StatrLoop();
         AllClient_AddListener();
-        
+
         actorAuthority.isLocal = actorNetManager.Object.HasStateAuthority;
         actorAuthority.isState = actorNetManager.Object.HasStateAuthority;
-        actorNetManager.Client_RequestInfo();
     }
     /// <summary>
     /// 服务器初始化
@@ -157,13 +182,20 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     public virtual void AllClient_AddListener()
     {
-
     }
     /// <summary>
     /// 监听某物进入视野范围(服务器)
     /// </summary>
     /// <param name="obj"></param>
     public virtual void State_Listen_ItemInView(ItemNetObj obj)
+    {
+
+    }
+    /// <summary>
+    /// 监听某物进入视野范围(客户端)
+    /// </summary>
+    /// <param name="obj"></param>
+    public virtual void AllClient_Listen_ItemInView(ItemNetObj obj)
     {
 
     }
@@ -209,7 +241,7 @@ public class ActorManager : MonoBehaviour
     /// <param name="globalTime"></param>
     public virtual void AllClient_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
     {
-        if (actorAuthority.isState) State_Listen_WorldGlobalTimeChange(hour, date, globalTime);
+        if (actorAuthority.isState) State_Listen_UpdateTime(hour, date, globalTime);
     }
     /// <summary>
     /// 监听时间改变(服务器)
@@ -217,7 +249,7 @@ public class ActorManager : MonoBehaviour
     /// <param name="hour"></param>
     /// <param name="date"></param>
     /// <param name="globalTime"></param>
-    public virtual void State_Listen_WorldGlobalTimeChange(int hour, int date, GlobalTime globalTime)
+    public virtual void State_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
     {
 
     }
@@ -318,19 +350,27 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     /// <param name="parameter"></param>
     /// <param name="id"></param>
-    public virtual void AllClient_Listen_MyselfHpChange(int parameter, Fusion.NetworkId id)
+    public virtual void AllClient_Listen_MyselfHpChange(int parameter, HpChangeReason reason, Fusion.NetworkId id)
     {
         if (parameter <= 0)
         {
-            if(actorAuthority.isPlayer && actorAuthority.isLocal)
-            {
-                AllClient_ShowText(parameter.ToString(), new Color32(255, 0, 0, 255));
-            }
-            else
+            if (reason == HpChangeReason.AttackDamage)
             {
                 AllClient_ShowText(parameter.ToString(), new Color32(255, 100, 0, 255));
             }
+            if (reason == HpChangeReason.MagicDamage)
+            {
+                AllClient_ShowText(parameter.ToString(), new Color32(200, 0, 255, 255));
+            }
+            if (reason == HpChangeReason.RealDamage)
+            {
+                AllClient_ShowText(parameter.ToString(), new Color32(255, 255, 255, 255));
+            }
             actionManager.PlayTakeDamage(1);
+        }
+        else
+        {
+            AllClient_ShowText(parameter.ToString(), new Color32(0, 255, 0, 255));
         }
     }
     /// <summary>
@@ -338,7 +378,7 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     /// <param name="parameter"></param>
     /// <param name="id"></param>
-    public virtual void State_Listen_MyselfHpChange(int parameter, Fusion.NetworkId id)
+    public virtual void State_Listen_MyselfHpChange(int parameter, HpChangeReason reason, Fusion.NetworkId id)
     {
 
     }
@@ -386,7 +426,7 @@ public class ActorManager : MonoBehaviour
     }
     public virtual void AllClient_Listen_TakeMagicDamage(int val, ActorNetManager from)
     {
-
+        actionManager.TakeMagicDamage(val, from);
     }
     /// <summary>
     /// 监听治疗(客户端)
@@ -480,6 +520,7 @@ public class ActorManager : MonoBehaviour
     public virtual void Local_SecondUpdate()
     {
         hungryManager.Listen_UpdateSecond();
+        sanManager.Listen_UpdateSecond();
         buffManager.Listen_UpdateSecond();
         itemManager.Listen_UpdateSecond(1);
     }
@@ -493,7 +534,7 @@ public class ActorManager : MonoBehaviour
     public virtual void AllClient_ShowText(string val,Color32 color)
     {
         Vector2 offset = 0.025f * new Vector2(new System.Random().Next(-10, 10), new System.Random().Next(-5, 5));
-        Effect_DamageUI damageUI = PoolManager.Instance.GetObject("Effect/Effect_DamageUI").GetComponent<Effect_DamageUI>();
+        Effect_NumUI damageUI = PoolManager.Instance.GetObject("Effect/Effect_NumUI").GetComponent<Effect_NumUI>();
         damageUI.transform.position = (Vector2)transform.position + Vector2.up;
         damageUI.PlayShow(val, color, offset);
     }
@@ -504,6 +545,36 @@ public class ActorManager : MonoBehaviour
     #endregion
     /*交互*/
     #region
+    /// <summary>
+    /// 是否可以对话
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool Local_CanDialog()
+    {
+        return false;
+    }
+    /// <summary>
+    /// 靠近玩家
+    /// </summary>
+    public virtual void Local_PlayerClose(ActorManager player)
+    {
+        
+    }
+    /// <summary>
+    /// 远离玩家
+    /// </summary>
+    public virtual void Local_PlayerFaraway(ActorManager player)
+    {
+
+    }
+    /// <summary>
+    /// 获取玩家输入R
+    /// </summary>
+    /// <param name="actor"></param>
+    public virtual void Local_GetPlayerInput_R(ActorManager player)
+    {
+
+    }
     /// <summary>
     /// 进入玩家视野
     /// </summary>

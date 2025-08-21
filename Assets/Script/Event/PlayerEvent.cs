@@ -30,6 +30,13 @@ public class PlayerEvent
         public ItemData itemData;
         public int index;
     }
+    /// <summary>
+    /// 本地玩家:使用背包物体
+    /// </summary>
+    public class PlayerEvent_Local_TryUseItemInBag
+    {
+        public int index;
+    }
     #endregion
     #region//玩家手持
     /// <summary>
@@ -55,6 +62,21 @@ public class PlayerEvent
         public ItemData oldItem;
         public ItemData newItem;
     }
+    /// <summary>
+    /// 本地玩家:替换背包物体到手上
+    /// </summary>
+    public class PlayerEvent_Local_TrySwitchItemBetweenHandAndBag 
+    {
+        public int index;
+    }
+    /// <summary>
+    /// 本地玩家:收起手持物体
+    /// </summary>
+    public class PlayerEvent_Local_TryPutAwayItemOnHand
+    {
+        
+    }
+
     #endregion
     #region//玩家头部
     /// <summary>
@@ -79,6 +101,20 @@ public class PlayerEvent
     {
         public ItemData oldItem;
         public ItemData newItem;
+    }
+    /// <summary>
+    /// 替换背包物体到头上
+    /// </summary>
+    public class PlayerEvent_Local_TrySwitchItemBetweenHeadAndBag
+    {
+        public int index;
+    }
+    /// <summary>
+    /// 本地玩家:收起头部物体
+    /// </summary>
+    public class PlayerEvent_Local_TryPutAwayItemOnHead
+    {
+
     }
 
     #endregion
@@ -106,7 +142,20 @@ public class PlayerEvent
         public ItemData oldItem;
         public ItemData newItem;
     }
+    /// <summary>
+    /// 替换背包物体到身体
+    /// </summary>
+    public class PlayerEvent_Local_TrySwitchItemBetweenBodyAndBag
+    {
+        public int index;
+    }
+    /// <summary>
+    /// 本地玩家:收起身体物体
+    /// </summary>
+    public class PlayerEvent_Local_TryPutAwayItemOnBody
+    {
 
+    }
     #endregion
 
 

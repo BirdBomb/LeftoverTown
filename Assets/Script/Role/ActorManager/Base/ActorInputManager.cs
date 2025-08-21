@@ -15,7 +15,6 @@ public class ActorInputManager
     #region//ÕÊº“ ‰»Î
     private Action<ActorManager, float, Vector2> action_InputMove = null;
     private List<Action<ActorManager, KeyCode>> actions_InputKeycode = new List<Action<ActorManager, KeyCode>>();
-    private int int_SwitchIndex = 0;
     public void InputKeycode(KeyCode keyCode,bool on = true)
     {
         for (int i = 0; i < actions_InputKeycode.Count; i++)
@@ -26,40 +25,13 @@ public class ActorInputManager
         {
             actorManager.actionManager.PickUp(0.5f);
         }
-        if (keyCode == KeyCode.Q)
+    }
+    public void InputAlpha(int val)
+    {
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_TryUseItemInBag()
         {
-            if (int_SwitchIndex > 0)
-            {
-                int_SwitchIndex--;
-            }
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_SwitchItemInBag()
-            {
-                index = int_SwitchIndex,
-            });
-        }
-        if (keyCode == KeyCode.E)
-        {
-            int_SwitchIndex++;
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_SwitchItemInBag()
-            {
-                index = int_SwitchIndex,
-            });
-        }
-        if (keyCode == KeyCode.Tab)
-        {
-            actorManager.actionManager.Switch(int_SwitchIndex);
-        }
-        if (keyCode == KeyCode.C)
-        {
-            actorManager.actionManager.Drop(int_SwitchIndex);
-        }
-        if (keyCode == KeyCode.R)
-        {
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_OpenItemInHand()
-            {
-                
-            });
-        }
+            index = val
+        });
     }
     public void InputMouse(float leftPressTime, float rightPressTime, bool hasStateAuthority, bool hasInputAuthority)
     {

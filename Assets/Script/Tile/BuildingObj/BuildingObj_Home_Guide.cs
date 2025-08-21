@@ -5,32 +5,32 @@ using UnityEngine;
 
 public class BuildingObj_Home_Guide : BuildingObj
 {
-    private ActorManager_Animal_Guide guide;
+    private ActorManager actor_Bind;
     public override void Start()
     {
+        CreateActor();
         MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
         {
-            ListenTimeUpdate(_.now);
+            All_UpdateHour(_.hour);
         }).AddTo(this);
-        CreateRabbit();
         base.Start();
     }
-    private void ListenTimeUpdate(GlobalTime globalTime)
+    public void All_UpdateHour(int hour)
     {
-        CreateRabbit();
+        if (actor_Bind == null && hour == 0) { CreateActor(); }
     }
-    private void CreateRabbit()
+    private void CreateActor()
     {
-        if(guide == null)
+        if(actor_Bind == null)
         {
             MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
             {
-                name = "Actor/Animal_Guide",
+                name = "Actor/NPC_Guide",
                 pos = transform.position,
                 callBack = ((actor) =>
                 {
-                    guide = actor.GetComponent<ActorManager_Animal_Guide>();
-                    guide.State_BindRabbitHole(buildingTile.tilePos);
+                    actor_Bind = actor.GetComponent<ActorManager>();
+                    actor_Bind.brainManager.SetHome(buildingTile.tilePos);
                 })
             });
         }

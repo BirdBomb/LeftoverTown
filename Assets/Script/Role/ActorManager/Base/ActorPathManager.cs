@@ -27,6 +27,10 @@ public class ActorPathManager
     {
         vector3Int_CurPos = MapManager.Instance.grid_Ground.WorldToCell(actorManager.transform.position);
         vector2_CurPos = MapManager.Instance.grid_Ground.CellToWorld(vector3Int_CurPos);
+        if (!MapManager.Instance.GetGround(vector3Int_CurPos, out _)) 
+        {
+            actorManager.actionManager.Despawn(); 
+        }
         if (vector3Int_LastPos != vector3Int_CurPos)
         {
             vector3Int_LastPos = vector3Int_CurPos;
@@ -160,7 +164,7 @@ public class ActorPathManager
                 }
             }
             temp = temp.normalized;
-            float commonSpeed = actorManager.actorNetManager.Net_SpeedCommon / 10f;
+            float commonSpeed = actorManager.actorNetManager.Net_SpeedCommon * 0.1f;
             Vector2 velocity = new Vector2(temp.x * commonSpeed, temp.y * commonSpeed);
             Vector3 newPos = actorManager.transform.position + new UnityEngine.Vector3(velocity.x * dt, velocity.y * dt, 0);
             actorManager.actorNetManager.State_UpdateNetworkRigidbody(newPos, velocity.magnitude);
@@ -178,10 +182,10 @@ public class ActorPathManager
     /// </summary>
     /// <param name="targetPos"></param>
     /// <returns></returns>
-    public bool State_MoveTo(Vector3Int targetPos)
+    public bool State_MovePostion(Vector3Int targetPos,int maxStep = 100)
     {
         groundTiles_TargetPath.Clear();
-        List<GroundTile> temp = MapManager.Instance.navManager.FindPath(targetPos, vector3Int_CurPos);
+        List<GroundTile> temp = MapManager.Instance.navManager.FindPath(targetPos, vector3Int_CurPos, maxStep);
         if (temp.Count > 0)
         {
             groundTiles_TargetPath = temp;
@@ -191,7 +195,6 @@ public class ActorPathManager
         }
         else
         {
-            Debug.Log(temp);
             return false;
         }
     }

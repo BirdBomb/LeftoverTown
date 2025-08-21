@@ -39,8 +39,8 @@ public class GameUI_Status : MonoBehaviour
     public SpriteAtlas spriteAtlas_Buff;
     [Header("Buff√Ê∞Â")]
     public Transform transform_BuffPanel;
-    private Dictionary<int, GameObject> dic_BuffPool = new Dictionary<int, GameObject>();
-
+    private Dictionary<int, GameObject> BuffIconDic = new Dictionary<int, GameObject>();
+    private List<int> BuffIconList = new List<int>();
     private void Start()
     {
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateHPData>().Subscribe(_ =>
@@ -96,13 +96,17 @@ public class GameUI_Status : MonoBehaviour
         {
             text_Ping.text = ((int)(_.ping * 1000)).ToString();
         }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateBuffList>().Subscribe(_ =>
+        {
+            ResetBuffIcon(_.buffList);
+        }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_AddBuff>().Subscribe(_ =>
         {
-            CreateBuffIcon(_.buffConfig);
+            CreateBuffIcon(_.buffData);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_SubBuff>().Subscribe(_ =>
         {
-            DestroyBuffIcon(_.buffConfig);
+            DestroyBuffIcon(_.buffID);
         }).AddTo(this);
 
     }
@@ -111,24 +115,47 @@ public class GameUI_Status : MonoBehaviour
         text_Coin.text = val_Coin.ToString();
         text_Fine.text = val_Fine.ToString();
     }
-    private void CreateBuffIcon(BuffConfig buffConfig)
+    #region//Buff
+    private void ResetBuffIcon(List<BuffData> buffDatas)
     {
-        if (buffConfig.Buff_Icon)
+        for(int i = 0; i< BuffIconList.Count; i++)
+        {
+            if (BuffIconDic.ContainsKey(BuffIconList[i]))
+            {
+                Destroy(BuffIconDic[BuffIconList[i]]);
+            }
+        }
+        BuffIconDic.Clear();
+        BuffIconList.Clear();
+        for (int i = 0; i < buffDatas.Count; i++)
+        {
+            CreateBuffIcon(buffDatas[i]);
+        }
+    }
+    private void CreateBuffIcon(BuffData buffData)
+    {
+        BuffConfig buffConfig = BuffConfigData.GetBuffConfig(buffData.BuffID);
+        if (buffConfig.Buff_Icon && !BuffIconDic.ContainsKey(buffData.BuffID))
         {
             GameObject gameObject = Instantiate(pref_BuffIcon);
-            gameObject.GetComponent<UI_BuffIcon>().Draw(spriteAtlas_Buff.GetSprite("Buff" + buffConfig.Buff_ID), "Name", "Desc");
-            dic_BuffPool.Add(buffConfig.Buff_ID, gameObject);
+            UI_BuffIcon buffIcon = gameObject.GetComponent<UI_BuffIcon>();
+            buffIcon.DrawIcon(spriteAtlas_Buff.GetSprite("Buff" + buffData.BuffID));
+            BuffIconDic.Add(buffData.BuffID, gameObject);
+            BuffIconList.Add(buffData.BuffID);
             gameObject.transform.SetParent(transform_BuffPanel);
             gameObject.transform.localScale = Vector3.one;
         }
     }
-    private void DestroyBuffIcon(BuffConfig buffConfig)
+    private void DestroyBuffIcon(short buffID)
     {
-        if (dic_BuffPool.ContainsKey(buffConfig.Buff_ID))
+        BuffConfig buffConfig = BuffConfigData.GetBuffConfig(buffID);
+        if (buffConfig.Buff_Icon && BuffIconDic.ContainsKey(buffID))
         {
-            Destroy(dic_BuffPool[buffConfig.Buff_ID]);
-            dic_BuffPool.Remove(buffConfig.Buff_ID);
+            Destroy(BuffIconDic[buffID]);
+            BuffIconDic.Remove(buffID);
+            BuffIconList.Remove(buffID);
         }
     }
+    #endregion
 
 }

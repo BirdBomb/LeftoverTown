@@ -10,6 +10,7 @@ public class PlayerData
         Hp_Cur = 100;
         Hp_Max = 100;
         Armor_Cur = 0;
+        Resistance_Cur = 0;
         Food_Cur = 100;
         Food_Max = 100;
         Water_Cur = 5;
@@ -45,6 +46,11 @@ public class PlayerData
     [SerializeField]
     public short Armor_Cur;
     /// <summary>
+    /// 魔抗值
+    /// </summary>
+    [SerializeField]
+    public short Resistance_Cur;
+    /// <summary>
     /// 当前食物值
     /// </summary>
     [SerializeField]
@@ -78,8 +84,16 @@ public class PlayerData
     /// 金币
     /// </summary>
     [SerializeField]
-    public short Coin_Cur;
-
+    public int Coin_Cur;
+    /// <summary>
+    /// 赏金
+    /// </summary>
+    [SerializeField]
+    public int Fine_Cur;
+    /// <summary>
+    /// BUFF
+    /// </summary>
+    public List<BuffData> BuffList = new List<BuffData>();
     /// <summary>
     /// 背包物体
     /// </summary>
@@ -100,17 +114,11 @@ public class PlayerData
     /// </summary>
     [SerializeField] 
     public ItemData BodyItem;
-
     /// <summary>
-    /// 玩家Buff列表
+    /// 眼睛ID
     /// </summary>
     [SerializeField]
-    public List<short> BuffList = new List<short>();
-    /// <summary>
-    /// 玩家Buff点数
-    /// </summary>
-    [SerializeField]
-    public int BuffPoint;
+    public short Eye_ID;
     /// <summary>
     /// 头发ID
     /// </summary>
@@ -121,9 +129,4 @@ public class PlayerData
     /// </summary>
     [SerializeField]
     public Color32 Hair_Color;
-    /// <summary>
-    /// 眼镜ID
-    /// </summary>
-    [SerializeField]
-    public short Eye_ID;
 }

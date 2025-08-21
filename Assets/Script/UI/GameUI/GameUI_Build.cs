@@ -13,7 +13,8 @@ public class GameUI_Build : MonoBehaviour
 {
     private List<BuildingConfig> buildingConfigs_TempList = new List<BuildingConfig>();
     private List<GroundConfig> groundConfigs_TempList = new List<GroundConfig>();
-
+    public Transform tran_Panel;
+    public Transform tran_ShowBtn;
     public void Start()
     {
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
@@ -47,11 +48,36 @@ public class GameUI_Build : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Mouse0) && !EventSystem.current.IsPointerOverGameObject())
         {
-            DrawBuildingRaw(new BuildingConfig(), 0);
-            DrawBuildingRaw(new GroundConfig(), 0);
+            //DrawBuildingRaw(new BuildingConfig(), 0);
+            //DrawBuildingRaw(new GroundConfig(), 0);
+        }
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if(tran_Panel.gameObject.activeSelf)
+            {
+                HidePanel();
+            }
+            else
+            {
+                ShowPanel();
+            }
         }
     }
-
+    private void ShowPanel()
+    {
+        tran_ShowBtn.gameObject.SetActive(false);
+        tran_Panel.gameObject.SetActive(true);
+        tran_Panel.DOKill();
+        tran_Panel.localScale = Vector3.one;
+        tran_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.2f);
+    }
+    private void HidePanel()
+    {
+        tran_ShowBtn.gameObject.SetActive(true);
+        tran_Panel.gameObject.SetActive(false);
+        DrawBuildingRaw(new BuildingConfig(), 0);
+        DrawBuildingRaw(new GroundConfig(), 0);
+    }
     #region//建筑类别
     [Header("上一类别")]
     public Button button_LastType;
@@ -332,8 +358,6 @@ public class GameUI_Build : MonoBehaviour
 
     #endregion
     #region//原料UI
-    [SerializeField, Header("原料面板")]
-    private Transform transform_RawPanel;
     [SerializeField, Header("原料面板信息")]
     private TextMeshProUGUI text_TargetName;
     [SerializeField, Header("原料列表")]
@@ -353,20 +377,13 @@ public class GameUI_Build : MonoBehaviour
         {
             itemCells_TargetRawList[i].CleanCell();
         }
-        if (config.Building_ID > 0 && buildingConfigs_TempList.Count > index && buildingConfigs_TempList[index].Equals(config))
+        if (config.Building_ID > 0 && buildingConfigs_TempList.Count > index && buildingConfigs_TempList[index + CurPage * buttons_Icon.Count].Equals(config))
         {
-            transform_RawPanel.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
-            transform_RawPanel.gameObject.SetActive(true);
-            transform_RawPanel.position = buttons_Icon[index].transform.position;
             text_TargetName.text = LocalizationManager.Instance.GetLocalization("Building_String", config.Building_ID + "_Name"); 
             CheckBuildingRaw(config);
         }
         else
         {
-            transform_RawPanel.transform.DOKill();
-            transform_RawPanel.transform.localScale = Vector3.one;
-            transform_RawPanel.gameObject.SetActive(false);
-            transform_RawPanel.position = buttons_Icon[index].transform.position;
             text_TargetName.text = "";
             for (int i = 0; i < itemCells_TargetRawList.Count; i++)
             {
@@ -418,26 +435,20 @@ public class GameUI_Build : MonoBehaviour
     }
     private void DrawBuildingRaw(GroundConfig config, int index)
     {
+        Debug.Log(index + "/" + groundConfigs_TempList.Count + "//" + config.Ground_ID);
         groundConfig_Temp = config;
         this.index = index;
         for (int i = 0; i < itemCells_TargetRawList.Count; i++)
         {
             itemCells_TargetRawList[i].CleanCell();
         }
-        if (config.Ground_ID > 0 && groundConfigs_TempList.Count > index && groundConfigs_TempList[index].Equals(config))
+        if (config.Ground_ID > 0 && groundConfigs_TempList.Count > index && groundConfigs_TempList[index + CurPage * buttons_Icon.Count].Equals(config))
         {
-            transform_RawPanel.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
-            transform_RawPanel.gameObject.SetActive(true);
-            transform_RawPanel.position = buttons_Icon[index].transform.position;
             text_TargetName.text = LocalizationManager.Instance.GetLocalization("Ground_String", config.Ground_ID + "_Name");
             CheckBuildingRaw(config);
         }
         else
         {
-            transform_RawPanel.transform.DOKill();
-            transform_RawPanel.transform.localScale = Vector3.one;
-            transform_RawPanel.gameObject.SetActive(false);
-            transform_RawPanel.position = buttons_Icon[index].transform.position;
             text_TargetName.text = "";
         }
     }

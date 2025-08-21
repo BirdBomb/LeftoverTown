@@ -21,7 +21,7 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
         CreateNetCore();
         MessageBroker.Default.Receive<NetEvent.NetEvent_JoinGame>().Subscribe(_ =>
         {
-            JoinRoom(_.RoomName);
+            JoinRoom(_.RoomInfo, _.RoomName);
         });
         MessageBroker.Default.Receive<NetEvent.NetEvent_CreateGame>().Subscribe(_ =>
         {
@@ -43,6 +43,8 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
     }
     public async void CreateRoom(string roomName,int roomType)
     {
+        Dictionary<string, SessionProperty> gameProperty = new Dictionary<string, SessionProperty>() { };
+        gameProperty.Add("GameMode", 0);
         var scene = SceneRef.FromIndex(2);
         var sceneInfo = new NetworkSceneInfo();
         if (scene.IsValid)
@@ -55,30 +57,18 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
         {
             case 0:
                 {
-                    
                     gameMode = GameMode.Single;
+                    gameProperty["GameMode"] = (int)gameMode;
                     break;
                 }
             case 1:
                 {
                     gameMode = GameMode.AutoHostOrClient;
-                    isVisible = false;
-                    break;
-                }
-            case 2:
-                {
-                    gameMode = GameMode.AutoHostOrClient;
                     isVisible = true;
-                    break;
-                }
-            case 3:
-                {
-                    gameMode = GameMode.Shared;
-                    isVisible = true;
+                    gameProperty["GameMode"] = (int)gameMode;
                     break;
                 }
         }
-        Debug.Log(gameMode);
         await networkRunner.StartGame(new StartGameArgs()
         {
             GameMode = gameMode,
@@ -86,10 +76,13 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
             Scene = scene,
             IsVisible = isVisible,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>(),
+            SessionProperties = gameProperty
         });
     }
-    public async void JoinRoom(string roomName)
+    public async void JoinRoom(SessionInfo sessionInfo, string roomName)
     {
+        GameMode gameMode = (GameMode)((int)sessionInfo.Properties["GameMode"]);
+        Debug.Log("加入房间" + roomName + "/类型/" + gameMode);
         var scene = SceneRef.FromIndex(1);
         var sceneInfo = new NetworkSceneInfo();
         if (scene.IsValid)
@@ -98,7 +91,7 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
         }
         await networkRunner.StartGame(new StartGameArgs()
         {
-            GameMode = GameMode.Client,
+            GameMode = gameMode,
             SessionName = roomName,
             Scene = scene,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()

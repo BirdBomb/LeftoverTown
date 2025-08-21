@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -11,6 +12,11 @@ public class ItemLocalObj_Hoe : ItemLocalObj
     private SpriteRenderer spriteRenderer_Hand;
     [SerializeField, Header("锄地速度")]
     private float config_HoeSpeed = 1;
+    /// <summary>
+    /// 劈砍磨损
+    /// </summary>
+    private float HoeAbrasion;
+    private float HoeAbrasion_Temp;
     /// <summary>
     /// 锄地动画时长
     /// </summary>
@@ -31,11 +37,14 @@ public class ItemLocalObj_Hoe : ItemLocalObj
     private InputData inputData = new InputData();
     private void OnEnable()
     {
-        MapPreviewManager.Instance.ShowSingal(Vector3Int.zero);
+        
     }
     private void OnDisable()
     {
-        MapPreviewManager.Instance.HideSingal();
+        if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+        {
+            MapPreviewManager.Instance.Local_HideSingal();
+        }
     }
     private void FixedUpdate()
     {
@@ -44,9 +53,8 @@ public class ItemLocalObj_Hoe : ItemLocalObj
             float_NextHoeTiming -= Time.fixedDeltaTime;
         }
     }
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
-        itemData = data;
         actorManager = owner;
 
         transform.SetParent(body.transform_ItemInRightHand);
@@ -60,7 +68,16 @@ public class ItemLocalObj_Hoe : ItemLocalObj
 
         spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
-        base.HoldingByHand(owner, body, data);
+
+        if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+        {
+            MapPreviewManager.Instance.Local_ShowSingal(Vector3Int.zero);
+        }
+        base.HoldingStart(owner, body);
+    }
+    public void UpdateHoeData(float hoeExpend, ItemQuality itemQuality)
+    {
+        HoeAbrasion = hoeExpend;
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
@@ -102,35 +119,45 @@ public class ItemLocalObj_Hoe : ItemLocalObj
                         AudioManager.Instance.Play3DEffect(2006, transform.position);
                         GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_BombSmoke");
                         effect.transform.position = MapManager.Instance.grid_Ground.CellToWorld(pos) + new Vector3(0.5f, 0.5f, 0);
-                        ChangeDurability(-5);
+                        AddAbrasion(HoeAbrasion);
                         return;
                     }
                 }
             }
-            MapPreviewManager.Instance.FailSingal(0.2f);
+            MapPreviewManager.Instance.Local_FailSingal(0.2f);
         }
     }
-    public void ChangeDurability(sbyte val)
+    /// <summary>
+    /// 累计损耗
+    /// </summary>
+    /// <param name="val"></param>
+    public void AddAbrasion(float val)
     {
-        if (val != 0 && actorManager.actorAuthority.isPlayer)
+        HoeAbrasion_Temp += val;
+        if (HoeAbrasion_Temp >= 1)
         {
-            ItemData _oldItem = itemData;
-            ItemData _newItem = itemData;
-            if (_newItem.Item_Durability + val <= 0)
+            int offset = (int)Math.Floor(HoeAbrasion_Temp);
+            HoeAbrasion_Temp = HoeAbrasion_Temp - offset;
+            if (val != 0 && actorManager.actorAuthority.isPlayer)
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                ItemData _oldItem = itemData;
+                ItemData _newItem = itemData;
+                if (_newItem.Item_Durability - offset <= 0)
                 {
-                    item = itemData,
-                });
-            }
-            else
-            {
-                _newItem.Item_Durability += val;
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                    {
+                        item = itemData,
+                    });
+                }
+                else
                 {
-                    oldItem = _oldItem,
-                    newItem = _newItem,
-                });
+                    _newItem.Item_Durability -= (sbyte)offset;
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    {
+                        oldItem = _oldItem,
+                        newItem = _newItem,
+                    });
+                }
             }
         }
     }

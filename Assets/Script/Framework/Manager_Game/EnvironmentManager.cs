@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+/// <summary>
+/// 环境管理器
+/// </summary>
 public class EnvironmentManager : SingleTon<EnvironmentManager>, ISingleTon
 {
     [SerializeField, Header("灰尘粒子")]
@@ -22,7 +24,7 @@ public class EnvironmentManager : SingleTon<EnvironmentManager>, ISingleTon
     public void ChangeWeather(Weather weather)
     {
         weather_Now = weather;
-        Debug.Log(weather_Now);
+        Debug.Log("天气_" + weather_Now);
 
     }
 

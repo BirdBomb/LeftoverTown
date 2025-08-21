@@ -11,9 +11,8 @@ public class ItemLocalObj_Pistol : ItemLocalObj_Gun
 {
     [SerializeField]
     private SpriteRenderer spriteRenderer_RightHand;
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
-        itemData = data;
         actorManager = owner;
 
         transform.SetParent(body.transform_ItemInRightHand);
@@ -22,10 +21,10 @@ public class ItemLocalObj_Pistol : ItemLocalObj_Gun
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
 
-        temp_NextAimPoint = config_ShotAimTime;
+        temp_NextAimPoint = AimTime;
 
         spriteRenderer_RightHand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
-        base.HoldingByHand(owner, body, data);
+        base.HoldingStart(owner, body);
     }
 }

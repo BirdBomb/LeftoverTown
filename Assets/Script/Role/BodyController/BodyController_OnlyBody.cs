@@ -46,25 +46,23 @@ public class BodyController_OnlyBody : BodyController_Base
         }
         base.SetAnimatorFloat(bodyPart, name, val);
     }
-    public override void SetAnimatorAction(BodyPart bodyPart, Action<string> action)
+    public override void SetAnimatorFunc(BodyPart bodyPart, Func<string, bool> func)
     {
         if (bodyPart == BodyPart.Body && animator_Body != null)
         {
-            animaEventListen_Body.BindTempEvent(action);
+            animaEventListen_Body.BindTempFunc(func);
         }
-        base.SetAnimatorAction(bodyPart, action);
+        base.SetAnimatorFunc(bodyPart, func);
     }
-    public override void Turn(bool right)
+    public override void TurnRight()
     {
-        if (right)
-        {
-            transform_Body.localScale = new Vector3(1, 1, 1);
-        }
-        else
-        {
-            transform_Body.localScale = new Vector3(-1, 1, 1);
-        }
-        base.Turn(right);
+        transform_Body.localScale = new Vector3(1, 1, 1);
+        base.TurnRight();
+    }
+    public override void TurnLeft()
+    {
+        transform_Body.localScale = new Vector3(-1, 1, 1);
+        base.TurnLeft();
     }
     public override void Flash()
     {
@@ -81,7 +79,7 @@ public class BodyController_OnlyBody : BodyController_Base
     public override void Shake()
     {
         transform_Body.DOKill();
-        transform_Body.localScale = Vector3.one;
-        transform_Body.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.2f);
+        transform_Body.transform.localScale = new Vector3(transform_Body.transform.localScale.x, 1, 1);
+        transform_Body.DOPunchScale(new Vector3(0, -0.1f, 0), 0.2f);
     }
 }

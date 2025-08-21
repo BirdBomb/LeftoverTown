@@ -9,82 +9,102 @@ using UnityEngine;
 public class ActorBuffManager
 {
     private ActorManager actorManager;
-    private Dictionary<short, BuffBase> dictionary_bindBuffDic = new Dictionary<short, BuffBase>();
-    private List<short> shorts_bindBuffIDList = new List<short>();
-    private List<BuffBase> buffBases_bindBuffEntity = new List<BuffBase>();
+    private Dictionary<short, BuffBase> bindBuffDic = new Dictionary<short, BuffBase>();
+    private List<short> bindBuffIDList = new List<short>();
+    private List<BuffBase> bindBuffEntity = new List<BuffBase>();
     public void Bind(ActorManager actorManager)
     {
         this.actorManager = actorManager;
     }
     public void Listen_UpdateSecond()
     {
-        foreach (BuffBase buff in buffBases_bindBuffEntity)
+        for(int i = 0; i < bindBuffEntity.Count; i++)
         {
-            buff.Listen_UpdateSecond(actorManager);
+            bindBuffEntity[i].Listen_UpdateSecond(actorManager);
         }
     }
     public void Listen_Move(Vector3Int pos)
     {
-        for (int i = 0; i < buffBases_bindBuffEntity.Count; i++)
+        for (int i = 0; i < bindBuffEntity.Count; i++)
         {
-            buffBases_bindBuffEntity[i].Listen_MyselfMove(actorManager);
+            bindBuffEntity[i].Listen_MyselfMove(actorManager);
         }
     }
-    public void UpdateBuff(NetworkLinkedList<short> buffs)
+    public void Local_InitBuffs(List<BuffData> buffDatas)
     {
-        foreach (short buff in buffs)
+        bindBuffEntity.Clear();
+        bindBuffIDList.Clear();
+        bindBuffDic.Clear();
+        for (int i = 0; i < buffDatas.Count;i++)
         {
-            AddBuff(buff);
+            Local_InitBuff(buffDatas[i]);
         }
-        for (int i = 0; i < shorts_bindBuffIDList.Count; i++)
+        if(actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            if (!buffs.Contains(shorts_bindBuffIDList[i]))
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateBuffList()
             {
-                RemoveBuff(shorts_bindBuffIDList[i]);
-            }
+                buffList = buffDatas
+            });
         }
     }
-    public bool CheckBuff(short id)
+    public bool Local_CheckBuff(short buffID)
     {
-        return shorts_bindBuffIDList.Contains(id);
+        return bindBuffIDList.Contains(buffID);
     }
-    private void AddBuff(short id)
+    public void Local_InitBuff(BuffData buffData)
     {
-        if (!shorts_bindBuffIDList.Contains(id))
+        Type type = Type.GetType("Buff" + buffData.BuffID.ToString());
+        BuffBase buff = (BuffBase)Activator.CreateInstance(type);
+        bindBuffEntity.Add(buff);
+        bindBuffIDList.Add(buffData.BuffID);
+        bindBuffDic.Add(buffData.BuffID, buff);
+        buff.Init(buffData);
+    }
+    public void Local_AddBuff(BuffData buffData)
+    {
+        Debug.Log("Ìí¼ÓBuff" + buffData);
+        if (!bindBuffIDList.Contains(buffData.BuffID))
         {
-            Type type = Type.GetType("Buff" + id.ToString());
+            Type type = Type.GetType("Buff" + buffData.BuffID.ToString());
             BuffBase buff = (BuffBase)Activator.CreateInstance(type);
-            dictionary_bindBuffDic.Add(id, buff);
-            buffBases_bindBuffEntity.Add(buff);
-            shorts_bindBuffIDList.Add(id);
+            bindBuffEntity.Add(buff);
+            bindBuffIDList.Add(buffData.BuffID);
+            bindBuffDic.Add(buffData.BuffID, buff);
+            buff.Init(buffData);
             buff.Listen_AddOnActor(actorManager);
 
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
                 MessageBroker.Default.Publish(new UIEvent.UIEvent_AddBuff()
                 {
-                    buffConfig = BuffConfigData.GetBuffConfig(id)
+                    buffData = buffData
                 });
             }
         }
     }
-    private void RemoveBuff(short id)
+    public void Local_RemoveBuff(short buffID)
     {
-        if (shorts_bindBuffIDList.Contains(id))
+        if (bindBuffIDList.Contains(buffID))
         {
-            BuffBase buff = dictionary_bindBuffDic[id];
-            buffBases_bindBuffEntity.Remove(buff);
-            shorts_bindBuffIDList.Remove(id);
-            dictionary_bindBuffDic.Remove(id);
+            BuffBase buff = bindBuffDic[buffID];
+            bindBuffEntity.Remove(buff);
+            bindBuffIDList.Remove(buffID);
+            bindBuffDic.Remove(buffID);
             buff.Listen_SubFromActor(actorManager);
 
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
                 MessageBroker.Default.Publish(new UIEvent.UIEvent_SubBuff()
                 {
-                    buffConfig = BuffConfigData.GetBuffConfig(id)
+                    buffID = buffID
                 });
             }
         }
+    }
+    public void All_PlayBuffEffect(short id,short index)
+    {
+        Type type = Type.GetType("Buff" + id.ToString());
+        BuffBase buff = (BuffBase)Activator.CreateInstance(type);
+        buff.PlayEffect(actorManager, index);
     }
 }

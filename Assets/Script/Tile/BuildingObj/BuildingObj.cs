@@ -220,7 +220,7 @@ public class BuildingObj : MonoBehaviour
         }
 
         Vector2 offset = 0.025f * new Vector2(new System.Random().Next(-10, 10), new System.Random().Next(-5, 5));
-        Effect_DamageUI damageUI = PoolManager.Instance.GetObject("Effect/Effect_DamageUI").GetComponent<Effect_DamageUI>();
+        Effect_NumUI damageUI = PoolManager.Instance.GetObject("Effect/Effect_NumUI").GetComponent<Effect_NumUI>();
         damageUI.transform.position = (Vector2)transform.position + Vector2.up + offset;
         damageUI.PlayShow((-val).ToString(), Color.white, offset);
     }

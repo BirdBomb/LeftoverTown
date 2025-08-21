@@ -79,8 +79,27 @@ public class ItemNetObj : NetworkBehaviour
 
         }
     }
-    public virtual void PickUp(out ItemData itemData)
+    /// <summary>
+    /// 主机_捡起
+    /// </summary>
+    /// <param name="itemData"></param>
+    public virtual void State_PickUp(NetworkId networkId, out ItemData itemData)
     {
         itemData = data;
+        RPC_Local_PlayPickUp(networkId);
+    }
+    /// <summary>
+    /// 客户端_播放捡起动画
+    /// </summary>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public virtual void RPC_Local_PlayPickUp(NetworkId networkId)
+    {
+        GameObject itemObj = PoolManager.Instance.GetObject("Effect/Effect_ItemObj");
+        itemObj.GetComponent<Effect_ItemObj>().DrawSpriter(spriteRenderer_Icon.sprite);
+        itemObj.transform.position = transform.position;
+        if (Object.HasStateAuthority)
+        {
+            Runner.Despawn(Object);
+        }
     }
 }

@@ -16,13 +16,13 @@ public class NavManager : MonoBehaviour
     /// 选中列表
     /// </summary>
     private List<GroundTile> groundTiles_CloseList = new List<GroundTile>();
-    public List<GroundTile> FindPath(Vector3Int toPos, Vector3Int fromPos, int maxStep = 50)
+    public List<GroundTile> FindPath(Vector3Int toPos, Vector3Int fromPos, int maxStep)
     {
         if (mapManager.GetGround(toPos, out GroundTile to)) to.ResetTilePathInfo();
         if (mapManager.GetGround(fromPos, out GroundTile from)) from.ResetTilePathInfo();
         if (to == null || !to.offset_Pass)
         {
-            Debug.Log("终点阻塞");
+            //Debug.Log("终点阻塞");
             return new List<GroundTile> { };
         }
         if (from == null || !from.offset_Pass)
@@ -32,7 +32,7 @@ public class NavManager : MonoBehaviour
         }
         if (to.tilePos == from.tilePos)
         {
-            Debug.Log("已经在终点");
+            //Debug.Log("已经在终点");
             return new List<GroundTile> { };
         }
         groundTiles_OpenList.Clear();
@@ -40,7 +40,11 @@ public class NavManager : MonoBehaviour
         groundTiles_OpenList.Add(to);
         while (groundTiles_OpenList.Count > 0)
         {
-            if (groundTiles_CloseList.Count > maxStep) { Debug.Log("达到最大步数"); return CreatePath(from); }
+            if (groundTiles_CloseList.Count > maxStep) 
+            { 
+                //Debug.Log("达到最大步数"); 
+                return CreatePath(from); 
+            }
             GroundTile minTile = FindMinTile(groundTiles_OpenList);
 
             groundTiles_OpenList.Remove(minTile);

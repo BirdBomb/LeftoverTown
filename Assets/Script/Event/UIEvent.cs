@@ -14,13 +14,6 @@ public static class UIEvent
         public List<ItemData> itemDatas = new List<ItemData>();
     }
     /// <summary>
-    /// UI_选中背包物体
-    /// </summary>
-    public class UIEvent_SwitchItemInBag 
-    {
-        public int index;
-    }
-    /// <summary>
     /// UI_添加背包物体
     /// </summary>
     public class UIEvent_PutItemInBag
@@ -35,12 +28,13 @@ public static class UIEvent
         public ItemData item;
     }
     /// <summary>
-    /// UI-打开持有物体
+    /// UI_使用背包物体
     /// </summary>
-    public class UIEvent_OpenItemInHand
+    public class UIEvent_TryUseItemInBag 
     {
-        
+        public int index;
     }
+
     /// <summary>
     /// UI-更新持有物体
     /// </summary>
@@ -147,14 +141,21 @@ public static class UIEvent
     /// </summary>
     public class UIEvent_AddBuff
     {
-        public BuffConfig buffConfig;
+        public BuffData buffData;
     }
     /// <summary>
     /// 移除buff
     /// </summary>
     public class UIEvent_SubBuff
     {
-        public BuffConfig buffConfig;
+        public short buffID;
+    }
+    /// <summary>
+    /// 更新Buff列表
+    /// </summary>
+    public class UIEvent_UpdateBuffList
+    {
+        public List<BuffData> buffList;
     }
     /// <summary>
     /// 更新Buff
@@ -206,5 +207,19 @@ public static class UIEvent
         /// 取出的部分
         /// </summary>
         public ItemData itemData_Out;
+    }
+    /// <summary>
+    /// 打开复活倒计时
+    /// </summary>
+    public class UIEvent_OpenReviveCountdown
+    { 
+        public float time;
+    }
+    /// <summary>
+    /// 关闭复活倒计时
+    /// </summary>
+    public class UIEvent_CloseReviveCountdown
+    {
+
     }
 }

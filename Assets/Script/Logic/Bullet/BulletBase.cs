@@ -4,29 +4,87 @@ using UnityEngine;
 
 public class BulletBase : MonoBehaviour
 {
+    /// <summary>
+    /// 移动方向
+    /// </summary>
     [HideInInspector]
     public Vector3 vectoe3_MoveDir;
+    /// <summary>
+    /// 当前位置
+    /// </summary>
     [HideInInspector]
     public Vector3 vectoe3_CurPos;
+    /// <summary>
+    /// 之前位置
+    /// </summary>
     [HideInInspector]
     public Vector3 vectoe3_LastPos;
+    /// <summary>
+    /// 子弹物理伤害
+    /// </summary>
     [HideInInspector]
-    public int float_BulletDemage;
+    public int float_BulletAttackDemage;
+    /// <summary>
+    /// 子弹魔法伤害
+    /// </summary>
+    [HideInInspector]
+    public int float_BulletMagicDemage;
+    /// <summary>
+    /// 子弹速度
+    /// </summary>
     [HideInInspector]
     public float float_BulletSpeed;
+    /// <summary>
+    /// 子弹力量
+    /// </summary>
     [HideInInspector]
     public float float_BulletForce;
-    [SerializeField, Header("生命周期")]
-    public float float_Life;
+    /// <summary>
+    /// 子弹拥有者
+    /// </summary>
+    [HideInInspector]
+    public ActorManager actorManager_Owner;
+    /// <summary>
+    /// 子弹权限
+    /// </summary>
+    [HideInInspector]
+    public ActorAuthority actorAuthority_Owner;
 
-    [SerializeField, Header("子弹本身加载路径")]
+    [Header("生命周期")]
+    public float float_Life;
+    [Header("子弹本身加载路径")]
     public string str_BulletPath;
-    [SerializeField, Header("目标层级")]
+    [Header("目标层级")]
     public LayerMask layerMask_Target;
-    protected ActorNetManager actorNetManager_Owner;
-    protected ActorAuthority actorAuthority_Owner;
     protected bool _hide;
-    public virtual void Shot(Vector3 dir, int demage_Offset, float speed_Offset, float force_Offset, ActorNetManager from)
+    /// <summary>
+    /// 初始化子弹
+    /// </summary>
+    public virtual void InitBullet()
+    {
+
+    }
+    /// <summary>
+    /// 初始化子弹物理属性
+    /// </summary>
+    /// <param name="dir"></param>
+    /// <param name="speedOffset"></param>
+    /// <param name="forceOffset"></param>
+    public virtual void SetPhysics(Vector3 pos, Vector2 dir, float speedOffset, float forceOffset)
+    {
+
+    }
+    /// <summary>
+    /// 初始化子弹伤害
+    /// </summary>
+    public virtual void SetDamage(int AdOffset,int MdOffset)
+    {
+
+    }
+    /// <summary>
+    /// 初始化子弹伤害来源
+    /// </summary>
+    public virtual void SetOwner(ActorManager owner)
     {
 
     }
@@ -38,34 +96,12 @@ public class BulletBase : MonoBehaviour
     private void OnEnable()
     {
         _hide = false;
+        CancelInvoke();
         Invoke("HideBullet", float_Life);
     }
     private void OnDisable()
     {
         _hide = true;
         CancelInvoke();
-    }
-    public void FixedUpdate()
-    {
-        if (!_hide)
-        {
-            Fly(Time.fixedDeltaTime);
-            Check(Time.fixedDeltaTime);
-        }
-    }
-    /// <summary>
-    /// 飞行
-    /// </summary>
-    /// <param name="dt"></param>
-    public virtual void Fly(float dt)
-    {
-    }
-    /// <summary>
-    /// 检测
-    /// </summary>
-    /// <param name="dt"></param>
-    public virtual void Check(float dt)
-    {
-
     }
 }

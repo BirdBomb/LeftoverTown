@@ -805,8 +805,6 @@ public class MapCreater
         int to_x = (areaConfig.pointsArea_Center.x + areaConfig.pointsArea_SizeWhole);
         int from_y = (areaConfig.pointsArea_Center.y - areaConfig.pointsArea_SizeWhole);
         int to_y = (areaConfig.pointsArea_Center.y + areaConfig.pointsArea_SizeWhole);
-        /*到中心的距离*/
-        float distance;
         int step = 0;
         int val = 0;
         for (int i = 0; i < areaConfig.pointsArea_Count; i++)
@@ -814,9 +812,8 @@ public class MapCreater
             // 随机生成位置
             int randomX = new System.Random().Next(from_x, to_x);
             int randomY = new System.Random().Next(from_y, to_y);
-            distance = Vector2.Distance(new Vector2(randomX, randomY), areaConfig.pointsArea_Center);
-            action.Invoke(Vector2ToIndex(randomX, randomY)); await Task.Yield();
-            if (step < 500)
+            action.Invoke(Vector2ToIndex(randomX, randomY)); 
+            if (step < 100)
             {
                 step += 1;
             }
@@ -1445,59 +1442,333 @@ public class MapCreate_Forest
     /// </summary>
     private int forest_MaxSize = 50;
     /// <summary>
-    /// 森林紧密度0-1
+    /// 草地树木密度(平方米/个)
     /// </summary>
-    private float forest_Compactness = 0.1f;
+    private float forest_Compactness1001 = 10f;
     /// <summary>
     /// 草地树木种类
     /// </summary>
-    private List<short> treeIDs_GrassTreeID = new List<short>() { 1000, 1003 };
+    private List<short> treeIDs_Ground1001 = new List<short>() { 1000, 1003 };
+    /// <summary>
+    /// 雪地树木密度(平方米/个)
+    /// </summary>
+    private float forest_Compactness1004 = 20f;
+    /// <summary>
+    /// 苔原地树木种类
+    /// </summary>
+    private List<short> treeIDs_Ground1003 = new List<short>() { 1018 };
     /// <summary>
     /// 雪地树木种类
     /// </summary>
-    private List<short> treeIDs_SnowTreeID = new List<short>() { 1000, 1003 };
+    private List<short> treeIDs_Ground1004 = new List<short>() { 1018 };
+    /// <summary>
+    /// 沙漠树木密度(平方米/个)
+    /// </summary>
+    private float forest_Compactness1005 = 20f;
     /// <summary>
     /// 沙漠树木种类
     /// </summary>
-    private List<short> treeIDs_DesertTreeID = new List<short>() { 1000, 1003 };
+    private List<short> treeIDs_Ground1005 = new List<short>() { 1019 };
+
+    MapCreater bindMapCreater;
+
     /// <summary>
     /// 生成树木
     /// </summary>
     /// <returns></returns>
     public async Task CreateForest(MapCreater mapCreater)
     {
-        int forest_Count = (mapCreater.config_Map.map_Size * 2) * (mapCreater.config_Map.map_Size * 2) / forest_Density;
-        mapCreater.text_Waiting.text = "正在生成树林" + forest_Count;
+        bindMapCreater = mapCreater;
+        int forest_Count = (bindMapCreater.config_Map.map_Size * 2) * (bindMapCreater.config_Map.map_Size * 2) / forest_Density;
+        bindMapCreater.text_Waiting.text = "正在生成树林" + forest_Count;
 
         for (int i = 0; i < forest_Count; i++)
         {
-            UnityEngine.Random.InitState((int)(mapCreater.GetRandomOffset().x * 10000));
-            int forest_Size = UnityEngine.Random.Range(forest_MinSize, forest_MaxSize);
-            MapCreater.RandomPointsAreaConfig config = new MapCreater.RandomPointsAreaConfig()
+            UnityEngine.Random.InitState((int)(bindMapCreater.GetRandomOffset().x * 10000));
+            Vector2Int center = new Vector2Int(new System.Random().Next(-bindMapCreater.config_Map.map_Size, bindMapCreater.config_Map.map_Size), new System.Random().Next(-bindMapCreater.config_Map.map_Size, bindMapCreater.config_Map.map_Size));
+            int index = bindMapCreater.Vector2ToIndex(center.x, center.y);
+            if (mapCreater.data_mapGroundData.tileDic[index] == 1000 || mapCreater.data_mapGroundData.tileDic[index] == 1001)
             {
-                pointsArea_Center = new Vector2Int(new System.Random().Next(-mapCreater.config_Map.map_Size, mapCreater.config_Map.map_Size), new System.Random().Next(-mapCreater.config_Map.map_Size, mapCreater.config_Map.map_Size)),
-                pointsArea_Count = (int)(forest_Compactness * forest_Size * forest_Size),
-                pointsArea_SizeWhole = forest_Size,
-                pointsArea_SizeFill = forest_Size - 10,
-            };
-            await mapCreater.GenerateRandomPointsArea_Gradual(config, (index) =>
+                await CreateForestOn1001(center);
+            }
+            else if (mapCreater.data_mapGroundData.tileDic[index] == 1003 || mapCreater.data_mapGroundData.tileDic[index] == 1004)
             {
-                if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] == 1001)
+                await CreateForestOn1004(center);
+            }
+            else if (mapCreater.data_mapGroundData.tileDic[index] == 1005)
+            {
+                await CreateForestOn1005(center);
+            }
+            else
+            {
+                await CreateForestOnOther(center);
+            }
+        }
+    }
+    public async Task CreateForestOn1001(Vector2Int center)
+    {
+        int randomVal = UnityEngine.Random.Range(0, 1000);
+        int forest_Size = UnityEngine.Random.Range(forest_MinSize, forest_MaxSize);
+        MapCreater.RandomPointsAreaConfig config = new MapCreater.RandomPointsAreaConfig()
+        {
+            pointsArea_Center = center,
+            pointsArea_Count = (int)(forest_Size * forest_Size / forest_Compactness1001),
+            pointsArea_SizeWhole = forest_Size,
+            pointsArea_SizeFill = forest_Size - 10,
+        };
+        await bindMapCreater.GenerateRandomPointsArea_Gradual(config, (index) =>
+        {
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index))
+            {
+                if (bindMapCreater.data_mapGroundData.tileDic[index] == 1001)
                 {
-                    short treeID = treeIDs_GrassTreeID[new System.Random().Next(0, treeIDs_GrassTreeID.Count)];
-                    if (mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    short treeID = treeIDs_Ground1001[new System.Random().Next(0, treeIDs_Ground1001.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
                     {
-                        mapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
                     }
                     else
                     {
-                        mapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
                     }
                 }
-            });
-        }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1003)
+                {
+                    short treeID = treeIDs_Ground1003[new System.Random().Next(0, treeIDs_Ground1003.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1004)
+                {
+                    short treeID = treeIDs_Ground1004[new System.Random().Next(0, treeIDs_Ground1004.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1005)
+                {
+                    short treeID = treeIDs_Ground1005[new System.Random().Next(0, treeIDs_Ground1005.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+            }
+        });
     }
-
+    public async Task CreateForestOn1004(Vector2Int center)
+    {
+        int randomVal = UnityEngine.Random.Range(0, 1000);
+        int forest_Size = UnityEngine.Random.Range(forest_MinSize, forest_MaxSize);
+        MapCreater.RandomPointsAreaConfig config = new MapCreater.RandomPointsAreaConfig()
+        {
+            pointsArea_Center = center,
+            pointsArea_Count = (int)(forest_Size * forest_Size / forest_Compactness1004),
+            pointsArea_SizeWhole = forest_Size,
+            pointsArea_SizeFill = forest_Size - 10,
+        };
+        await bindMapCreater.GenerateRandomPointsArea_Gradual(config, (index) =>
+        {
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index))
+            {
+                if (bindMapCreater.data_mapGroundData.tileDic[index] == 1001)
+                {
+                    short treeID = treeIDs_Ground1001[new System.Random().Next(0, treeIDs_Ground1001.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1003)
+                {
+                    short treeID = treeIDs_Ground1003[new System.Random().Next(0, treeIDs_Ground1003.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1004)
+                {
+                    short treeID = treeIDs_Ground1004[new System.Random().Next(0, treeIDs_Ground1004.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1005)
+                {
+                    short treeID = treeIDs_Ground1005[new System.Random().Next(0, treeIDs_Ground1005.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+            }
+        });
+    }
+    public async Task CreateForestOn1005(Vector2Int center)
+    {
+        int randomVal = UnityEngine.Random.Range(0, 1000);
+        int forest_Size = UnityEngine.Random.Range(forest_MinSize, forest_MaxSize);
+        MapCreater.RandomPointsAreaConfig config = new MapCreater.RandomPointsAreaConfig()
+        {
+            pointsArea_Center = center,
+            pointsArea_Count = (int)(forest_Size * forest_Size / forest_Compactness1005),
+            pointsArea_SizeWhole = forest_Size,
+            pointsArea_SizeFill = forest_Size - 10,
+        };
+        await bindMapCreater.GenerateRandomPointsArea_Gradual(config, (index) =>
+        {
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index))
+            {
+                if (bindMapCreater.data_mapGroundData.tileDic[index] == 1001)
+                {
+                    short treeID = treeIDs_Ground1001[new System.Random().Next(0, treeIDs_Ground1001.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1003)
+                {
+                    short treeID = treeIDs_Ground1003[new System.Random().Next(0, treeIDs_Ground1003.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1004)
+                {
+                    short treeID = treeIDs_Ground1004[new System.Random().Next(0, treeIDs_Ground1004.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1005)
+                {
+                    short treeID = treeIDs_Ground1005[new System.Random().Next(0, treeIDs_Ground1005.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+            }
+        });
+    }
+    public async Task CreateForestOnOther(Vector2Int center)
+    {
+        int randomVal = UnityEngine.Random.Range(0, 1000);
+        int forest_Size = UnityEngine.Random.Range(forest_MinSize, forest_MaxSize);
+        MapCreater.RandomPointsAreaConfig config = new MapCreater.RandomPointsAreaConfig()
+        {
+            pointsArea_Center = center,
+            pointsArea_Count = (int)(forest_Size * forest_Size / forest_Compactness1001),
+            pointsArea_SizeWhole = forest_Size,
+            pointsArea_SizeFill = forest_Size - 10,
+        };
+        await bindMapCreater.GenerateRandomPointsArea_Gradual(config, (index) =>
+        {
+            if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index))
+            {
+                if (bindMapCreater.data_mapGroundData.tileDic[index] == 1001)
+                {
+                    short treeID = treeIDs_Ground1001[new System.Random().Next(0, treeIDs_Ground1001.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1003)
+                {
+                    short treeID = treeIDs_Ground1003[new System.Random().Next(0, treeIDs_Ground1003.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1004)
+                {
+                    short treeID = treeIDs_Ground1004[new System.Random().Next(0, treeIDs_Ground1004.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+                else if (bindMapCreater.data_mapGroundData.tileDic[index] == 1005)
+                {
+                    short treeID = treeIDs_Ground1005[new System.Random().Next(0, treeIDs_Ground1005.Count)];
+                    if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic[index] = treeID;
+                    }
+                    else
+                    {
+                        bindMapCreater.data_mapBuildingData.tileDic.Add(index, treeID);
+                    }
+                }
+            }
+        });
+    }
 }
 /// <summary>
 /// 矿区生成器
@@ -1530,6 +1801,7 @@ public class MapCreate_Mining
         for (int i = 0; i < mining_Count; i++)
         {
             UnityEngine.Random.InitState((int)(bindMapCreater.GetRandomOffset().x * 10000));
+            int randomVal = UnityEngine.Random.Range(0, 1000);
             int mining_Size = UnityEngine.Random.Range(mining_MinSize, mining_MaxSize);
             Vector2 center = new Vector2(new System.Random().Next(-bindMapCreater.config_Map.map_Size + 20, bindMapCreater.config_Map.map_Size - 20), new System.Random().Next(-bindMapCreater.config_Map.map_Size + 20, bindMapCreater.config_Map.map_Size - 20));
             MapCreater.IslandAreaConfig config = new MapCreater.IslandAreaConfig()
@@ -1545,22 +1817,22 @@ public class MapCreate_Mining
                 int centerGroundId = bindMapCreater.data_mapGroundData.tileDic[bindMapCreater.Vector2ToIndex((int)(center.x), (int)(center.y))];
                 if (centerGroundId == 1000)
                 {
-                    await mapCreater.GenerateIslandArea_Tiny(config, CreateRockMining);
-                }
-                else if (centerGroundId == 1000)
-                {
-                    await mapCreater.GenerateIslandArea_Tiny(config, CreateRockMining);
+                    /*荒地*/
+                    //await mapCreater.GenerateIslandArea_Tiny(config, CreateRockMining);
                 }
                 else if (centerGroundId == 1001)
                 {
+                    /*草地*/
                     await mapCreater.GenerateIslandArea_Tiny(config, CreateCoalMining);
                 }
                 else if (centerGroundId == 1004 || centerGroundId == 1003)
                 {
+                    /*苔原地与雪地*/
                     await mapCreater.GenerateIslandArea_Tiny(config, CreateIronMining);
                 }
                 else if (centerGroundId == 1005)
                 {
+                    /*沙漠*/
                     await mapCreater.GenerateIslandArea_Tiny(config, CreateGoldMining);
                 }
             }
@@ -1580,9 +1852,9 @@ public class MapCreate_Mining
     {
         if (realNoise > (1 - rock_Weight))
         {
-            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
             if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
             {
+                bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
                 if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
                 {
                     bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
@@ -1603,29 +1875,28 @@ public class MapCreate_Mining
     /// <summary>
     /// 煤矿权重
     /// </summary>
-    float coalMining_Weight = 0.02f;
+    float coalMining_Weight = 0.4f;
+    /// <summary>
+    /// 煤矿山权重
+    /// </summary>
     float coalRock_Weight = 0.3f;
+    /// <summary>
+    /// 煤矿山边界权重
+    /// </summary>
     float coalRockEdeg_Weight = 0.2f;
     /// <summary>
     /// 生成煤矿
     /// </summary>
     public void CreateCoalMining(int index, float perlinNoise, float realNoise)
     {
-        if (realNoise > (1 - coalMining_Weight))
+        if (realNoise > (1 - coalRock_Weight) && perlinNoise > (1 - coalMining_Weight))
         {
-            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
             if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
             {
+                bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
                 if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
                 {
-                    if ((perlinNoise > (1 - coalMining_Weight)))
-                    {
-                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1011;
-                    }
-                    else
-                    {
-                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
-                    }
+                    bindMapCreater.data_mapBuildingData.tileDic[index] = 1011;
                 }
                 else
                 {
@@ -1633,10 +1904,11 @@ public class MapCreate_Mining
                 }
             }
         }
-        else if (realNoise > (1 - coalMining_Weight - coalRock_Weight))
+        else if (realNoise > (1 - coalRock_Weight))
         {
             if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
             {
+                bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
                 if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
                 {
                     bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
@@ -1647,7 +1919,7 @@ public class MapCreate_Mining
                 }
             }
         }
-        else if (realNoise > (1 - coalMining_Weight - coalRock_Weight - coalRockEdeg_Weight))
+        else if (realNoise > (1 - coalRock_Weight - coalRockEdeg_Weight))
         {
             bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
         }
@@ -1655,31 +1927,28 @@ public class MapCreate_Mining
     /// <summary>
     /// 铁矿权重
     /// </summary>
-    float ironMining_Weight = 0.05f;
+    float ironMining_Weight = 0.4f;
+    /// <summary>
+    /// 铁矿山权重
+    /// </summary>
     float ironRock_Weight = 0.3f;
+    /// <summary>
+    /// 铁矿山边界权重
+    /// </summary>
     float ironRockEdeg_Weight = 0.2f;
     /// <summary>
     /// 生成铁矿
     /// </summary>
-    /// <param name="index"></param>
-    /// <param name="val"></param>
     public void CreateIronMining(int index, float perlinNoise, float realNoise)
     {
-        if (realNoise > (1 - ironMining_Weight))
+        if (realNoise > (1 - ironRock_Weight) && perlinNoise > (1 - ironMining_Weight))
         {
-            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
             if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
             {
+                bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
                 if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
                 {
-                    if ((perlinNoise > (1 - ironMining_Weight)))
-                    {
-                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1012;
-                    }
-                    else
-                    {
-                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
-                    }
+                    bindMapCreater.data_mapBuildingData.tileDic[index] = 1012;
                 }
                 else
                 {
@@ -1687,11 +1956,11 @@ public class MapCreate_Mining
                 }
             }
         }
-        else if (realNoise > (1 - ironMining_Weight - ironRock_Weight))
+        else if (realNoise > (1 - ironRock_Weight))
         {
-            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
             if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
             {
+                bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
                 if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
                 {
                     bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
@@ -1702,7 +1971,7 @@ public class MapCreate_Mining
                 }
             }
         }
-        else if (realNoise > (1 - ironMining_Weight - ironRock_Weight - ironRockEdeg_Weight))
+        else if (realNoise > (1 - ironRock_Weight - ironRockEdeg_Weight))
         {
             bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
         }
@@ -1711,8 +1980,14 @@ public class MapCreate_Mining
     /// <summary>
     /// 金矿权重
     /// </summary>
-    float goldMining_Weight = 0.05f;
+    float goldMining_Weight = 0.4f;
+    /// <summary>
+    /// 金矿山权重
+    /// </summary>
     float goldRock_Weight = 0.3f;
+    /// <summary>
+    /// 金矿山边界权重
+    /// </summary>
     float goldRockEdeg_Weight = 0.2f;
     /// <summary>
     /// 生成金矿
@@ -1721,21 +1996,14 @@ public class MapCreate_Mining
     /// <param name="val"></param>
     public void CreateGoldMining(int index, float perlinNoise, float realNoise)
     {
-        if (realNoise > (1 - goldMining_Weight))
+        if (realNoise > (1 - goldRock_Weight) && perlinNoise > (1 - goldMining_Weight))
         {
-            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
             if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
             {
+                bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
                 if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
                 {
-                    if((perlinNoise > (1 - goldMining_Weight)))
-                    {
-                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1013;
-                    }
-                    else
-                    {
-                        bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
-                    }
+                    bindMapCreater.data_mapBuildingData.tileDic[index] = 1013;
                 }
                 else
                 {
@@ -1743,11 +2011,11 @@ public class MapCreate_Mining
                 }
             }
         }
-        else if (realNoise > (1 - goldMining_Weight - goldRock_Weight))
+        else if (realNoise > (1 - goldRock_Weight))
         {
-            bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
             if (bindMapCreater.data_mapGroundData.tileDic.ContainsKey(index) && bindMapCreater.data_mapGroundData.tileDic[index] < 9000)
             {
+                bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
                 if (bindMapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
                 {
                     bindMapCreater.data_mapBuildingData.tileDic[index] = 1002;
@@ -1758,10 +2026,12 @@ public class MapCreate_Mining
                 }
             }
         }
-        else if (realNoise > (1 - goldMining_Weight - goldRock_Weight - goldRockEdeg_Weight))
+        else if (realNoise > (1 - goldRock_Weight - goldRockEdeg_Weight))
         {
             bindMapCreater.data_mapGroundData.tileDic[index] = 1000;
         }
+
+
     }
 
 }
@@ -1781,9 +2051,9 @@ public class MapCreate_Road
         {
             vector2_Start = new Vector2(0, -creater.config_Map.map_Size),
             vector2_End = new Vector2(-creater.config_Map.map_Size, creater.config_Map.map_Size),
-            river_NoiseScale = 50f,
+            river_NoiseScale = 25f,
             river_NoiseOffset = creater.GetRandomOffset(),
-            river_Curvature = 2,
+            river_Curvature = 1,
             river_DirectionInfluence = 0.25f,
             river_Width = 3,
             river_Forking = 3,
@@ -1794,9 +2064,9 @@ public class MapCreate_Road
         {
             vector2_Start = new Vector2(creater.config_Map.map_Size, 0),
             vector2_End = new Vector2(-creater.config_Map.map_Size, -creater.config_Map.map_Size),
-            river_NoiseScale = 50f,
+            river_NoiseScale = 25f,
             river_NoiseOffset = creater.GetRandomOffset(),
-            river_Curvature = 2,
+            river_Curvature = 1,
             river_DirectionInfluence = 0.25f,
             river_Width = 3,
             river_Forking = 3,
@@ -1807,9 +2077,9 @@ public class MapCreate_Road
         {
             vector2_Start = new Vector2(0, creater.config_Map.map_Size),
             vector2_End = new Vector2(0, -creater.config_Map.map_Size),
-            river_NoiseScale = 50f,
+            river_NoiseScale = 25f,
             river_NoiseOffset = creater.GetRandomOffset(),
-            river_Curvature = 2,
+            river_Curvature = 1,
             river_DirectionInfluence = 0.25f,
             river_Width = 3,
             river_Forking = 3,
@@ -1820,11 +2090,13 @@ public class MapCreate_Road
         MapCreater.RiverConfig config_ChildRiver;
         config_ChildRiver = new MapCreater.RiverConfig()
         {
-            river_NoiseScale = 50f,
+            river_NoiseScale = 30f,
             river_NoiseOffset = creater.GetRandomOffset(),
             river_Curvature = 2,
             river_DirectionInfluence = 0.25f,
             river_Width = 2,
+            river_Forking = 0,
+            river_ForkCount = 0
         };
 
         await mapCreater.GenerateMainRiver(config_River0, config_ChildRiver, DrawMainRiver, DrawChildRiver);
@@ -1947,7 +2219,7 @@ public class MapCreate_RandomBuilding
             int index = bind_MapCreater.Vector2ToIndex(pos.x, pos.y);
             if (bind_MapCreater.data_mapGroundData.tileDic.ContainsKey(index))
             {
-                List<MapModConfig> list = MapModConfigData.mapModConfigs.FindAll((x) => { return x.MapMod_Base == bind_MapCreater.data_mapGroundData.tileDic[index]; });
+                List<MapModConfig> list = MapModConfigData.mapModConfigs.FindAll((x) => { return x.MapMod_BaseGround == bind_MapCreater.data_mapGroundData.tileDic[index]; });
                 if (list.Count > 0)
                 {
                     MapModConfig mapModConfig = list[new System.Random().Next(0, list.Count)];
@@ -2019,13 +2291,17 @@ public class MapCreate_ConfigBuilding
     public async Task CreateConfigBuilding(MapCreater mapCreater)
     {
         bind_MapCreater = mapCreater;
-        bind_MapCreater.text_Waiting.text = "太阳正在坠落";
+        bind_MapCreater.text_Waiting.text = "正在坠落太阳";
         MapModConfig mapConfig_0 = MapModConfigData.GetMapModConfig(0);
         CreateMapMod(Vector2Int.zero, mapConfig_0);
         await Task.Yield();
         bind_MapCreater.text_Waiting.text = "正在进行一场失败的实验";
         MapModConfig mapConfig_100 = MapModConfigData.GetMapModConfig(100);
         CreateMapMod(new Vector2Int((int)(-bind_MapCreater.config_Map.map_Size * 0.5f), (int)(bind_MapCreater.config_Map.map_Size * 0.5f)), mapConfig_100);
+        await Task.Yield();
+        bind_MapCreater.text_Waiting.text = "正在定居";
+        MapModConfig mapConfig_200 = MapModConfigData.GetMapModConfig(200);
+        CreateMapMod(new Vector2Int(0, -(int)(bind_MapCreater.config_Map.map_Size * 0.1f)), mapConfig_200);
     }
     private void CreateMapMod(Vector2Int center, MapModConfig mapModConfig)
     {
@@ -2175,10 +2451,10 @@ public class MapCreate_SinglePlant
     /// 植物密度(平方米/个)
     /// </summary>
     private float plantSingle_Density = 200f;
-    /// <summary>
-    /// 草地上的植物
-    /// </summary>
-    private List<short> plantSingleIDs_Grass = new List<short>() { 1000 };
+    private List<short> plantSingleIDs_Ground1001 = new List<short>() { 1000, 1003 };
+    private List<short> plantSingleIDs_Ground1003 = new List<short>() { 1018 };
+    private List<short> plantSingleIDs_Ground1004 = new List<short>() { 1018 };
+    private List<short> plantSingleIDs_Ground1005 = new List<short>() { 1008, 1019 };
     /// <summary>
     /// 生成单个植物
     /// </summary>
@@ -2195,17 +2471,43 @@ public class MapCreate_SinglePlant
         };
         await mapCreater.GenerateRandomPointsArea_Hard(config, (index) =>
         {
-            if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index) && mapCreater.data_mapGroundData.tileDic[index] == 1001)
+            if (mapCreater.data_mapGroundData.tileDic.ContainsKey(index))
             {
-                short stuffID = plantSingleIDs_Grass[new System.Random().Next(0, plantSingleIDs_Grass.Count)];
-                if (!mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                if (mapCreater.data_mapGroundData.tileDic[index] == 1001)
                 {
-                    mapCreater.data_mapBuildingData.tileDic.Add(index, stuffID);
+                    short stuffID = plantSingleIDs_Ground1001[new System.Random().Next(0, plantSingleIDs_Ground1001.Count)];
+                    if (!mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        mapCreater.data_mapBuildingData.tileDic.Add(index, stuffID);
+                    }
+                }
+                else if (mapCreater.data_mapGroundData.tileDic[index] == 1003)
+                {
+                    short stuffID = plantSingleIDs_Ground1003[new System.Random().Next(0, plantSingleIDs_Ground1003.Count)];
+                    if (!mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        mapCreater.data_mapBuildingData.tileDic.Add(index, stuffID);
+                    }
+                }
+                else if (mapCreater.data_mapGroundData.tileDic[index] == 1004)
+                {
+                    short stuffID = plantSingleIDs_Ground1004[new System.Random().Next(0, plantSingleIDs_Ground1004.Count)];
+                    if (!mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        mapCreater.data_mapBuildingData.tileDic.Add(index, stuffID);
+                    }
+                }
+                else if (mapCreater.data_mapGroundData.tileDic[index] == 1005)
+                {
+                    short stuffID = plantSingleIDs_Ground1005[new System.Random().Next(0, plantSingleIDs_Ground1005.Count)];
+                    if (!mapCreater.data_mapBuildingData.tileDic.ContainsKey(index))
+                    {
+                        mapCreater.data_mapBuildingData.tileDic.Add(index, stuffID);
+                    }
                 }
             }
         });
     }
-
 }
 public struct MapConfig
 {

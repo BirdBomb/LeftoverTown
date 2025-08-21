@@ -17,7 +17,7 @@ public class ActorUI : MonoBehaviour
     public SpriteAtlas spriteAtlas_Emoji;
     public SpriteRenderer spriteRenderer_Emoji;
     public Transform transform_Singal;
-    public Transform transform_SingalF;
+    public Transform transform_SingalR;
     public Transform transform_SingalTalk;
 
     public void UpdateHPBar(float val)
@@ -86,13 +86,13 @@ public class ActorUI : MonoBehaviour
         }
         Invoke("HideSingal", 5);
     }
-    public void ShowSingalF()
+    public void ShowSingalR()
     {
         ResetEmoji();
         ResetText();
         transform_Singal.DOKill();
         transform_Singal.gameObject.SetActive(true);
-        transform_SingalF.gameObject.SetActive(true);
+        transform_SingalR.gameObject.SetActive(true);
         transform_SingalTalk.gameObject.SetActive(false);
         transform_Singal.transform.localScale = Vector3.one;
         transform_Singal.DOPunchScale(new Vector3(-0.1f, 0.1f, 0), 0.2f);
@@ -104,7 +104,7 @@ public class ActorUI : MonoBehaviour
         transform_Singal.DOKill();
         transform_Singal.gameObject.SetActive(true);
         transform_SingalTalk.gameObject.SetActive(true);
-        transform_SingalF.gameObject.SetActive(false);
+        transform_SingalR.gameObject.SetActive(false);
         transform_Singal.transform.localScale = Vector3.one;
         transform_Singal.DOPunchScale(new Vector3(-0.1f, 0.1f, 0), 0.2f);
     }
@@ -141,13 +141,13 @@ public enum Emoji
     /// </summary>
     Panic,
     /// <summary>
-    /// 不开心
-    /// </summary>
-    Unhappy,
-    /// <summary>
     /// 开心
     /// </summary>
     Happy,
+    /// <summary>
+    /// 不开心
+    /// </summary>
+    Unhappy,
     /// <summary>
     /// 攻击
     /// </summary>

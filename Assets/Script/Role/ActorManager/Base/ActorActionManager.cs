@@ -42,9 +42,9 @@ public class ActorActionManager
         }
     }
     /// <summary>
-    /// 快速切换
+    /// 快速持握
     /// </summary>
-    public void Switch(int index)
+    public void SwitchHandAndBag(int index)
     {
         List<ItemData> items = actorManager.actorNetManager.Local_GetBagItem();
         index = index % items.Count;
@@ -58,6 +58,48 @@ public class ActorActionManager
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
         {
             oldItem = oldHandItem,
+            newItem = oldBagItem,
+        });
+    }
+    /// <summary>
+    /// 快速穿戴
+    /// </summary>
+    /// <param name="index"></param>
+    public void SwitchHeadAndBag(int index)
+    {
+        List<ItemData> items = actorManager.actorNetManager.Local_GetBagItem();
+        index = index % items.Count;
+        ItemData oldBagItem = items[index];
+        ItemData oldHandItem = actorManager.actorNetManager.Net_ItemOnHead;
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        {
+            index = index,
+            itemData = oldHandItem,
+        });
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHead()
+        {
+            oldItem = oldHandItem,
+            newItem = oldBagItem,
+        });
+    }
+    /// <summary>
+    /// 快速穿戴
+    /// </summary>
+    /// <param name="index"></param>
+    public void SwitchBodyAndBag(int index) 
+    {
+        List<ItemData> items = actorManager.actorNetManager.Local_GetBagItem();
+        index = index % items.Count;
+        ItemData oldBagItem = items[index];
+        ItemData oldBodyItem = actorManager.actorNetManager.Net_ItemOnBody;
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        {
+            index = index,
+            itemData = oldBodyItem,
+        });
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnBody()
+        {
+            oldItem = oldBodyItem,
             newItem = oldBagItem,
         });
     }
@@ -86,14 +128,14 @@ public class ActorActionManager
     public void FaceTo(Vector2 dir)
     {
         bodyController.faceDir = dir.normalized;
-        if (dir.x > 0) bodyController.FaceRight();
-        else bodyController.FaceLeft();
+        if (bodyController.faceDir.x > 0.1f) bodyController.FaceRight();
+        if (bodyController.faceDir.x < -0.1f) bodyController.FaceLeft();
     }
     public void TurnTo(Vector2 dir)
     {
         bodyController.turnDir = dir.normalized;
-        if (dir.x > 0.1f) bodyController.TurnRight();
-        if (dir.x < -0.1f) bodyController.TurnLeft();
+        if (bodyController.turnDir.x > 0.1f) bodyController.TurnRight();
+        if (bodyController.turnDir.x < -0.1f) bodyController.TurnLeft();
     }
     public bool LookAt(ActorManager who, float view)
     {
@@ -131,26 +173,25 @@ public class ActorActionManager
             actorManager.AllClient_UpdateHpBar(0);
             if (actorManager.actorAuthority.isPlayer)
             {
-                DeadByPlayer();
+                DeadPlayer();
             }
             else
             {
-                DeadByNPC();
+                DeadNPC();
             }
         }
     }
-    private void DeadByPlayer()
+    private void DeadPlayer()
     {
         if (actorManager.actorAuthority.isState)
         {
-            MessageBroker.Default.Publish(new GameEvent.GameEvent_State_RevivePlayer()
+            MessageBroker.Default.Publish(new GameEvent.GameEvent_State_KillPlayer()
             {
                 playerRef = actorManager.actorPlayerRef
             });
-            Despawn();
         }
     }
-    private void DeadByNPC()
+    private void DeadNPC()
     {
         if (actorManager.actorAuthority.isState)
         {
@@ -167,31 +208,7 @@ public class ActorActionManager
     /// </summary>
     public void DropDown()
     {
-        List<ItemData> dropItem = new List<ItemData>();
-        List<ItemData> bagItems = actorManager.actorNetManager.Local_GetBagItem();
-        for (int i = 0; i < bagItems.Count; i++)
-        {
-            ItemData item = bagItems[i];
-            if (item.Item_ID != 0)
-            {
-                dropItem.Add(item);
-            }
-        }
-        ItemData itemOnHead = actorManager.actorNetManager.Net_ItemOnHead;
-        if (itemOnHead.Item_ID != 0)
-        {
-            dropItem.Add(itemOnHead);
-        }
-        ItemData itemOnBody = actorManager.actorNetManager.Net_ItemOnBody;
-        if (itemOnBody.Item_ID != 0)
-        {
-            dropItem.Add(itemOnBody);
-        }
-        ItemData itemOnHand = actorManager.actorNetManager.Net_ItemInHand;
-        if (itemOnHand.Item_ID != 0)
-        {
-            dropItem.Add(itemOnHand);
-        }
+        List<ItemData> dropItem = actorManager.actorNetManager.Local_GetLootItems();
         for (int i = 0; i < dropItem.Count; i++)
         {
             float angle = i * (360 / dropItem.Count);
@@ -212,7 +229,7 @@ public class ActorActionManager
     {
         if (actorManager.actorState != ActorState.Dead)
         {
-            actorManager.actorNetManager.RPC_AllClient_HpChange(val, new NetworkId());
+            actorManager.actorNetManager.RPC_AllClient_HpChange(val, (int)HpChangeReason.Healing, new NetworkId());
         }
     }
     public void Client_IncreaseHP(int val)  
@@ -232,15 +249,15 @@ public class ActorActionManager
         if (actorManager.actorState != ActorState.Dead)
         {
             NetworkId networkId = new NetworkId();
-            if (from) { networkId = from.Object.Id; }
+            if (from && from.Object) { networkId = from.Object.Id; }
             val -= actorManager.actorNetManager.Net_Armor;
             if (val > 0)
             {
-                actorManager.actorNetManager.RPC_AllClient_HpChange(-val, networkId);
+                actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
             }
             else
             {
-                actorManager.actorNetManager.RPC_AllClient_HpChange(0, networkId);
+                actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.AttackDamage, networkId);
             }
             bodyController.Flash();
             bodyController.Shake();
@@ -258,17 +275,17 @@ public class ActorActionManager
             val -= actorManager.actorNetManager.Net_Resistance;
             if (val > 0)
             {
-                actorManager.actorNetManager.RPC_AllClient_HpChange(-val, networkId);
+                actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.MagicDamage, networkId);
             }
             else
             {
-                actorManager.actorNetManager.RPC_AllClient_HpChange(0, networkId);
+                actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.MagicDamage, networkId);
             }
         }
     }
     public bool PayCoin(int coin)
     {
-        if (actorManager.actorNetManager.Local_Coin >= coin && actorManager.actorAuthority.isLocal)
+        if (actorManager.actorNetManager.Local_Coin >= coin)
         {
             actorManager.actorNetManager.RPC_Local_PayCoin(coin);
             return true;
@@ -280,11 +297,16 @@ public class ActorActionManager
     }
     public int EarnCoin(int coin)
     {
-        if (actorManager.actorAuthority.isLocal)
-        {
-            actorManager.actorNetManager.RPC_Local_EarnCoin(coin);
-        }
+        actorManager.actorNetManager.RPC_Local_EarnCoin(coin);
         return actorManager.actorNetManager.Local_Coin;
+    }
+    public void Commit(short fine)
+    {
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_SomeoneCommit
+        {
+            actor = actorManager,
+            fine = fine
+        });
     }
     public void SetFine(short val)
     {
@@ -337,20 +359,20 @@ public class ActorActionManager
         bodyController.SetAnimatorFloat(BodyPart.Hand, "Speed", 1);
         bodyController.SetAnimatorBool(BodyPart.Hand, "Walk", false);
     }
-    public void PlayDead(float speed, Action<string> action)
+    public void PlayDead(float speed, Func<string,bool> func)
     {
         bodyController.SetAnimatorTrigger(BodyPart.Body, "Dead");
-        bodyController.SetAnimatorAction(BodyPart.Body, action);
+        bodyController.SetAnimatorFunc(BodyPart.Body, func);
     }
     public void PlayTakeDamage(float speed)
     {
         
     }
-    public void PlayPickUp(float speed, Action<string> action)
+    public void PlayPickUp(float speed, Func<string,bool> func)
     {
         bodyController.SetAnimatorTrigger(BodyPart.Hand, "Pick");
         bodyController.SetAnimatorTrigger(BodyPart.Head, "Pick");
-        bodyController.SetAnimatorAction(BodyPart.Hand, action);
+        bodyController.SetAnimatorFunc(BodyPart.Hand, func);
     }
     #endregion
 

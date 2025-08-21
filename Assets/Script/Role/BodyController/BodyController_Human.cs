@@ -7,6 +7,7 @@ using UnityEngine.U2D;
 using UniRx;
 using Fusion.Addons.Physics;
 using DG.Tweening;
+using Unity.VisualScripting;
 /// <summary>
 /// 人型身体控制器
 /// </summary>
@@ -84,7 +85,6 @@ public class BodyController_Human : BodyController_Base
         material_Body = new Material(spriteRenderer_Body.sharedMaterial);
         spriteRenderer_Body.material = material_Body;
     }
-
     public override void SetAnimatorTrigger(BodyPart bodyPart, string name)
     {
         if (bodyPart == BodyPart.Body && animator_Body != null)
@@ -129,59 +129,56 @@ public class BodyController_Human : BodyController_Base
         }
         base.SetAnimatorFloat(bodyPart, name, val);
     }
-    public override void SetAnimatorAction(BodyPart bodyPart, Action<string> action)
+    public override void SetAnimatorFunc(BodyPart bodyPart, Func<string, bool> func)
     {
         if (bodyPart == BodyPart.Body && animator_Body != null)
         {
-            animaEventListen_Body.BindTempEvent(action);
+            animaEventListen_Body.BindTempFunc(func);
         }
         else if (bodyPart == BodyPart.Hand && animator_Hand != null)
         {
-            animaEventListen_Hand.BindTempEvent(action);
+            animaEventListen_Hand.BindTempFunc(func);
         }
         else if (bodyPart == BodyPart.Head && animator_Head != null)
         {
-            animaEventListen_Head.BindTempEvent(action);
+            animaEventListen_Head.BindTempFunc(func);
         }
-        base.SetAnimatorAction(bodyPart, action);
+        base.SetAnimatorFunc(bodyPart, func);
     }
-    public override void Turn(bool right)
+
+    public override void TurnRight()
     {
-        if (right)
-        {
-            transform_Body.localScale = new Vector3(1, 1, 1);
-        }
-        else
-        {
-            transform_Body.localScale = new Vector3(-1, 1, 1);
-        }
-        base.Turn(right);
+        transform_Body.localScale = new Vector3(1, 1, 1);
+        base.TurnRight();
     }
-    public override void Face(bool right)
+    public override void TurnLeft()
     {
-        if (right)
+        transform_Body.localScale = new Vector3(-1, 1, 1);
+        base.TurnLeft();
+    }
+    public override void FaceRight()
+    {
+        if (transform_Head.lossyScale.x < 0)
         {
-            if (transform_Head.lossyScale.x < 0)
-            {
-                transform_Head.localScale = new Vector3(-transform_Head.localScale.x, 1, 1);
-            }
-            if (transform_Hand.lossyScale.x < 0)
-            {
-                transform_Hand.localScale = new Vector3(-transform_Hand.localScale.x, 1, 1);
-            }
+            transform_Head.localScale = new Vector3(-transform_Head.localScale.x, 1, 1);
         }
-        else
+        if (transform_Hand.lossyScale.x < 0)
         {
-            if (transform_Head.lossyScale.x > 0)
-            {
-                transform_Head.localScale = new Vector3(-transform_Head.localScale.x, 1, 1);
-            }
-            if (transform_Hand.lossyScale.x > 0)
-            {
-                transform_Hand.localScale = new Vector3(-transform_Hand.localScale.x, 1, 1);
-            }
+            transform_Hand.localScale = new Vector3(-transform_Hand.localScale.x, 1, 1);
         }
-        base.Face(right);
+        base.FaceRight();
+    }
+    public override void FaceLeft()
+    {
+        if (transform_Head.lossyScale.x > 0)
+        {
+            transform_Head.localScale = new Vector3(-transform_Head.localScale.x, 1, 1);
+        }
+        if (transform_Hand.lossyScale.x > 0)
+        {
+            transform_Hand.localScale = new Vector3(-transform_Hand.localScale.x, 1, 1);
+        }
+        base.FaceLeft();
     }
     public override void Dead()
     {
@@ -193,13 +190,12 @@ public class BodyController_Human : BodyController_Base
     }
     public override void Flash()
     {
-
         base.Flash();
     }
     public override void Shake()
     {
         transform_Body.DOKill();
-        transform_Body.localScale = Vector3.one;
-        transform_Body.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.2f);
+        transform_Body.transform.localScale = new Vector3(transform_Body.transform.localScale.x, 1, 1);
+        transform_Body.DOPunchScale(new Vector3(0, -0.1f, 0), 0.2f);
     }
 }

@@ -192,6 +192,7 @@ public class Item_4200 : ItemBase_Food
     private int config_Food = 20;
     public override void Eat()
     {
+        owner.actionManager.Client_HealHP(15);
         owner.hungryManager.AddFood(config_Food);
         base.Eat();
     }

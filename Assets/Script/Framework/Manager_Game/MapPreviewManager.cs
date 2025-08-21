@@ -65,7 +65,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         {
             if (_.moveActor.actorAuthority.isLocal && _.moveActor.actorAuthority.isPlayer)
             {
-                UpdateSingalPos(_.movePos);
+                Local_UpdateSingalPos(_.movePos);
             }
         }).AddTo(this);
     }
@@ -405,7 +405,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     #region
     public Vector3Int vector3Int_SingalOffset;
     public Vector3Int vector3Int_SingalPos;
-    private void UpdateSingalPos(Vector3Int pos)
+    private void Local_UpdateSingalPos(Vector3Int pos)
     {
         vector3Int_SingalPos = pos;
         transform_Singal.position = MapManager.Instance.tilemap_Building.CellToWorld(vector3Int_SingalPos + vector3Int_SingalOffset) + new Vector3(0.5f, 0.5f, 0);
@@ -416,14 +416,14 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         spriteRenderer_Singal.color = new Color(1, 1, 1, 0.8f);
         spriteRenderer_Singal.DOFade(0f, 1);
     }
-    public void ShowSingal(Vector3Int offset)
+    public void Local_ShowSingal(Vector3Int offset)
     {
         vector3Int_SingalOffset = offset;
-        UpdateSingalPos(vector3Int_SingalPos);
+        Local_UpdateSingalPos(vector3Int_SingalPos);
         bool_InSingal = true;
         spriteRenderer_Singal.gameObject.SetActive(true);
     }
-    public void HideSingal()
+    public void Local_HideSingal()
     {
         bool_InSingal = false;
         if(spriteRenderer_Singal != null)
@@ -431,11 +431,11 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
             spriteRenderer_Singal.gameObject.SetActive(false);
         }
     }
-    public void SuccesSingal()
+    public void Local_SuccesSingal()
     {
 
     }
-    public void FailSingal(float val)
+    public void Local_FailSingal(float val)
     {
         spriteRenderer_Singal.DOComplete();
         spriteRenderer_Singal.color = new Color(1, 0, 0, 0.8f);

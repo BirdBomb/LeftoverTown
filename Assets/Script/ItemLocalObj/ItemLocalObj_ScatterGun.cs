@@ -13,9 +13,8 @@ public class ItemLocalObj_ScatterGun : ItemLocalObj_Gun
     [Header("É¢µ¯ÊýÁ¿")]
     public int config_BulletCount;
 
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
-        itemData = data;
         actorManager = owner;
 
         transform.SetParent(body.transform_ItemInRightHand);
@@ -24,14 +23,14 @@ public class ItemLocalObj_ScatterGun : ItemLocalObj_Gun
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
 
-        temp_NextAimPoint = config_ShotAimTime;
+        temp_NextAimPoint = AimTime;
 
         spriteRenderer_RightHand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
 
         spriteRenderer_LeftHand.color = body.transform_LeftHand.GetComponent<SpriteRenderer>().color;
         body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
-        base.HoldingByHand(owner, body, data);
+        base.HoldingStart(owner, body);
     }
 
     public override void TryToShot(float offset)
@@ -81,9 +80,13 @@ public class ItemLocalObj_ScatterGun : ItemLocalObj_Gun
         for (int i = 0; i < dirList.Count; i++)
         {
             GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + bulletID);
-            BulletBase bulletBase = obj.GetComponent<BulletBase>();
-            obj.transform.position = transform_Muzzle.position;
-            bulletBase.Shot(dirList[i], 0, 0, 5, actorManager.actorNetManager);
+            if (obj.TryGetComponent(out BulletBase bulletBase))
+            {
+                bulletBase.InitBullet();
+                bulletBase.SetPhysics(transform_Muzzle.position, dirList[i], 0, 5);
+                bulletBase.SetDamage(0, 0);
+                bulletBase.SetOwner(actorManager);
+            }
         }
         MuzzleFire();
         KickBack();
@@ -106,13 +109,13 @@ public class ItemLocalObj_ScatterGun : ItemLocalObj_Gun
     {
         transform_Body.DOKill();
         transform_Body.localPosition = Vector3.zero;
-        transform_Body.DOPunchPosition(vector3_KickBack, config_ShotCD).OnComplete(() =>
+        transform_Body.DOPunchPosition(vector3_KickBack, ShotCD).OnComplete(() =>
         {
             spriteRenderer_LeftHand.transform.DOLocalMoveX(-0.1f, 0.1f).SetLoops(2, LoopType.Yoyo);
             AudioManager.Instance.Play3DEffect(2003, transform_Muzzle.position);
         });
         transform_Body.localRotation = Quaternion.identity;
-        transform_Body.DOPunchRotation(new Vector3(0, 0, float_KickOn), config_ShotCD);
+        transform_Body.DOPunchRotation(new Vector3(0, 0, float_KickOn), ShotCD);
 
     }
 }

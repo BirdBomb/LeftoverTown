@@ -8,10 +8,9 @@ public class ItemLocalObj_Food : ItemLocalObj
     public SpriteRenderer spriteRenderer_Food;
     public SpriteAtlas spriteAtlas_Item;
     public ParticleSystem bitsParticle;
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
         actorManager = owner;
-        itemData = data;
 
         transform.SetParent(body.transform_ItemInRightHand);
         body.gameObjects_ItemInHand.Add(gameObject);
@@ -19,15 +18,15 @@ public class ItemLocalObj_Food : ItemLocalObj
         transform.localPosition = Vector3.zero;
         transform.localScale = Vector3.one;
 
-        spriteRenderer_Food.sprite = spriteAtlas_Item.GetSprite("Item_" + data.Item_ID.ToString());
-        base.HoldingByHand(owner, body, data);
+        spriteRenderer_Food.sprite = spriteAtlas_Item.GetSprite("Item_" + itemData.Item_ID.ToString());
+        base.HoldingStart(owner, body);
     }
     public void PlayParticle()
     {
-        bitsParticle.Play();
+        if(bitsParticle)bitsParticle.Play();
     }
     public void StopParticle()
     {
-        bitsParticle.Stop();
+        if (bitsParticle)bitsParticle.Stop();
     }
 }

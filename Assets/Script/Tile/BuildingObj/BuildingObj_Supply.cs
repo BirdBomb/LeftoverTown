@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UniRx;
 
 public class BuildingObj_Supply : BuildingObj
 {
@@ -24,6 +25,10 @@ public class BuildingObj_Supply : BuildingObj
     private TileUI_Supply tileUI_Bind;
     public override void Start()
     {
+        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
+        {
+            All_UpdateTime(_.hour + _.day * 10);
+        }).AddTo(this);
         All_UpdateTime(MapManager.Instance.mapNetManager.Day * 10 + MapManager.Instance.mapNetManager.Hour);
     }
     #region//信息更新与上传

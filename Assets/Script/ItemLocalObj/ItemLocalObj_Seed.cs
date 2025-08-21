@@ -13,13 +13,12 @@ public class ItemLocalObj_Seed : ItemLocalObj
     private float float_NextSowTiming = 0;
 
     private InputData inputData = new InputData();
-    private void OnEnable()
-    {
-        MapPreviewManager.Instance.ShowSingal(Vector3Int.zero);
-    }
     private void OnDisable()
     {
-        MapPreviewManager.Instance.HideSingal();
+        if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+        {
+            MapPreviewManager.Instance.Local_HideSingal();
+        }
     }
     private void FixedUpdate()
     {
@@ -28,9 +27,8 @@ public class ItemLocalObj_Seed : ItemLocalObj
             float_NextSowTiming -= Time.fixedDeltaTime;
         }
     }
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
-        itemData = data;
         actorManager = owner;
 
         transform.SetParent(body.transform_ItemInRightHand);
@@ -38,8 +36,11 @@ public class ItemLocalObj_Seed : ItemLocalObj
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
-
-        base.HoldingByHand(owner, body, data);
+        if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+        {
+            MapPreviewManager.Instance.Local_ShowSingal(Vector3Int.zero);
+        }
+        base.HoldingStart(owner, body);
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
@@ -48,11 +49,16 @@ public class ItemLocalObj_Seed : ItemLocalObj
             float_NextSowTiming += config_SowCD + 0.1f;
             actorManager.bodyController.SetAnimatorTrigger(BodyPart.Hand, "Pick");
             actorManager.bodyController.SetAnimatorTrigger(BodyPart.Head, "Pick");
-            actorManager.bodyController.SetAnimatorAction(BodyPart.Hand, (str) =>
+            actorManager.bodyController.SetAnimatorFunc(BodyPart.Hand, (str) =>
             {
                 if (str.Equals("Pick"))
                 {
                     Sow();
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             });
         }
@@ -73,14 +79,13 @@ public class ItemLocalObj_Seed : ItemLocalObj
         if (actorManager.actorAuthority.isLocal)
         {
             Vector3Int pos = actorManager.pathManager.vector3Int_CurPos;
-
             if (!MapManager.Instance.GetBuilding(pos, out _))
             {
                 if (MapManager.Instance.GetGround(pos, out GroundTile tile))
                 {
                     if (tile.tileID == 2002)
                     {
-                        MessageBroker.Default.Publish(new MapEvent.MapEvent_State_ChangeBuildingArea()
+                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingArea()
                         {
                             buildingID = plantID,
                             buildingPos = pos,
@@ -91,7 +96,7 @@ public class ItemLocalObj_Seed : ItemLocalObj
                     }
                 }
             }
-            MapPreviewManager.Instance.FailSingal(0.2f);
+            MapPreviewManager.Instance.Local_FailSingal(0.2f);
         }
     }
     private void Expend(short val)

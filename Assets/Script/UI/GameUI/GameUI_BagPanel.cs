@@ -7,36 +7,32 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
+using DG.Tweening;
+using System;
 
 public class GameUI_BagPanel : MonoBehaviour
 {
+    [Header("面板")]
+    public Transform tran_Panel;
     [Header("背包格子")]
     public List<UI_GridCell> gridCells_BagCellList = new List<UI_GridCell>();
-    [Header("背包排序")]
+    [Header("排序按钮")]
     public Button btn_PutSort;
-    [Header("背包选定框")]
-    public Transform transform_Switch;
+    [Header("打开按钮")]
+    public Button btn_Show;
+    [Header("关闭按钮")]
+    public Button btn_Hide;
     [Header("背包锁")]
     public List<Image> images_BagLockList = new List<Image>();
     private List<ItemData> itemDatas_BagList = new List<ItemData>();
-    private int _bagCapacity;
     private void Start()
     {
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
         {
-            _bagCapacity = _.bagCapacity;
             itemDatas_BagList = new List<ItemData>(_.itemDatas);
             BagUpdateItem();
             BagDrawEveryLock();
 
-        }).AddTo(this);
-        MessageBroker.Default.Receive<UIEvent.UIEvent_SwitchItemInBag>().Subscribe(_ =>
-        {
-            int index = _.index % gridCells_BagCellList.Count;
-            transform_Switch.transform.position = gridCells_BagCellList[index].transform.position;
-            transform_Switch.transform.DOKill();
-            transform_Switch.transform.localScale = Vector3.one;
-            transform_Switch.transform.DOPunchScale(new Vector3(0.5f, -0.5f, 0), 0.2f);
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
         {
@@ -59,9 +55,12 @@ public class GameUI_BagPanel : MonoBehaviour
                 AddInBagInfo putInBagInfo = new AddInBagInfo();
                 putInBagInfo.id = _.item.Item_ID;
                 putInBagInfo.count = -_.item.Item_Count;
-                Debug.Log(_.item.Item_ID);
                 AddInfo(putInBagInfo);
             }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_TryUseItemInBag>().Subscribe(_ =>
+        {
+            gridCells_BagCellList[_.index]._bindItemBase.InBag_Use();
         }).AddTo(this);
         BindAllCell();
         InvokeRepeating("ShowNextInfo", 2, float_DurTime);
@@ -74,6 +73,14 @@ public class GameUI_BagPanel : MonoBehaviour
             gridCells_BagCellList[index].BindGrid(new ItemPath(ItemFrom.Bag, index), PutIn, PutOut, ClickCellLeft, ClickCellRight);
         }
         btn_PutSort.onClick.AddListener(BatchSort);
+        btn_Show.onClick.AddListener(() =>
+        {
+            ShowPanel();
+        });
+        btn_Hide.onClick.AddListener(() =>
+        {
+            HidePanel();
+        });
     }
     #region//绘制
     private void BagUpdateItem()
@@ -94,7 +101,7 @@ public class GameUI_BagPanel : MonoBehaviour
     {
         for (int i = 0; i < images_BagLockList.Count; i++)
         {
-            if (i < _bagCapacity)
+            if (i < itemDatas_BagList.Count)
             {
                 images_BagLockList[i].enabled = false;
             }
@@ -138,6 +145,31 @@ public class GameUI_BagPanel : MonoBehaviour
         List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
         itemDatas = GameToolManager.Instance.SortItemList(itemDatas);
         GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_SetBagItem(itemDatas);
+    }
+    #endregion
+    #region//打开隐藏
+    private bool show = false;
+    /// <summary>
+    /// 显示
+    /// </summary>
+    public void ShowPanel()
+    {
+        show = true;
+        btn_Show.gameObject.SetActive(!show);
+        btn_Hide.gameObject.SetActive(show);
+        tran_Panel.DOKill();
+        tran_Panel.DOLocalMoveY(280, 0.2f);
+    }
+    /// <summary>
+    /// 隐藏
+    /// </summary>
+    public void HidePanel()
+    {
+        show = false;
+        btn_Show.gameObject.SetActive(!show);
+        btn_Hide.gameObject.SetActive(show);
+        tran_Panel.DOKill();
+        tran_Panel.DOLocalMoveY(0, 0.2f);
     }
     #endregion
     #region//弹出信息

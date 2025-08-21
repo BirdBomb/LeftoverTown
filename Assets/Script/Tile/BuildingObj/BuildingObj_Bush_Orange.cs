@@ -186,7 +186,7 @@ public class BuildingObj_Bush_Orange : BuildingObj
                 callBack = ((actor) =>
                 {
                     chicken = actor.GetComponent<ActorManager_Animal_Chicken>();
-                    chicken.State_BindHome(buildingTile.tilePos);
+                    chicken.brainManager.SetHome(buildingTile.tilePos);
                 })
             });
         }

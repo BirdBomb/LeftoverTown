@@ -65,6 +65,12 @@ public class UI_CreateActor : MonoBehaviour
         transform_Panel.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
         action_Create = actionCreate;
         action_Return = actionReturn;
+
+        ChangeHairType(0);
+        ChangeEyeType(0);
+        ChangeHairColorH(0);
+        ChangeHairColorV(0);
+        ChangeHairColorS(0);
     }
     private void Bind()
     {

@@ -16,20 +16,16 @@ public class ItemLocalObj_Spear : ItemLocalObj
     private SpriteRenderer spriteRenderer_RightHand;
     [SerializeField]
     private SkillIndicators skillIndicators;
-    [SerializeField, Header("≈¸ø≥ÀŸ∂»")]
-    private float config_AttackSpeed = 1;
-    [SerializeField, Header("¥¡¥Ã…À∫¶")]
-    private short config_StabDamage;
-    [SerializeField, Header("¥¡¥Ãæ‡¿Î")]
-    private short config_StabDistance;
-    [SerializeField, Header("¥¡¥Ã∑∂Œß")]
-    private short config_StabRange;
-    [SerializeField, Header("∫·…®…À∫¶")]
-    private short config_HackDamage;
-    [SerializeField, Header("∫·…®æ‡¿Î")]
-    private short config_HackDistance;
-    [SerializeField, Header("∫·…®∑∂Œß")]
-    private short config_HackRange;
+
+    private int StabDamage;
+    private float StabRange = 10;
+    private int HackDamage;
+    private float HackRange = 60;
+    private float AttackSpeed;
+    private float AttackDistance;
+    private float AttackExpend;
+    private float AttackAbrasion_Temp;
+
     /// <summary>
     /// π•ª˜∂Øª≠ ±≥§
     /// </summary>
@@ -57,10 +53,9 @@ public class ItemLocalObj_Spear : ItemLocalObj
         }
     }
 
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
         actorManager = owner;
-        itemData = data;
 
         transform.SetParent(body.transform_ItemInRightHand);
         body.gameObjects_ItemInHand.Add(gameObject);
@@ -72,10 +67,17 @@ public class ItemLocalObj_Spear : ItemLocalObj
         body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
 
-        config_AttackCD = config_AttackDuraction / config_AttackSpeed;
-        config_AttackCDRec = config_AttackSpeed / config_AttackDuraction;
+        base.HoldingStart(owner, body);
+    }
+    public void UpdateSpearData(int stabDamage, int hackDamage,float attackSpeed, float attackDistance, float attackExpend, ItemQuality itemQuality)
+    {
+        StabDamage = stabDamage;
+        HackDamage = hackDamage;
+        AttackSpeed = attackSpeed;
+        AttackDistance = attackDistance;
+        AttackExpend = attackExpend;
 
-        base.HoldingByHand(owner, body, data);
+        config_AttackCD = config_AttackDuraction / attackSpeed;
     }
     public void FaceTo(Vector3 dir)
     {
@@ -107,10 +109,10 @@ public class ItemLocalObj_Spear : ItemLocalObj
         {
             float_NextAttackTiming += config_AttackCD + 0.1f;
             animator.SetTrigger("Stab");
-            animator.speed = config_AttackSpeed;
+            animator.speed = AttackSpeed;
         }
-        float_TempDistance = config_StabDistance;
-        float_TempRange = config_StabRange;
+        float_TempDistance = AttackDistance;
+        float_TempRange = StabRange;
         inputData.leftPressTimer = time;
         return base.PressLeftMouse(time, actorAuthority);
     }
@@ -120,10 +122,10 @@ public class ItemLocalObj_Spear : ItemLocalObj
         {
             float_NextAttackTiming += config_AttackCD + 0.1f;
             animator.SetTrigger("Hack");
-            animator.speed = config_AttackSpeed;
+            animator.speed = AttackSpeed;
         }
-        float_TempDistance = config_HackDistance;
-        float_TempRange = config_HackRange;
+        float_TempDistance = AttackDistance;
+        float_TempRange = HackRange;
         inputData.rightPressTimer = time;
         return base.PressRightMouse(time, actorAuthority);
     }
@@ -149,9 +151,9 @@ public class ItemLocalObj_Spear : ItemLocalObj
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            sbyte temp = 0;
+            float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
-            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_StabDistance, config_StabRange, out Collider2D[] colliders);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, StabRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].tag.Equals("Actor"))
@@ -161,23 +163,23 @@ public class ItemLocalObj_Spear : ItemLocalObj
                         if (actor == actorManager) { continue; }
                         else
                         {
-                            actor.AllClient_Listen_TakeAttackDamage(config_StabDamage, actorManager.actorNetManager);
-                            temp = -2;
+                            actor.AllClient_Listen_TakeAttackDamage(StabDamage, actorManager.actorNetManager);
+                            temp = AttackExpend;
                         }
                     }
                 }
             }
 
-            ChangeDurability(temp);
+            AddAbrasion(temp);
         }
     }
     public void Hack()
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            sbyte temp = 0;
+            float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
-            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_HackDistance, config_HackRange, out Collider2D[] colliders);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, HackRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].tag.Equals("Actor"))
@@ -187,37 +189,48 @@ public class ItemLocalObj_Spear : ItemLocalObj
                         if (actor == actorManager) { continue; }
                         else
                         {
-                            actor.AllClient_Listen_TakeAttackDamage(config_HackDamage, actorManager.actorNetManager);
-                            temp = -2;
+                            actor.AllClient_Listen_TakeAttackDamage(HackDamage, actorManager.actorNetManager);
+                            temp = AttackExpend;
                         }
                     }
                 }
             }
-            ChangeDurability(temp);
+            AddAbrasion(temp);
         }
     }
-    private void ChangeDurability(sbyte val)
+    /// <summary>
+    /// ¿€º∆À∫ƒ
+    /// </summary>
+    /// <param name="val"></param>
+    public void AddAbrasion(float val)
     {
-        if (val != 0 && actorManager.actorAuthority.isPlayer)
+        AttackAbrasion_Temp += val;
+        if (AttackAbrasion_Temp >= 1)
         {
-            ItemData _oldItem = itemData;
-            ItemData _newItem = itemData;
-            if (_newItem.Item_Durability + val <= 0)
+            int offset = (int)Math.Floor(AttackAbrasion_Temp);
+            AttackAbrasion_Temp = AttackAbrasion_Temp - offset;
+            if (val != 0 && actorManager.actorAuthority.isPlayer)
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                ItemData _oldItem = itemData;
+                ItemData _newItem = itemData;
+                if (_newItem.Item_Durability - offset <= 0)
                 {
-                    item = itemData,
-                });
-            }
-            else
-            {
-                _newItem.Item_Durability += val;
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                    {
+                        item = itemData,
+                    });
+                }
+                else
                 {
-                    oldItem = _oldItem,
-                    newItem = _newItem,
-                });
+                    _newItem.Item_Durability -= (sbyte)offset;
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    {
+                        oldItem = _oldItem,
+                        newItem = _newItem,
+                    });
+                }
             }
+
         }
     }
 }

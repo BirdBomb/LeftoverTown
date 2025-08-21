@@ -12,28 +12,30 @@ public class ItemLocalObj_Dagger : ItemLocalObj
     private SpriteRenderer spriteRenderer_Hand;
     [SerializeField]
     private SkillIndicators skillIndicators;
-    [SerializeField, Header("´Á´ÌÉËº¦")]
-    private short config_StabDamage;
-    [SerializeField, Header("´Á´Ì·¶Î§")]
-    private float config_StabMaxRange;
-    [SerializeField, Header("´Á´Ì¾àÀë")]
-    private float config_StabMaxDistance;
-    [SerializeField, Header("´Á´ÌËÙ¶È")]
-    private float config_StabSpeed = 1;
+
+    private int AttackDamage;
+    private float AttackSpeed;
+    private float AttackExpend;
+    private float AttackAbrasion_Temp;
+
     /// <summary>
-    /// Åü¿³¶¯»­Ê±³¤
+    /// ´Á´Ì¶¯»­Ê±³¤
     /// </summary>
     private float config_StabDuraction = 1;
     /// <summary>
-    /// Åü¿³CD
+    /// ´Á´Ì¾àÀë
+    /// </summary>
+    private float config_StabMaxDistance = 1;
+    /// <summary>
+    /// ´Á´Ì·¶Î§
+    /// </summary>
+    private float config_StabMaxRange = 20;
+    /// <summary>
+    /// ´Á´ÌCD
     /// </summary>
     private float config_StabCD;
     /// <summary>
-    /// Åü¿³CDµ¹Êý
-    /// </summary>
-    private float config_StabCDRec;
-    /// <summary>
-    /// ÏÂ´ÎÈ­»÷Ê±¼ä
+    /// ÏÂ´Î´Á´ÌÊ±¼ä
     /// </summary>
     private float float_NextStabTiming = 0;
 
@@ -46,9 +48,8 @@ public class ItemLocalObj_Dagger : ItemLocalObj
         }
     }
 
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
-        itemData = data;
         actorManager = owner;
 
         transform.SetParent(body.transform_ItemInRightHand);
@@ -57,21 +58,25 @@ public class ItemLocalObj_Dagger : ItemLocalObj
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
 
-        config_StabCD = config_StabDuraction / config_StabSpeed;
-        config_StabCDRec = config_StabSpeed / config_StabDuraction;
 
         spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
-        base.HoldingByHand(owner, body, data);
+        base.HoldingStart(owner, body);
     }
-
+    public void UpdateDaggerData(int attackDamage,float attackSpeed,float attackExpend,ItemQuality itemQuality)
+    {
+        AttackDamage = attackDamage;
+        AttackSpeed = attackSpeed;
+        AttackExpend = attackExpend;
+        config_StabCD = config_StabDuraction / AttackSpeed;
+    }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
         if (inputData.leftPressTimer >= float_NextStabTiming)
         {
             float_NextStabTiming += config_StabCD + 0.1f;
             animator.SetTrigger("Stab");
-            animator.speed = config_StabSpeed;
+            animator.speed = AttackSpeed;
         }
         inputData.leftPressTimer = time;
         return base.PressLeftMouse(time, actorAuthority);
@@ -90,7 +95,7 @@ public class ItemLocalObj_Dagger : ItemLocalObj
         inputData.mousePosition = mouse;
         if (actorManager.actorAuthority.isLocal && actorManager.actorAuthority.isPlayer)
         {
-            float alpht = (float_NextStabTiming - inputData.leftPressTimer) * config_StabCDRec;
+            float alpht = (float_NextStabTiming - inputData.leftPressTimer) / config_StabCD;
             skillIndicators.Draw_SkillIndicators(inputData.mousePosition, config_StabMaxDistance, config_StabMaxRange, alpht);
         }
         base.UpdateMousePos(mouse);
@@ -99,7 +104,7 @@ public class ItemLocalObj_Dagger : ItemLocalObj
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            sbyte temp = 0;
+            float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
             skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_StabMaxDistance, config_StabMaxRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
@@ -111,38 +116,48 @@ public class ItemLocalObj_Dagger : ItemLocalObj
                         if (actor == actorManager) { continue; }
                         else
                         {
-                            actor.AllClient_Listen_TakeAttackDamage(config_StabDamage, actorManager.actorNetManager);
-                            temp = -2;
+                            actor.AllClient_Listen_TakeAttackDamage(AttackDamage, actorManager.actorNetManager);
+                            temp = AttackExpend;
                         }
                     }
                 }
             }
-            ChangeDurability(temp);
+            AddAbrasion(temp);
         }
     }
-    public void ChangeDurability(sbyte val)
+    /// <summary>
+    /// ÀÛ¼ÆËðºÄ
+    /// </summary>
+    /// <param name="val"></param>
+    public void AddAbrasion(float val)
     {
-        if (val != 0 && actorManager.actorAuthority.isPlayer)
+        AttackAbrasion_Temp += val;
+        if (AttackAbrasion_Temp >= 1)
         {
-            ItemData _oldItem = itemData;
-            ItemData _newItem = itemData;
-            if (_newItem.Item_Durability + val <= 0)
+            int offset = (int)Math.Floor(AttackAbrasion_Temp);
+            AttackAbrasion_Temp = AttackAbrasion_Temp - offset;
+            if (val != 0 && actorManager.actorAuthority.isPlayer)
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                ItemData _oldItem = itemData;
+                ItemData _newItem = itemData;
+                if (_newItem.Item_Durability - offset <= 0)
                 {
-                    item = itemData,
-                });
-            }
-            else
-            {
-                _newItem.Item_Durability += val;
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                    {
+                        item = itemData,
+                    });
+                }
+                else
                 {
-                    oldItem = _oldItem,
-                    newItem = _newItem,
-                });
+                    _newItem.Item_Durability -= (sbyte)offset;
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    {
+                        oldItem = _oldItem,
+                        newItem = _newItem,
+                    });
+                }
             }
+
         }
     }
-
 }

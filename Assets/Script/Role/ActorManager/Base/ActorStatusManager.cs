@@ -17,7 +17,7 @@ public class ActorStatusManager
     /// <param name="handItemID"></param>
     /// <param name="headItemID"></param>
     /// <param name="bodyItemID"></param>
-    public void Tool_CheckOutSomeone(ActorManager who, out short handItemID, out short headItemID, out short bodyItemID, out short fine)
+    public void Tool_CheckOutSomeone(ActorManager who, out short handItemID, out short headItemID, out short bodyItemID, out int fine)
     {
         handItemID = who.actorNetManager.Net_ItemInHand.Item_ID;
         headItemID = who.actorNetManager.Net_ItemOnHead.Item_ID;

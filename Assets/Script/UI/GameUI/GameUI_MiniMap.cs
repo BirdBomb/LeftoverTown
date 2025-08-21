@@ -41,8 +41,7 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
         texture2D_Temp.filterMode = FilterMode.Point;
         texture2D_Temp.wrapMode = TextureWrapMode.Repeat; // 关键设置：平铺时重复纹理
         pivot_Texture2D = new Vector2(0.5f, 0.5f);
-        InvokeRepeating("UpdateMiniMap", 2, 1);
-        Debug.Log(texture2D_Temp.height+"/"+texture2D_Temp.width);
+        //Debug.Log(texture2D_Temp.height+"/"+texture2D_Temp.width);
     }
     private void Bind()
     {
@@ -85,8 +84,6 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
         //_ = DrawPlayerOnTex((Vector3Int)vector2_MapCenter, Color.red);
         UpdateRect(vector2_MapCenter, int_MapHeight);
     }
-
-
     /// <summary>
     /// 更新绘制范围
     /// </summary>

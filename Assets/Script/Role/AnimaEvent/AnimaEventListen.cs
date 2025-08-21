@@ -1,36 +1,40 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class AnimaEventListen : MonoBehaviour
 {
-    private Action<string> tempEvent;
-    private Action<string> commonEvent;
-    public void BindTempEvent(Action<string> action)
+    private List<Func<string, bool>> FuncList = new List<Func<string, bool>>();
+    private List<Action<string>> ActionList = new List<Action<string>>();
+
+    public void BindTempFunc(Func<string, bool> func)
     {
-        if (action != null)
+        if (!FuncList.Contains(func))
         {
-            tempEvent = action;
+            FuncList.Add(func);
         }
     }
     public void BindCommonEvent(Action<string> action)
     {
         if (action != null)
         {
-            commonEvent = action;
+            ActionList.Add(action);
         }
     }
     public void InvokeEvent(string name)
     {
-        if (tempEvent != null)
+        for (int i = 0; i < FuncList.Count; i++)
         {
-            tempEvent.Invoke(name);
-            tempEvent = null;
+            if (FuncList[i].Invoke(name))
+            {
+                FuncList.Remove(FuncList[i]);
+            }
         }
-        if (commonEvent != null)
+        for (int i = 0; i < ActionList.Count; i++)
         {
-            commonEvent.Invoke(name);
+            ActionList[i].Invoke(name);
         }
     }
 }

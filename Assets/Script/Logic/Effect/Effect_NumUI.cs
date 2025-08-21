@@ -5,7 +5,7 @@ using System.Drawing;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Effect_DamageUI : EffectBase
+public class Effect_NumUI : EffectBase
 {
     [SerializeField]
     private Transform transform_Root;

@@ -28,6 +28,10 @@ public class TileUI_Dialog : TileUI
     }
     public void InitOption(List<DialogOption> options)
     {
+        for (int i = 0; i < dialogOptions.Count; i++)
+        {
+            dialogOptions[i].Hide();
+        }
         for (int i = 0; i < options.Count; i++)
         {
             if (i < dialogOptions.Count)

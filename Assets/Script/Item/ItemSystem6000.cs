@@ -29,7 +29,8 @@ public class Item_6100 : ItemBase
     {
         this.owner = owner;
         itemLocalObj_Seed = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_6100").GetComponent<ItemLocalObj_Seed>();
-        itemLocalObj_Seed.HoldingByHand(owner, body, itemData);
+        itemLocalObj_Seed.InitData(itemData);
+        itemLocalObj_Seed.HoldingStart(owner, body);
         base.OnHand_Start(owner, body);
     }
     public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
@@ -68,7 +69,8 @@ public class Item_6101 : ItemBase
     {
         this.owner = owner;
         itemLocalObj_Seed = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_6101").GetComponent<ItemLocalObj_Seed>();
-        itemLocalObj_Seed.HoldingByHand(owner, body, itemData);
+        itemLocalObj_Seed.InitData(itemData);
+        itemLocalObj_Seed.HoldingStart(owner, body);
         base.OnHand_Start(owner, body);
     }
     public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)

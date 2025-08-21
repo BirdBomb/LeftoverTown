@@ -6,6 +6,8 @@ public class CameraManager : SingleTon<CameraManager>, ISingleTon
 {
     [Header("摄像机")]
     public Transform tran_Camera;
+    [Header("光线贴图")]
+    public SpriteRenderer spriteRenderer_LightShake;
     [Header("跟踪目标")]
     public Transform tran_target = null;
     [Header("跟踪速度")]
@@ -20,12 +22,23 @@ public class CameraManager : SingleTon<CameraManager>, ISingleTon
     public Vector3 vector3_curPos;
     public void Init()
     {
+        LightBreath();
+    }
+    public void FollowTarget(Transform followTo)
+    {
+        tran_target = followTo;
     }
     public void Shake(float time, float strength)
     {
         tran_Camera.DOKill();
         tran_Camera.localPosition = Vector3.zero;
         tran_Camera.DOShakePosition(time, strength);
+    }
+    public void LightBreath()
+    {
+        spriteRenderer_LightShake.DOKill();
+        spriteRenderer_LightShake.color = new Color(1, 1, 1, 0.4f);
+        spriteRenderer_LightShake.DOFade(0.1f, 8f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
     }
     void LateUpdate()
     {

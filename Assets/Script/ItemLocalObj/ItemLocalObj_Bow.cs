@@ -26,10 +26,6 @@ public class ItemLocalObj_Bow : ItemLocalObj
     private SkillIndicators skillIndicators;
 
     /// <summary>
-    /// 射击次数
-    /// </summary>
-    private int temp_ShotTime = 0;
-    /// <summary>
     /// 下次射击时间点(随着射击次数提高)
     /// </summary>
     private float temp_NextShotPoint = 0;
@@ -45,24 +41,44 @@ public class ItemLocalObj_Bow : ItemLocalObj
     protected bool temp_MaxPressRight;
     protected bool temp_MaxPressLeft;
 
-    [SerializeField, Header("UI瞄准距离")]
-    private float config_AimDistance;
-    [SerializeField, Header("最大角度")]
-    private int config_AimMaxRange;
-    [SerializeField, Header("最小角度")]
-    private int config_AimMinRange;
-    [SerializeField, Header("准备时间")]
-    private float config_ShotReadyTime;
-    [SerializeField, Header("完全瞄准时间")]
-    private float config_ShotAimTime;
-    [SerializeField, Header("射击间隔")]
-    private float config_ShotCD;
-    [SerializeField, Header("射击散射程度")]
-    private float config_ShotRecoilTime;
-    [Header("NPC上弹数量")]
-    public int config_NPCAddBulletCount;
+    /// <summary>
+    /// 附加物理伤害
+    /// </summary>
+    private int AttackDamage;
+    /// <summary>
+    /// 附加魔法伤害
+    /// </summary>
+    private int MagicDamage;
+    /// <summary>
+    /// 最小射击角度
+    /// </summary>
+    private int AimRangeMin;
+    /// <summary>
+    /// 最大射击角度
+    /// </summary>
+    private int AimRangeMax;
+    /// <summary>
+    /// 散射程度
+    /// </summary>
+    private float ShotRecoil;
+    /// <summary>
+    /// 射击间隔
+    /// </summary>
+    private float ShotCD;
+    /// <summary>
+    /// 准备时间
+    /// </summary>
+    private float ReadyTime;
+    /// <summary>
+    /// 瞄准时间
+    /// </summary>
+    private float AimTime;
+    /// <summary>
+    /// 弹容量
+    /// </summary>
+    private int BulletCapacity;
     private InputData inputData = new InputData();
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
         actorManager = owner;
 
@@ -77,8 +93,19 @@ public class ItemLocalObj_Bow : ItemLocalObj
         transform_RightHand.GetComponent<SpriteRenderer>().color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
 
-        itemData = data;
-        base.HoldingByHand(owner, body, data);
+        base.HoldingStart(owner, body);
+    }
+    public void UpdateBowData(int attackDamage,int magicDamage, int bulletCapacity, float shotSpeed, float readySpeed, float aimSpeed, int aimRangeMin, int aimRangeMax, float shotRecoil, ItemQuality itemQuality)
+    {
+        AttackDamage = attackDamage;
+        MagicDamage = magicDamage;
+        BulletCapacity = bulletCapacity;
+        ShotCD = 60f / shotSpeed;
+        ReadyTime = 1f / readySpeed;
+        AimTime = 1f / aimSpeed;
+        AimRangeMin = aimRangeMin;
+        AimRangeMax = aimRangeMax;
+        ShotRecoil = shotRecoil;
     }
     public void FaceTo(Vector3 dir)
     {
@@ -135,15 +162,15 @@ public class ItemLocalObj_Bow : ItemLocalObj
             if (inputData.leftPressTimer >= temp_NextShotPoint)
             {
                 TryToShot(GetAttackRange());
-                temp_NextShotPoint = inputData.leftPressTimer + config_ShotCD;
-                temp_NextReadyPoint = inputData.rightPressTimer + config_ShotCD;
+                temp_NextShotPoint = inputData.leftPressTimer + ShotCD;
+                temp_NextReadyPoint = inputData.rightPressTimer + ShotCD;
                 if (temp_NextAimPoint > inputData.rightPressTimer)
                 {
-                    temp_NextAimPoint += config_ShotRecoilTime;
+                    temp_NextAimPoint += (ShotCD + ShotCD * ShotRecoil);
                 }
                 else
                 {
-                    temp_NextAimPoint = inputData.rightPressTimer + config_ShotRecoilTime;
+                    temp_NextAimPoint = inputData.rightPressTimer + (ShotCD + ShotCD * ShotRecoil);
                 }
                 temp_MaxPressLeft = true;
             }
@@ -154,7 +181,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
     {
         Aim(true);
         inputData.rightPressTimer = time;
-        temp_MaxPressRight = (GetAttackRange()==config_AimMinRange);
+        temp_MaxPressRight = (GetAttackRange()==AimRangeMin);
         return temp_MaxPressRight;
     }
     public override void ReleaseLeftMouse()
@@ -167,8 +194,8 @@ public class ItemLocalObj_Bow : ItemLocalObj
         Aim(false);
         inputData.rightPressTimer = 0;
         temp_NextShotPoint = 0;
-        temp_NextAimPoint = config_ShotReadyTime + config_ShotAimTime;
-        temp_NextReadyPoint = config_ShotReadyTime;
+        temp_NextAimPoint = ReadyTime + AimTime;
+        temp_NextReadyPoint = ReadyTime;
         base.ReleaseRightMouse();
     }
     public override void UpdateMousePos(Vector3 mouse)
@@ -187,7 +214,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
     /// <returns></returns>
     private float GetAttackRange()
     {
-        return Mathf.Lerp(config_AimMinRange, config_AimMaxRange, (temp_NextAimPoint - inputData.rightPressTimer) / config_ShotAimTime);
+        return Mathf.Lerp(AimRangeMin, AimRangeMax, (temp_NextAimPoint - inputData.rightPressTimer) / AimTime);
     }
     private Vector3 GetRandomDir(float offset)
     {
@@ -220,8 +247,13 @@ public class ItemLocalObj_Bow : ItemLocalObj
     private void Shot(short bulletID, Vector3 dir, ActorManager actor)
     {
         GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + bulletID);
-        obj.transform.position = spriteRenderer_Arrow.transform.position;
-        obj.GetComponent<BulletBase>().Shot(dir, 0, 10, 0, actor.actorNetManager);
+        if (obj.TryGetComponent(out BulletBase bulletBase))
+        {
+            bulletBase.InitBullet();
+            bulletBase.SetPhysics(spriteRenderer_Arrow.transform.position, dir, 0, 0);
+            bulletBase.SetDamage(AttackDamage, MagicDamage);
+            bulletBase.SetOwner(actorManager);
+        }
     }
     private void Aim(bool on)
     {
@@ -230,7 +262,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
             temp_Aiming = on;
             if (on)
             {
-                temp_NextAimPoint = config_ShotReadyTime; 
+                temp_NextAimPoint = ReadyTime; 
                 animator.SetBool("Ready", on);
                 PutArrowOn();
             }
@@ -280,7 +312,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
     {
         ItemData bullet = new ItemData();
         bullet.Item_ID = 9001;
-        bullet.Item_Count = (short)config_NPCAddBulletCount;
+        bullet.Item_Count = (short)(BulletCapacity / 2 + 1);
         itemData.Item_Content = new ContentData(bullet);
     }
     /// <summary>
@@ -307,9 +339,9 @@ public class ItemLocalObj_Bow : ItemLocalObj
     /// </summary>
     private void UpdateSkillSector()
     {
-        if (inputData.rightPressTimer > config_ShotReadyTime)
+        if (inputData.rightPressTimer > ReadyTime)
         {
-            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, config_AimDistance, GetAttackRange(), 1);
+            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, 1.5f, GetAttackRange(), 1);
         }
         else
         {
@@ -319,7 +351,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
             }
             else
             {
-                skillIndicators.Draw_SkillIndicators(inputData.mousePosition, config_AimDistance, GetAttackRange(), 0.2f);
+                skillIndicators.Draw_SkillIndicators(inputData.mousePosition, 1.5f, GetAttackRange(), 0.2f);
             }
         }
     }

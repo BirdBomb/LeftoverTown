@@ -112,6 +112,16 @@ public class BuildingConfigData : MonoBehaviour
             Building_ID = 1017,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
             Building_Raw = new List<ItemRaw>(){},
         },
+        /*雪原树*/new BuildingConfig()
+        {
+            Building_ID = 1018,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*沙漠面包树*/new BuildingConfig()
+        {
+            Building_ID = 1019,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
         #endregion
         #region//非自然建筑
         /*太阳祭坛*/new BuildingConfig()
@@ -144,9 +154,74 @@ public class BuildingConfigData : MonoBehaviour
             Building_ID = 2005,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
             Building_Raw = new List<ItemRaw>(){},
         },
+        /*夜班土匪生成*/new BuildingConfig()
+        {
+            Building_ID = 2006,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*白班土匪生成*/new BuildingConfig()
+        {
+            Building_ID = 2007,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*农民生成*/new BuildingConfig()
+        {
+            Building_ID = 2008,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*矿物商人生成*/new BuildingConfig()
+        {
+            Building_ID = 2009,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*伐木工生成*/new BuildingConfig()
+        {
+            Building_ID = 2010,Building_Size = AreaSize._2X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*警卫生成*/new BuildingConfig()
+        {
+            Building_ID = 2011,Building_Size = AreaSize._2X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*厨师生成*/new BuildingConfig()
+        {
+            Building_ID = 2012,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*镇长生成*/new BuildingConfig()
+        {
+            Building_ID = 2013,Building_Size = AreaSize._2X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*酒保生成*/new BuildingConfig()
+        {
+            Building_ID = 2014,Building_Size = AreaSize._2X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*富豪生成*/new BuildingConfig()
+        {
+            Building_ID = 2015,Building_Size = AreaSize._2X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
         /*石头灯柱*/new BuildingConfig()
         {
             Building_ID = 2100,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*岗哨*/new BuildingConfig()
+        {
+            Building_ID = 2101,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*柜台*/new BuildingConfig()
+        {
+            Building_ID = 2102,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*木桶*/new BuildingConfig()
+        {
+            Building_ID = 2103,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
             Building_Raw = new List<ItemRaw>(){},
         },
         #endregion
@@ -181,6 +256,33 @@ public class BuildingConfigData : MonoBehaviour
             Building_ID = 3005,Building_Size = AreaSize._1X1,Building_Type = BuildingType.Machine,Building_Age = AgeGroup.StoneAge,
             Building_Raw = new List<ItemRaw>(){ new ItemRaw(1100,4),new ItemRaw(1010,4) },
         },
+        /*石头灯箱*/new BuildingConfig()
+        {
+            Building_ID = 3006,Building_Size = AreaSize._1X1,Building_Type = BuildingType.Machine,Building_Age = AgeGroup.StoneAge,
+            Building_Raw = new List<ItemRaw>(){ new ItemRaw(1100,4),new ItemRaw(1010,4) },
+        },
+        /*木头桌子*/new BuildingConfig()
+        {
+            Building_ID = 3007,Building_Size = AreaSize._1X1,Building_Type = BuildingType.Machine,Building_Age = AgeGroup.StoneAge,
+            Building_Raw = new List<ItemRaw>(){ new ItemRaw(1100,4),new ItemRaw(1010,4) },
+        },
+        /*木床*/new BuildingConfig()
+        {
+            Building_ID = 3008,Building_Size = AreaSize._2X1,Building_Type = BuildingType.Machine,Building_Age = AgeGroup.StoneAge,
+            Building_Group = new List<short>{ 30080,30081,30082 },
+            Building_Raw = new List<ItemRaw>(){ new ItemRaw(1100,4),new ItemRaw(1010,4) },
+        },
+        /*木椅*/new BuildingConfig()
+        {
+            Building_ID = 3009,Building_Size = AreaSize._1X1,Building_Type = BuildingType.Machine,Building_Age = AgeGroup.StoneAge,
+            Building_Group = new List<short>{ 30090, 30091, 30092, 30093 },
+            Building_Raw = new List<ItemRaw>(){ new ItemRaw(1100,4),new ItemRaw(1010,4) },
+        },
+        /*木制花盆*/new BuildingConfig()
+        {
+            Building_ID = 3010,Building_Size = AreaSize._1X1,Building_Type = BuildingType.Machine,Building_Age = AgeGroup.StoneAge,
+            Building_Raw = new List<ItemRaw>(){ new ItemRaw(1100,4),new ItemRaw(1010,4) },
+        },
         #endregion
         #region//铁器时代建筑
         /*铁制加工台*/new BuildingConfig()
@@ -213,6 +315,49 @@ public class BuildingConfigData : MonoBehaviour
             Building_ID = 4005,Building_Size = AreaSize._1X1,Building_Type = BuildingType.Structure,Building_Age = AgeGroup.IronAge,
             Building_Raw = new List<ItemRaw>(){ new ItemRaw(1110, 4) },
         },
+        /*饮料机*/new BuildingConfig()
+        {
+            Building_ID = 4006,Building_Size = AreaSize._1X1,Building_Type = BuildingType.Structure,Building_Age = AgeGroup.IronAge,
+            Building_Raw = new List<ItemRaw>(){ new ItemRaw(1110, 4) },
+        },
+        #endregion
+        #region//衍生建筑
+        /*左木床*/new BuildingConfig()
+        {
+            Building_ID = 30080,Building_Size = AreaSize._2X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*右木床*/new BuildingConfig()
+        {
+            Building_ID = 30081,Building_Size = AreaSize._2X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*上木床*/new BuildingConfig()
+        {
+            Building_ID = 30082,Building_Size = AreaSize._1X2,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*下木椅*/new BuildingConfig()
+        {
+            Building_ID = 30090,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*左木椅*/new BuildingConfig()
+        {
+            Building_ID = 30091,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*右木椅*/new BuildingConfig()
+        {
+            Building_ID = 30092,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*上木椅*/new BuildingConfig()
+        {
+            Building_ID = 30093,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.UnNature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+
         #endregion
     };
 }

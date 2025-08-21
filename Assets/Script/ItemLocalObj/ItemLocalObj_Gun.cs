@@ -14,25 +14,13 @@ public class ItemLocalObj_Gun : ItemLocalObj
     public Transform transform_Muzzle;
     [Header("准星距离")]
     public float config_AimDistance;
-    [Header("最大角度")]
-    public int config_AimMaxRange;
-    [Header("最小角度")]
-    public int config_AimMinRange;
-    [Header("瞄准时间")]
-    public float config_ShotAimTime;
-    [Header("射击间隔")]
-    public float config_ShotCD;
-    [Header("射击散射程度")]
-    public float config_ShotRecoilTime;
     [Header("枪口后座")]
     public Vector3 vector3_KickBack;
     [Header("枪口上抬")]
     public float float_KickOn;
-    [Header("NPC上弹数量")]
-    public int config_NPCAddBulletCount;
 
     public SkillIndicators skillIndicators;
-    protected InputData inputData = new InputData();
+
     /// <summary>
     /// 下次射击时间点(随着射击次数提高)
     /// </summary>
@@ -44,12 +32,58 @@ public class ItemLocalObj_Gun : ItemLocalObj
     protected bool temp_MaxPressRight;
     protected bool temp_MaxPressLeft;
     protected bool temp_Aiming = false;
+
+
+    /// <summary>
+    /// 附加物理伤害
+    /// </summary>
+    protected int AttackDamage;
+    /// <summary>
+    /// 附加魔法伤害
+    /// </summary>
+    protected int MagicDamage;
+    /// <summary>
+    /// 最小射击角度
+    /// </summary>
+    protected int AimRangeMin;
+    /// <summary>
+    /// 最大射击角度
+    /// </summary>
+    protected int AimRangeMax;
+    /// <summary>
+    /// 散射程度
+    /// </summary>
+    protected float ShotRecoil;
+    /// <summary>
+    /// 射击间隔
+    /// </summary>
+    protected float ShotCD;
+    /// <summary>
+    /// 瞄准时间
+    /// </summary>
+    protected float AimTime;
+    /// <summary>
+    /// 弹容量
+    /// </summary>
+    protected int BulletCapacity;
+    protected InputData inputData = new InputData();
     public void Update()
     {
         if (inputData.leftPressTimer == 0 && temp_NextShotPoint > 0)
         {
             temp_NextShotPoint -= Time.deltaTime;
         }
+    }
+    public void UpdateGunData(int attackDamage, int magicDamage, int bulletCapacity, float shotSpeed, float aimSpeed, int aimRangeMin, int aimRangeMax, float shotRecoil, ItemQuality itemQuality)
+    {
+        AttackDamage = attackDamage;
+        MagicDamage = magicDamage;
+        BulletCapacity = bulletCapacity;
+        ShotCD = 60f / shotSpeed;
+        AimTime = 1f / aimSpeed;
+        AimRangeMin = aimRangeMin;
+        AimRangeMax = aimRangeMax;
+        ShotRecoil = shotRecoil;
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
@@ -82,16 +116,16 @@ public class ItemLocalObj_Gun : ItemLocalObj
     }
     public override void ReleaseLeftMouse()
     {
-        if (temp_NextShotPoint > config_ShotCD)
+        if (temp_NextShotPoint > ShotCD)
         {
-            temp_NextShotPoint = config_ShotCD;
+            temp_NextShotPoint = ShotCD;
         }
         inputData.leftPressTimer = 0;
         base.ReleaseLeftMouse();
     }
     public override void ReleaseRightMouse()
     {
-        temp_NextAimPoint = config_ShotAimTime;
+        temp_NextAimPoint = AimTime;
         inputData.rightPressTimer = 0;
         Aim(false);
         base.ReleaseRightMouse();
@@ -175,7 +209,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
     {
         ItemData bullet = new ItemData();
         bullet.Item_ID = 9010;
-        bullet.Item_Count = (short)config_NPCAddBulletCount;
+        bullet.Item_Count = (short)(BulletCapacity / 10 + 2);
         itemData.Item_Content = new ContentData(bullet);
     }
     /// <summary>
@@ -206,7 +240,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
     /// <returns></returns>
     public virtual float GetAttackRange()
     {
-        return Mathf.Lerp(config_AimMinRange, config_AimMaxRange, (temp_NextAimPoint - inputData.rightPressTimer) / config_ShotAimTime);
+        return Mathf.Lerp(AimRangeMin, AimRangeMax, (temp_NextAimPoint - inputData.rightPressTimer) / AimTime);
     }
 
     /// <summary>
@@ -255,9 +289,13 @@ public class ItemLocalObj_Gun : ItemLocalObj
     public virtual void Shoot(short bulletID, Vector3 dir)
     {
         GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + bulletID);
-        obj.transform.position = transform_Muzzle.position;
-        obj.GetComponent<BulletBase>().Shot(dir, 0, 1, 0, actorManager.actorNetManager);
-
+        if(obj.TryGetComponent(out BulletBase bulletBase))
+        {
+            bulletBase.InitBullet();
+            bulletBase.SetPhysics(transform_Muzzle.position, dir, 0, 0);
+            bulletBase.SetDamage(0, 0);
+            bulletBase.SetOwner(actorManager);
+        }
         MuzzleFire();
         KickBack();
 
@@ -295,11 +333,11 @@ public class ItemLocalObj_Gun : ItemLocalObj
     {
         if (temp_NextAimPoint > inputData.rightPressTimer)
         {
-            temp_NextAimPoint += config_ShotRecoilTime;
+            temp_NextAimPoint += (ShotCD + ShotCD * ShotRecoil);
         }
         else
         {
-            temp_NextAimPoint = inputData.rightPressTimer + config_ShotRecoilTime;
+            temp_NextAimPoint = inputData.rightPressTimer + (ShotCD + ShotCD * ShotRecoil);
         }
     }
     /// <summary>
@@ -326,16 +364,16 @@ public class ItemLocalObj_Gun : ItemLocalObj
     {
         transform_Body.DOKill();
         transform_Body.localPosition = Vector3.zero;
-        transform_Body.DOPunchPosition(vector3_KickBack, config_ShotCD);
+        transform_Body.DOPunchPosition(vector3_KickBack, ShotCD);
         transform_Body.localRotation = Quaternion.identity;
-        transform_Body.DOPunchRotation(new Vector3(0, 0, float_KickOn), config_ShotCD);
+        transform_Body.DOPunchRotation(new Vector3(0, 0, float_KickOn), ShotCD);
     }
     /// <summary>
     /// 复位
     /// </summary>
     public virtual void TriggerReset()
     {
-        temp_NextShotPoint = inputData.leftPressTimer + config_ShotCD;
+        temp_NextShotPoint = inputData.leftPressTimer + ShotCD;
     }
 
 

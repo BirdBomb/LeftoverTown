@@ -6,12 +6,13 @@ using UniRx;
 
 public class BuildingObj_Plant_ThreeState : BuildingObj
 {
-    private enum State
+    [HideInInspector]
+    public State state_Now;
+    public enum State
     {
         State0, State1, State2
     }
     public SpriteRenderer spriteRenderer;
-    private State state_Now;
     private Material material;
     private Sequence sequence;
     [Header("SpriteÓ×Ãç")]

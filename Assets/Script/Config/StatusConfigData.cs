@@ -74,4 +74,8 @@ public enum StatusType
     /// 生物
     /// </summary>
     Animal_Common,
+    /// <summary>
+    /// 人类罪犯
+    /// </summary>
+    Human_Offender,
 }

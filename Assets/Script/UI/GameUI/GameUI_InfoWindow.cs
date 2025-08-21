@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -22,7 +23,7 @@ public class GameUI_InfoWindow : MonoBehaviour
             {
                 ShowInfoText(_.text);
                 ShakeInfoText();
-                AdaptingInfoText(_.anchor);
+                StartCoroutine(AdaptingInfoText(_.anchor));
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_HidenfoTextUI>().Subscribe(_ =>
@@ -46,8 +47,9 @@ public class GameUI_InfoWindow : MonoBehaviour
         text_Info.gameObject.SetActive(false);
         text_Info.text = "";
     }
-    private void AdaptingInfoText(Vector2 anchor)
+    private IEnumerator AdaptingInfoText(Vector2 anchor)
     {
+        yield return new WaitForSeconds(0.02f);
         vector_InfoPos = anchor;
         vector_InfoOffset = Vector2.zero;
         if (vector_InfoPos.x < Camera.main.scaledPixelWidth * 0.75f)
@@ -71,6 +73,6 @@ public class GameUI_InfoWindow : MonoBehaviour
             vector_InfoOffset -= new Vector2(0, y * 0.5f);
         }
         rectTransform_Info.position = vector_InfoPos + vector_InfoOffset;
-    }
 
+    }
 }

@@ -41,9 +41,8 @@ public class ItemLocalObj_Punch : ItemLocalObj
             float_NextPunchTiming -= Time.fixedDeltaTime;
         }
     }
-    public override void HoldingByHand(ActorManager owner, BodyController_Human body, ItemData data)
+    public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
-        itemData = data;
         actorManager = owner;
 
         transform.SetParent(body.transform_Hand);
@@ -54,7 +53,7 @@ public class ItemLocalObj_Punch : ItemLocalObj
 
         config_PunchCD = config_PunchDuraction / config_PunchSpeed;
         config_PunchCDRec = config_PunchSpeed / config_PunchDuraction;
-        base.HoldingByHand(owner, body, data);
+        base.HoldingStart(owner, body);
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
@@ -65,13 +64,13 @@ public class ItemLocalObj_Punch : ItemLocalObj
             {
                 actorManager.bodyController.SetAnimatorTrigger(BodyPart.Hand, "PunchRight");
                 actorManager.bodyController.SetAnimatorFloat(BodyPart.Hand, "PunchSpeed", config_PunchSpeed);
-                actorManager.bodyController.SetAnimatorAction(BodyPart.Hand, Punch);
+                actorManager.bodyController.SetAnimatorFunc(BodyPart.Hand, Punch);
             }
             else
             {
                 actorManager.bodyController.SetAnimatorTrigger(BodyPart.Hand, "PunchLeft");
                 actorManager.bodyController.SetAnimatorFloat(BodyPart.Hand, "PunchSpeed", config_PunchSpeed);
-                actorManager.bodyController.SetAnimatorAction(BodyPart.Hand, Punch);
+                actorManager.bodyController.SetAnimatorFunc(BodyPart.Hand, Punch);
             }
         }
         inputData.leftPressTimer = time;
@@ -96,7 +95,7 @@ public class ItemLocalObj_Punch : ItemLocalObj
         }
         base.UpdateMousePos(mouse);
     }
-    private void Punch(string str)
+    private bool Punch(string str)
     {
         if (actorManager.actorAuthority.isLocal)
         {
@@ -125,7 +124,9 @@ public class ItemLocalObj_Punch : ItemLocalObj
                         }
                     }
                 }
+                return true;
             }
         }
+        return false;
     }
 }

@@ -67,7 +67,7 @@ public class TileUI_Home_ZombieHook : TileUI
             MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SpawnActor()
             {
                 name = "Actor/Zombie_Hook",
-                pos = buildingObj_Bind.transform.position,
+                pos = buildingObj_Bind.transform.position + Vector3.up * 2,
             });
             buildingObj_Bind.WriteInfo();
         }

@@ -1,25 +1,15 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BuffBase 
 {
-    /// <summary>
-    /// 触发节点:人物创建添加
-    /// </summary>
-    /// <param name="data"></param>
-    public virtual void Listen_AddOnPlayerCreation(ref PlayerData data)
+    public virtual void Init(BuffData buffData)
     {
 
     }
-    /// <summary>
-    /// 触发节点:人物创建去除
-    /// </summary>
-    /// <param name="data"></param>
-    public virtual void Listen_SubOnPlayerCreation(ref PlayerData data)
-    {
-
-    }
+    #region//游戏内监听
     /// <summary>
     /// 触发节点:游戏开始
     /// </summary>
@@ -54,5 +44,36 @@ public class BuffBase
     public virtual void Listen_UpdateSecond(ActorManager actor)
     {
 
+    }
+
+    #endregion
+    #region//外置方法
+    /// <summary>
+    /// 播放特效
+    /// </summary>
+    public virtual void PlayEffect(ActorManager actor, int index)
+    {
+
+    }
+    /// <summary>
+    /// 更新图标
+    /// </summary>
+    /// <param name="buffIcon"></param>
+    /// <param name="buffData"></param>
+    public virtual void UpdateIcon(UI_BuffIcon buffIcon, BuffData buffData)
+    {
+
+    }
+    #endregion
+}
+[Serializable]
+public struct BuffData
+{
+    public short BuffID;
+    public short BuffVal;
+    public BuffData(short id)
+    {
+        BuffID = id;
+        BuffVal = 0;
     }
 }

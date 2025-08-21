@@ -13,6 +13,7 @@ public class ActorViewManager : MonoBehaviour
     {
         if (collision.gameObject.tag.Equals("Item"))
         {
+            actorManager.AllClient_Listen_ItemInView(collision.transform.parent.GetComponent<ItemNetObj>());
             if (actorManager.actorAuthority.isState) actorManager.State_Listen_ItemInView(collision.transform.parent.GetComponent<ItemNetObj>());
         }
         else
