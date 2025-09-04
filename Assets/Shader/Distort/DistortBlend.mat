@@ -46,7 +46,7 @@ Material:
     m_Ints: []
     m_Floats: []
     m_Colors:
-    - _AddTexTrans: {r: 0.4889244, g: 0.46837485, b: 50, a: 50}
+    - _AddTexTrans: {r: 0.508626, g: 0.48471475, b: 50, a: 50}
   m_BuildTextureStacks: []
 --- !u!114 &6074650360683804909
 MonoBehaviour:
