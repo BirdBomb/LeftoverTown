@@ -15,160 +15,324 @@ MonoBehaviour:
   m_TableCollectionName: Building_String
   m_TableCollectionNameGuidString: 795204c1e5e1cee45b95b36ba996b1af
   m_Entries:
-  - m_Id: 2897514219999232
-    m_Key: 0_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897515717365760
-    m_Key: 1000_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897706235236352
-    m_Key: 1001_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897706944073728
-    m_Key: 1002_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897700501622784
-    m_Key: 1003_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897701168517120
-    m_Key: 1004_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897701843800064
-    m_Key: 2000_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897702548443136
-    m_Key: 2001_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897703248891904
-    m_Key: 2002_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897703991283712
-    m_Key: 2003_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897704729481216
-    m_Key: 2004_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897705463484416
-    m_Key: 2005_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898181135306752
-    m_Key: 2100_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898182141939712
-    m_Key: 3000_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898183047909376
-    m_Key: 3001_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898183953879040
-    m_Key: 3002_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898184687882240
-    m_Key: 3003_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898185497382912
-    m_Key: 3004_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898186436907008
-    m_Key: 3005_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898582312095744
-    m_Key: 4000_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898583918514176
-    m_Key: 4001_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898585764007936
-    m_Key: 4002_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2898194422861824
-    m_Key: 4003_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2897699662761984
-    m_Key: 99_Name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1726256385466368
-    m_Key: BuildingAge_0
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1726380226486272
-    m_Key: BuildingAge_1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1726396999507968
-    m_Key: BuildingAge_2
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1726659097370624
-    m_Key: BuildingAge_3
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1726775124402176
-    m_Key: BuildingAge_4
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1726767272665088
-    m_Key: BuildingAge_5
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1727236464287744
-    m_Key: BuildingAge_6
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1727241229017088
-    m_Key: BuildingAge_7
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1727449870475264
-    m_Key: BuildingType_0
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1727595295383552
-    m_Key: BuildingType_1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1727605261049856
-    m_Key: BuildingType_2
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1727678040612864
-    m_Key: BuildingType_3
+  - m_Id: 1727827760488448
+    m_Key: BuildingType_5
     m_Metadata:
       m_Items: []
   - m_Id: 1727808701571072
     m_Key: BuildingType_4
     m_Metadata:
       m_Items: []
-  - m_Id: 1727827760488448
-    m_Key: BuildingType_5
+  - m_Id: 1727678040612864
+    m_Key: BuildingType_3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1727605261049856
+    m_Key: BuildingType_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1727595295383552
+    m_Key: BuildingType_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1727449870475264
+    m_Key: BuildingType_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1727241229017088
+    m_Key: BuildingAge_7
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1727236464287744
+    m_Key: BuildingAge_6
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1726767272665088
+    m_Key: BuildingAge_5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1726775124402176
+    m_Key: BuildingAge_4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1726659097370624
+    m_Key: BuildingAge_3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1726396999507968
+    m_Key: BuildingAge_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1726380226486272
+    m_Key: BuildingAge_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1726256385466368
+    m_Key: BuildingAge_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897699662761984
+    m_Key: 99_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133634699300864
+    m_Key: 4006_Name
     m_Metadata:
       m_Items: []
   - m_Id: 2898660288401408
     m_Key: 4004_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898194422861824
+    m_Key: 4003_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898585764007936
+    m_Key: 4002_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898583918514176
+    m_Key: 4001_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898582312095744
+    m_Key: 4000_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133539308244992
+    m_Key: 3010_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133922499858432
+    m_Key: 30093_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133907396169728
+    m_Key: 30092_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133891222933504
+    m_Key: 30091_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133859581104128
+    m_Key: 30090_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133472597839872
+    m_Key: 3009_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133819013795840
+    m_Key: 30082_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133795727020032
+    m_Key: 30081_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133732044902400
+    m_Key: 30080_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133395795939328
+    m_Key: 3008_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133275973062656
+    m_Key: 3007_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21133010419093504
+    m_Key: 3006_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898186436907008
+    m_Key: 3005_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898185497382912
+    m_Key: 3004_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898184687882240
+    m_Key: 3003_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898183953879040
+    m_Key: 3002_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898183047909376
+    m_Key: 3001_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898182141939712
+    m_Key: 3000_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21132656113651712
+    m_Key: 2103_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21132612933292032
+    m_Key: 2102_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21132561460793344
+    m_Key: 2101_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2898181135306752
+    m_Key: 2100_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21131920738914304
+    m_Key: 2015_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21131901914877952
+    m_Key: 2014_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21131851952328704
+    m_Key: 2013_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21131832390094848
+    m_Key: 2012_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21131812727197696
+    m_Key: 2011_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21131752429883392
+    m_Key: 2010_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21131731286396928
+    m_Key: 2009_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21131680828919808
+    m_Key: 2008_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21131649551994880
+    m_Key: 2007_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21131563585540096
+    m_Key: 2006_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897705463484416
+    m_Key: 2005_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897704729481216
+    m_Key: 2004_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897703991283712
+    m_Key: 2003_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897703248891904
+    m_Key: 2002_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897702548443136
+    m_Key: 2001_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897701843800064
+    m_Key: 2000_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130733851545600
+    m_Key: 1019_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130652884701184
+    m_Key: 1018_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130606411812864
+    m_Key: 1017_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130637420302336
+    m_Key: 1016_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130616880795648
+    m_Key: 1015_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130592826462208
+    m_Key: 1014_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130574673514496
+    m_Key: 1013_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130550271053824
+    m_Key: 1012_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130509376589824
+    m_Key: 1011_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130463776116736
+    m_Key: 1010_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130439340101632
+    m_Key: 1009_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130422902624256
+    m_Key: 1008_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130371363016704
+    m_Key: 1007_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130304694554624
+    m_Key: 1006_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21130258360078336
+    m_Key: 1005_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897701168517120
+    m_Key: 1004_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897700501622784
+    m_Key: 1003_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897706944073728
+    m_Key: 1002_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897706235236352
+    m_Key: 1001_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897515717365760
+    m_Key: 1000_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2897514219999232
+    m_Key: 0_Name
     m_Metadata:
       m_Items: []
   m_Metadata:

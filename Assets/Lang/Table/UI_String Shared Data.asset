@@ -79,6 +79,30 @@ MonoBehaviour:
     m_Key: Bag
     m_Metadata:
       m_Items: []
+  - m_Id: 23555643195891712
+    m_Key: BuildingShow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23555705837821952
+    m_Key: BuildingHide
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25703658115407872
+    m_Key: Revive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 39408605355610112
+    m_Key: ShowAndHide
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40869216375574528
+    m_Key: Consumables
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40928585788198912
+    m_Key: Accessory
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

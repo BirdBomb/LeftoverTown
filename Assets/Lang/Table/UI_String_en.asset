@@ -86,6 +86,22 @@ MonoBehaviour:
     m_Localized: Bag
     m_Metadata:
       m_Items: []
+  - m_Id: 25703658115407872
+    m_Localized: WaitingRevive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 39408605355610112
+    m_Localized: Show/Hide
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40869216375574528
+    m_Localized: Consumables
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40928585788198912
+    m_Localized: Accessory
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

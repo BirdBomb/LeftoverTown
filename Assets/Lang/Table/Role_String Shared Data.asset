@@ -119,6 +119,122 @@ MonoBehaviour:
     m_Key: Guide_Name
     m_Metadata:
       m_Items: []
+  - m_Id: 18050707473408000
+    m_Key: Farmer_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18051010826444800
+    m_Key: Farmer_Dialog0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18051238023503872
+    m_Key: Farmer_Dialog0_Option1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18051506857418752
+    m_Key: Farmer_Dialog0_Option0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19120015054053376
+    m_Key: Vendor_Mineral_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19120086613073920
+    m_Key: Vendor_Mineral_Dialog0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19120746054131712
+    m_Key: Vendor_Mineral_Dialog0_Option0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19120860273418240
+    m_Key: Vendor_Mineral_Dialog0_Option1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19829184040116224
+    m_Key: Chef_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19829247176974336
+    m_Key: Chef_Dialog0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19829485048537088
+    m_Key: Chef_Dialog0_Option0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19829617655652352
+    m_Key: Chef_Dialog0_Option1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19923256180318208
+    m_Key: Mayor_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19923325034012672
+    m_Key: Mayor_Dialog0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19923365735538688
+    m_Key: Mayor_Dialog0_Option0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19923439689506816
+    m_Key: Mayor_Dialog0_Option1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20306693403811840
+    m_Key: Banker_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20306718859042816
+    m_Key: Banker_Dialog0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20306749326467072
+    m_Key: Banker_Dialog0_Option0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20306821569159168
+    m_Key: Banker_Dialog0_Option1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20309677089071104
+    m_Key: Bartender_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20309722689544192
+    m_Key: Bartender_Dialog0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20309754394288128
+    m_Key: Bartender_Dialog0_Option0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20309822346207232
+    m_Key: Bartender_Dialog0_Option1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20319094350127104
+    m_Key: Logger_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20319114914799616
+    m_Key: Logger_Dialog0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20319144878907392
+    m_Key: Logger_Dialog0_Option0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20319167662366720
+    m_Key: Logger_Dialog0_Option1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20945750844612608
+    m_Key: CannotPay
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

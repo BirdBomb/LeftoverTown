@@ -215,7 +215,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868446510485504
-    m_Localized: "\u7528\u6765\u7167\u4EAE\uFF0C\u5BB9\u6613\u7184\u706D\u6240\u4EE5\u65E0\u6CD5\u6325\u51FB"
+    m_Localized: "\u7528\u6765\u7167\u4EAE\uFF0C\u5BB9\u6613\u7184\u706D\u6240\u4EE5\u65E0\u6CD5\u6325\u51FB\n<color=#ffffff>\u5149\u7167\u8303\u56F4\uFF1A</color>/LightRange/\n<color=#ffffff>\u635F\u8017\u901F\u5EA6\uFF1A</color>/ExpendSpeed/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862565597155328
@@ -223,7 +223,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868461211521024
-    m_Localized: "\u6728\u5236\u7684\u65A7\u5934\uFF0C\u4E0D\u592A\u8010\u7528\u4F46\u662F\u6613\u4E8E\u5236\u9020"
+    m_Localized: "\u6728\u5236\u7684\u65A7\u5934\uFF0C\u4E0D\u592A\u8010\u7528\u4F46\u662F\u6613\u4E8E\u5236\u9020\n<color=#ffffff>\u5288\u780D\u4F24\u5BB3\uFF1A</color>/SlashingDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u653B\u51FB\u8DDD\u79BB\uFF1A</color>/AttackDistance/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862721025478656
@@ -231,7 +231,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868462985711616
-    m_Localized: "\u94C1\u5236\u7684\u65A7\u5934\uFF0C\u6781\u5177\u6027\u4EF7\u6BD4"
+    m_Localized: "\u94C1\u5236\u7684\u65A7\u5934\uFF0C\u6781\u5177\u6027\u4EF7\u6BD4\n<color=#ffffff>\u5288\u780D\u4F24\u5BB3\uFF1A</color>/SlashingDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u653B\u51FB\u8DDD\u79BB\uFF1A</color>/AttackDistance/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862722430570496
@@ -239,11 +239,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868464462106624
-    m_Localized: "\u7528\u6765\u5F00\u91C7\u77FF\u7269\u7684\u5DE5\u5177"
+    m_Localized: "\u7528\u6765\u5F00\u91C7\u77FF\u7269\u7684\u5DE5\u5177\n<color=#ffffff>\u949D\u51FB\u4F24\u5BB3\uFF1A</color>/BludgeoningDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u653B\u51FB\u8DDD\u79BB\uFF1A</color>/AttackDistance/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
   - m_Id: 2868465871392768
-    m_Localized: "\u7528\u6765\u5F00\u91C7\u77FF\u7269\u7684\u5DE5\u5177"
+    m_Localized: "\u7528\u6765\u5F00\u91C7\u77FF\u7269\u7684\u5DE5\u5177\n<color=#ffffff>\u949D\u51FB\u4F24\u5BB3\uFF1A</color>/BludgeoningDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u653B\u51FB\u8DDD\u79BB\uFF1A</color>/AttackDistance/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862723336540160
@@ -255,7 +255,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868720583086080
-    m_Localized: "\u76F8\u5BF9\u4E8E\u4EE5\u524D,\u73B0\u5728\u4F60\u4E00\u5929\u53EF\u4EE5\u6293\u5230\u4E24\u6761\u9C7C"
+    m_Localized: "\u76F8\u5BF9\u4E8E\u4EE5\u524D,\u73B0\u5728\u4F60\u4E00\u5929\u53EF\u4EE5\u6293\u5230\u4E24\u6761\u9C7C\n<color=#ffffff>\u6E14\u529B\uFF1A</color>/FishPower/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862725085564928
@@ -263,7 +263,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868722965450752
-    m_Localized: "\u6728\u5934\u5236\u6210\u7684\u957F\u68CD\uFF0C\u6740\u4F24\u529B\u6709\u9650\u7ECF\u5E38\u7528\u4F5C\u8BAD\u7EC3\u4F7F\u7528"
+    m_Localized: "\u6728\u5934\u5236\u6210\u7684\u957F\u68CD\uFF0C\u6740\u4F24\u529B\u6709\u9650\u7ECF\u5E38\u7528\u4F5C\u8BAD\u7EC3\u4F7F\u7528\n<color=#ffffff>\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u5288\u780D\u4F24\u5BB3\uFF1A</color>/SlashingDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u653B\u51FB\u8DDD\u79BB\uFF1A</color>/AttackDistance/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862725987340288
@@ -271,7 +271,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868723871420416
-    m_Localized: "\u6728\u68CD\u4E0E\u91D1\u5C5E\u7684\u7B80\u5355\u7ED3\u5408\uFF0C\u6781\u5177\u6027\u4EF7\u6BD4"
+    m_Localized: "\u6728\u68CD\u4E0E\u91D1\u5C5E\u7684\u7B80\u5355\u7ED3\u5408\uFF0C\u6781\u5177\u6027\u4EF7\u6BD4\n<color=#ffffff>\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u5288\u780D\u4F24\u5BB3\uFF1A</color>/SlashingDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u653B\u51FB\u8DDD\u79BB\uFF1A</color>/AttackDistance/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862726763286528
@@ -279,31 +279,31 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868724743835648
-    m_Localized: "\u5C0F\u5DE7\u7684\u5315\u9996\uFF0C\u9AD8\u6740\u4F24\u529B\u548C\u9690\u853D\u6027\u9002\u7528\u4E8E\u8FD1\u8DDD\u79BB\u5077\u88AD"
+    m_Localized: "\u5C0F\u5DE7\u7684\u5315\u9996\uFF0C\u9AD8\u6740\u4F24\u529B\u548C\u9690\u853D\u6027\u9002\u7528\u4E8E\u8FD1\u8DDD\u79BB\u5077\u88AD\n<color=#ffffff>\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
   - m_Id: 2868973789024256
-    m_Localized: "\u52C9\u5F3A\u53EF\u4EE5\u4F7F\u7528\u7684\u6728\u5F13"
+    m_Localized: "\u52C9\u5F3A\u53EF\u4EE5\u4F7F\u7528\u7684\u6728\u5F13\n<color=#ffffff>\u9644\u52A0\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u9644\u52A0\u9B54\u6CD5\u4F24\u5BB3\uFF1A</color>/MagicDamage/\n<color=#ffffff>\u5F39\u5BB9\u91CF\uFF1A</color>/BulletCapacity/\n<color=#ffffff>\u6BCF\u5206\u949F\u5C04\u51FB\u6570\uFF1A</color>/ShotSpeed/\n<color=#ffffff>\u51C6\u5907\u901F\u5EA6\uFF1A</color>/ReadySpeed/\n<color=#ffffff>\u7784\u51C6\u901F\u5EA6\uFF1A</color>/AimSpeed/\n<color=#ffffff>\u5C04\u51FB\u89D2\u5EA6\uFF1A</color>/AimRange/\n<color=#ffffff>\u6563\u5C04\u7A0B\u5EA6\uFF1A</color>/Recoil/"
     m_Metadata:
       m_Items: []
   - m_Id: 2868725616250880
-    m_Localized: "\u66F4\u957F\u66F4\u950B\u5229\u7684\u5315\u9996\uFF0C\u62FF\u51FA\u5B83\u7684\u65F6\u5019\u5C31\u610F\u5473\u7740\u4F60\u505A\u597D\u4E86\u51C6\u5907"
+    m_Localized: "\u6807\u51C6\u7684\u94C1\u5251\n<color=#ffffff>\u5288\u780D\u4F24\u5BB3\uFF1A</color>/SlashingDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
   - m_Id: 2868974527221760
-    m_Localized: "\u6728\u5F13\u7684\u8FDB\u9636\u7248\uFF0C\u6BD4\u7C97\u5236\u6728\u5F13\u66F4\u7CBE\u51C6\u66F4\u987A\u624B"
+    m_Localized: "\u6728\u5F13\u7684\u8FDB\u9636\u7248\n<color=#ffffff>\u9644\u52A0\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u9644\u52A0\u9B54\u6CD5\u4F24\u5BB3\uFF1A</color>/MagicDamage/\n<color=#ffffff>\u6BCF\u5206\u949F\u5C04\u51FB\u6570\uFF1A</color>/ShotSpeed/\n<color=#ffffff>\u51C6\u5907\u901F\u5EA6\uFF1A</color>/ReadySpeed/\n<color=#ffffff>\u7784\u51C6\u901F\u5EA6\uFF1A</color>/AimSpeed/\n<color=#ffffff>\u5C04\u51FB\u89D2\u5EA6\uFF1A</color>/AimRange/\n<color=#ffffff>\u6563\u5C04\u7A0B\u5EA6\uFF1A</color>/Recoil/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862727497289728
-    m_Localized: "\u7C97\u5236\u6728\u5F13"
+    m_Localized: "\u6728\u5F13"
     m_Metadata:
       m_Items: []
   - m_Id: 2874663605669888
-    m_Localized: "\u5BBD\u5203\u94A2\u5200"
+    m_Localized: "\u94C1\u5251"
     m_Metadata:
       m_Items: []
   - m_Id: 2862728239681536
-    m_Localized: "\u7CBE\u81F4\u6728\u5F13"
+    m_Localized: "\u730E\u5F13"
     m_Metadata:
       m_Items: []
   - m_Id: 2862729011433472
@@ -311,7 +311,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868975231864832
-    m_Localized: "\u5C5E\u6027\u4E0E\u7CBE\u81F4\u6728\u5F13\u57FA\u672C\u76F8\u540C\uFF0C\u4F46\u7EAF\u91D1\u6253\u9020\u4F7F\u5176\u4EF7\u683C\u9AD8\u6602"
+    m_Localized: "\u5C5E\u6027\u4E0E\u7CBE\u81F4\u6728\u5F13\u57FA\u672C\u76F8\u540C\uFF0C\u4F46\u7EAF\u91D1\u6253\u9020\u4F7F\u5176\u4EF7\u683C\u9AD8\u6602\n<color=#ffffff>\u9644\u52A0\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u9644\u52A0\u9B54\u6CD5\u4F24\u5BB3\uFF1A</color>/MagicDamage/\n<color=#ffffff>\u6BCF\u5206\u949F\u5C04\u51FB\u6570\uFF1A</color>/ShotSpeed/\n<color=#ffffff>\u51C6\u5907\u901F\u5EA6\uFF1A</color>/ReadySpeed/\n<color=#ffffff>\u7784\u51C6\u901F\u5EA6\uFF1A</color>/AimSpeed/\n<color=#ffffff>\u5C04\u51FB\u89D2\u5EA6\uFF1A</color>/AimRange/\n<color=#ffffff>\u6563\u5C04\u7A0B\u5EA6\uFF1A</color>/Recoil/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862729749630976
@@ -319,7 +319,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2869167192576000
-    m_Localized: "\u975E\u6CD5\u81EA\u5236\u6B66\u5668\uFF0C\u65E0\u8BBA\u662F\u5C04\u901F\u8FD8\u662F\u7CBE\u51C6\u5EA6\u90FD\u6781\u5176\u6709\u9650"
+    m_Localized: "\u975E\u6CD5\u81EA\u5236\u6B66\u5668\uFF0C\u65E0\u8BBA\u662F\u5C04\u901F\u8FD8\u662F\u7CBE\u51C6\u5EA6\u90FD\u6781\u5176\u6709\u9650\n<color=#ffffff>\u9644\u52A0\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u9644\u52A0\u9B54\u6CD5\u4F24\u5BB3\uFF1A</color>/MagicDamage/\n<color=#ffffff>\u6BCF\u5206\u949F\u5C04\u51FB\u6570\uFF1A</color>/ShotSpeed/\n<color=#ffffff>\u7784\u51C6\u901F\u5EA6\uFF1A</color>/AimSpeed/\n<color=#ffffff>\u5C04\u51FB\u89D2\u5EA6\uFF1A</color>/AimRange/\n<color=#ffffff>\u6563\u5C04\u7A0B\u5EA6\uFF1A</color>/Recoil/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862730588491776
@@ -327,7 +327,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2869168304066560
-    m_Localized: "\u62E5\u6709\u6781\u9AD8\u7684\u5C04\u901F\u548C\u6781\u9AD8\u7684\u5F39\u9053\u53D1\u6563\uFF0C\u5F80\u5F80\u7528\u4F5C\u77ED\u8DDD\u79BB\u538B\u5236\u4F7F\u7528"
+    m_Localized: "\u62E5\u6709\u6781\u9AD8\u7684\u5C04\u901F\u548C\u6781\u9AD8\u7684\u5F39\u9053\u53D1\u6563\uFF0C\u5F80\u5F80\u7528\u4F5C\u77ED\u8DDD\u79BB\u538B\u5236\u4F7F\u7528\n<color=#ffffff>\u9644\u52A0\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u9644\u52A0\u9B54\u6CD5\u4F24\u5BB3\uFF1A</color>/MagicDamage/\n<color=#ffffff>\u6BCF\u5206\u949F\u5C04\u51FB\u6570\uFF1A</color>/ShotSpeed/\n<color=#ffffff>\u7784\u51C6\u901F\u5EA6\uFF1A</color>/AimSpeed/\n<color=#ffffff>\u5C04\u51FB\u89D2\u5EA6\uFF1A</color>/AimRange/\n<color=#ffffff>\u6563\u5C04\u7A0B\u5EA6\uFF1A</color>/Recoil/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862731360243712
@@ -335,7 +335,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868976003616768
-    m_Localized: "\u540C\u65F6\u517C\u5177\u7CBE\u51C6\u5EA6\u548C\u538B\u5236\u529B\u7684\u67AA\u68B0"
+    m_Localized: "\u540C\u65F6\u517C\u5177\u7CBE\u51C6\u5EA6\u548C\u538B\u5236\u529B\u7684\u67AA\u68B0\n<color=#ffffff>\u9644\u52A0\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u9644\u52A0\u9B54\u6CD5\u4F24\u5BB3\uFF1A</color>/MagicDamage/\n<color=#ffffff>\u6BCF\u5206\u949F\u5C04\u51FB\u6570\uFF1A</color>/ShotSpeed/\n<color=#ffffff>\u7784\u51C6\u901F\u5EA6\uFF1A</color>/AimSpeed/\n<color=#ffffff>\u5C04\u51FB\u89D2\u5EA6\uFF1A</color>/AimRange/\n<color=#ffffff>\u6563\u5C04\u7A0B\u5EA6\uFF1A</color>/Recoil/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862733000216576
@@ -343,7 +343,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868976704065536
-    m_Localized: "\u5C0F\u5DE7\u7684\u5355\u624B\u67AA\u68B0,\u62E5\u6709\u4F18\u79C0\u7684\u7CBE\u51C6\u5EA6\u548C\u5C04\u901F\u4F46\u5F39\u5BB9\u91CF\u504F\u5C0F\u3002\u51B2\u7A81\u5347\u7EA7\u524D\u7684\u6700\u540E\u65B9\u6848"
+    m_Localized: "\u5C0F\u5DE7\u7684\u5355\u624B\u67AA\u68B0,\u62E5\u6709\u4F18\u79C0\u7684\u7CBE\u51C6\u5EA6\u548C\u5C04\u901F\u4F46\u5F39\u5BB9\u91CF\u504F\u5C0F\u3002\u51B2\u7A81\u5347\u7EA7\u524D\u7684\u6700\u540E\u65B9\u6848\n<color=#ffffff>\u9644\u52A0\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u9644\u52A0\u9B54\u6CD5\u4F24\u5BB3\uFF1A</color>/MagicDamage/\n<color=#ffffff>\u6BCF\u5206\u949F\u5C04\u51FB\u6570\uFF1A</color>/ShotSpeed/\n<color=#ffffff>\u7784\u51C6\u901F\u5EA6\uFF1A</color>/AimSpeed/\n<color=#ffffff>\u5C04\u51FB\u89D2\u5EA6\uFF1A</color>/AimRange/\n<color=#ffffff>\u6563\u5C04\u7A0B\u5EA6\uFF1A</color>/Recoil/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862733939740672
@@ -351,7 +351,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868726589329408
-    m_Localized: "\u89E3\u51B3\u7EB7\u4E89\u53EA\u9700\u8981\u4E09\u6B65\u3002\u9760\u8FD1\uFF0C\u5C04\u51FB\uFF0C\u7136\u540E\u5728\u56DE\u58F0\u91CC\u4EAB\u53D7\u80DC\u5229"
+    m_Localized: "\u89E3\u51B3\u7EB7\u4E89\u53EA\u9700\u8981\u4E09\u6B65\u3002\u9760\u8FD1\uFF0C\u5C04\u51FB\uFF0C\u7136\u540E\u5728\u56DE\u58F0\u91CC\u4EAB\u53D7\u80DC\u5229\n<color=#ffffff>\u9644\u52A0\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u9644\u52A0\u9B54\u6CD5\u4F24\u5BB3\uFF1A</color>/MagicDamage/\n<color=#ffffff>\u6BCF\u5206\u949F\u5C04\u51FB\u6570\uFF1A</color>/ShotSpeed/\n<color=#ffffff>\u7784\u51C6\u901F\u5EA6\uFF1A</color>/AimSpeed/\n<color=#ffffff>\u5C04\u51FB\u89D2\u5EA6\uFF1A</color>/AimRange/\n<color=#ffffff>\u6563\u5C04\u7A0B\u5EA6\uFF1A</color>/Recoil/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862734812155904
@@ -359,7 +359,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868977475817472
-    m_Localized: "\u4E0A\u90E8\u4F9B\u5F39\u7684\u72EC\u7279\u4F9B\u5F39\u65B9\u5F0F\u4FDD\u8BC1\u4E86\u9AD8\u5F39\u5BB9\u91CF\uFF0C\u4F46\u662F\u7531\u4E8E\u906E\u6321\u89C6\u91CE\u727A\u7272\u4E86\u67AA\u68B0\u7684\u7CBE\u51C6\u5EA6\u3002\u5F80\u5F80\u5728\u5927\u89C4\u6A21\u51B2\u7A81\u4E2D\u7528\u4F5C\u538B\u5236"
+    m_Localized: "\u4E0A\u90E8\u4F9B\u5F39\u7684\u72EC\u7279\u4F9B\u5F39\u65B9\u5F0F\u4FDD\u8BC1\u4E86\u9AD8\u5F39\u5BB9\u91CF\uFF0C\u4F46\u662F\u7531\u4E8E\u906E\u6321\u89C6\u91CE\u727A\u7272\u4E86\u67AA\u68B0\u7684\u7CBE\u51C6\u5EA6\u3002\u5F80\u5F80\u5728\u5927\u89C4\u6A21\u51B2\u7A81\u4E2D\u7528\u4F5C\u538B\u5236\n<color=#ffffff>\u9644\u52A0\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u9644\u52A0\u9B54\u6CD5\u4F24\u5BB3\uFF1A</color>/MagicDamage/\n<color=#ffffff>\u5F39\u5BB9\u91CF\uFF1A</color>/BulletCapacity/\n<color=#ffffff>\u6BCF\u5206\u949F\u5C04\u51FB\u6570\uFF1A</color>/ShotSpeed/\n<color=#ffffff>\u7784\u51C6\u901F\u5EA6\uFF1A</color>/AimSpeed/\n<color=#ffffff>\u5C04\u51FB\u89D2\u5EA6\uFF1A</color>/AimRange/\n<color=#ffffff>\u6563\u5C04\u7A0B\u5EA6\uFF1A</color>/Recoil/"
     m_Metadata:
       m_Items: []
   - m_Id: 2862735890092032
@@ -367,7 +367,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2868978184654848
-    m_Localized: "\u5236\u4F5C\u7CBE\u826F\u7684\u7A81\u51FB\u6B65\u67AA\uFF0C\u7279\u6B8A\u6784\u9020\u7684\u63E1\u628A\u4FDD\u8BC1\u4E86\u8FDE\u7EED\u5C04\u51FB\u4E0B\u67AA\u68B0\u7684\u7A33\u5B9A\u6027"
+    m_Localized: "\u5236\u4F5C\u7CBE\u826F\u7684\u7A81\u51FB\u6B65\u67AA\uFF0C\u7279\u6B8A\u6784\u9020\u7684\u63E1\u628A\u4FDD\u8BC1\u4E86\u8FDE\u7EED\u5C04\u51FB\u4E0B\u67AA\u68B0\u7684\u7A33\u5B9A\u6027\n<color=#ffffff>\u9644\u52A0\u6233\u523A\u4F24\u5BB3\uFF1A</color>/PiercingDamage/\n<color=#ffffff>\u9644\u52A0\u9B54\u6CD5\u4F24\u5BB3\uFF1A</color>/MagicDamage/\n<color=#ffffff>\u5F39\u5BB9\u91CF\uFF1A</color>/BulletCapacity/\n<color=#ffffff>\u6BCF\u5206\u949F\u5C04\u51FB\u6570\uFF1A</color>/ShotSpeed/\n<color=#ffffff>\u7784\u51C6\u901F\u5EA6\uFF1A</color>/AimSpeed/\n<color=#ffffff>\u5C04\u51FB\u89D2\u5EA6\uFF1A</color>/AimRange/\n<color=#ffffff>\u6563\u5C04\u7A0B\u5EA6\uFF1A</color>/Recoil/"
     m_Metadata:
       m_Items: []
   - m_Id: 2864745691516928
@@ -711,7 +711,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2871493315825664
-    m_Localized: "\u7B80\u5355\u7528\u6811\u679D\u5236\u6210\u7684\u5F13\u7BAD\uFF0C\u6740\u4F24\u529B\u6709\u9650"
+    m_Localized: "\u7B80\u5355\u7528\u6811\u679D\u5236\u6210\u7684\u5F13\u7BAD\uFF0C\u6740\u4F24\u529B\u6709\u9650\n<color=#ffffff>\u7269\u7406\u4F24\u5BB3\uFF1A</color>/AttackDamage/\n<color=#ffffff>\u56DE\u6536\u51E0\u7387\uFF1A</color>/Recycle/\n<color=#ffffff>\u98DE\u884C\u901F\u5EA6\uFF1A</color>/Speed/"
     m_Metadata:
       m_Items: []
   - m_Id: 2866266281906176
@@ -719,7 +719,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2871494024663040
-    m_Localized: "\u7528\u6811\u679D\u5236\u6210\u7684\u5F13\u7BAD\uFF0C\u52A0\u88C5\u91D1\u5C5E\u7BAD\u5934\u63D0\u9AD8\u901F\u5EA6\u4E0E\u6740\u4F24\u529B"
+    m_Localized: "\u7528\u6811\u679D\u5236\u6210\u7684\u5F13\u7BAD\uFF0C\u52A0\u88C5\u91D1\u5C5E\u7BAD\u5934\u63D0\u9AD8\u901F\u5EA6\u4E0E\u6740\u4F24\u529B\n<color=#ffffff>\u7269\u7406\u4F24\u5BB3\uFF1A</color>/AttackDamage/\n<color=#ffffff>\u56DE\u6536\u51E0\u7387\uFF1A</color>/Recycle/\n<color=#ffffff>\u98DE\u884C\u901F\u5EA6\uFF1A</color>/Speed/"
     m_Metadata:
       m_Items: []
   - m_Id: 2866267183681536
@@ -727,7 +727,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2871494829969408
-    m_Localized: "\u53D7\u7BA1\u63A7\u7684\u5DE5\u4E1A\u5B50\u5F39\uFF0C\u7701\u7740\u70B9\u7528"
+    m_Localized: "\u53D7\u7BA1\u63A7\u7684\u5DE5\u4E1A\u5B50\u5F39\uFF0C\u7701\u7740\u70B9\u7528\n<color=#ffffff>\u7269\u7406\u4F24\u5BB3\uFF1A</color>/AttackDamage/\n<color=#ffffff>\u51FB\u9000\uFF1A</color>/Force/\n<color=#ffffff>\u98DE\u884C\u901F\u5EA6\uFF1A</color>/Speed/"
     m_Metadata:
       m_Items: []
   - m_Id: 2866268093845504
@@ -735,7 +735,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2871495568166912
-    m_Localized: "\u770B\u7740\u4E0D\u5927\uFF0C\u5374\u80FD\u88C5\u4E0B\u96BE\u4EE5\u60F3\u8C61\u7684\u5B50\u5F39\u6570\u91CF"
+    m_Localized: "\u770B\u7740\u4E0D\u5927\uFF0C\u5374\u80FD\u88C5\u4E0B\u96BE\u4EE5\u60F3\u8C61\u7684\u5B50\u5F39\u6570\u91CF\n<color=#ffffff>\u5185\u90E8\u5B50\u5F39\uFF1A</color>\u94C1\u5236\u5F39\u4E38"
     m_Metadata:
       m_Items: []
   - m_Id: 2866585984339968
@@ -803,7 +803,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4552521013039104
-    m_Localized: "\u6728\u9504\u5934"
+    m_Localized: "\u53EF\u4EE5\u8BA9\u4F18\u8D28\u571F\u5730\u53D8\u5F97\u66F4\u4F18\u8D28\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
   - m_Id: 4773142927351808
@@ -812,6 +812,102 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 4773107900719104
     m_Localized: "\u8FA3\u6912\u79CD\u5B50"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16053833835778048
+    m_Localized: "\u8349\u7EB8"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16054162262364160
+    m_Localized: "\u4E0B\u4E00\u6B65\u603B\u5F52\u8981\u505A\u70B9\u4EC0\u4E48"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18156961340432384
+    m_Localized: "\u81F4\u4F24\u6728\u7BAD"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18156984354578432
+    m_Localized: "\u7BAD\u5934\u7684\u7279\u6B8A\u6784\u9020\u53EF\u4EE5\u8BA9\u5176\u9020\u6210\u53EF\u6015\u7684\u521B\u53E3\uFF0C\u66F4\u957F\u7684\u7BAD\u7FBD\u8BA9\u5176\u6709\u66F4\u51FA\u8272\u7684\u7A33\u5B9A\u6027\uFF0C\u51FA\u81EA\u730E\u4EBA\u4E4B\u624B\u3002\n<color=#ffffff>\u7269\u7406\u4F24\u5BB3\uFF1A</color>/AttackDamage/\n<color=#ffffff>\u56DE\u6536\u51E0\u7387\uFF1A</color>/Recycle/\n<color=#ffffff>\u98DE\u884C\u901F\u5EA6\uFF1A</color>/Speed/"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20119375250300928
+    m_Localized: "\u4F10\u6728\u65A7\u5934"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20119472893698048
+    m_Localized: "\u6781\u5176\u8010\u7528\u7684\u65A7\u5B50\n<color=#ffffff>\u5288\u780D\u4F24\u5BB3\uFF1A</color>/SlashingDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u653B\u51FB\u8DDD\u79BB\uFF1A</color>/AttackDistance/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21135857361653760
+    m_Localized: "\u81F3\u5C11\u770B\u4E0A\u53BB\u50CF\u90A3\u56DE\u4E8B"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21135810117013504
+    m_Localized: "\u53A8\u5E08\u5E3D"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21135880442908672
+    m_Localized: "\u6743\u8D35\u5E3D"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21135917856100352
+    m_Localized: "\u4E00\u5C42\u53EF\u60B2\u7684\u539A\u969C\u58C1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21135968527486976
+    m_Localized: "\u683C\u5B50\u886C\u886B"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21135986307141632
+    m_Localized: "\u4F10\u6728\u5C31\u662F\u4E3A\u4E86\u8FD9\u4E00\u4EF6\u8863\u670D"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21136008927023104
+    m_Localized: "\u53A8\u5E08\u8863\u670D"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21136060869283840
+    m_Localized: "\u666E\u901A\u7684\u5E03"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21136087406645248
+    m_Localized: "\u8E69\u811A\u897F\u88C5"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21136122743656448
+    m_Localized: "\u6000\u5FF5\u4EE5\u524D\u65E5\u5B50\u7684\u4EBA\u4F1A\u7A7F"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21137906962829312
+    m_Localized: "\u4FE1\u53F7\u7BAD"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21138009404510208
+    m_Localized: "\u7ED9\u4E09\u5B63\u9547\u5B98\u65B9\u8BA4\u5B9A\u7684\u5B88\u6CD5\u516C\u6C11\u51C6\u5907\u7684\u4E1C\u897F\uFF0C\u5728\u4F60\u9700\u8981\u4E09\u5B63\u9547\u5E2E\u52A9\u7684\u60C5\u51B5\u4E0B\u4F7F\u7528\n<color=#ffffff>\u7269\u7406\u4F24\u5BB3\uFF1A</color>/AttackDamage/\n<color=#ffffff>\u56DE\u6536\u51E0\u7387\uFF1A</color>/Recycle/\n<color=#ffffff>\u98DE\u884C\u901F\u5EA6\uFF1A</color>/Speed/"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21138686235152384
+    m_Localized: "\u300A\u6211\u4EEC\u7684\u4E09\u5B63\u9547\u300B"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21138783912103936
+    m_Localized: "\u9547\u957F\u7684\u624B\u5199\u4E66\uFF0C\u4ECB\u7ECD\u4E86\u52A0\u5165\u5C0F\u9547\u7684\u597D\u5904"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36422377779077120
+    m_Localized: "\u6728\u9570\u5200"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36422531085082624
+    m_Localized: "\u6728\u5934\u5236\u6210\u7684\u9570\u5200\uFF0C\u4E3B\u8981\u7528\u6765\u6536\u5272\u690D\u7269\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36465803090305024
+    m_Localized: "\u6728\u68F0\u5B50"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36465847742865408
+    m_Localized: "\u53EF\u4EE5\u7528\u6765\u9524\u4EBA\u6216\u8005\u7528\u6765\u62C6\u9664\u5EFA\u7B51\n<color=#ffffff>\u949D\u51FB\u4F24\u5BB3\uFF1A</color>/BludgeoningDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u653B\u51FB\u8DDD\u79BB\uFF1A</color>/AttackDistance/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
   references:
