@@ -13,18 +13,6 @@ MonoBehaviour:
   m_Name: MapModData10010
   m_EditorClassIdentifier: 
   data_mapFloor:
-  - key: {x: -5, y: -3}
-    value: 1001
-  - key: {x: -5, y: -2}
-    value: 1001
-  - key: {x: -5, y: -1}
-    value: 1001
-  - key: {x: -5, y: 0}
-    value: 1001
-  - key: {x: -4, y: -3}
-    value: 1001
-  - key: {x: -4, y: -2}
-    value: 1001
   - key: {x: -4, y: -1}
     value: 1001
   - key: {x: -4, y: 0}
@@ -37,14 +25,14 @@ MonoBehaviour:
     value: 1001
   - key: {x: -4, y: 4}
     value: 1001
-  - key: {x: -3, y: -3}
+  - key: {x: -4, y: 5}
     value: 1001
   - key: {x: -3, y: -2}
-    value: 9000
+    value: 1001
   - key: {x: -3, y: -1}
-    value: 9000
+    value: 1001
   - key: {x: -3, y: 0}
-    value: 9000
+    value: 1001
   - key: {x: -3, y: 1}
     value: 1001
   - key: {x: -3, y: 2}
@@ -55,12 +43,12 @@ MonoBehaviour:
     value: 1001
   - key: {x: -3, y: 5}
     value: 1001
-  - key: {x: -2, y: -3}
+  - key: {x: -3, y: 6}
     value: 1001
   - key: {x: -2, y: -2}
-    value: 9000
+    value: 1001
   - key: {x: -2, y: -1}
-    value: 9000
+    value: 1001
   - key: {x: -2, y: 0}
     value: 2000
   - key: {x: -2, y: 1}
@@ -73,12 +61,12 @@ MonoBehaviour:
     value: 2000
   - key: {x: -2, y: 5}
     value: 1001
-  - key: {x: -1, y: -3}
+  - key: {x: -2, y: 6}
     value: 1001
   - key: {x: -1, y: -2}
-    value: 9000
+    value: 1001
   - key: {x: -1, y: -1}
-    value: 9000
+    value: 1000
   - key: {x: -1, y: 0}
     value: 2000
   - key: {x: -1, y: 1}
@@ -91,12 +79,12 @@ MonoBehaviour:
     value: 2000
   - key: {x: -1, y: 5}
     value: 1001
-  - key: {x: 0, y: -3}
+  - key: {x: -1, y: 6}
     value: 1001
   - key: {x: 0, y: -2}
     value: 1001
   - key: {x: 0, y: -1}
-    value: 9000
+    value: 1000
   - key: {x: 0, y: 0}
     value: 2000
   - key: {x: 0, y: 1}
@@ -109,10 +97,12 @@ MonoBehaviour:
     value: 2000
   - key: {x: 0, y: 5}
     value: 1001
+  - key: {x: 0, y: 6}
+    value: 1001
   - key: {x: 1, y: -2}
     value: 1001
   - key: {x: 1, y: -1}
-    value: 1001
+    value: 1000
   - key: {x: 1, y: 0}
     value: 2000
   - key: {x: 1, y: 1}
@@ -125,10 +115,12 @@ MonoBehaviour:
     value: 2000
   - key: {x: 1, y: 5}
     value: 1001
+  - key: {x: 1, y: 6}
+    value: 1001
   - key: {x: 2, y: -2}
     value: 1001
   - key: {x: 2, y: -1}
-    value: 1001
+    value: 1000
   - key: {x: 2, y: 0}
     value: 2000
   - key: {x: 2, y: 1}
@@ -140,6 +132,8 @@ MonoBehaviour:
   - key: {x: 2, y: 4}
     value: 2000
   - key: {x: 2, y: 5}
+    value: 2000
+  - key: {x: 2, y: 6}
     value: 1001
   - key: {x: 3, y: -2}
     value: 1001
@@ -156,6 +150,8 @@ MonoBehaviour:
   - key: {x: 3, y: 4}
     value: 2000
   - key: {x: 3, y: 5}
+    value: 2000
+  - key: {x: 3, y: 6}
     value: 1001
   - key: {x: 4, y: -2}
     value: 1001
@@ -172,6 +168,8 @@ MonoBehaviour:
   - key: {x: 4, y: 4}
     value: 2000
   - key: {x: 4, y: 5}
+    value: 2000
+  - key: {x: 4, y: 6}
     value: 1001
   - key: {x: 5, y: -2}
     value: 1001
@@ -188,6 +186,8 @@ MonoBehaviour:
   - key: {x: 5, y: 4}
     value: 2000
   - key: {x: 5, y: 5}
+    value: 2000
+  - key: {x: 5, y: 6}
     value: 1001
   - key: {x: 6, y: -2}
     value: 1001
@@ -205,21 +205,23 @@ MonoBehaviour:
     value: 1001
   - key: {x: 6, y: 5}
     value: 1001
+  - key: {x: 6, y: 6}
+    value: 1001
   - key: {x: 7, y: -1}
     value: 1001
   - key: {x: 7, y: 0}
     value: 1001
   - key: {x: 7, y: 1}
     value: 1001
+  - key: {x: 7, y: 2}
+    value: 1001
+  - key: {x: 7, y: 3}
+    value: 1001
+  - key: {x: 7, y: 4}
+    value: 1001
+  - key: {x: 7, y: 5}
+    value: 1001
   data_mapBuilding:
-  - key: {x: -4, y: -3}
-    value: 3002
-  - key: {x: -4, y: -2}
-    value: 3002
-  - key: {x: -3, y: -3}
-    value: 3002
-  - key: {x: -2, y: -3}
-    value: 3002
   - key: {x: -2, y: 0}
     value: 3000
   - key: {x: -2, y: 1}
@@ -230,47 +232,39 @@ MonoBehaviour:
     value: 3000
   - key: {x: -2, y: 4}
     value: 3000
-  - key: {x: -1, y: -3}
-    value: 3002
   - key: {x: -1, y: 0}
     value: 3000
   - key: {x: -1, y: 3}
-    value: 4002
+    value: 2003
   - key: {x: -1, y: 4}
     value: 3000
-  - key: {x: 0, y: -3}
-    value: 3002
-  - key: {x: 0, y: -2}
-    value: 3002
   - key: {x: 0, y: 0}
     value: 3000
-  - key: {x: 0, y: 3}
-    value: 2003
   - key: {x: 0, y: 4}
     value: 3000
-  - key: {x: 1, y: -2}
-    value: 3002
   - key: {x: 1, y: 0}
-    value: 3000
+    value: 3001
   - key: {x: 1, y: 4}
     value: 3000
   - key: {x: 2, y: 0}
     value: 3000
-  - key: {x: 2, y: 1}
-    value: 3000
   - key: {x: 2, y: 3}
-    value: 3000
+    value: 3010
   - key: {x: 2, y: 4}
     value: 3000
+  - key: {x: 2, y: 5}
+    value: 3000
   - key: {x: 3, y: 0}
-    value: 3001
+    value: 3000
   - key: {x: 3, y: 4}
+    value: 3006
+  - key: {x: 3, y: 5}
     value: 3000
   - key: {x: 4, y: 0}
     value: 3000
   - key: {x: 4, y: 3}
-    value: 4003
-  - key: {x: 4, y: 4}
+    value: 10012
+  - key: {x: 4, y: 5}
     value: 3000
   - key: {x: 5, y: 0}
     value: 3000
@@ -281,4 +275,6 @@ MonoBehaviour:
   - key: {x: 5, y: 3}
     value: 3000
   - key: {x: 5, y: 4}
+    value: 3000
+  - key: {x: 5, y: 5}
     value: 3000

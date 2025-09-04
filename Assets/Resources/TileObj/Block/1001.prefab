@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8509003118181725640}
   m_Layer: 11
   m_Name: 1001
-  m_TagString: BuildingNatural
+  m_TagString: TileObj
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67,7 +67,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.25}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -94,16 +94,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
-  hp: 10
-  armor: 0
+  local_Hp: 0
+  local_Armor: 0
   spriteRenderer: {fileID: 3836577373326285476}
   sprites_State0:
   - {fileID: 21300000, guid: 3653e935a620059448302aa14b94a1b5, type: 3}
   sprites_State1:
   - {fileID: 21300000, guid: b60650834ff443041857897d3fd4e25f, type: 3}
-  int_TimeState0: 5
-  int_HpState0: 3
-  int_HpState1: 10
+  int_TimeState0: 12
+  int_HpState0: 20
+  int_HpState1: 20
   baseLootInfos_State0:
   - ID: 1002
     CountMin: 2

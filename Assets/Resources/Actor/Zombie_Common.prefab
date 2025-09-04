@@ -244,6 +244,8 @@ MonoBehaviour:
       Item_Info: 0
       Item_Durability: 0
       Item_DurabilityPoint: 0
+  Local_BagCapacity: 40
+  Local_BagItemCount: 0
 --- !u!114 &5457112900996354466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256,17 +258,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07c1ba05c0201f4459ecf1b4a1af53a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerSimulation: {fileID: 0}
   rigidbody2: {fileID: 3389420984197093135}
   actorUI: {fileID: 2374736933620961169}
   actorNetManager: {fileID: 5061607933794539187}
   bodyController: {fileID: 8302949918025806900}
-  playerSimulation: {fileID: 0}
   actorState: 0
   viewManager: {fileID: 5919214210830039845}
-  float_AttackCD: 2
-  float_FollowCD: 0
-  float_ThinkCD: 3
-  float_SearchTime: 4
   config:
     status_Type: 3
     short_Hp: 50
@@ -274,13 +272,15 @@ MonoBehaviour:
     short_Resistance: 0
     short_MoveSpeed: 30
     short_MoveStep: 2
-    float_AttackDistance: 1
+    float_BiteDistance: 1
     float_ViewDistance: 99
+    int_BiteDamage: 4
     lootInfos_Base:
     - ID: 3104
       CountMin: 1
       CountMax: 2
     lootInfos_Extra: []
+  float_AttackCD: 2
 --- !u!1 &1761792966591504158
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,7 +565,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 2
+  m_Radius: 3
 --- !u!114 &5919214210830039845
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -48,20 +48,18 @@ MonoBehaviour:
   actorManager: {fileID: 0}
   itemData:
     Item_ID: 0
-    Item_Seed: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
-    Item_DurabilityPoint: 0
+    Item_SignTime: 0
     Item_Content:
       Item_ID: 0
-      Item_Seed: 0
       Item_Count: 0
       Item_Info: 0
       Item_Durability: 0
       Item_DurabilityPoint: 0
   skillIndicators: {fileID: 8228331484426083855}
-  config_PunchDamage: 1
+  config_PunchDamage: 5
   config_PunchDistance: 1
   config_PunchRange: 90
   config_PunchSpeed: 2

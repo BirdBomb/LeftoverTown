@@ -48,20 +48,23 @@ MonoBehaviour:
   vectoe3_MoveDir: {x: 0, y: 0, z: 0}
   vectoe3_CurPos: {x: 0, y: 0, z: 0}
   vectoe3_LastPos: {x: 0, y: 0, z: 0}
-  float_BulletDemage: 0
+  float_BulletAttackDemage: 0
+  float_BulletMagicDemage: 0
   float_BulletSpeed: 0
   float_BulletForce: 0
-  float_Life: 1
+  actorManager_Owner: {fileID: 0}
+  float_Life: 99
   str_BulletPath: Bullet/Bullet_Hook
   layerMask_Target:
     serializedVersion: 2
     m_Bits: 1088
   transform_Bullet: {fileID: 5168761889555250296}
   lineRenderer: {fileID: 2149638232365131375}
-  config_BaseDamage: 5
-  config_BaseSpeed: 50
-  config_DownSpeed: 100
-  config_BaseForce: 5
+  config_BaseAttackDamage: 10
+  config_BaseMagicDamage: 0
+  config_BaseSpeed: 20
+  config_DownSpeed: 40
+  config_BaseForce: 20
 --- !u!1 &5199270181708958086
 GameObject:
   m_ObjectHideFlags: 0
@@ -134,7 +137,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 5f53d6bd10d8c6c47b91599229493f1e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -187,7 +190,7 @@ LineRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 2
   m_Positions:
   - {x: 0, y: 0, z: 0}

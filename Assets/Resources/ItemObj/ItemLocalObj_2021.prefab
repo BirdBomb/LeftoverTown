@@ -126,7 +126,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7270226799246045471}
-  - component: {fileID: 5622092602609407918}
+  - component: {fileID: 430780960757319722}
   - component: {fileID: 146852062998226876}
   m_Layer: 0
   m_Name: ItemLocalObj_2021
@@ -152,7 +152,7 @@ Transform:
   - {fileID: 156553442119304864}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5622092602609407918
+--- !u!114 &430780960757319722
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -161,7 +161,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8034441036906968064}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f00f068bedd556439851600ed8dbf34, type: 3}
+  m_Script: {fileID: 11500000, guid: 6906007903cedb945af24ae91227ef7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   actorManager: {fileID: 0}
@@ -180,10 +180,6 @@ MonoBehaviour:
   animator: {fileID: 146852062998226876}
   spriteRenderer_Hand: {fileID: 4613846074096414838}
   skillIndicators: {fileID: 1094821721386985714}
-  config_HackSpeed: 1.2
-  config_HackDamage: 10
-  config_HackMaxRange: 60
-  config_HackMaxDistance: 1
 --- !u!95 &146852062998226876
 Animator:
   serializedVersion: 5
@@ -194,7 +190,7 @@ Animator:
   m_GameObject: {fileID: 8034441036906968064}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: ccd3ca623a4a30e459c6b90eed2dd5f1, type: 2}
+  m_Controller: {fileID: 9100000, guid: 1a8eef92430788f4ca3028767abbf0fe, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

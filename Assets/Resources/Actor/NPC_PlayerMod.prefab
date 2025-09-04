@@ -226,10 +226,10 @@ CircleCollider2D:
     m_Bits: 4294967295
   m_ContactCaptureLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 576
   m_CallbackLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 576
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -613,6 +613,7 @@ GameObject:
   - component: {fileID: 6974477077264250489}
   - component: {fileID: 81173575952439726}
   - component: {fileID: 333444942137442739}
+  - component: {fileID: 1651549308444527688}
   m_Layer: 0
   m_Name: Role
   m_TagString: Untagged
@@ -663,13 +664,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   transform_NetRoot: {fileID: 6059930380166377277}
   bool_On: 1
-  float_SimulationDistance: 1
-  float_SimulationSpeedOffset: 0.5
-  vector2_SimulationPos: {x: 0, y: 0}
-  vector2_SimulationDir: {x: 0, y: 0}
-  float_SimulationSpeed: 0
-  vector2_NetDir: {x: 0, y: 0}
-  float_NetSpeed: 0
 --- !u!114 &333444942137442739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -706,6 +700,41 @@ MonoBehaviour:
   animaEventListen_Head: {fileID: 1679522727924427036}
   animator_Hand: {fileID: 3634841144680819973}
   animaEventListen_Hand: {fileID: 8324018215701521289}
+--- !u!58 &1651549308444527688
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3893875658688742580}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.19
 --- !u!1 &3909062008250921367
 GameObject:
   m_ObjectHideFlags: 0
@@ -1000,7 +1029,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.375}
+  m_Offset: {x: 0, y: 0.75}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1137,6 +1166,8 @@ MonoBehaviour:
       Item_Info: 0
       Item_Durability: 0
       Item_DurabilityPoint: 0
+  Local_BagCapacity: 40
+  Local_BagItemCount: 0
 --- !u!114 &8167307871080927804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1149,13 +1180,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d591b1c4b7e0e84b9bafccdf9c22da2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerSimulation: {fileID: 81173575952439726}
   rigidbody2: {fileID: 1396025594704316764}
   actorUI: {fileID: 7495404599927739563}
   actorNetManager: {fileID: 2382471986505964745}
   bodyController: {fileID: 333444942137442739}
-  playerSimulation: {fileID: 81173575952439726}
   actorState: 0
   viewManager: {fileID: 3158776603764860279}
+  actorManager_Closest: {fileID: 0}
 --- !u!1 &6521003433400943334
 GameObject:
   m_ObjectHideFlags: 0

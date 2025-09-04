@@ -179,7 +179,7 @@ MonoBehaviour:
   spriteAtlas_Emoji: {fileID: 4343727234628468602, guid: 4311d1ca0e2c938469a45cf9d9c359b6, type: 2}
   spriteRenderer_Emoji: {fileID: 6998929726952638002}
   transform_Singal: {fileID: 7165767793664304265}
-  transform_SingalF: {fileID: 7266282024745816826}
+  transform_SingalR: {fileID: 7266282024745816826}
   transform_SingalTalk: {fileID: 5259802870602627109}
 --- !u!1 &5489211102155483725
 GameObject:
@@ -538,7 +538,7 @@ GameObject:
   - component: {fileID: 7266282024745816826}
   - component: {fileID: 8328901116379951257}
   m_Layer: 6
-  m_Name: SingalF
+  m_Name: SingalR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

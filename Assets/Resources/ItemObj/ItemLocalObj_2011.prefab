@@ -289,6 +289,7 @@ MonoBehaviour:
   config_HackDamage: 5
   config_HackMaxRange: 60
   config_HackMaxDistance: 1
+  config_HackAbrasion: 2
 --- !u!1001 &4123733181739319704
 PrefabInstance:
   m_ObjectHideFlags: 0

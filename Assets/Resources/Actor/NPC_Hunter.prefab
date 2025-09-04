@@ -561,7 +561,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.375}
+  m_Offset: {x: 0, y: 0.75}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -698,6 +698,8 @@ MonoBehaviour:
       Item_Info: 0
       Item_Durability: 0
       Item_DurabilityPoint: 0
+  Local_BagCapacity: 40
+  Local_BagItemCount: 0
 --- !u!114 &2113688663907742122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -710,39 +712,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85b15bce6a4382b4d8f19dfee3c888d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerSimulation: {fileID: 0}
   rigidbody2: {fileID: 8758531104395135018}
   actorUI: {fileID: 819256106078883666}
   actorNetManager: {fileID: 1310663313864215728}
   bodyController: {fileID: 9035044782868575703}
-  playerSimulation: {fileID: 0}
   actorState: 0
   viewManager: {fileID: 8129038928100627278}
   config:
     str_Title: "\u730E\u4EBA"
     status_Type: 1
     short_Hp: 50
+    short_Coin: 75
     short_Armor: 0
     short_Resistance: 0
     short_View: 20
     short_Speed: 50
     short_HatID: 5006
     short_ClothesID: 5102
-    lootInfos_Base:
+    bagInfos_Base:
     - ID: 2201
       CountMin: 1
       CountMax: 1
-    - ID: 9000
-      CountMin: 5
-      CountMax: 9
+    lootInfos_Base:
     - ID: 9001
-      CountMin: 5
-      CountMax: 9
+      CountMin: 2
+      CountMax: 6
+    - ID: 9002
+      CountMin: 2
+      CountMax: 6
     lootInfos_Extra: []
-  float_AttackCD: 5
-  float_ThinkCD: 5
-  float_SearchTime: 2
-  prefab_DialogUI: {fileID: 2085238712720466970, guid: a32dd04f24d5ed74c84a933c09874aa8, type: 3}
-  prefab_DealUI: {fileID: 5605293086865236521, guid: e1b6350f95aa3474eb5152aa61780bd5, type: 3}
+    goodInfos_Base:
+    - ID: 9001
+      CountMin: 2
+      CountMax: 6
+    - ID: 9002
+      CountMin: 2
+      CountMax: 6
+    goodInfos_Extra: []
+  float_AttackCD: 2
+  globalTime_Work: 5
 --- !u!1 &3319393966375104341
 GameObject:
   m_ObjectHideFlags: 0

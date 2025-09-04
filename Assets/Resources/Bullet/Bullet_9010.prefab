@@ -49,20 +49,19 @@ MonoBehaviour:
   vectoe3_MoveDir: {x: 0, y: 0, z: 0}
   vectoe3_CurPos: {x: 0, y: 0, z: 0}
   vectoe3_LastPos: {x: 0, y: 0, z: 0}
-  float_BulletDemage: 0
+  float_BulletAttackDemage: 0
+  float_BulletMagicDemage: 0
   float_BulletSpeed: 0
   float_BulletForce: 0
   float_Life: 3
-  config_Damage: 10
-  config_Speed: 25
-  config_Force: 2
   str_BulletPath: Bullet/Bullet_9010
   layerMask_Target:
     serializedVersion: 2
     m_Bits: 1088
   spriteRenderer_Bullet: {fileID: 6301272907957791235}
   light2D_Bullet: {fileID: 3836740984328718162}
-  config_BaseDamage: 10
+  config_BaseAttackDamage: 10
+  config_BaseMagicDamage: 0
   config_BaseSpeed: 25
   config_BaseForce: 2
 --- !u!1 &5199270181708958086
@@ -136,7 +135,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: ccd60714d39da824cab2c93a2b0342c7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

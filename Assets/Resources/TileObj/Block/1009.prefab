@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6799294122305207368}
   m_Layer: 11
   m_Name: 1009
-  m_TagString: BuildingNatural
+  m_TagString: TileObj
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -147,14 +147,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
-  hp: 0
-  armor: 0
+  local_Hp: 0
+  local_Armor: 0
   spriteRenderer: {fileID: 6114030997716344390}
   boxCollider: {fileID: 8881614893855585948}
   rockState_Now: 0
   sprites_Rock:
   - {fileID: 21300000, guid: 377a39bf7e1cb1f4e8d9cb9c3518ba2d, type: 3}
-  int_RockRsetTime: 5
+  int_RockRsetTime: 48
   int_RockHp: 20
   baseLootInfos_State:
   - ID: 1010

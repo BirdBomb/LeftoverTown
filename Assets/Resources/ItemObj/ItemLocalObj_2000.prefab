@@ -420,3 +420,4 @@ MonoBehaviour:
   transform_Fire: {fileID: 4235009033293005388}
   transform_Root: {fileID: 2409003921851141429}
   spriteRenderer_Hand: {fileID: 8388356096414603268}
+  light2D: {fileID: 3711326836543274566}

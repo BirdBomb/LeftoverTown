@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1347946873199694894}
   m_Layer: 10
   m_Name: 3000
-  m_TagString: Untagged
+  m_TagString: TileObj
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -93,8 +93,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
-  hp: 0
-  armor: 0
+  local_Hp: 0
+  local_Armor: 0
   sprite:
   - {fileID: -433791031, guid: f335486ff34775445830e15e0c3554b7, type: 3}
   - {fileID: -503429950, guid: f335486ff34775445830e15e0c3554b7, type: 3}
@@ -217,7 +217,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 1060867423, guid: f335486ff34775445830e15e0c3554b7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

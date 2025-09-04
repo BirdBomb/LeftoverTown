@@ -15,7 +15,7 @@ MonoBehaviour:
   config_Sprite: {fileID: 21300000, guid: a955dda21c436104bb42a11c5fe81c53, type: 3}
   config_InstancedGameObject: {fileID: 223198607764510710, guid: 3f1f008118645bf4cb2398dcad1c5aeb, type: 3}
   config_Pass: 0
-  config_Drag: 1
+  config_Drag: 2
   tileID: 0
   tilePos: {x: 0, y: 0, z: 0}
   tileWorldPos: {x: 0, y: 0}

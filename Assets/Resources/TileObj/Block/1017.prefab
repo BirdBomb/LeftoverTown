@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7488933108786519995}
   m_Layer: 10
   m_Name: 1017
-  m_TagString: BuildingNatural
+  m_TagString: TileObj
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -94,8 +94,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
-  hp: 10
-  armor: 5
+  local_Hp: 0
+  local_Armor: 0
   sprite:
   - {fileID: -542189571, guid: 8f1a8043bd774f64f81bb11df9f67689, type: 3}
   - {fileID: 179172948, guid: 8f1a8043bd774f64f81bb11df9f67689, type: 3}
@@ -149,19 +149,13 @@ MonoBehaviour:
   spriteRenderer: {fileID: 1716183126745274280}
   bitsParticle: {fileID: 4200786546529140071}
   baseLootInfos:
+  - ID: 1017
+    CountMin: 2
+    CountMax: 4
   - ID: 1010
     CountMin: 2
-    CountMax: 3
-  extraLootInfos:
-  - ID: 1011
-    Count: 1
-    Weight: 250
-  - ID: 1013
-    Count: 1
-    Weight: 500
-  - ID: 1016
-    Count: 1
-    Weight: 250
+    CountMax: 5
+  extraLootInfos: []
 --- !u!1 &4651839316280365571
 GameObject:
   m_ObjectHideFlags: 0

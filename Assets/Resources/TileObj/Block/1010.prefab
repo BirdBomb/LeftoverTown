@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4522765342015858753}
   m_Layer: 11
   m_Name: 1010
-  m_TagString: BuildingNatural
+  m_TagString: TileObj
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -146,8 +146,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
-  hp: 20
-  armor: 0
+  local_Hp: 0
+  local_Armor: 0
   spriteRenderer: {fileID: 6114030997716344390}
   sprites_State0:
   - {fileID: 21300000, guid: 865606e5a56b3e342ad28992f02fb2bf, type: 3}

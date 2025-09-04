@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 9190609296998949854}
   m_Layer: 10
   m_Name: 4005
-  m_TagString: Untagged
+  m_TagString: TileObj
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -96,8 +96,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
-  hp: 0
-  armor: 0
+  local_Hp: 0
+  local_Armor: 0
   obj_SingalUI: {fileID: 2825148531712374577}
   obj_SingalAwakeUI: {fileID: 8396544860069031905}
   obj_HightlightUI: {fileID: 7921565222294836286}

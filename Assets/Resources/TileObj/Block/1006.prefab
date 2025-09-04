@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 326032662674126569}
   m_Layer: 11
   m_Name: 1006
-  m_TagString: BuildingNatural
+  m_TagString: TileObj
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -133,17 +133,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
-  hp: 5
-  armor: 0
+  local_Hp: 0
+  local_Armor: 0
+  state_Now: 0
   spriteRenderer: {fileID: 6810588718815636037}
   sprites_State0:
   - {fileID: 21300000, guid: 279b875e60dcf1a4597fa7fe7d6fef36, type: 3}
   sprites_State1:
   - {fileID: 21300000, guid: 6073f324df76d534f874bb6b7bc3bfcb, type: 3}
   int_TimeState0: 5
-  int_TimeState1: 1
+  int_TimeState1: 50
   int_HpState0: 20
-  int_HpState1: 5
+  int_HpState1: 1
   baseLootInfos_State0:
   - ID: 6101
     CountMin: 1
