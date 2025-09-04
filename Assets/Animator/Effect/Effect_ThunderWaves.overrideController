@@ -6,8 +6,8 @@ AnimatorOverrideController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Effect_WaterSpray
+  m_Name: Effect_ThunderWaves
   m_Controller: {fileID: 9100000, guid: 4d72e4d7de3a83f4b966aa69b4812b90, type: 2}
   m_Clips:
   - m_OriginalClip: {fileID: 7400000, guid: 22e7fa9249f64ad4da95f9619712c63e, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 739ea5721e76ec142bce751f664d7c8b, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 22e7fa9249f64ad4da95f9619712c63e, type: 2}
