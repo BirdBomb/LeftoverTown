@@ -1,12 +1,9 @@
 using Fusion;
-using System.Collections;
+using Fusion.Photon.Realtime;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UniRx;
-using DG.Tweening;
-using Fusion.Addons.Physics;
-using Fusion.Photon.Realtime;
 
 public class NetManager : SingleTon<NetManager>,ISingleTon
 {

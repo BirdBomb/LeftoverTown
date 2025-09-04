@@ -9,7 +9,7 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:消耗背包物体
     /// </summary>
-    public class PlayerEvent_Local_TryExpendItemInBag
+    public class PlayerEvent_Local_ItemBag_Expend
     {
         public int itemID;
         public int itemCount;
@@ -17,7 +17,7 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:添加背包物体
     /// </summary>
-    public class PlayerEvent_Local_TryAddItemInBag
+    public class PlayerEvent_Local_ItemBag_Add
     {
         public int index;
         public ItemData itemData;
@@ -25,7 +25,7 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:更改背包物体
     /// </summary>
-    public class PlayerEvent_Local_TryChangeItemInBag
+    public class PlayerEvent_Local_ItemBag_Change
     {
         public ItemData itemData;
         public int index;
@@ -33,7 +33,7 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:使用背包物体
     /// </summary>
-    public class PlayerEvent_Local_TryUseItemInBag
+    public class PlayerEvent_Local_ItemBag_Use
     {
         public int index;
     }
@@ -42,7 +42,7 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:添加手部物体
     /// </summary>
-    public class PlayerEvent_Local_TryAddItemOnHand
+    public class PlayerEvent_Local_ItemHand_Add
     {
         public ItemData item;
         public Action<ItemData> itemResidueBack;
@@ -50,29 +50,29 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:移除手部物体
     /// </summary>
-    public class PlayerEvent_Local_TrySubItemOnHand
+    public class PlayerEvent_Local_ItemHand_Sub
     {
         public ItemData item;
     }
     /// <summary>
     /// 本地玩家:更改手部物体
     /// </summary>
-    public class PlayerEvent_Local_TryChangeItemOnHand
+    public class PlayerEvent_Local_ItemHand_Change
     {
         public ItemData oldItem;
         public ItemData newItem;
     }
     /// <summary>
-    /// 本地玩家:替换背包物体到手上
+    /// 本地玩家:切换手持物体
     /// </summary>
-    public class PlayerEvent_Local_TrySwitchItemBetweenHandAndBag 
+    public class PlayerEvent_Local_ItemHand_Switch 
     {
         public int index;
     }
     /// <summary>
     /// 本地玩家:收起手持物体
     /// </summary>
-    public class PlayerEvent_Local_TryPutAwayItemOnHand
+    public class PlayerEvent_Local_ItemHand_PutAway
     {
         
     }
@@ -80,16 +80,16 @@ public class PlayerEvent
     #endregion
     #region//玩家头部
     /// <summary>
-    /// 本地玩家:尝试从头顶移除物体
+    /// 本地玩家:移除头顶物体
     /// </summary>
-    public class PlayerEvent_Local_TrySubItemOnHead
+    public class PlayerEvent_Local_ItemHead_Sub
     {
         public ItemData item;
     }
     /// <summary>
-    /// 本地玩家:尝试给头顶添加物体
+    /// 本地玩家:添加头顶物体
     /// </summary>
-    public class PlayerEvent_Local_TryAddItemOnHead
+    public class PlayerEvent_Local_ItemHead_Add
     {
         public ItemData item;
         public Action<ItemData> itemResidueBack;
@@ -97,22 +97,22 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:更改头部物体
     /// </summary>
-    public class PlayerEvent_Local_TryChangeItemOnHead
+    public class PlayerEvent_Local_ItemHead_Change
     {
         public ItemData oldItem;
         public ItemData newItem;
     }
     /// <summary>
-    /// 替换背包物体到头上
+    /// 本地玩家:切换头部物体
     /// </summary>
-    public class PlayerEvent_Local_TrySwitchItemBetweenHeadAndBag
+    public class PlayerEvent_Local_ItemHead_Switch
     {
         public int index;
     }
     /// <summary>
     /// 本地玩家:收起头部物体
     /// </summary>
-    public class PlayerEvent_Local_TryPutAwayItemOnHead
+    public class PlayerEvent_Local_ItemHead_PutAway
     {
 
     }
@@ -120,16 +120,16 @@ public class PlayerEvent
     #endregion
     #region//玩家身体
     /// <summary>
-    /// 本地玩家:尝试从身体移除物体
+    /// 本地玩家:移除身体物体
     /// </summary>
-    public class PlayerEvent_Local_TrySubItemOnBody
+    public class PlayerEvent_Local_ItemBody_Sub
     {
         public ItemData item;
     }
     /// <summary>
-    /// 本地玩家:尝试给身体添加物体
+    /// 本地玩家:添加身体物体
     /// </summary>
-    public class PlayerEvent_Local_TryAddItemOnBody
+    public class PlayerEvent_Local_ItemBody_Add
     {
         public ItemData item;
         public Action<ItemData> itemResidueBack;
@@ -137,27 +137,106 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:更改身体物体
     /// </summary>
-    public class PlayerEvent_Local_TryChangeItemOnBody
+    public class PlayerEvent_Local_ItemBody_Change
     {
         public ItemData oldItem;
         public ItemData newItem;
     }
     /// <summary>
-    /// 替换背包物体到身体
+    /// 本地玩家:替换身体物体
     /// </summary>
-    public class PlayerEvent_Local_TrySwitchItemBetweenBodyAndBag
+    public class PlayerEvent_Local_ItemBody_Switch
     {
         public int index;
     }
     /// <summary>
     /// 本地玩家:收起身体物体
     /// </summary>
-    public class PlayerEvent_Local_TryPutAwayItemOnBody
+    public class PlayerEvent_Local_ItemBody_PutAway
     {
 
     }
     #endregion
+    #region//玩家饰品
+    /// <summary>
+    /// 本地玩家:移除饰品
+    /// </summary>
+    public class PlayerEvent_Local_ItemAccessory_Sub
+    {
+        public ItemData item;
+    }
+    /// <summary>
+    /// 本地玩家:添加饰品
+    /// </summary>
+    public class PlayerEvent_Local_ItemAccessory_Add
+    {
+        public ItemData item;
+        public Action<ItemData> itemResidueBack;
+    }
+    /// <summary>
+    /// 本地玩家:更改饰品
+    /// </summary>
+    public class PlayerEvent_Local_ItemAccessory_Change
+    {
+        public ItemData oldItem;
+        public ItemData newItem;
+    }
+    /// <summary>
+    /// 本地玩家:替换饰品
+    /// </summary>
+    public class PlayerEvent_Local_ItemAccessory_Switch
+    {
+        public int index;
+    }
+    /// <summary>
+    /// 本地玩家:收起饰品
+    /// </summary>
+    public class PlayerEvent_Local_ItemAccessory_PutAway
+    {
 
+    }
+
+    #endregion
+    #region//玩家耗材
+    /// <summary>
+    /// 本地玩家:移除耗材
+    /// </summary>
+    public class PlayerEvent_Local_ItemConsumables_Sub
+    {
+        public ItemData item;
+    }
+    /// <summary>
+    /// 本地玩家:添加耗材
+    /// </summary>
+    public class PlayerEvent_Local_ItemConsumables_Add
+    {
+        public ItemData item;
+        public Action<ItemData> itemResidueBack;
+    }
+    /// <summary>
+    /// 本地玩家:更改耗材
+    /// </summary>
+    public class PlayerEvent_Local_ItemConsumables_Change
+    {
+        public ItemData oldItem;
+        public ItemData newItem;
+    }
+    /// <summary>
+    /// 本地玩家:替换耗材
+    /// </summary>
+    public class PlayerEvent_Local_ItemConsumables_Switch
+    {
+        public int index;
+    }
+    /// <summary>
+    /// 本地玩家:收起耗材
+    /// </summary>
+    public class PlayerEvent_Local_ItemConsumables_PutAway
+    {
+
+    }
+
+    #endregion
 
 
 

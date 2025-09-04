@@ -43,7 +43,7 @@ public class TileUI_Dictionary : TileUI
     #region//更改原料
     public void CheckPutIn(ItemData itemData, ItemPath path)
     {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
         {
             itemData = itemData,
         });

@@ -5,7 +5,7 @@ using System.Text;
 using UniRx;
 using UnityEngine;
 
-public class BuildingObj_Home_ZombieHook : BuildingObj
+public class BuildingObj_Home_ZombieHook : BuildingObj_Manmade
 {
     public GameObject obj_SingalFUI;
     public GameObject obj_SingalAwakeUI;
@@ -30,7 +30,6 @@ public class BuildingObj_Home_ZombieHook : BuildingObj
         All_UpdateTime(MapManager.Instance.mapNetManager.Day * 10 + MapManager.Instance.mapNetManager.Hour);
         base.Start();
     }
-
     #region//信息更新与上传
     public override void All_UpdateInfo(string info)
     {

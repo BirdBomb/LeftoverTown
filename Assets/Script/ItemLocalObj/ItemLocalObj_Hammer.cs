@@ -3,8 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+/// <summary>
+/// ´¸×Ó
+/// </summary>
 
-public class ItemLocalObj_Dagger : ItemLocalObj
+public class ItemLocalObj_Hammer : ItemLocalObj
 {
     [SerializeField]
     private Animator animator;
@@ -12,34 +15,28 @@ public class ItemLocalObj_Dagger : ItemLocalObj
     private SpriteRenderer spriteRenderer_Hand;
     [SerializeField]
     private SkillIndicators skillIndicators;
-
-    private int PiercingDamage;
+    private int StructureDamage;
+    private int BludgeoningDamage;
     private float AttackSpeed;
-    private float AttackExpend;
+    private float AttackDistance;
+    private float AttackRange = 10;
+    private float AttackAbrasion;
     private float AttackAbrasion_Temp;
-
-    /// <summary>
-    /// ´Á´Ì¶¯»­Ê±³¤
-    /// </summary>
     private float config_AttackDuraction = 1;
-    /// <summary>
-    /// ´Á´Ì¾àÀë
-    /// </summary>
-    private float config_AttackMaxDistance = 1;
-    /// <summary>
-    /// ´Á´Ì·¶Î§
-    /// </summary>
-    private float config_AttackMaxRange = 20;
-    /// <summary>
-    /// ´Á´ÌCD
-    /// </summary>
     private float config_AttackCD;
-    /// <summary>
-    /// ÏÂ´Î´Á´ÌÊ±¼ä
-    /// </summary>
     private float float_NextAttackTiming = 0;
 
     private InputData inputData = new InputData();
+    public void UpdateHammerData(int structureDamage, int bludgeoningdamage, float speed, float distance, float expend, ItemQuality itemQuality)
+    {
+        StructureDamage = structureDamage;
+        BludgeoningDamage = bludgeoningdamage;
+        AttackSpeed = speed;
+        AttackDistance = distance;
+        AttackAbrasion = expend;
+
+        config_AttackCD = config_AttackDuraction / AttackSpeed;
+    }
     private void FixedUpdate()
     {
         if (inputData.leftPressTimer == 0 && float_NextAttackTiming > 0)
@@ -47,7 +44,6 @@ public class ItemLocalObj_Dagger : ItemLocalObj
             float_NextAttackTiming -= Time.fixedDeltaTime;
         }
     }
-
     public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
         actorManager = owner;
@@ -58,24 +54,16 @@ public class ItemLocalObj_Dagger : ItemLocalObj
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
 
-
         spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingStart(owner, body);
-    }
-    public void UpdateDaggerData(int attackDamage,float attackSpeed,float attackExpend,ItemQuality itemQuality)
-    {
-        PiercingDamage = attackDamage;
-        AttackSpeed = attackSpeed;
-        AttackExpend = attackExpend;
-        config_AttackCD = config_AttackDuraction / AttackSpeed;
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
         if (inputData.leftPressTimer >= float_NextAttackTiming)
         {
             float_NextAttackTiming += config_AttackCD + 0.1f;
-            animator.SetTrigger("Stab");
+            animator.SetTrigger("Bludgeoning");
             animator.speed = AttackSpeed;
         }
         inputData.leftPressTimer = time;
@@ -96,28 +84,36 @@ public class ItemLocalObj_Dagger : ItemLocalObj
         if (actorManager.actorAuthority.isLocal && actorManager.actorAuthority.isPlayer)
         {
             float alpht = (float_NextAttackTiming - inputData.leftPressTimer) / config_AttackCD;
-            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, config_AttackMaxDistance, config_AttackMaxRange, alpht);
+            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, AttackDistance, AttackRange, alpht);
         }
         base.UpdateMousePos(mouse);
     }
-    public void Stab()
+    public void Bludgeoning()
     {
         if (actorManager.actorAuthority.isLocal)
         {
             float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
-            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_AttackMaxDistance, config_AttackMaxRange, out Collider2D[] colliders);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, AttackRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
             {
-                if (colliders[i].tag.Equals("Actor"))
+                if (colliders[i].tag.Equals("TileObj"))
+                {
+                    if (colliders[i].TryGetComponent(out BuildingObj building))
+                    {
+                        building.Local_TakeDamage(1, DamageState.AttackStructureDamage, actorManager.actorNetManager);
+                        temp = AttackAbrasion;
+                    }
+                }
+                else if (colliders[i].tag.Equals("Actor"))
                 {
                     if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
                         if (actor == actorManager) { continue; }
                         else
                         {
-                            actor.AllClient_Listen_TakeDamage(PiercingDamage, DamageState.AttackPiercingDamage, actorManager.actorNetManager);
-                            temp = AttackExpend;
+                            actor.AllClient_Listen_TakeDamage(BludgeoningDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
+                            temp = AttackAbrasion;
                         }
                     }
                 }

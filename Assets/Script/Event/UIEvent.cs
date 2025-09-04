@@ -38,21 +38,35 @@ public static class UIEvent
     /// <summary>
     /// UI-更新持有物体
     /// </summary>
-    public class UIEvent_UpdateItemInHand
+    public class UIEvent_ItemHand_Update
     {
         public ItemData itemData;
     }
     /// <summary>
     /// UI-更新头顶物体
     /// </summary>
-    public class UIEvent_UpdateItemOnHead
+    public class UIEvent_ItemHead_Update
     {
         public ItemData itemData;
     }
     /// <summary>
     /// UI-更新身体物体
     /// </summary>
-    public class UIEvent_UpdateItemOnBody
+    public class UIEvent_ItemBody_Update
+    {
+        public ItemData itemData;
+    }
+    /// <summary>
+    /// UI-更新饰品物体
+    /// </summary>
+    public class UIEvent_ItemAccessory_Update
+    {
+        public ItemData itemData;
+    }
+    /// <summary>
+    /// UI-更新耗材物体
+    /// </summary>
+    public class UIEvent_ItemConsumables_Update
     {
         public ItemData itemData;
     }

@@ -349,7 +349,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     private bool CheckRaw(List<ItemRaw> raws)
     {
         bool temp = true;
-        List<ItemData> data = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
+        List<ItemData> data = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < raws.Count; i++)
         {
             int itemCount = 0;
@@ -375,7 +375,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     {
         for (int i = 0; i < raws.Count; i++)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryExpendItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Expend()
             {
                 itemID = raws[i].ID,
                 itemCount = raws[i].Count,

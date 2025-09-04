@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Text;
 using UnityEngine;
 
-public class BuildingObj_Box : BuildingObj
+public class BuildingObj_Box : BuildingObj_Manmade
 {
     public GameObject obj_SingalUI; 
     public GameObject obj_SingalAwakeUI;

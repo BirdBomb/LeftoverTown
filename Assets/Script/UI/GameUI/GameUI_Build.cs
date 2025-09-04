@@ -51,7 +51,7 @@ public class GameUI_Build : MonoBehaviour
             //DrawBuildingRaw(new BuildingConfig(), 0);
             //DrawBuildingRaw(new GroundConfig(), 0);
         }
-        if (Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             if(tran_Panel.gameObject.activeSelf)
             {
@@ -397,7 +397,7 @@ public class GameUI_Build : MonoBehaviour
         List<ItemData> itemDatas;
         if (GameLocalManager.Instance.playerCoreLocal != null)
         {
-            itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
+            itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         }
         else
         {
@@ -455,7 +455,7 @@ public class GameUI_Build : MonoBehaviour
     private bool CheckBuildingRaw(GroundConfig config)
     {
         bool temp = true;
-        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
+        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < config.Ground_Raw.Count; i++)
         {
             ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Ground_Raw[i].ID);

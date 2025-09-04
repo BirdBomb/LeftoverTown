@@ -80,7 +80,7 @@ public class ActorManager_NPC : ActorManager
     public virtual ItemData State_FindItemInBag(Func<ItemConfig, bool> function)
     {
         ItemData item = new ItemData(0);
-        List<ItemData> items = actorNetManager.Local_GetBagItem();
+        List<ItemData> items = actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < items.Count; i++)
         {
             if (function.Invoke(ItemConfigData.GetItemConfig(items[i].Item_ID)))
@@ -102,7 +102,7 @@ public class ActorManager_NPC : ActorManager
         }
         else
         {
-            List<ItemData> items = actorNetManager.Local_GetBagItem();
+            List<ItemData> items = actorNetManager.Local_ItemBag_Get();
             for (int i = 0; i < items.Count; i++)
             {
                 if (function.Invoke(ItemConfigData.GetItemConfig(items[i].Item_ID)))
@@ -110,8 +110,8 @@ public class ActorManager_NPC : ActorManager
                     int index = i;
                     ItemData itemData_Old = items[i];
                     ItemData itemData_New = new ItemData(); 
-                    actorNetManager.OnlyState_AddItemOnHand(itemData_Old);
-                    actorNetManager.Local_ChangeItemInBag(index, itemData_New);
+                    actorNetManager.OnlyState_ItemHand_Add(itemData_Old);
+                    actorNetManager.Local_ItemBag_Change(index, itemData_New);
                     return;
                 }
             }
@@ -123,7 +123,7 @@ public class ActorManager_NPC : ActorManager
     public virtual void State_PutDownHand()
     {
         ItemData itemNew = new ItemData(0);
-        actorNetManager.OnlyState_AddItemOnHand(itemNew);
+        actorNetManager.OnlyState_ItemHand_Add(itemNew);
     }
     /// <summary>
     /// 发送消息(服务器)
@@ -191,7 +191,7 @@ public class ActorManager_NPC : ActorManager
             ItemData item = itemManager.CreateItemData(config.bagInfos_Base[i].ID, (short)count);
             itemDatas.Add(item);
         }
-        actorNetManager.Local_SetBagItem(itemDatas);
+        actorNetManager.Local_ItemBag_Set(itemDatas);
     }
     /// <summary>
     /// 刷新掉落

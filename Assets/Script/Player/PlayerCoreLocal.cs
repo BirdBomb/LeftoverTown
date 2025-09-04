@@ -1,9 +1,7 @@
 using Fusion;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UniRx;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerCoreLocal : MonoBehaviour
@@ -24,153 +22,236 @@ public class PlayerCoreLocal : MonoBehaviour
             }
         }).AddTo(this);
         #region//背包物体
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemInBag>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemBag_Add>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.Local_AddItemInBag(_.index, _.itemData);
+                actorManager_Bind.actorNetManager.Local_ItemBag_Add(_.index, _.itemData);
                 Debug.Log(_.itemData.Item_ID);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryExpendItemInBag>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemBag_Expend>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.Local_ExpendItemInBag(_.itemID, _.itemCount);
+                actorManager_Bind.actorNetManager.Local_ItemBag_Expend(_.itemID, _.itemCount);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemInBag>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemBag_Change>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.Local_ChangeItemInBag(_.index,_.itemData);
+                actorManager_Bind.actorNetManager.Local_ItemBag_Change(_.index,_.itemData);
                 Local_SaveActorData();
             }
         }).AddTo(this);
 
         #endregion
         #region//手部物体
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnHand>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemHand_Add>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnHand(_.item);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHand_Add(_.item);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TrySubItemOnHand>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemHand_Sub>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_SubItemOnHand(_.item);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHand_Sub(_.item);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemHand_Change>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeItemOnHand(_.oldItem, _.newItem);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHand_Change(_.oldItem, _.newItem);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TrySwitchItemBetweenHandAndBag>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemHand_Switch>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actionManager.SwitchHandAndBag(_.index);
+                actorManager_Bind.actionManager.ItemHand_Switch(_.index);
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryPutAwayItemOnHand>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemHand_PutAway>().Subscribe(_ =>
         {
             if (bool_Local)
             {
                 ItemData itemNew = new ItemData(0);
-                actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnHand(itemNew);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHand_Add(itemNew);
             }
         }).AddTo(this);
         #endregion
         #region//头部物体
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnHead>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemHead_Add>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnHead(_.item);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHead_Add(_.item);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TrySubItemOnHead>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemHead_Sub>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_SubItemOnHead(_.item);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHead_Sub(_.item);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemOnHead>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemHead_Change>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeItemOnHead(_.oldItem, _.newItem);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHead_Change(_.oldItem, _.newItem);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TrySwitchItemBetweenHeadAndBag>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemHead_Switch>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actionManager.SwitchHeadAndBag(_.index);
+                actorManager_Bind.actionManager.ItemHead_Switch(_.index);
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryPutAwayItemOnHead>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemHead_PutAway>().Subscribe(_ =>
         {
             if (bool_Local)
             {
                 ItemData itemNew = new ItemData(0);
-                actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnHead(itemNew);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHead_Add(itemNew);
             }
         }).AddTo(this);
         #endregion
         #region//身体物体
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryAddItemOnBody>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemBody_Add>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnBody(_.item);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemBody_Add(_.item);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TrySubItemOnBody>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemBody_Sub>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_SubItemOnBody(_.item);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemBody_Sub(_.item);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryChangeItemOnBody>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemBody_Change>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_ChangeItemOnBody(_.oldItem, _.newItem);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemBody_Change(_.oldItem, _.newItem);
                 Local_SaveActorData();
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TrySwitchItemBetweenBodyAndBag>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemBody_Switch>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actionManager.SwitchBodyAndBag(_.index);
+                actorManager_Bind.actionManager.ItemBody_Switch(_.index);
             }
         }).AddTo(this);
-        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryPutAwayItemOnBody>().Subscribe(_ =>
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemBody_PutAway>().Subscribe(_ =>
         {
             if (bool_Local)
             {
                 ItemData itemNew = new ItemData(0);
-                actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnBody(itemNew);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemBody_Add(itemNew);
+            }
+        }).AddTo(this);
+        #endregion
+        #region//饰品物体
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemAccessory_Add>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemAccessory_Add(_.item);
+                Local_SaveActorData();
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemAccessory_Sub>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemAccessory_Sub(_.item);
+                Local_SaveActorData();
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemAccessory_Change>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemAccessory_Change(_.oldItem, _.newItem);
+                Local_SaveActorData();
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemAccessory_Switch>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actionManager.ItemAccessory_Switch(_.index);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemAccessory_PutAway>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                ItemData itemNew = new ItemData(0);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemAccessory_Add(itemNew);
+            }
+        }).AddTo(this);
+
+        #endregion
+        #region//耗材物体
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemConsumables_Add>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemConsumables_Add(_.item);
+                Local_SaveActorData();
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemConsumables_Sub>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemConsumables_Sub(_.item);
+                Local_SaveActorData();
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemConsumables_Change>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemConsumables_Change(_.oldItem, _.newItem);
+                Local_SaveActorData();
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemConsumables_Switch>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actionManager.ItemConsumables_Switch(_.index);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ItemConsumables_PutAway>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                ItemData itemNew = new ItemData(0);
+                actorManager_Bind.actorNetManager.RPC_LocalInput_ItemConsumables_Add(itemNew);
             }
         }).AddTo(this);
         #endregion
@@ -184,6 +265,7 @@ public class PlayerCoreLocal : MonoBehaviour
                 MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SpawnItem()
                 {
                     itemData = _.item,
+                    itemOwner = actorManager_Bind.actorNetManager.Object.Id,
                     pos = actorManager_Bind.transform.position - new Vector3(0, 0.1f, 0),
                 });
             }
@@ -267,24 +349,28 @@ public class PlayerCoreLocal : MonoBehaviour
         if (playerData_Local != null)
         {
             Debug.Log("--玩家信息获取成功--" + playerCoreNet.Object.InputAuthority);
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < actorManager_Bind.actorNetManager.Local_BagCapacity; i++)
             {
                 if(i < playerData_Local.BagItems.Count)
                 {
-                    actorManager_Bind.actorNetManager.Local_ChangeItemInBag(i, playerData_Local.BagItems[i]);
+                    actorManager_Bind.actorNetManager.Local_ItemBag_Change(i, playerData_Local.BagItems[i]);
                 }
                 else
                 {
-                    actorManager_Bind.actorNetManager.Local_ChangeItemInBag(i, new ItemData());
+                    actorManager_Bind.actorNetManager.Local_ItemBag_Change(i, new ItemData());
                 }
             }
             actorManager_Bind.actorNetManager.Local_SetBuffList(playerData_Local.BuffList);
             //Debug.Log("--初始化玩家手部");
-            actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnHand(playerData_Local.HandItem);
+            actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHand_Add(playerData_Local.HandItem);
             //Debug.Log("--初始化玩家头部");
-            actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnHead(playerData_Local.HeadItem);
+            actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHead_Add(playerData_Local.HeadItem);
             //Debug.Log("--初始化玩家身体");
-            actorManager_Bind.actorNetManager.RPC_LocalInput_AddItemOnBody(playerData_Local.BodyItem);
+            actorManager_Bind.actorNetManager.RPC_LocalInput_ItemBody_Add(playerData_Local.BodyItem);
+            //Debug.Log("--初始化玩家身体");
+            actorManager_Bind.actorNetManager.RPC_LocalInput_ItemAccessory_Add(playerData_Local.ItemAccessory);
+            //Debug.Log("--初始化玩家耗材");
+            actorManager_Bind.actorNetManager.RPC_LocalInput_ItemConsumables_Add(playerData_Local.ItemConsumables);
             //Debug.Log("--初始化玩家数据");
             actorManager_Bind.actorNetManager.RPC_LocalInput_InitPlayerCommonData(Local_CreatePlayerNetData(playerData_Local), playerData_Local.Name);
             Debug.Log("--初始化玩家位置");
@@ -301,10 +387,10 @@ public class PlayerCoreLocal : MonoBehaviour
     /// </summary>
     public void Local_SaveActorData()
     {
-        playerData_Local.HandItem = actorManager_Bind.actorNetManager.Net_ItemInHand;
-        playerData_Local.HeadItem = actorManager_Bind.actorNetManager.Net_ItemOnHead;
-        playerData_Local.BodyItem = actorManager_Bind.actorNetManager.Net_ItemOnBody;
-        playerData_Local.BagItems = actorManager_Bind.actorNetManager.Local_GetBagItem();
+        playerData_Local.HandItem = actorManager_Bind.actorNetManager.Net_ItemHand;
+        playerData_Local.HeadItem = actorManager_Bind.actorNetManager.Net_ItemHead;
+        playerData_Local.BodyItem = actorManager_Bind.actorNetManager.Net_ItemBody;
+        playerData_Local.BagItems = actorManager_Bind.actorNetManager.Local_ItemBag_Get();
 
         playerData_Local.Hp_Cur = actorManager_Bind.actorNetManager.Net_HpCur;
         playerData_Local.Hp_Max = actorManager_Bind.actorNetManager.Local_HpMax;

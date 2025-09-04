@@ -32,11 +32,11 @@ public class ItemLocalObj_Torch : ItemLocalObj
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingStart(owner, body);
     }
-    public void UpdateTorchData(float lightRange,float lightSpeed,ItemQuality itemQuality)
+    public void UpdateTorchData(float lightRange,float expendSpeed,ItemQuality itemQuality)
     {
         light2D.pointLightOuterRadius = lightRange;
-        if (lightSpeed <= 0) { config_BurnTimer = int.MaxValue; }
-        else { config_BurnTimer = 1f / lightSpeed; }
+        if (expendSpeed <= 0) { config_BurnTimer = int.MaxValue; }
+        else { config_BurnTimer = 1f / expendSpeed; }
     }
     private void FixedUpdate()
     {
@@ -90,7 +90,7 @@ public class ItemLocalObj_Torch : ItemLocalObj
             ItemData _newItem = itemData;
             if (_newItem.Item_Durability + val <= 0)
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
                 {
                     item = itemData,
                 });
@@ -98,7 +98,7 @@ public class ItemLocalObj_Torch : ItemLocalObj
             else
             {
                 _newItem.Item_Durability += val;
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
                 {
                     oldItem = _oldItem,
                     newItem = _newItem,

@@ -62,14 +62,14 @@ public class TileUI_Blender : TileUI
             else if (addData.Item_ID == buildingObj_Bind.itemData_From.Item_ID)
             {
                 buildingObj_Bind.itemData_From = GameToolManager.Instance.CombineItem(buildingObj_Bind.itemData_From, addData, out ItemData res);
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = res,
                 });
             }
             else
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = addData,
                 });
@@ -77,7 +77,7 @@ public class TileUI_Blender : TileUI
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
             });
@@ -92,7 +92,7 @@ public class TileUI_Blender : TileUI
     }
     public void ToPutIn(ItemData addData, ItemPath path)
     {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
         {
             itemData = addData,
         });

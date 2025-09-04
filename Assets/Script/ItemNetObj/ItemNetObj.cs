@@ -1,16 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Fusion;
-using UnityEngine.U2D;
-using DG.Tweening;
-using UnityEngine.UI;
-using UnityEngine.Rendering;
-using System.Globalization;
 using System;
-using Unity.VisualScripting;
-using static UnityEngine.GraphicsBuffer;
-
+using UnityEngine;
+using System.Collections;
 public class ItemNetObj : NetworkBehaviour
 {
     [Header("物品节点")]
@@ -21,6 +12,8 @@ public class ItemNetObj : NetworkBehaviour
     public TextMesh textMesh_Count;
     [Networked, OnChangedRender(nameof(UpdateItem)), HideInInspector]
     public ItemData data { get; set; } = new ItemData();
+    [Networked]
+    public NetworkId owner { get; set; } = new NetworkId();
     private ItemBase _bindItem;
     private float radiu_Combine = 2;
     public override void Spawned()
@@ -50,7 +43,41 @@ public class ItemNetObj : NetworkBehaviour
         _bindItem.NetObj_Draw(this, data);
         _bindItem.NetObj_PlayDrop(this);
     }
-    public virtual void CombineItem()
+    /// <summary>
+    /// 服务器_初始化
+    /// </summary>
+    public virtual void State_Init(ItemData itemData)
+    {
+        data = itemData;
+    }
+    /// <summary>
+    /// 服务器_绑定所有者
+    /// </summary>
+    public virtual void State_BindOwner(NetworkId networkId)
+    {
+        owner = networkId;
+    }
+    /// <summary>
+    /// 服务器_解除所有者
+    /// </summary>
+    public IEnumerator State_RemoveOwner()
+    {
+        yield return new WaitForSeconds(0.5f);
+        owner = new NetworkId();
+    }
+    /// <summary>
+    /// 服务器_捡起
+    /// </summary>
+    /// <param name="itemData"></param>
+    public virtual void State_PickUp(NetworkId networkId, out ItemData itemData)
+    {
+        itemData = data;
+        Runner.Despawn(Object);
+    }
+    /// <summary>
+    /// 服务器_合并
+    /// </summary>
+    public virtual void State_CombineItem()
     {
         if (Object.HasStateAuthority)
         {
@@ -64,7 +91,7 @@ public class ItemNetObj : NetworkBehaviour
                     {
                         Debug.Log(obj);
                         obj.data = GameToolManager.Instance.CombineItem(obj.data, data, out ItemData itemData_Res);
-                        if(itemData_Res.Item_Count == 0 || itemData_Res.Item_ID == 0)
+                        if (itemData_Res.Item_Count == 0 || itemData_Res.Item_ID == 0)
                         {
                             Runner.Despawn(Object);
                         }
@@ -77,29 +104,6 @@ public class ItemNetObj : NetworkBehaviour
                 }
             }
 
-        }
-    }
-    /// <summary>
-    /// 主机_捡起
-    /// </summary>
-    /// <param name="itemData"></param>
-    public virtual void State_PickUp(NetworkId networkId, out ItemData itemData)
-    {
-        itemData = data;
-        RPC_Local_PlayPickUp(networkId);
-    }
-    /// <summary>
-    /// 客户端_播放捡起动画
-    /// </summary>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    public virtual void RPC_Local_PlayPickUp(NetworkId networkId)
-    {
-        GameObject itemObj = PoolManager.Instance.GetObject("Effect/Effect_ItemObj");
-        itemObj.GetComponent<Effect_ItemObj>().DrawSpriter(spriteRenderer_Icon.sprite);
-        itemObj.transform.position = transform.position;
-        if (Object.HasStateAuthority)
-        {
-            Runner.Despawn(Object);
         }
     }
 }

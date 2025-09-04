@@ -117,7 +117,7 @@ public class ItemLocalObj_Broadsword : ItemLocalObj
                         if (actor == actorManager) { continue; }
                         else
                         {
-                            actor.AllClient_Listen_TakeAttackDamage(AttackDamage, actorManager.actorNetManager);
+                            actor.AllClient_Listen_TakeDamage(AttackDamage, DamageState.AttackSlashingDamage, actorManager.actorNetManager);
                             temp = AttackExpend;
                         }
                     }
@@ -143,7 +143,7 @@ public class ItemLocalObj_Broadsword : ItemLocalObj
                 ItemData _newItem = itemData;
                 if (_newItem.Item_Durability - offset <= 0)
                 {
-                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
                     {
                         item = itemData,
                     });
@@ -151,7 +151,7 @@ public class ItemLocalObj_Broadsword : ItemLocalObj
                 else
                 {
                     _newItem.Item_Durability -= (sbyte)offset;
-                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
                     {
                         oldItem = _oldItem,
                         newItem = _newItem,

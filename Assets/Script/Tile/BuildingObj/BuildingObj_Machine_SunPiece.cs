@@ -5,7 +5,7 @@ using System.Text;
 using UniRx;
 using UnityEngine;
 
-public class BuildingObj_SunPiece : BuildingObj
+public class BuildingObj_SunPiece : BuildingObj_Manmade
 {
     public GameObject obj_SingalFUI;
     public GameObject obj_SingalAwakeUI;

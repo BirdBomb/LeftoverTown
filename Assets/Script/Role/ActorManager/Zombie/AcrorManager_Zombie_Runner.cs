@@ -1,9 +1,8 @@
 using Fusion;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UniRx;
 using System;
+using System.Collections.Generic;
+using UniRx;
+using UnityEngine;
 
 public class AcrorManager_Zombie_Runner : ActorManager
 {
@@ -404,7 +403,7 @@ public class AcrorManager_Zombie_Runner : ActorManager
                         {
                             if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                             {
-                                actorManager.AllClient_Listen_TakeAttackDamage(5, actorNetManager);
+                                actorManager.AllClient_Listen_TakeDamage(config.int_HackDamage, DamageState.AttackSlashingDamage, actorNetManager);
                             }
                         }
                     }
@@ -426,7 +425,7 @@ public class AcrorManager_Zombie_Runner : ActorManager
                         {
                             if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                             {
-                                actorManager.AllClient_Listen_TakeAttackDamage(5, actorNetManager);
+                                actorManager.AllClient_Listen_TakeDamage(config.int_HackDamage, DamageState.AttackSlashingDamage, actorNetManager);
                             }
                         }
                     }
@@ -471,7 +470,7 @@ public class AcrorManager_Zombie_Runner : ActorManager
                             {
                                 if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                                 {
-                                    actorManager.AllClient_Listen_TakeAttackDamage(5, actorNetManager);
+                                    actorManager.AllClient_Listen_TakeDamage(config.int_JumpDamage, DamageState.AttackSlashingDamage, actorNetManager);
                                 }
                             }
                         }
@@ -509,6 +508,10 @@ public struct ActorConfig_ZombieRunner
     public float float_MinJumpDistance;
     [Header("准备跳跃的最大距离"), Range(0, 25)]
     public float float_MaxJumpDistance;
+    [Header("跳跃伤害")]
+    public int int_JumpDamage;
+    [Header("劈砍伤害")]
+    public int int_HackDamage;
     [Header("视野距离"), Range(1, 99)]
     public float float_ViewDistance;
     [Header("基本掉落列表")]

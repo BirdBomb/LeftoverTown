@@ -437,7 +437,7 @@ public class ActorManager_Zombie_Hook : ActorManager
                         {
                             if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                             {
-                                actorManager.AllClient_Listen_TakeAttackDamage(config.int_PunchDamage, actorNetManager);
+                                actorManager.AllClient_Listen_TakeDamage(config.int_PunchDamage, DamageState.AttackBludgeoningDamage, actorNetManager);
                             }
                         }
                     }
@@ -486,7 +486,7 @@ public class ActorManager_Zombie_Hook : ActorManager
                             {
                                 if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                                 {
-                                    actorManager.AllClient_Listen_TakeAttackDamage(5, actorNetManager);
+                                    actorManager.AllClient_Listen_TakeDamage(config.int_JumpDamage, DamageState.AttackBludgeoningDamage, actorNetManager);
                                 }
                             }
                         }
@@ -527,6 +527,8 @@ public struct ActorConfig_ZombieHook
     public float float_PunchDistance;
     [Header("»≠ª˜…À∫¶")]
     public int int_PunchDamage;
+    [Header("Ã¯‘æπ•ª˜…À∫¶")]
+    public int int_JumpDamage;
     [Header(" ”“∞æ‡¿Î"), Range(1, 99)]
     public float float_ViewDistance;
     [Header("ª˘±æµÙ¬‰¡–±Ì")]

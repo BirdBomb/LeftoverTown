@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingObj_Wall : BuildingObj
+public class BuildingObj_Wall : BuildingObj_Manmade
 {
     public Sprite[] sprite;
     public SpriteRenderer spriteRenderer;

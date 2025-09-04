@@ -75,7 +75,7 @@ public class TileUI_BoxFreeze : TileUI
         GameToolManager.Instance.PutInItemList(buildingObj_Bind.itemDatas_List, addData, path.itemIndex, gridCells_List.Count, out ItemData resData);
         if (resData.Item_ID > 0 && resData.Item_Count != 0)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
             });

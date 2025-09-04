@@ -2301,7 +2301,8 @@ public class MapCreate_ConfigBuilding
         await Task.Yield();
         bind_MapCreater.text_Waiting.text = "ÕýÔÚ¶¨¾Ó";
         MapModConfig mapConfig_200 = MapModConfigData.GetMapModConfig(200);
-        CreateMapMod(new Vector2Int(0, -(int)(bind_MapCreater.config_Map.map_Size * 0.1f)), mapConfig_200);
+        CreateMapMod(new Vector2Int(0, -(int)25), mapConfig_200);
+        //CreateMapMod(new Vector2Int(0, -(int)(bind_MapCreater.config_Map.map_Size * 0.1f)), mapConfig_200);
     }
     private void CreateMapMod(Vector2Int center, MapModConfig mapModConfig)
     {

@@ -366,7 +366,7 @@ public class ActorManager_Zombie_Common : ActorManager
                         {
                             if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                             {
-                                actorManager.AllClient_Listen_TakeAttackDamage(5, actorNetManager);
+                                actorManager.AllClient_Listen_TakeDamage(config.int_BiteDamage, DamageState.AttackSlashingDamage, actorNetManager);
                             }
                         }
                     }
@@ -400,6 +400,8 @@ public struct ActorConfig_ZombieCommon
     public float float_BiteDistance;
     [Header("视野距离"), Range(1, 99)]
     public float float_ViewDistance;
+    [Header("啃咬伤害")]
+    public int int_BiteDamage;
     [Header("基本掉落列表")]
     public List<BaseLootInfo> lootInfos_Base;
     [Header("额外掉落列表")]

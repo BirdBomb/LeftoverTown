@@ -1,11 +1,8 @@
 using Fusion;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UniRx;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class ActorActionManager 
 {
@@ -36,7 +33,7 @@ public class ActorActionManager
         {
             if (item.gameObject.transform.parent.TryGetComponent(out ItemNetObj obj))
             {
-                actorManager.actorNetManager.RPC_LocalInput_PickItem(obj.Object.Id);
+                actorManager.actorNetManager.RPC_LocalInput_PickItemManual(obj.Object.Id);
                 break;
             }
         }
@@ -44,18 +41,18 @@ public class ActorActionManager
     /// <summary>
     /// 快速持握
     /// </summary>
-    public void SwitchHandAndBag(int index)
+    public void ItemHand_Switch(int index)
     {
-        List<ItemData> items = actorManager.actorNetManager.Local_GetBagItem();
+        List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
         index = index % items.Count;
         ItemData oldBagItem = items[index];
-        ItemData oldHandItem = actorManager.actorNetManager.Net_ItemInHand;
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        ItemData oldHandItem = actorManager.actorNetManager.Net_ItemHand;
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
         {
             index = index,
             itemData = oldHandItem,
         });
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
         {
             oldItem = oldHandItem,
             newItem = oldBagItem,
@@ -65,20 +62,20 @@ public class ActorActionManager
     /// 快速穿戴
     /// </summary>
     /// <param name="index"></param>
-    public void SwitchHeadAndBag(int index)
+    public void ItemHead_Switch(int index)
     {
-        List<ItemData> items = actorManager.actorNetManager.Local_GetBagItem();
+        List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
         index = index % items.Count;
         ItemData oldBagItem = items[index];
-        ItemData oldHandItem = actorManager.actorNetManager.Net_ItemOnHead;
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        ItemData oldHeadItem = actorManager.actorNetManager.Net_ItemHead;
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
         {
             index = index,
-            itemData = oldHandItem,
+            itemData = oldHeadItem,
         });
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHead()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHead_Change()
         {
-            oldItem = oldHandItem,
+            oldItem = oldHeadItem,
             newItem = oldBagItem,
         });
     }
@@ -86,20 +83,60 @@ public class ActorActionManager
     /// 快速穿戴
     /// </summary>
     /// <param name="index"></param>
-    public void SwitchBodyAndBag(int index) 
+    public void ItemBody_Switch(int index) 
     {
-        List<ItemData> items = actorManager.actorNetManager.Local_GetBagItem();
+        List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
         index = index % items.Count;
         ItemData oldBagItem = items[index];
-        ItemData oldBodyItem = actorManager.actorNetManager.Net_ItemOnBody;
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        ItemData oldBodyItem = actorManager.actorNetManager.Net_ItemBody;
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
         {
             index = index,
             itemData = oldBodyItem,
         });
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnBody()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBody_Change()
         {
             oldItem = oldBodyItem,
+            newItem = oldBagItem,
+        });
+    }
+    /// <summary>
+    /// 快速替换饰品
+    /// </summary>
+    public void ItemAccessory_Switch(int index)
+    {
+        List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
+        index = index % items.Count;
+        ItemData oldBagItem = items[index];
+        ItemData oldConsumablesItem = actorManager.actorNetManager.Net_ItemConsumables;
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
+        {
+            index = index,
+            itemData = oldConsumablesItem,
+        });
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemAccessory_Change()
+        {
+            oldItem = oldConsumablesItem,
+            newItem = oldBagItem,
+        });
+    }
+    /// <summary>
+    /// 快速替换耗材
+    /// </summary>
+    public void ItemConsumables_Switch(int index)
+    {
+        List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
+        index = index % items.Count;
+        ItemData oldBagItem = items[index];
+        ItemData oldConsumablesItem = actorManager.actorNetManager.Net_ItemConsumables;
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
+        {
+            index = index,
+            itemData = oldConsumablesItem,
+        });
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemConsumables_Change()
+        {
+            oldItem = oldConsumablesItem,
             newItem = oldBagItem,
         });
     }
@@ -109,10 +146,10 @@ public class ActorActionManager
     /// <param name="index"></param>
     public void Drop(int index)
     {
-        List<ItemData> items = actorManager.actorNetManager.Local_GetBagItem();
+        List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
         index = index % items.Count;
         ItemData dropItem = items[index];
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
         {
             index = index,
             itemData = new ItemData(),
@@ -221,6 +258,7 @@ public class ActorActionManager
             MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
             {
                 itemData = dropItem[i],
+                itemOwner = new NetworkId(),
                 pos = position + actorManager.transform.position,
             });
         }
@@ -259,8 +297,6 @@ public class ActorActionManager
             {
                 actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.AttackDamage, networkId);
             }
-            bodyController.Flash();
-            bodyController.Shake();
         }
     }
     /// <summary>
@@ -281,6 +317,70 @@ public class ActorActionManager
             {
                 actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.MagicDamage, networkId);
             }
+        }
+    }
+    /// <summary>
+    /// 伤害
+    /// </summary>
+    /// <param name="val"></param>
+    /// <param name="damageState"></param>
+    /// <param name="from"></param>
+    public void TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    {
+        if (actorManager.actorState != ActorState.Dead)
+        {
+            NetworkId networkId = new NetworkId();
+            if (from) { networkId = from.Object.Id; }
+            if (damageState == DamageState.AttackPiercingDamage)
+            {
+                val -= actorManager.actorNetManager.Net_Armor;
+                if (val > 0)
+                {
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
+                }
+                else
+                {
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.AttackDamage, networkId);
+                }
+            }
+            else if (damageState == DamageState.AttackSlashingDamage)
+            {
+                val -= actorManager.actorNetManager.Net_Armor;
+                if (val > 0)
+                {
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
+                }
+                else
+                {
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.AttackDamage, networkId);
+                }
+            }
+            else if (damageState == DamageState.AttackBludgeoningDamage)
+            {
+                val -= actorManager.actorNetManager.Net_Armor;
+                if (val > 0)
+                {
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
+                }
+                else
+                {
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.AttackDamage, networkId);
+                }
+            }
+            else if (damageState == DamageState.MagicDamage)
+            {
+                val -= actorManager.actorNetManager.Net_Resistance;
+                if (val > 0)
+                {
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.MagicDamage, networkId);
+                }
+                else
+                {
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.MagicDamage, networkId);
+                }
+            }
+            bodyController.Flash();
+            bodyController.Shake();
         }
     }
     public bool PayCoin(int coin)

@@ -5,7 +5,7 @@ using System.Text;
 using UniRx;
 using UnityEngine;
 
-public class BuildingObj_Home_Logger : BuildingObj
+public class BuildingObj_Home_Logger : BuildingObj_Manmade
 {
     private ActorManager actor_Bind = new ActorManager();
     public GameObject obj_SingalFUI;

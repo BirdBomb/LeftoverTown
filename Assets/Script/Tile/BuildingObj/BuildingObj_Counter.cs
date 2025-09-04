@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingObj_Counter : BuildingObj
+public class BuildingObj_Counter : BuildingObj_Manmade
 {
     [SerializeField]
     private SpriteRenderer spriteRenderer;

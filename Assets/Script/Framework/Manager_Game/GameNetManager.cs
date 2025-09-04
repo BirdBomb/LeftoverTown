@@ -15,11 +15,11 @@ public class GameNetManager : NetworkBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SpawnItem>().Subscribe(_ =>
         {
-            RPC_Local_SpawnItem(_.itemData, _.pos);
+            RPC_Local_SpawnItem(_.itemData, _.itemOwner, _.pos);
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_State_SpawnItem>().Subscribe(_ =>
         {
-            SpawnItem(_.itemData, _.pos);
+            SpawnItem(_.itemData, _.itemOwner, _.pos);
         }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_State_SpawnActor>().Subscribe(_ =>
         {
@@ -47,18 +47,19 @@ public class GameNetManager : NetworkBehaviour
     }
 
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_Local_SpawnItem(ItemData data, Vector3 postion)
+    public void RPC_Local_SpawnItem(ItemData data, NetworkId owner, Vector3 postion)
     {
-        SpawnItem(data, postion);
+        SpawnItem(data, owner, postion);
     }
-    private void SpawnItem(ItemData data, Vector3 postion)
+    private void SpawnItem(ItemData data, NetworkId owner, Vector3 postion)
     {
         if (Object.HasStateAuthority)
         {
             GameObject obj = Resources.Load<GameObject>("ItemObj/ItemNetObj");
             NetworkObject networkPlayerObject = Runner.Spawn(obj, postion, Quaternion.identity, Object.StateAuthority);
-            networkPlayerObject.GetComponent<ItemNetObj>().data = data;
-            networkPlayerObject.GetComponent<ItemNetObj>().CombineItem();
+            networkPlayerObject.GetComponent<ItemNetObj>().State_Init(data);
+            networkPlayerObject.GetComponent<ItemNetObj>().State_BindOwner(owner);
+            //networkPlayerObject.GetComponent<ItemNetObj>().State_CombineItem();
         }
     }
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]

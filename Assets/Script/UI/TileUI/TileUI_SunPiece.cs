@@ -99,7 +99,7 @@ public class TileUI_SunPiece : TileUI
         buildingObj_Bind.info_ItemData = GameToolManager.Instance.CombineItem(buildingObj_Bind.info_ItemData, addData, out ItemData resData);
         if (resData.Item_ID > 0 && resData.Item_Count != 0)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
             });

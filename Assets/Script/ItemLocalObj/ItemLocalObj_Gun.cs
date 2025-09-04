@@ -62,10 +62,6 @@ public class ItemLocalObj_Gun : ItemLocalObj
     /// 瞄准时间
     /// </summary>
     protected float AimTime;
-    /// <summary>
-    /// 弹容量
-    /// </summary>
-    protected int BulletCapacity;
     protected InputData inputData = new InputData();
     public void Update()
     {
@@ -74,11 +70,10 @@ public class ItemLocalObj_Gun : ItemLocalObj
             temp_NextShotPoint -= Time.deltaTime;
         }
     }
-    public void UpdateGunData(int attackDamage, int magicDamage, int bulletCapacity, float shotSpeed, float aimSpeed, int aimRangeMin, int aimRangeMax, float shotRecoil, ItemQuality itemQuality)
+    public void UpdateGunData(int attackDamage, int magicDamage, float shotSpeed, float aimSpeed, int aimRangeMin, int aimRangeMax, float shotRecoil, ItemQuality itemQuality)
     {
         AttackDamage = attackDamage;
         MagicDamage = magicDamage;
-        BulletCapacity = bulletCapacity;
         ShotCD = 60f / shotSpeed;
         AimTime = 1f / aimSpeed;
         AimRangeMin = aimRangeMin;
@@ -92,18 +87,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
         if (inputData.leftPressTimer >= temp_NextShotPoint)
         {
             TryToShot(GetAttackRange());
-            if (actorAuthority.isPlayer)
-            {
-                temp_MaxPressLeft = false;
-            }
-            else
-            {
-                if (itemData.Item_Content.Item_Count < 1)
-                {
-                    AddBullet();
-                    temp_MaxPressLeft = true;
-                }
-            }
+            temp_MaxPressLeft = false;
         }
         return temp_MaxPressLeft;
     }
@@ -163,6 +147,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
         }
     }
     #region//子弹操作
+    private List<short> bulletList = new List<short>() { 9010 };
     /// <summary>
     /// 检查子弹
     /// </summary>
@@ -171,18 +156,11 @@ public class ItemLocalObj_Gun : ItemLocalObj
     {
         if (actorManager.actorAuthority.isPlayer)
         {
-            if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
+            ItemData itemData = actorManager.actorNetManager.Net_ItemConsumables;
+            if (bulletList.Contains(itemData.Item_ID) && itemData.Item_Count > 0)
             {
-                if (itemData.Item_Content.Item_ID == 9020) 
-                { 
-                    bulletID = 9010;
-                    UseBullet(0);
-                }
-                else 
-                {
-                    bulletID = itemData.Item_Content.Item_ID;
-                    UseBullet(1); 
-                }
+                UseBullet(1);
+                bulletID = itemData.Item_ID;
                 return true;
             }
             else
@@ -193,42 +171,35 @@ public class ItemLocalObj_Gun : ItemLocalObj
         }
         else
         {
-            if (itemData.Item_Content.Item_ID == 0 || itemData.Item_Content.Item_Count == 0)
-            {
-                AddBullet();
-            }
-            bulletID = itemData.Item_Content.Item_ID;
-            UseBullet(1);
+            bulletID = bulletList[0];
             return true;
         }
-    }
-    /// <summary>
-    /// 添加子弹
-    /// </summary>
-    public virtual void AddBullet()
-    {
-        ItemData bullet = new ItemData();
-        bullet.Item_ID = 9010;
-        bullet.Item_Count = (short)(BulletCapacity / 10 + 2);
-        itemData.Item_Content = new ContentData(bullet);
     }
     /// <summary>
     /// 消耗子弹
     /// </summary>
     public virtual void UseBullet(int count)
     {
-        ItemData _oldItem = itemData;
-        ItemData _newItem = _oldItem;
-        _newItem.Item_Content.Item_Count = (short)(_newItem.Item_Content.Item_Count - count);
-        _newItem.Item_Durability--;
-        UpdateDataByLocal(_newItem);
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+            ItemData _oldItemConsumables = actorManager.actorNetManager.Net_ItemConsumables;
+            ItemData _newItemConsumables = _oldItemConsumables;
+            _newItemConsumables.Item_Count--;
+            if (_newItemConsumables.Item_Count <= 0)
             {
-                oldItem = _oldItem,
-                newItem = _newItem,
-            });
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemConsumables_Sub()
+                {
+                    item = _oldItemConsumables,
+                });
+            }
+            else
+            {
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemConsumables_Change()
+                {
+                    oldItem = _oldItemConsumables,
+                    newItem = _newItemConsumables,
+                });
+            }
         }
     }
 
@@ -250,7 +221,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
     /// <returns></returns>
     public virtual Vector3 GetRandomDir(float offset)
     {
-        UnityEngine.Random.InitState(itemData.Item_Durability + itemData.Item_Content.Item_Count);
+        UnityEngine.Random.InitState(itemData.Item_Durability);
         //获得随机偏转角
         float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, UnityEngine.Random.Range(0f, 1f));
         // 将角度转换为Quaternion
@@ -275,11 +246,20 @@ public class ItemLocalObj_Gun : ItemLocalObj
         if (CheckBullet(out short bulletID))
         {
             Shoot(bulletID, GetRandomDir(offset));
+            LoseDurability();
         }
         else
         {
             Dull();
         }
+    }
+    public void LoseDurability()
+    {
+        ItemData _oldItemHand = itemData;
+        ItemData _newItemHand = itemData;
+        _newItemHand.Item_Durability--;
+        UpdateDataByLocal(_newItemHand);
+        actorManager.actorNetManager.Net_ItemHand = _newItemHand;
     }
     /// <summary>
     /// 射击
@@ -298,7 +278,6 @@ public class ItemLocalObj_Gun : ItemLocalObj
         }
         MuzzleFire();
         KickBack();
-
     }
     /// <summary>
     /// 空击

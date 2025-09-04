@@ -79,9 +79,9 @@ public class UI_PlayerInfo : MonoBehaviour
     }
     public void UpdateCell()
     {
-        ItemData handItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemInHand;
-        ItemData headItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemOnHead;
-        ItemData bodyItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemOnBody;
+        ItemData handItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemHand;
+        ItemData headItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemHead;
+        ItemData bodyItem = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Net_ItemBody;
         _handCell.UpdateData(handItem);
         _headCell.UpdateData(headItem);
         _bodyCell.UpdateData(bodyItem);

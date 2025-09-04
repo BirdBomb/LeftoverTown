@@ -8,7 +8,6 @@ public class BuildingObj_Thorn : BuildingObj
 {
     public SpriteRenderer spriteRenderer;
     private Material material;
-    private Sequence sequence;
     [Header("æ£º¨…À∫¶")]
     public short short_Damage;
     [Header("æ£º¨Õº∆¨")]
@@ -22,18 +21,35 @@ public class BuildingObj_Thorn : BuildingObj
         spriteRenderer.material = material;
         base.Start();
     }
-    #region//∑Ω∑®
-    public override void All_PlayHpDown()
+    public override void Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
     {
-        All_PlantShake();
-        All_PlantFlash();
+        if (damageState == DamageState.AttackReapDamage)
+        {
+            base.Local_TakeDamage(val, damageState, from);
+        }
+        else
+        {
+            Local_IneffectiveDamage(damageState, from);
+        }
     }
-    private void All_PlantShake()
+    #region//∑Ω∑®
+    public override void All_PlayHpDown(int offset)
     {
-        AudioManager.Instance.Play3DEffect(3000, transform.position);
+        if (offset < 0)
+        {
+            AudioManager.Instance.Play3DEffect(3000, transform.position);
+            All_Flash();
+        }
+        All_Shake();
+    }
+    private void All_Shake()
+    {
+        transform.DOKill();
+        transform.localScale = Vector3.one;
         transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
     }
-    private void All_PlantFlash()
+    private Sequence sequence;
+    private void All_Flash()
     {
         float light = 1;
         if (sequence != null) sequence.Kill();
@@ -48,22 +64,6 @@ public class BuildingObj_Thorn : BuildingObj
         AudioManager.Instance.Play3DEffect(3000, transform.position);
         base.All_PlayBroken();
     }
-    public override void All_UpdateHP(int newHp)
-    {
-        if (newHp <= 0) { All_Broken(); }
-        else
-        {
-            if (newHp < hp)
-            {
-                All_HpDown(hp - newHp);
-            }
-            else
-            {
-                All_HpUp(newHp - hp);
-            }
-            hp = newHp;
-        }
-    }
     public override void All_Broken()
     {
         State_CreateLootItem(State_GetLootItem(baseLootInfos_State0, new List<ExtraLootInfo>()));
@@ -73,7 +73,7 @@ public class BuildingObj_Thorn : BuildingObj
     {
         if (actor.actorAuthority.isLocal)
         {
-            actor.AllClient_Listen_TakeAttackDamage(short_Damage, null);
+            actor.AllClient_Listen_TakeDamage(short_Damage, DamageState.AttackPiercingDamage, null);
         }
         base.All_ActorStandOn(actor);
     }

@@ -101,6 +101,7 @@ public class GameEvent
     public class GameEvent_Local_SpawnItem
     {
         public ItemData itemData;
+        public NetworkId itemOwner;
         public Vector3 pos;
     }
     /// <summary>
@@ -109,6 +110,7 @@ public class GameEvent
     public class GameEvent_State_SpawnItem
     {
         public ItemData itemData;
+        public NetworkId itemOwner;
         public Vector3 pos;
     }
 

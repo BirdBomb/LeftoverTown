@@ -36,6 +36,7 @@ public class UI_Console : MonoBehaviour
         btn_lastPage.onClick.AddListener(() => { ChangePage(false); });
         btn_nextPage.onClick.AddListener(() => { ChangePage(true); });
         var data = ConsoleUIArchitecture.Interface.GetModel<IConsoleDataModle>();
+        data.IconList.Clear();
         for (int i = 0; i < btn_list.Count; i++)
         {
             int index = i;

@@ -15,7 +15,6 @@ public class BuildingObj_RockBed : BuildingObj
     [SerializeField]
     private RockState rockState_Now;
     private Material material;
-    private Sequence sequence;
     [Header("岩石贴图")]
     public Sprite[] sprites_Rock;
     [Header("岩石恢复周期(小时)")]
@@ -40,6 +39,33 @@ public class BuildingObj_RockBed : BuildingObj
         material = new Material(spriteRenderer.sharedMaterial);
         spriteRenderer.material = material;
         base.Start();
+    }
+    public override void All_UpdateHP(int newHp)
+    {
+        if (newHp <= 0) { All_Broken(); }
+        else
+        {
+            if (newHp <= local_Hp)
+            {
+                All_HpDown(newHp - local_Hp);
+            }
+            else
+            {
+                All_HpUp(newHp - local_Hp);
+            }
+            Local_SetHp(newHp);
+        }
+    }
+    public override void Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    {
+        if (damageState == DamageState.AttackBludgeoningDamage)
+        {
+            base.Local_TakeDamage(val, damageState, from);
+        }
+        else
+        {
+            Local_IneffectiveDamage(damageState, from);
+        }
     }
     #region//生长
     /// <summary>
@@ -89,12 +115,12 @@ public class BuildingObj_RockBed : BuildingObj
         switch (type)
         {
             case RockState.Base:
-                hp = int.MaxValue;
+                Local_SetHp(int.MaxValue);
                 spriteRenderer.enabled = false;
                 boxCollider.enabled = false;
                 break;
             case RockState.Rock:
-                hp = int_RockHp;
+                Local_SetHp(int_RockHp);
                 spriteRenderer.enabled = true;
                 boxCollider.enabled = true;
                 spriteRenderer.sprite = sprites_Rock[new System.Random().Next(0, sprites_Rock.Length)];
@@ -103,17 +129,23 @@ public class BuildingObj_RockBed : BuildingObj
     }
     #endregion
     #region//方法
-    public override void All_PlayHpDown()
+    public override void All_PlayHpDown(int offset)
     {
-        All_PlantShake();
-        All_PlantFlash();
+        if (offset < 0)
+        {
+            AudioManager.Instance.Play3DEffect(3000, transform.position);
+            All_Flash();
+        }
+        All_Shake();
     }
-    private void All_PlantShake()
+    private void All_Shake()
     {
-        AudioManager.Instance.Play3DEffect(3002, transform.position);
+        transform.DOKill();
+        transform.localScale = Vector3.one;
         transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
     }
-    private void All_PlantFlash()
+    private Sequence sequence;
+    private void All_Flash()
     {
         float light = 1;
         if (sequence != null) sequence.Kill();
@@ -133,22 +165,6 @@ public class BuildingObj_RockBed : BuildingObj
         gameTime_Sign = int.Parse(info);
         All_CompareTime();
         base.All_UpdateInfo(info);
-    }
-    public override void All_UpdateHP(int newHp)
-    {
-        if (newHp <= 0) { All_Broken(); }
-        else
-        {
-            if (newHp < hp)
-            {
-                All_HpDown(hp - newHp);
-            }
-            else
-            {
-                All_HpUp(newHp - hp);
-            }
-            hp = newHp;
-        }
     }
     public override void All_Broken()
     {

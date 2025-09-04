@@ -11,19 +11,29 @@ public class BuildingObj : MonoBehaviour
 {
     [HideInInspector]
     public BuildingTile buildingTile;
-    [HideInInspector, Header("信息")]
+    [HideInInspector]
     public string info;
-    [Header("生命值")]
-    public int hp = 0;
-    [Header("护甲")]
-    public int armor = 0;
+    [HideInInspector]
+    public int local_Hp = 0;
+    [HideInInspector]
+    public int local_Armor = 0;
     /// <summary>
     /// 绑定
     /// </summary>
     public virtual void Bind(BuildingTile tile, out BuildingObj obj)
     {
         buildingTile = tile;
+        Init(buildingTile.tileID);
         obj = this;
+    }
+    /// <summary>
+    /// 初始
+    /// </summary>
+    public virtual void Init(int id)
+    {
+        BuildingConfig config = BuildingConfigData.GetBuildingConfig(id);
+        Local_SetHp(config.Building_Hp);
+        Local_SetArmor(config.Building_Armor);
     }
     public virtual void Start()
     {
@@ -190,6 +200,7 @@ public class BuildingObj : MonoBehaviour
             MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
             {
                 itemData = datas[i],
+                itemOwner = new NetworkId(),
                 pos = position + transform.position,
             });
         }
@@ -207,11 +218,10 @@ public class BuildingObj : MonoBehaviour
     /// 本地端造成伤害
     /// </summary>
     /// <param name="val"></param>
-    public virtual void Local_TakeDamage(int val)
+    public virtual void Local_TakeDamage(int val, DamageState damageState,ActorNetManager from)
     {
-        if (val > armor)
+        if (val > local_Armor)
         {
-            val -= armor;
             Local_ChangeHp(-val);
         }
         else
@@ -225,6 +235,20 @@ public class BuildingObj : MonoBehaviour
         damageUI.PlayShow((-val).ToString(), Color.white, offset);
     }
     /// <summary>
+    /// 本地端无效伤害
+    /// </summary>
+    public virtual void Local_IneffectiveDamage(DamageState damageState, ActorNetManager from)
+    {
+        if (from.actorManager_Local.actorAuthority.isPlayer)
+        {
+            //MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendText()
+            //{
+            //    text = "我应该换个工具",
+            //});
+        }
+        Local_ChangeHp(0);
+    }
+    /// <summary>
     /// 本地端修改生命值
     /// </summary>
     /// <param name="offset"></param>
@@ -235,23 +259,34 @@ public class BuildingObj : MonoBehaviour
             pos = buildingTile.tilePos,
             offset = offset
         });
-    } 
+    }
+    public virtual void Local_SetHp(int hp)
+    {
+        local_Hp = hp;
+    }
+    public virtual void Local_SetArmor(int armor)
+    {
+        local_Armor = armor;
+    }
     public virtual void All_UpdateHP(int newHp)
     {
         if (newHp <= 0) { All_Broken(); }
-        if (newHp < hp)
-        {
-            All_HpDown(hp - newHp);
-        }
         else
         {
-            All_HpUp(newHp - hp);
+            if (newHp <= local_Hp)
+            {
+                All_HpDown(newHp - local_Hp);
+            }
+            else
+            {
+                All_HpUp(newHp - local_Hp);
+            }
         }
-        hp = newHp;
+        Local_SetHp(newHp);
     }
     public virtual void All_HpDown(int offset)
     {
-        All_PlayHpDown();
+        All_PlayHpDown(offset);
     }
     public virtual void All_HpUp(int offset)
     {
@@ -259,8 +294,10 @@ public class BuildingObj : MonoBehaviour
     }
     #endregion
     #region//特效
-    public virtual void All_PlayHpDown()
+    public virtual void All_PlayHpDown(int offset)
     {
+        transform.DOKill();
+        transform.localScale = Vector3.one;
         transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
     }
     public virtual void All_PlayBroken()

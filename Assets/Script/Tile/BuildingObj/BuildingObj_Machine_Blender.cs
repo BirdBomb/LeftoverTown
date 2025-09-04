@@ -6,7 +6,7 @@ using System.Text;
 using UniRx;
 using UnityEngine;
 
-public class BuildingObj_Machine_Blender : BuildingObj
+public class BuildingObj_Machine_Blender : BuildingObj_Manmade
 {
     public GameObject obj_SingalFUI;
     public GameObject obj_SingalAwakeUI;
@@ -83,7 +83,7 @@ public class BuildingObj_Machine_Blender : BuildingObj
                     itemData_To = GameToolManager.Instance.CombineItem(itemData_To, initData, out ItemData itemData_Res);
                     if (itemData_Res.Item_Count > 0 && itemData_Res.Item_ID > 0)
                     {
-                        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                         {
                             index = 0,
                             itemData = itemData_Res,

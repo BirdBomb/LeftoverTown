@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using UniRx;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -20,19 +21,6 @@ public class UI_ItemCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public Text text_Info;
     private bool hiding = true;
 
-    public void DrawCell(Sprite iconSprite,Sprite bgSprite,ItemRarity rarity, string infoStr,string nameStr,string descStr)
-    {
-        image_ItemIcon.enabled = true;
-        image_ItemBG.enabled = true;
-        image_ItemIcon.sprite = iconSprite;
-        image_ItemBG.sprite = bgSprite;
-        text_Info.text = infoStr;
-        str_itemName = nameStr;
-        str_itemDesc = descStr;
-        hiding = false;
-        Colour(rarity);
-        str_itemInfoDesc = str_itemName + "\n" + str_itemDesc;
-    }
     public void DrawCellIcon(Sprite iconSprite, Color iconColor, Sprite bgSprite, Color bgColor)
     {
         image_ItemIcon.enabled = true;
@@ -48,6 +36,11 @@ public class UI_ItemCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         str_itemName = nameStr;
         str_itemDesc = descStr;
         Colour(rarity);
+        int index = str_itemDesc.IndexOf("<");
+        if (index >= 0)
+        {
+            str_itemDesc = str_itemDesc.Substring(0, index).Trim();
+        }
         str_itemInfoDesc = str_itemName + "\n" + str_itemDesc;
         hiding = false;
     }

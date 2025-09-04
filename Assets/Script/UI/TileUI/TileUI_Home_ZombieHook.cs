@@ -60,7 +60,7 @@ public class TileUI_Home_ZombieHook : TileUI
             ItemData putIn = addData;
             putIn.Item_Count = 1;
             ItemData resData = GameToolManager.Instance.SplitItem(addData, putIn);
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
             });
@@ -73,7 +73,7 @@ public class TileUI_Home_ZombieHook : TileUI
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
             });

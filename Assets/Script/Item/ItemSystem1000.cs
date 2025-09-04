@@ -16,21 +16,38 @@ public class ItemSystem1000
 [Serializable]
 public class Item_0 : ItemBase
 {
-    #region//持有
+    #region//基础数值
+    /// <summary>
+    /// 劈砍伤害
+    /// </summary>
+    private readonly short AttackDamage_Base = 2;
+    /// <summary>
+    /// 攻击速度
+    /// </summary>
+    private readonly float AttackSpeed_Base = 1.5f;
+    /// <summary>
+    /// 攻击距离
+    /// </summary>
+    private readonly float AttackDistance_Base = 1;
+    /// <summary>
+    /// 攻击范围
+    /// </summary>
+    private readonly float AttackRange_Base = 90;
+    #endregion
+    #region//使用逻辑
     private ItemLocalObj_Punch itemLocalObj_Punch;
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
     {
         this.owner = owner;
         itemLocalObj_Punch = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_0").GetComponent<ItemLocalObj_Punch>();
         itemLocalObj_Punch.HoldingStart(owner, body);
+        itemLocalObj_Punch.UpdatePunchData(AttackDamage_Base, AttackSpeed_Base, AttackRange_Base, AttackDistance_Base);
     }
-    #endregion
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        
+
     }
 
-    #region//使用逻辑
     public override void OnHand_UpdateMousePos(Vector3 mouse)
     {
         itemLocalObj_Punch.UpdateMousePos(mouse);

@@ -1,18 +1,6 @@
 using DG.Tweening;
 using Fusion;
-using Fusion.Addons.Physics;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Security.Policy;
-using UniRx;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
 using UnityEngine;
-using UnityEngine.Accessibility;
-using UnityEngine.Tilemaps;
-using UnityEngine.U2D;
-using static Fusion.Allocator;
 using static GameEvent;
 /// <summary>
 /// 角色管理器
@@ -141,8 +129,8 @@ public class ActorManager : MonoBehaviour
     }
     public void State_SetHeadAndBody(ItemData headItem, ItemData bodyItem)
     {
-        actorNetManager.Net_ItemOnHead = headItem;
-        actorNetManager.Net_ItemOnBody = bodyItem;
+        actorNetManager.Net_ItemHead = headItem;
+        actorNetManager.Net_ItemBody = bodyItem;
     }
     public void State_SetFace(string name,short eyeID,short hairID,Color32 hairColor)
     {
@@ -204,6 +192,14 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     /// <param name="obj"></param>
     public virtual void State_Listen_ItemOutView(ItemNetObj obj)
+    {
+
+    }
+    /// <summary>
+    /// 监听某物离开视野范围(客户端)
+    /// </summary>
+    /// <param name="obj"></param>
+    public virtual void AllClient_Listen_ItemOutView(ItemNetObj obj)
     {
 
     }
@@ -418,15 +414,12 @@ public class ActorManager : MonoBehaviour
     /// <summary>
     /// 监听受伤(客户端)
     /// </summary>
-    /// <param name="val"></param>
-    /// <param name="from"></param>
-    public virtual void AllClient_Listen_TakeAttackDamage(int val, ActorNetManager from)
+    /// <param name="val">数值</param>
+    /// <param name="damageState">类型</param>
+    /// <param name="from">来源</param>
+    public virtual void AllClient_Listen_TakeDamage(int val, DamageState damageState,ActorNetManager from)
     {
-        actionManager.TakeAttackDamage(val, from);
-    }
-    public virtual void AllClient_Listen_TakeMagicDamage(int val, ActorNetManager from)
-    {
-        actionManager.TakeMagicDamage(val, from);
+        actionManager.TakeDamage(val, damageState, from);
     }
     /// <summary>
     /// 监听治疗(客户端)
@@ -459,14 +452,6 @@ public class ActorManager : MonoBehaviour
     {
         InvokeRepeating("CustomUpdate", 1f, const_customUpdateTime);
         InvokeRepeating("SecondUpdate", 1f, 1f);
-    }
-    /// <summary>
-    /// 网络更新(客户端)
-    /// </summary>
-    /// <param name="dt"></param>
-    public virtual void AllClient_FixedUpdateNetwork(float dt)
-    {
-
     }
     /// <summary>
     /// 网络更新(主机)
@@ -623,4 +608,38 @@ public struct ActorAuthority
     /// 是否是本地
     /// </summary>
     public bool isLocal;
+}
+/// <summary>
+/// 伤害类型
+/// </summary>
+public enum DamageState
+{
+    /// <summary>
+    /// 魔法伤害
+    /// </summary>
+    MagicDamage,
+    /// <summary>
+    /// 物理穿刺伤害
+    /// </summary>
+    AttackPiercingDamage,
+    /// <summary>
+    /// 物理钝击伤害
+    /// </summary>
+    AttackBludgeoningDamage,
+    /// <summary>
+    /// 物理劈砍伤害
+    /// </summary>
+    AttackSlashingDamage,
+    /// <summary>
+    /// 物理拆卸伤害
+    /// </summary>
+    AttackStructureDamage,
+    /// <summary>
+    /// 物理收割伤害
+    /// </summary>
+    AttackReapDamage,
+    /// <summary>
+    /// 真实伤害
+    /// </summary>
+    RealDamage,
 }

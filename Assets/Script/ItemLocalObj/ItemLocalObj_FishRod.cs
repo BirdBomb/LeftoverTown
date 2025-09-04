@@ -306,7 +306,7 @@ public class ItemLocalObj_FishRod : ItemLocalObj
                 Type type = Type.GetType("Item_" + fishID.ToString());
                 ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(fishID, out ItemData initData);
                 AudioManager.Instance.Play2DEffect(1000);
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = initData
                 });
@@ -379,7 +379,7 @@ public class ItemLocalObj_FishRod : ItemLocalObj
         UpdateDataByLocal(_newItem);
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
             {
                 oldItem = _oldItem,
                 newItem = _newItem,

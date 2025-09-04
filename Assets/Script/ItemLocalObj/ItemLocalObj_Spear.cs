@@ -17,10 +17,10 @@ public class ItemLocalObj_Spear : ItemLocalObj
     [SerializeField]
     private SkillIndicators skillIndicators;
 
-    private int StabDamage;
-    private float StabRange = 10;
-    private int HackDamage;
-    private float HackRange = 60;
+    private int PiercingDamage;
+    private float PiercingRange = 10;
+    private int SlashingDamage;
+    private float SlashingRange = 60;
     private float AttackSpeed;
     private float AttackDistance;
     private float AttackExpend;
@@ -69,10 +69,10 @@ public class ItemLocalObj_Spear : ItemLocalObj
 
         base.HoldingStart(owner, body);
     }
-    public void UpdateSpearData(int stabDamage, int hackDamage,float attackSpeed, float attackDistance, float attackExpend, ItemQuality itemQuality)
+    public void UpdateSpearData(int piercingDamage, int slashingDamage, float attackSpeed, float attackDistance, float attackExpend, ItemQuality itemQuality)
     {
-        StabDamage = stabDamage;
-        HackDamage = hackDamage;
+        PiercingDamage = piercingDamage;
+        SlashingDamage = slashingDamage;
         AttackSpeed = attackSpeed;
         AttackDistance = attackDistance;
         AttackExpend = attackExpend;
@@ -112,7 +112,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
             animator.speed = AttackSpeed;
         }
         float_TempDistance = AttackDistance;
-        float_TempRange = StabRange;
+        float_TempRange = PiercingRange;
         inputData.leftPressTimer = time;
         return base.PressLeftMouse(time, actorAuthority);
     }
@@ -125,7 +125,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
             animator.speed = AttackSpeed;
         }
         float_TempDistance = AttackDistance;
-        float_TempRange = HackRange;
+        float_TempRange = SlashingRange;
         inputData.rightPressTimer = time;
         return base.PressRightMouse(time, actorAuthority);
     }
@@ -153,7 +153,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
         {
             float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
-            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, StabRange, out Collider2D[] colliders);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, PiercingRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].tag.Equals("Actor"))
@@ -163,7 +163,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
                         if (actor == actorManager) { continue; }
                         else
                         {
-                            actor.AllClient_Listen_TakeAttackDamage(StabDamage, actorManager.actorNetManager);
+                            actor.AllClient_Listen_TakeDamage(PiercingDamage, DamageState.AttackPiercingDamage, actorManager.actorNetManager);
                             temp = AttackExpend;
                         }
                     }
@@ -179,7 +179,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
         {
             float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
-            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, HackRange, out Collider2D[] colliders);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, SlashingRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].tag.Equals("Actor"))
@@ -189,7 +189,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
                         if (actor == actorManager) { continue; }
                         else
                         {
-                            actor.AllClient_Listen_TakeAttackDamage(HackDamage, actorManager.actorNetManager);
+                            actor.AllClient_Listen_TakeDamage(SlashingDamage, DamageState.AttackSlashingDamage, actorManager.actorNetManager);
                             temp = AttackExpend;
                         }
                     }
@@ -215,7 +215,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
                 ItemData _newItem = itemData;
                 if (_newItem.Item_Durability - offset <= 0)
                 {
-                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
                     {
                         item = itemData,
                     });
@@ -223,7 +223,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
                 else
                 {
                     _newItem.Item_Durability -= (sbyte)offset;
-                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
                     {
                         oldItem = _oldItem,
                         newItem = _newItem,

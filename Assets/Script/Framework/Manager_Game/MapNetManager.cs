@@ -205,7 +205,7 @@ public class MapNetManager : NetworkBehaviour
     /// </summary>
     /// <param name="center">区域中心(只能是20的倍数)</param>
     /// <param name="player"></param>
-    private void Local_RequestMapData(Vector3Int center,int size, PlayerRef player)
+    private void Local_RequestMapData(Vector3Int center, short size, PlayerRef player)
     {
         Debug.Log("请求服务器地图信息/位置坐标" + center);
         RPC_LocalInput_RequestMapData(center, size, player);
@@ -228,7 +228,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="center"></param>
     /// <param name="width"></param>
     /// <param name="height"></param>
-    private void Local_ReceiveBuildTypeData(int[] tileTypeList, string[] tileInfoList, Vector3Int center, int width, int height)
+    private void Local_ReceiveBuildTypeData(short[] tileTypeList, string[] tileInfoList, Vector3Int center, short width, short height)
     {
         //Debug.Log("收到服务器地图信息(建筑类别)/中心" + center + "尺寸" + width + "/" + height);
         if(MapManager.Instance.AddBuildingAreaInMap(center))
@@ -259,7 +259,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="center"></param>
     /// <param name="width"></param>
     /// <param name="height"></param>
-    private void Local_ReceiveGroundTypeData(int[] tileList, Vector3Int center, int width, int height)
+    private void Local_ReceiveGroundTypeData(short[] tileList, Vector3Int center, short width, short height)
     {
         //Debug.Log("收到服务器地图信息(地块类别)/中心" + center + "尺寸" + width + "/" + height);
         if(MapManager.Instance.AddGroundAreaInMap(center))
@@ -287,7 +287,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="center">尺寸</param>
     /// <param name="player">目标玩家</param>
     /// <returns></returns>
-    private async Task State_TryInitMapForSomeone(Vector3Int center, int size, PlayerRef player)
+    private async Task State_TryInitMapForSomeone(Vector3Int center, short size, PlayerRef player)
     {
         State_TrySendMapCenter(center, size, size, player, mapSeed);
         for (int i = 0; i < 25; i++)
@@ -396,9 +396,9 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="width">区域宽</param>
     /// <param name="height">区域高</param>
     /// <param name="player">目标客户端</param>
-    private void State_TrySendBuildingTileTypeData(Vector3Int center, int width, int height, PlayerRef player)
+    private void State_TrySendBuildingTileTypeData(Vector3Int center, short width, short height, PlayerRef player)
     {
-        int[] tempTileTypeArray = new int[width * height];
+        short[] tempTileTypeArray = new short[width * height];
         string[] tempTileInfoArray = new string[width * height];
         int index = 0;
         for (int x = -width / 2; x < width / 2; x++)
@@ -419,7 +419,7 @@ public class MapNetManager : NetworkBehaviour
 
                 if (bind_BuildingTileTypeData.tileDic.ContainsKey(tempIndex))
                 {
-                    int tileType = bind_BuildingTileTypeData.tileDic[tempIndex];
+                    short tileType = bind_BuildingTileTypeData.tileDic[tempIndex];
                     tempTileTypeArray[index] = tileType;
                 }
                 else
@@ -450,9 +450,9 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="width"></param>
     /// <param name="height"></param>
     /// <param name="player"></param>
-    private void State_TrySendGroundTileTypeData(Vector3Int center, int width, int height, PlayerRef player)
+    private void State_TrySendGroundTileTypeData(Vector3Int center, short width, short height, PlayerRef player)
     {
-        int[] tempTileArray = new int[width * height];
+        short[] tempTileArray = new short[width * height];
         int index = 0;
         for (int x = -width / 2; x < width / 2; x++)
         {
@@ -472,7 +472,7 @@ public class MapNetManager : NetworkBehaviour
 
                 if (bind_GroundTileTypeData.tileDic.ContainsKey(tempIndex))
                 {
-                    int tileType = bind_GroundTileTypeData.tileDic[tempIndex];
+                    short tileType = bind_GroundTileTypeData.tileDic[tempIndex];
                     tempTileArray[index] = tileType;
                 }
                 else
@@ -494,7 +494,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="center"></param>
     /// <param name="player"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private async void RPC_LocalInput_RequestMapData(Vector3Int center,int size,PlayerRef player)
+    private async void RPC_LocalInput_RequestMapData(Vector3Int center, short size,PlayerRef player)
     {
         if (Object.HasStateAuthority)
         {
@@ -525,7 +525,7 @@ public class MapNetManager : NetworkBehaviour
         {
             if (MapManager.Instance.GetBuilding(pos, out BuildingTile buildingTile))
             {
-                int newHp = buildingTile.tileObj.hp + offset;
+                int newHp = buildingTile.tileObj.local_Hp + offset;
                 RPC_StateCall_TileUpdateHp(pos, newHp, player);
             }
             else
@@ -712,7 +712,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="width"></param>
     /// <param name="height"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_SendBuildingTileTypeData(/*[RpcTarget]*/PlayerRef target, int[] tileTypeList, string[] tileInfoList, Vector3Int center, int width, int height)
+    private void RPC_StateCall_SendBuildingTileTypeData(/*[RpcTarget]*/PlayerRef target, short[] tileTypeList, string[] tileInfoList, Vector3Int center, short width, short height)
     {
         Local_ReceiveBuildTypeData(tileTypeList, tileInfoList, center, width, height);
     }
@@ -725,7 +725,7 @@ public class MapNetManager : NetworkBehaviour
     /// <param name="width"></param>
     /// <param name="height"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_SendGroundTileTypeData(/*[RpcTarget]*/ PlayerRef target, int[] tileList, Vector3Int center, int width, int height)
+    private void RPC_StateCall_SendGroundTileTypeData(/*[RpcTarget]*/ PlayerRef target, short[] tileList, Vector3Int center, short width, short height)
     {
         Local_ReceiveGroundTypeData(tileList, center, width, height);
     }

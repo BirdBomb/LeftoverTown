@@ -28,8 +28,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     private Image image_IconMask;
     [SerializeField, Header("角标")]
     private Text text_CornerMark;
-    [SerializeField, Header("子Grid")]
-    public UI_Grid_Child grid_Child;
     [SerializeField, Header("滑动条背景")]
     private Transform panel_Bar;
     [SerializeField, Header("滑动条填充")]
@@ -75,7 +73,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         action_PutOut = putOut;
         action_ClickLeft = clickLeft;
         action_ClickRight = clickRight;
-        if (grid_Child) { grid_Child.BindCell(itemPath); }
     }
     public void BindGrid(ItemPath itemPath, Action<ItemData, ItemPath> putIn, Func<ItemData, ItemData, ItemPath, ItemData> putOut)
     {
@@ -124,11 +121,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     {
         _bindItemBase.UpdateDataFromNet(data);
         _bindItemBase.GridCell_Draw(this);
-        if (grid_Child)
-        {
-            grid_Child.UpdateGrid(data);
-            grid_Child.DrawCell(data);
-        }
     }
     /// <summary>
     /// 清空数据
@@ -198,10 +190,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
             {
 
             });
-        }
-        if (grid_Child)
-        {
-            grid_Child.CloseGrid();
         }
     }
     /// <summary>

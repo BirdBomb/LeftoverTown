@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UniRx;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ActorManager_Player : ActorManager
@@ -16,6 +13,7 @@ public class ActorManager_Player : ActorManager
         if (actorAuthority.isLocal)
         {
             Local_UpdateClosestActor();
+            Local_UpdateClosestItem();
         }
         base.FixedUpdate();
     }
@@ -32,12 +30,8 @@ public class ActorManager_Player : ActorManager
     {
         base.AllClient_Listen_UpdateTime(hour, date, globalTime);
     }
-    public override void AllClient_Listen_ItemInView(ItemNetObj obj)
-    {
-        base.State_Listen_ItemInView(obj);
-    }
     #endregion
-    #region//交流
+    #region//附近人物
     /// <summary>
     /// 最近的可以对话的角色
     /// </summary>
@@ -120,6 +114,49 @@ public class ActorManager_Player : ActorManager
             if (actorManager_Closest != null && brainManager.actorManagers_Nearby.Contains(actorManager_Closest))
             {
                 actorManager_Closest.Local_GetPlayerInput_R(this);
+            }
+        }
+    }
+
+    #endregion
+    #region//附近物体
+    public override void AllClient_Listen_ItemInView(ItemNetObj obj)
+    {
+        if (actorAuthority.isLocal)
+        {
+            brainManager.ItemNetObj_Nearby.Add(obj);
+        }
+        base.State_Listen_ItemInView(obj);
+    }
+    public override void AllClient_Listen_ItemOutView(ItemNetObj obj)
+    {
+        if (actorAuthority.isLocal)
+        {
+            brainManager.ItemNetObj_Nearby.Remove(obj);
+        }
+        base.AllClient_Listen_ItemOutView(obj);
+    }
+    public override void State_Listen_ItemOutView(ItemNetObj obj)
+    {
+        if (obj.Object && obj.owner == actorNetManager.Object.Id)
+        {
+            StartCoroutine(obj.State_RemoveOwner());
+        }
+        base.State_Listen_ItemOutView(obj);
+    }
+    public void Local_UpdateClosestItem()
+    {
+        for (int i = 0; i < brainManager.ItemNetObj_Nearby.Count; i++)
+        {
+            if (brainManager.ItemNetObj_Nearby[i].owner != actorNetManager.Object.Id)
+            {
+                if (actorNetManager.Local_BagItemCount < actorNetManager.Local_BagCapacity)
+                {
+                    ItemNetObj itemNetObj = brainManager.ItemNetObj_Nearby[i];
+                    brainManager.ItemNetObj_Nearby.RemoveAt(i);
+                    actorNetManager.RPC_LocalInput_PickItemAuto(itemNetObj.Object.Id);
+                    break;
+                }
             }
         }
     }

@@ -112,8 +112,18 @@ public class PlayerData
     /// <summary>
     /// 身体物体
     /// </summary>
-    [SerializeField] 
+    [SerializeField]
     public ItemData BodyItem;
+    /// <summary>
+    /// 物体饰品
+    /// </summary>
+    [SerializeField]
+    public ItemData ItemAccessory;
+    /// <summary>
+    /// 物体耗材
+    /// </summary>
+    [SerializeField]
+    public ItemData ItemConsumables;
     /// <summary>
     /// 眼睛ID
     /// </summary>

@@ -42,7 +42,7 @@ public class ActorItemManager
     }
 
     #region//手
-    public void UpdateItemInHand(ItemData data)
+    public void UpdateItemHand(ItemData data)
     {
         if (bodyController == null)
         {
@@ -52,7 +52,7 @@ public class ActorItemManager
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
-                MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInHand()
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_ItemHand_Update()
                 {
                     itemData = data
                 });
@@ -122,7 +122,7 @@ public class ActorItemManager
     }
     #endregion
     #region//头
-    public void UpdateItemOnHead(ItemData data)
+    public void UpdateItemHead(ItemData data)
     {
         if (bodyController == null)
         {
@@ -132,7 +132,7 @@ public class ActorItemManager
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
-                MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemOnHead()
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_ItemHead_Update()
                 {
                     itemData = data
                 });
@@ -185,7 +185,7 @@ public class ActorItemManager
     }
     #endregion
     #region//身
-    public void UpdateItemOnBody(ItemData data)
+    public void UpdateItemBody(ItemData data)
     {
         if (bodyController == null)
         {
@@ -195,7 +195,7 @@ public class ActorItemManager
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
-                MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemOnBody()
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_ItemBody_Update()
                 {
                     itemData = data
                 });
@@ -243,6 +243,45 @@ public class ActorItemManager
             }
         }
         bodyController.transform_ItemOnBody.GetComponent<SpriteRenderer>().sprite = null;
+    }
+    #endregion
+    #region//饰品
+    public void UpdateItemAccessory(ItemData data)
+    {
+        if (bodyController == null)
+        {
+            return;
+        }
+        if (data.Item_ID >= 0)
+        {
+            if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+            {
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_ItemAccessory_Update()
+                {
+                    itemData = data
+                });
+            }
+        }
+    }
+
+    #endregion
+    #region//耗材
+    public void UpdateItemConsumables(ItemData data)
+    {
+        if (bodyController == null)
+        {
+            return;
+        }
+        if (data.Item_ID >= 0)
+        {
+            if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+            {
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_ItemConsumables_Update()
+                {
+                    itemData = data
+                });
+            }
+        }
     }
     #endregion
     #region//生成

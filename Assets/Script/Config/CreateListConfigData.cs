@@ -14,7 +14,7 @@ public class CreateListConfigData
         {
             ID = 3003,
             Name = "木制工具台",
-            List = new List<int> { 1100, 2000, 2010, 2020, 2030,2040, 2100, 2200, 5001, 5007, 5105, 9000}
+            List = new List<int> { 1100, 2000, 2010, 2020, 2030, 2040, 2050, 2060, 2100, 2200, 5001, 5007, 5105, 9000}
         },
         new CreateListConfig()
         {

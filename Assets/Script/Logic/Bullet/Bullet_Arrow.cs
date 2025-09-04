@@ -113,11 +113,11 @@ public class Bullet_Arrow : BulletBase
         {
             if (float_BulletAttackDemage > 0)
             {
-                actor.AllClient_Listen_TakeAttackDamage(float_BulletAttackDemage, actorManager_Owner.actorNetManager);
+                actor.AllClient_Listen_TakeDamage(float_BulletAttackDemage, DamageState.AttackPiercingDamage, actorManager_Owner.actorNetManager);
             }
             if (float_BulletMagicDemage > 0)
             {
-                actor.AllClient_Listen_TakeMagicDamage(float_BulletMagicDemage, actorManager_Owner.actorNetManager);
+                actor.AllClient_Listen_TakeDamage(float_BulletMagicDemage, DamageState.MagicDamage, actorManager_Owner.actorNetManager);
             }
         }
     }
@@ -144,6 +144,7 @@ public class Bullet_Arrow : BulletBase
                 MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
                 {
                     itemData = initData,
+                    itemOwner = new Fusion.NetworkId(),
                     pos = (Vector3)pos - vectoe3_MoveDir,
                 });
             }

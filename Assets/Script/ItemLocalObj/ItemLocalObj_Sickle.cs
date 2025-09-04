@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-
-public class ItemLocalObj_Dagger : ItemLocalObj
+/// <summary>
+/// ¡≠µ∂
+/// </summary>
+public class ItemLocalObj_Sickle : ItemLocalObj
 {
     [SerializeField]
     private Animator animator;
@@ -12,34 +14,25 @@ public class ItemLocalObj_Dagger : ItemLocalObj
     private SpriteRenderer spriteRenderer_Hand;
     [SerializeField]
     private SkillIndicators skillIndicators;
-
-    private int PiercingDamage;
+    private int AttackDamage;
     private float AttackSpeed;
-    private float AttackExpend;
+    private float AttackDistance = 1;
+    private float AttackRange = 60;
+    private float AttackAbrasion;
     private float AttackAbrasion_Temp;
-
-    /// <summary>
-    /// ¥¡¥Ã∂Øª≠ ±≥§
-    /// </summary>
     private float config_AttackDuraction = 1;
-    /// <summary>
-    /// ¥¡¥Ãæ‡¿Î
-    /// </summary>
-    private float config_AttackMaxDistance = 1;
-    /// <summary>
-    /// ¥¡¥Ã∑∂Œß
-    /// </summary>
-    private float config_AttackMaxRange = 20;
-    /// <summary>
-    /// ¥¡¥ÃCD
-    /// </summary>
     private float config_AttackCD;
-    /// <summary>
-    /// œ¬¥Œ¥¡¥Ã ±º‰
-    /// </summary>
     private float float_NextAttackTiming = 0;
 
     private InputData inputData = new InputData();
+    public void UpdateSickleData(int attackDamage, float hackSpeed, float hackExpend, ItemQuality itemQuality)
+    {
+        AttackDamage = attackDamage;
+        AttackSpeed = hackSpeed;
+        AttackAbrasion = hackExpend;
+
+        config_AttackCD = config_AttackDuraction / AttackSpeed;
+    }
     private void FixedUpdate()
     {
         if (inputData.leftPressTimer == 0 && float_NextAttackTiming > 0)
@@ -47,7 +40,6 @@ public class ItemLocalObj_Dagger : ItemLocalObj
             float_NextAttackTiming -= Time.fixedDeltaTime;
         }
     }
-
     public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
         actorManager = owner;
@@ -58,24 +50,16 @@ public class ItemLocalObj_Dagger : ItemLocalObj
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
 
-
         spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
         body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingStart(owner, body);
-    }
-    public void UpdateDaggerData(int attackDamage,float attackSpeed,float attackExpend,ItemQuality itemQuality)
-    {
-        PiercingDamage = attackDamage;
-        AttackSpeed = attackSpeed;
-        AttackExpend = attackExpend;
-        config_AttackCD = config_AttackDuraction / AttackSpeed;
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
         if (inputData.leftPressTimer >= float_NextAttackTiming)
         {
             float_NextAttackTiming += config_AttackCD + 0.1f;
-            animator.SetTrigger("Stab");
+            animator.SetTrigger("Reap");
             animator.speed = AttackSpeed;
         }
         inputData.leftPressTimer = time;
@@ -96,28 +80,36 @@ public class ItemLocalObj_Dagger : ItemLocalObj
         if (actorManager.actorAuthority.isLocal && actorManager.actorAuthority.isPlayer)
         {
             float alpht = (float_NextAttackTiming - inputData.leftPressTimer) / config_AttackCD;
-            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, config_AttackMaxDistance, config_AttackMaxRange, alpht);
+            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, AttackDistance, AttackRange, alpht);
         }
         base.UpdateMousePos(mouse);
     }
-    public void Stab()
+    public void Reap()
     {
         if (actorManager.actorAuthority.isLocal)
         {
             float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
-            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_AttackMaxDistance, config_AttackMaxRange, out Collider2D[] colliders);
+            skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, AttackRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
             {
-                if (colliders[i].tag.Equals("Actor"))
+                if (colliders[i].tag.Equals("TileObj"))
+                {
+                    if (colliders[i].TryGetComponent(out BuildingObj building))
+                    {
+                        building.Local_TakeDamage(AttackDamage, DamageState.AttackReapDamage, actorManager.actorNetManager);
+                        temp = AttackAbrasion;
+                    }
+                }
+                else if (colliders[i].tag.Equals("Actor"))
                 {
                     if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
                         if (actor == actorManager) { continue; }
                         else
                         {
-                            actor.AllClient_Listen_TakeDamage(PiercingDamage, DamageState.AttackPiercingDamage, actorManager.actorNetManager);
-                            temp = AttackExpend;
+                            actor.AllClient_Listen_TakeDamage(AttackDamage, DamageState.AttackReapDamage, actorManager.actorNetManager);
+                            temp = AttackAbrasion;
                         }
                     }
                 }

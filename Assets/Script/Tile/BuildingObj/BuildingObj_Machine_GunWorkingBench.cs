@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingObj_Machine_GunWorkingBench : BuildingObj
+public class BuildingObj_Machine_GunWorkingBench : BuildingObj_Manmade
 {
     public GameObject obj_SingalFUI;
     public GameObject obj_SingalAwakeUI;

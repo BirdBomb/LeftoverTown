@@ -106,7 +106,7 @@ public class ItemLocalObj_Seed : ItemLocalObj
             ItemData _oldItem = itemData;
             ItemData _newItem = itemData;
             _newItem.Item_Count = (short)(_newItem.Item_Count - val);
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
             {
                 oldItem = _oldItem,
                 newItem = _newItem,
@@ -114,7 +114,7 @@ public class ItemLocalObj_Seed : ItemLocalObj
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
             {
                 item = itemData,
             });

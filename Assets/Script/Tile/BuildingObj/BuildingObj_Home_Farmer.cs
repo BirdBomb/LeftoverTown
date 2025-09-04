@@ -5,7 +5,7 @@ using System.Text;
 using UniRx;
 using UnityEngine;
 
-public class BuildingObj_Home_Farmer : BuildingObj
+public class BuildingObj_Home_Farmer : BuildingObj_Manmade
 {
     private ActorManager actor_Bind = new ActorManager();
     public GameObject obj_SingalFUI;

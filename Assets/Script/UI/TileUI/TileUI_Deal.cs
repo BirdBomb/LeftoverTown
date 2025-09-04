@@ -50,7 +50,7 @@ public class TileUI_Deal : TileUI
     private List<ItemData> itemDatas_Goods = new List<ItemData>();
     public void GoodsPutIn(ItemData itemData, ItemPath path)
     {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
         {
             itemData = itemData,
         });
@@ -157,7 +157,7 @@ public class TileUI_Deal : TileUI
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = itemData,
             });

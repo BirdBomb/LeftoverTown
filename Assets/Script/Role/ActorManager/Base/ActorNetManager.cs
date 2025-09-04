@@ -1,12 +1,9 @@
-using System.Collections.Generic;
-using UnityEngine;
 using Fusion;
-using UniRx;
-using UnityEngine.Windows;
 using Fusion.Addons.Physics;
-using System;
-using UnityEngine.Accessibility;
-using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+using UniRx;
+using UnityEngine;
 /// <summary>
 /// 角色网络管理器
 /// </summary>
@@ -34,7 +31,6 @@ public class ActorNetManager : NetworkBehaviour
     }
     public override void FixedUpdateNetwork()
     {
-        actorManager_Local.AllClient_FixedUpdateNetwork(Runner.DeltaTime);
         if (actorManager_Local.actorAuthority.isState) actorManager_Local.State_FixedUpdateNetwork(Runner.DeltaTime);
         base.FixedUpdateNetwork();
     }
@@ -45,9 +41,9 @@ public class ActorNetManager : NetworkBehaviour
     public void AllClient_InitNetData()
     {
         AllClient_RequestInfo();
-        OnItemInHandChange();
-        OnItemOnHeadChange();
-        OnItemOnBodyChange();
+        OnItemHandChange();
+        OnItemHeadChange();
+        OnItemBodyChange();
     }
     /// <summary>
     /// 客户端向服务器请求数据
@@ -432,31 +428,31 @@ public class ActorNetManager : NetworkBehaviour
         Net_Resistance += val;
     }
     #endregion
-    #region//手部物体(所有客户端)
+    #region//物体持握(所有客户端)
     /// <summary>
     /// 手部物体
     /// </summary>
-    [Networked, OnChangedRender(nameof(OnItemInHandChange)), HideInInspector]
-    public ItemData Net_ItemInHand { get; set; }
-    public void OnItemInHandChange()
+    [Networked, OnChangedRender(nameof(OnItemHandChange)), HideInInspector]
+    public ItemData Net_ItemHand { get; set; }
+    public void OnItemHandChange()
     {
-        actorManager_Local.itemManager.UpdateItemInHand(Net_ItemInHand);
+        actorManager_Local.itemManager.UpdateItemHand(Net_ItemHand);
     }
     /// <summary>
     /// RPC:添加持握物体
     /// </summary>
     /// <param name="itemData_Add"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_AddItemOnHand(ItemData itemData_Add)
+    public void RPC_LocalInput_ItemHand_Add(ItemData itemData_Add)
     {
-        OnlyState_AddItemOnHand(itemData_Add);
+        OnlyState_ItemHand_Add(itemData_Add);
     }
-    public void OnlyState_AddItemOnHand(ItemData itemData_Add)
+    public void OnlyState_ItemHand_Add(ItemData itemData_Add)
     {
-        Net_ItemInHand = GameToolManager.Instance.CombineItem(Net_ItemInHand, itemData_Add, out ItemData itemData_Res);
+        Net_ItemHand = GameToolManager.Instance.CombineItem(Net_ItemHand, itemData_Add, out ItemData itemData_Res);
         if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
         {
-            RPC_State_AddItemInBag(itemData_Res);
+            RPC_State_ItemInBag_Add(itemData_Res);
         }
     }
     /// <summary>
@@ -464,142 +460,411 @@ public class ActorNetManager : NetworkBehaviour
     /// </summary>
     /// <param name="itemData_Sub"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_SubItemOnHand(ItemData itemData_Sub)
+    public void RPC_LocalInput_ItemHand_Sub(ItemData itemData_Sub)
     {
-        OnlyState_SubItemOnHand(itemData_Sub);
+        OnlyState_ItemHand_Sub(itemData_Sub);
     }
-    public void OnlyState_SubItemOnHand(ItemData itemData_Sub)
+    public void OnlyState_ItemHand_Sub(ItemData itemData_Sub)
     {
-        Net_ItemInHand = GameToolManager.Instance.SplitItem(Net_ItemInHand, itemData_Sub);
+        Net_ItemHand = GameToolManager.Instance.SplitItem(Net_ItemHand, itemData_Sub);
     }
     /// <summary>
     /// RPC:修改持握物品
     /// </summary>
     /// <param name="itemData"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ChangeItemOnHand(ItemData itemData_Old, ItemData itemData_New)
+    public void RPC_LocalInput_ItemHand_Change(ItemData itemData_Old, ItemData itemData_New)
     {
-        OnlyState_ChangeItemOnHand(itemData_Old, itemData_New);
+        OnlyState_ItemHand_Change(itemData_Old, itemData_New);
     }
-    public void OnlyState_ChangeItemOnHand(ItemData itemData_Old, ItemData itemData_New)
+    public void OnlyState_ItemHand_Change(ItemData itemData_Old, ItemData itemData_New)
     {
-        if (Net_ItemInHand.Equals(itemData_Old))
+        if (Net_ItemHand.Equals(itemData_Old))
         {
-            Net_ItemInHand = itemData_New;
+            Net_ItemHand = itemData_New;
         }
     }
 
     #endregion
-    #region//头部物体(所有客户端)
+    #region//物体帽子(所有客户端)
     /// <summary>
     /// 头部物体
     /// </summary>
-    [Networked, OnChangedRender(nameof(OnItemOnHeadChange)), HideInInspector]
-    public ItemData Net_ItemOnHead { get; set; }
-    public void OnItemOnHeadChange()
+    [Networked, OnChangedRender(nameof(OnItemHeadChange)), HideInInspector]
+    public ItemData Net_ItemHead { get; set; }
+    public void OnItemHeadChange()
     {
-        actorManager_Local.itemManager.UpdateItemOnHead(Net_ItemOnHead);
+        actorManager_Local.itemManager.UpdateItemHead(Net_ItemHead);
     }
     /// <summary>
     /// RPC:添加头戴物体
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_AddItemOnHead(ItemData itemData_Add)
+    public void RPC_LocalInput_ItemHead_Add(ItemData itemData_Add)
     {
         Debug.Log(itemData_Add.Item_ID);
-        OnlyState_AddItemOnHead(itemData_Add);
+        OnlyState_ItemHead_Add(itemData_Add);
     }
-    public void OnlyState_AddItemOnHead(ItemData itemData_Add)
+    public void OnlyState_ItemHead_Add(ItemData itemData_Add)
     {
-        Net_ItemOnHead = GameToolManager.Instance.CombineItem(Net_ItemOnHead, itemData_Add, out ItemData itemData_Res);
+        Net_ItemHead = GameToolManager.Instance.CombineItem(Net_ItemHead, itemData_Add, out ItemData itemData_Res);
         if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
         {
-            RPC_State_AddItemInBag(itemData_Res);
+            RPC_State_ItemInBag_Add(itemData_Res);
         }
     }
     /// <summary>
     /// RPC:减少头戴物体
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_SubItemOnHead(ItemData itemData_Sub)
+    public void RPC_LocalInput_ItemHead_Sub(ItemData itemData_Sub)
     {
-        OnlyState_SubItemOnHead(itemData_Sub);
+        OnlyState_ItemHead_Sub(itemData_Sub);
     }
-    public void OnlyState_SubItemOnHead(ItemData itemData_Sub)
+    public void OnlyState_ItemHead_Sub(ItemData itemData_Sub)
     {
-        Net_ItemOnHead = GameToolManager.Instance.SplitItem(Net_ItemOnHead, itemData_Sub);
+        Net_ItemHead = GameToolManager.Instance.SplitItem(Net_ItemHead, itemData_Sub);
     }
     /// <summary>
     /// RPC:更改头戴物体
     /// </summary>
     /// <param name="itemData"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ChangeItemOnHead(ItemData itemData_Old, ItemData itemData_New)
+    public void RPC_LocalInput_ItemHead_Change(ItemData itemData_Old, ItemData itemData_New)
     {
-        OnlyState_ChangeItemOnHead(itemData_Old, itemData_New);
+        OnlyState_ItemHead_Change(itemData_Old, itemData_New);
     }
-    public void OnlyState_ChangeItemOnHead(ItemData oldItemData, ItemData newItemData)
+    public void OnlyState_ItemHead_Change(ItemData oldItemData, ItemData newItemData)
     {
-        if (Net_ItemOnHead.Equals(oldItemData))
+        if (Net_ItemHead.Equals(oldItemData))
         {
-            Net_ItemOnHead = newItemData;
+            Net_ItemHead = newItemData;
         }
     }
 
     #endregion
-    #region//身体物体(所有客户端)
-    [Networked, OnChangedRender(nameof(OnItemOnBodyChange)), HideInInspector]
-    public ItemData Net_ItemOnBody { get; set; }
-    public void OnItemOnBodyChange()
+    #region//物体衣物(所有客户端)
+    [Networked, OnChangedRender(nameof(OnItemBodyChange)), HideInInspector]
+    public ItemData Net_ItemBody { get; set; }
+    public void OnItemBodyChange()
     {
-        actorManager_Local.itemManager.UpdateItemOnBody(Net_ItemOnBody);
+        actorManager_Local.itemManager.UpdateItemBody(Net_ItemBody);
     }
     /// <summary>
     /// RPC:添加穿着物体
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_AddItemOnBody(ItemData itemData_Add)
+    public void RPC_LocalInput_ItemBody_Add(ItemData itemData_Add)
     {
-        OnlyState_AddItemOnBody(itemData_Add);
+        OnlyState_ItemBody_Add(itemData_Add);
     }
-    public void OnlyState_AddItemOnBody(ItemData itemData_Add)
+    public void OnlyState_ItemBody_Add(ItemData itemData_Add)
     {
-        Net_ItemOnBody = GameToolManager.Instance.CombineItem(Net_ItemOnBody, itemData_Add, out ItemData itemData_Res);
+        Net_ItemBody = GameToolManager.Instance.CombineItem(Net_ItemBody, itemData_Add, out ItemData itemData_Res);
         if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
         {
-            RPC_State_AddItemInBag(itemData_Res);
+            RPC_State_ItemInBag_Add(itemData_Res);
         }
     }
     /// <summary>
     /// RPC:减少穿着物体
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_SubItemOnBody(ItemData itemData_Sub)
+    public void RPC_LocalInput_ItemBody_Sub(ItemData itemData_Sub)
     {
-        OnlyState_SubItemOnBody(itemData_Sub);
+        OnlyState_ItemBody_Sub(itemData_Sub);
     }
-    public void OnlyState_SubItemOnBody(ItemData itemData_Sub)
+    public void OnlyState_ItemBody_Sub(ItemData itemData_Sub)
     {
-        Net_ItemOnBody = GameToolManager.Instance.SplitItem(Net_ItemOnBody, itemData_Sub);
+        Net_ItemBody = GameToolManager.Instance.SplitItem(Net_ItemBody, itemData_Sub);
     }
     /// <summary>
     /// RPC:修改穿着物体
     /// </summary>
     /// <param name="itemData"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ChangeItemOnBody(ItemData itemData_Old, ItemData itemData_New)
+    public void RPC_LocalInput_ItemBody_Change(ItemData itemData_Old, ItemData itemData_New)
     {
-        OnlyState_ChangeItemOnBody(itemData_Old, itemData_New);
+        OnlyState_ItemBody_Change(itemData_Old, itemData_New);
     }
-    public void OnlyState_ChangeItemOnBody(ItemData itemData_Old, ItemData itemData_New)
+    public void OnlyState_ItemBody_Change(ItemData itemData_Old, ItemData itemData_New)
     {
-        if (Net_ItemOnBody.Equals(itemData_Old))
+        if (Net_ItemBody.Equals(itemData_Old))
         {
-            Net_ItemOnBody = itemData_New;
+            Net_ItemBody = itemData_New;
         }
     }
 
     #endregion
+    #region//物体饰品(所有客户端)
+    [Networked, OnChangedRender(nameof(OnItemAccessoryChange)), HideInInspector]
+    public ItemData Net_ItemAccessory { get; set; }
+    public void OnItemAccessoryChange()
+    {
+        actorManager_Local.itemManager.UpdateItemAccessory(Net_ItemAccessory);
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    public void RPC_LocalInput_ItemAccessory_Add(ItemData itemData_Add)
+    {
+        OnlyState_ItemAccessory_Add(itemData_Add);
+    }
+    public void OnlyState_ItemAccessory_Add(ItemData itemData_Add)
+    {
+        Net_ItemAccessory = GameToolManager.Instance.CombineItem(Net_ItemAccessory, itemData_Add, out ItemData itemData_Res);
+        if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
+        {
+            RPC_State_ItemInBag_Add(itemData_Res);
+        }
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    public void RPC_LocalInput_ItemAccessory_Sub(ItemData itemData_Sub)
+    {
+        OnlyState_ItemAccessory_Sub(itemData_Sub);
+    }
+    public void OnlyState_ItemAccessory_Sub(ItemData itemData_Sub)
+    {
+        Net_ItemAccessory = GameToolManager.Instance.SplitItem(Net_ItemAccessory, itemData_Sub);
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    public void RPC_LocalInput_ItemAccessory_Change(ItemData itemData_Old, ItemData itemData_New)
+    {
+        OnlyState_ItemAccessory_Change(itemData_Old, itemData_New);
+    }
+    public void OnlyState_ItemAccessory_Change(ItemData itemData_Old, ItemData itemData_New)
+    {
+        if (Net_ItemAccessory.Equals(itemData_Old))
+        {
+            Net_ItemAccessory = itemData_New;
+        }
+    }
+
+    #endregion
+    #region//物体耗材(所有客户端)
+    [Networked, OnChangedRender(nameof(OnItemConsumablesChange)), HideInInspector]
+    public ItemData Net_ItemConsumables { get; set; }
+    public void OnItemConsumablesChange()
+    {
+        actorManager_Local.itemManager.UpdateItemConsumables(Net_ItemConsumables);
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    public void RPC_LocalInput_ItemConsumables_Add(ItemData itemData_Add)
+    {
+        OnlyState_ItemConsumables_Add(itemData_Add);
+    }
+    public void OnlyState_ItemConsumables_Add(ItemData itemData_Add)
+    {
+        Net_ItemConsumables = GameToolManager.Instance.CombineItem(Net_ItemConsumables, itemData_Add, out ItemData itemData_Res);
+        if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
+        {
+            RPC_State_ItemInBag_Add(itemData_Res);
+        }
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    public void RPC_LocalInput_ItemConsumables_Sub(ItemData itemData_Sub)
+    {
+        OnlyState_ItemConsumables_Sub(itemData_Sub);
+    }
+    public void OnlyState_ItemConsumables_Sub(ItemData itemData_Sub)
+    {
+        Net_ItemConsumables = GameToolManager.Instance.SplitItem(Net_ItemConsumables, itemData_Sub);
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    public void RPC_LocalInput_ItemConsumables_Change(ItemData itemData_Old, ItemData itemData_New)
+    {
+        OnlyState_ItemConsumables_Change(itemData_Old, itemData_New);
+    }
+    public void OnlyState_ItemConsumables_Change(ItemData itemData_Old, ItemData itemData_New)
+    {
+        if (Net_ItemConsumables.Equals(itemData_Old))
+        {
+            Net_ItemConsumables = itemData_New;
+        }
+    }
+    #endregion
+    #region//物体背包(只在本地端计算)
+    public int Local_BagCapacity = 40;
+    public int Local_BagItemCount = 0;
+    private List<ItemData> Local_ItemBag { get; } = new List<ItemData>(40);
+    /// <summary>
+    /// 获得背包物体
+    /// </summary>
+    /// <returns></returns>
+    public List<ItemData> Local_ItemBag_Get()
+    {
+        return new List<ItemData>(Local_ItemBag);
+    }
+    /// <summary>
+    /// 设置背包物体
+    /// </summary>
+    /// <param name="itemDatas"></param>
+    public void Local_ItemBag_Set(List<ItemData> itemDatas)
+    {
+        Local_ItemBag.Clear();
+        Local_BagItemCount = 0;
+        for (int i = 0; i < itemDatas.Count; i++)
+        {
+            if (itemDatas[i].Item_ID != 0) { Local_BagItemCount++; }
+            Local_ItemBag.Add(itemDatas[i]);
+        }
+        if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInBag()
+            {
+                itemDatas = Local_ItemBag_Get()
+            });
+        }
+    }
+    /// <summary>
+    /// RPC:添加背包物体
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public void RPC_State_ItemInBag_Add(ItemData addData)
+    {
+        if (actorManager_Local.actorAuthority.isLocal)
+        {
+            if (actorManager_Local.actorAuthority.isPlayer)
+            {
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
+                {
+                    index = 0,
+                    itemData = addData
+                });
+            }
+            else
+            {
+                Local_ItemBag_Add(0, addData);
+            }
+        }
+    }
+    public void Local_ItemBag_Add(int index, ItemData addData)
+    {
+        if (addData.Item_ID > 0)
+        {
+            List<ItemData> itemDatas = Local_ItemBag_Get();
+            GameToolManager.Instance.PutInItemList(itemDatas, addData, index, Local_BagCapacity, out ItemData resData);
+            Local_ItemBag_Set(itemDatas);
+            if (resData.Item_Count > 0)
+            {
+                MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
+                {
+                    itemData = resData,
+                    itemOwner = Object.Id,
+                    pos = transform.position,
+                });
+            }
+            if (actorManager_Local.actorAuthority.isPlayer)
+            {
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
+                {
+                    item = addData
+                });
+            }
+        }
+    }
+    /// <summary>
+    /// RPC:消耗背包物品
+    /// </summary>
+    /// <param name="itemData"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public void RPC_State_ItemBag_Expend(int id, int count)
+    {
+        if (actorManager_Local.actorAuthority.isLocal)
+        {
+            if (actorManager_Local.actorAuthority.isPlayer)
+            {
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Expend()
+                {
+                    itemID = id,
+                    itemCount = count
+                });
+            }
+            else
+            {
+                Local_ItemBag_Expend(id, count);
+            }
+        }
+    }
+    public void Local_ItemBag_Expend(int id, int count)
+    {
+        if (id > 0 && count > 0)
+        {
+            List<ItemData> itemDatas = Local_ItemBag_Get();
+            GameToolManager.Instance.ExpendItemList(itemDatas, id, count);
+            Local_ItemBag_Set(itemDatas);
+        }
+    }
+    /// <summary>
+    /// RPC:修改背包物体
+    /// </summary>
+    /// <param name="itemData"></param>
+    /// <param name="index"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public void RPC_State_ItemBag_Change(int index, ItemData itemData)
+    {
+        if (actorManager_Local.actorAuthority.isLocal)
+        {
+            if (actorManager_Local.actorAuthority.isPlayer)
+            {
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
+                {
+                    index = index,
+                    itemData = itemData
+                });
+            }
+            else
+            {
+                Local_ItemBag_Change(index, itemData);
+            }
+        }
+    }
+    public void Local_ItemBag_Change(int index, ItemData itemData)
+    {
+        List<ItemData> itemDatas = Local_ItemBag_Get();
+        if (actorManager_Local.actorAuthority.isPlayer)
+        {
+            if (index < itemDatas.Count)
+            {
+                if (itemDatas[index].Item_ID == itemData.Item_ID)
+                {
+                    if (itemDatas[index].Item_Count < itemData.Item_Count)
+                    {
+                        ItemData temp = itemData;
+                        temp.Item_Count = (short)(itemData.Item_Count - itemDatas[index].Item_Count);
+                        MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
+                        {
+                            item = temp
+                        });
+                    }
+                    else if (itemDatas[index].Item_Count > itemData.Item_Count)
+                    {
+                        ItemData temp = itemData;
+                        temp.Item_Count = (short)(itemDatas[index].Item_Count - itemData.Item_Count);
+                        MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
+                        {
+                            item = temp
+                        });
+                    }
+                }
+                else
+                {
+                    MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
+                    {
+                        item = itemDatas[index]
+                    });
+                    MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
+                    {
+                        item = itemData
+                    });
+                }
+            }
+        }
+
+        GameToolManager.Instance.ChangeItemList(itemDatas, itemData, index);
+        Local_ItemBag_Set(itemDatas);
+    }
+    #endregion
+
     #region//金币(只在本地端计算)
     /// <summary>
     /// 金币
@@ -664,185 +929,6 @@ public class ActorNetManager : NetworkBehaviour
         }
     }
 
-    #endregion
-    #region//背包物体(只在本地端计算)
-    private int Local_BagCapacity = 40;
-    private List<ItemData> Local_BagItems { get; } = new List<ItemData>(40);
-    /// <summary>
-    /// 获得背包物体
-    /// </summary>
-    /// <returns></returns>
-    public List<ItemData> Local_GetBagItem()
-    {
-        return new List<ItemData>(Local_BagItems);
-    }
-    /// <summary>
-    /// 设置背包物体
-    /// </summary>
-    /// <param name="itemDatas"></param>
-    public void Local_SetBagItem(List<ItemData> itemDatas)
-    {
-        Local_BagItems.Clear();
-        for (int i = 0; i < itemDatas.Count; i++)
-        {
-            Local_BagItems.Add(itemDatas[i]);
-        }
-        if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
-        {
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInBag()
-            {
-                itemDatas = Local_GetBagItem()
-            });
-        }
-    }
-    /// <summary>
-    /// RPC:添加背包物体
-    /// </summary>
-    /// <param name="itemData"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    public void RPC_State_AddItemInBag(ItemData addData)
-    {
-        if (actorManager_Local.actorAuthority.isLocal)
-        {
-            if (actorManager_Local.actorAuthority.isPlayer)
-            {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
-                {
-                    index = 0,
-                    itemData = addData
-                });
-            }
-            else
-            {
-                Local_AddItemInBag(0, addData);
-            }
-        }
-    }
-    public void Local_AddItemInBag(int index, ItemData addData)
-    {
-        if (addData.Item_ID > 0)
-        {
-            List<ItemData> itemDatas = Local_GetBagItem();
-            GameToolManager.Instance.PutInItemList(itemDatas, addData, index, Local_BagCapacity, out ItemData resData);
-            Local_SetBagItem(itemDatas);
-            if (resData.Item_Count > 0)
-            {
-                MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
-                {
-                    pos = transform.position,
-                    itemData = resData
-                });
-            }
-            if (actorManager_Local.actorAuthority.isPlayer)
-            {
-                MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
-                {
-                    item = addData
-                });
-            }
-        }
-    }
-    /// <summary>
-    /// RPC:消耗背包物品
-    /// </summary>
-    /// <param name="itemData"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    public void RPC_State_ExpendItemInBag(int id, int count)
-    {
-        if (actorManager_Local.actorAuthority.isLocal)
-        {
-            if (actorManager_Local.actorAuthority.isPlayer)
-            {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryExpendItemInBag()
-                {
-                    itemID = id,
-                    itemCount = count
-                });
-            }
-            else
-            {
-                Local_ExpendItemInBag(id, count);
-            }
-        }
-    }
-    public void Local_ExpendItemInBag(int id, int count)
-    {
-        if (id > 0 && count > 0)
-        {
-            List<ItemData> itemDatas = Local_GetBagItem();
-            GameToolManager.Instance.ExpendItemList(itemDatas, id, count);
-            Local_SetBagItem(itemDatas);
-        }
-    }
-    /// <summary>
-    /// RPC:修改背包物体
-    /// </summary>
-    /// <param name="itemData"></param>
-    /// <param name="index"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    public void RPC_State_ChangeItemInBag(int index, ItemData itemData)
-    {
-        if (actorManager_Local.actorAuthority.isLocal)
-        {
-            if (actorManager_Local.actorAuthority.isPlayer)
-            {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
-                {
-                    index = index,
-                    itemData = itemData
-                });
-            }
-            else
-            {
-                Local_ChangeItemInBag(index, itemData);
-            }
-        }
-    }
-    public void Local_ChangeItemInBag(int index, ItemData itemData)
-    {
-        List<ItemData> itemDatas = Local_GetBagItem();
-        if (actorManager_Local.actorAuthority.isPlayer)
-        {
-            if (index < itemDatas.Count)
-            {
-                if (itemDatas[index].Item_ID == itemData.Item_ID)
-                {
-                    if(itemDatas[index].Item_Count < itemData.Item_Count)
-                    {
-                        ItemData temp = itemData;
-                        temp.Item_Count = (short)(itemData.Item_Count - itemDatas[index].Item_Count);
-                        MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
-                        {
-                            item = temp
-                        });
-                    }
-                    else if(itemDatas[index].Item_Count > itemData.Item_Count)
-                    {
-                        ItemData temp = itemData;
-                        temp.Item_Count = (short)(itemDatas[index].Item_Count - itemData.Item_Count);
-                        MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
-                        {
-                            item = temp
-                        });
-                    }
-                }
-                else
-                {
-                    MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
-                    {
-                        item = itemDatas[index]
-                    });
-                    MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
-                    {
-                        item = itemData
-                    });
-                }
-            }
-        }
-
-        GameToolManager.Instance.ChangeItemList(itemDatas, itemData, index);
-        Local_SetBagItem(itemDatas);
-    }
     #endregion
     #region//Buff(只在本地端计算)
     private List<BuffData> Local_BuffList { get; } = new List<BuffData>();
@@ -1007,11 +1093,11 @@ public class ActorNetManager : NetworkBehaviour
         actorManager_Local.actionManager.Commit(fine);
     }
     /// <summary>
-    /// RPC:本地端拾起物品
+    /// RPC:本地端主动拾起物品
     /// </summary>
     /// <param name="id"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_LocalInput_PickItem(NetworkId id)
+    public void RPC_LocalInput_PickItemManual(NetworkId id)
     {
         bool OnlyState_PickItem(string val)
         {
@@ -1027,7 +1113,7 @@ public class ActorNetManager : NetworkBehaviour
                     if (networkPlayerObject != null && networkPlayerObject.transform.TryGetComponent(out ItemNetObj itemNetObj))
                     {
                         itemNetObj.State_PickUp(Object.Id, out ItemData itemData_Pick);
-                        RPC_State_AddItemInBag(itemData_Pick);
+                        RPC_State_ItemInBag_Add(itemData_Pick);
                     }
                 }
                 return true;
@@ -1038,6 +1124,27 @@ public class ActorNetManager : NetworkBehaviour
             }
         }
         actorManager_Local.actionManager.PlayPickUp(1, OnlyState_PickItem);
+    }
+    /// <summary>
+    /// RPC:本地端自动拾起物品
+    /// </summary>
+    /// <param name="id"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_LocalInput_PickItemAuto(NetworkId id)
+    {
+        NetworkObject networkPlayerObject = Runner.FindObject(id);
+        if (networkPlayerObject != null && networkPlayerObject.transform.TryGetComponent(out ItemNetObj itemNetObj))
+        {
+            if (Object.HasStateAuthority)
+            {
+                itemNetObj.State_PickUp(Object.Id, out ItemData itemData_Pick);
+                RPC_State_ItemInBag_Add(itemData_Pick);
+            }
+            GameObject itemObj = PoolManager.Instance.GetObject("Effect/Effect_ItemObj");
+            itemObj.transform.position = itemNetObj.transform.position;
+            itemObj.GetComponent<Effect_ItemObj>().DrawSpriter(itemNetObj.spriteRenderer_Icon.sprite);
+            itemObj.GetComponent<Effect_ItemObj>().BindFollow(transform);
+        }
     }
     /// <summary>
     /// RPC:本地端停下

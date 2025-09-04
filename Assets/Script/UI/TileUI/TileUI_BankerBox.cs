@@ -80,7 +80,7 @@ public class TileUI_BankerBox : TileUI
         GameToolManager.Instance.PutInItemList(buildingObj_Bind.itemDatas_List, addData, path.itemIndex, gridCells_List.Count, out ItemData resData);
         if (resData.Item_ID > 0 && resData.Item_Count != 0)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
             });
@@ -97,7 +97,7 @@ public class TileUI_BankerBox : TileUI
     }
     private void BatchPutIn()
     {
-        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
+        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < itemDatas.Count; i++)
         {
             ItemData itemData = itemDatas[i];
@@ -106,7 +106,7 @@ public class TileUI_BankerBox : TileUI
             int indexInBox = buildingObj_Bind.itemDatas_List.FindIndex((x) => { return x.Item_ID == itemData.Item_ID; });
             if (indexInBox >= 0 && itemConfig.Item_Size == ItemSize.Gro)
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
                 {
                     index = indexInBag,
                     itemData = new ItemData()
@@ -114,7 +114,7 @@ public class TileUI_BankerBox : TileUI
                 GameToolManager.Instance.PutInItemList(buildingObj_Bind.itemDatas_List, itemData, indexInBox, buildingObj_Bind.itemDatas_List.Count, out ItemData itemData_Res);
                 if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count != 0)
                 {
-                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                    MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                     {
                         itemData = itemData_Res,
                     });
@@ -126,7 +126,7 @@ public class TileUI_BankerBox : TileUI
     private void BatchPutOut()
     {
         CalculateFine();
-        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
+        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < buildingObj_Bind.itemDatas_List.Count; i++)
         {
             ItemData itemData = buildingObj_Bind.itemDatas_List[i];
@@ -135,7 +135,7 @@ public class TileUI_BankerBox : TileUI
             int indexInBag = itemDatas.FindIndex((x) => { return x.Item_ID == itemData.Item_ID; });
             if (indexInBag >= 0 && itemConfig.Item_Size == ItemSize.Gro)
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     index = indexInBag,
                     itemData = itemData
@@ -143,7 +143,7 @@ public class TileUI_BankerBox : TileUI
             }
             else
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     index = 0,
                     itemData = itemData

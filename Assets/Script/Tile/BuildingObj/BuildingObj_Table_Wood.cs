@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingObj_Table_Wood : BuildingObj
+public class BuildingObj_Table_Wood : BuildingObj_Manmade
 {
     [SerializeField]
     private SpriteRenderer spriteRenderer;

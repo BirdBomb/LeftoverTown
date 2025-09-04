@@ -401,7 +401,7 @@ public class ActorManager_Zombie_Spray : ActorManager
                         {
                             if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                             {
-                                actorManager.AllClient_Listen_TakeAttackDamage(5, actorNetManager);
+                                actorManager.AllClient_Listen_TakeDamage(config.float_BumpDamage, DamageState.AttackBludgeoningDamage, actorNetManager);
                                 actorManager.actionManager.AddForce((actorManager.transform.position - transform.position).normalized, 25);
                             }
                         }
@@ -465,6 +465,8 @@ public struct ActorConfig_ZombieSpray
     public short short_MoveStep;
     [Header("×²»÷¹¥»÷¾àÀë"), Range(1, 5)]
     public float float_BumpDistance;
+    [Header("×²»÷ÉËº¦")]
+    public int float_BumpDamage;
     [Header("ÅçÉä¹¥»÷¾àÀë"), Range(1, 25)]
     public float float_SprayDistance;
     [Header("ÊÓÒ°¾àÀë"), Range(1, 99)]

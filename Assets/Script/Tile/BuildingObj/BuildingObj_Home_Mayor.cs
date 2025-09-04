@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-public class BuildingObj_Home_Mayor : BuildingObj
+public class BuildingObj_Home_Mayor : BuildingObj_Manmade
 {
     private ActorManager actor_Bind;
     public override void Start()

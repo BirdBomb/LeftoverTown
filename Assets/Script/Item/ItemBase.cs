@@ -144,14 +144,14 @@ public class ItemBase
         }
         else if (gridCell.itemPath_Bind.itemFrom == ItemFrom.Hand)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryPutAwayItemOnHand()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_PutAway()
             {
                 
             });
         }
         else if (gridCell.itemPath_Bind.itemFrom == ItemFrom.Head)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryPutAwayItemOnHead()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHead_PutAway()
             {
 
             });
@@ -159,11 +159,24 @@ public class ItemBase
         }
         else if (gridCell.itemPath_Bind.itemFrom == ItemFrom.Body)
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryPutAwayItemOnBody()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBody_PutAway()
             {
 
             });
+        }
+        else if (gridCell.itemPath_Bind.itemFrom == ItemFrom.Accessory)
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemAccessory_PutAway()
+            {
 
+            });
+        }
+        else if (gridCell.itemPath_Bind.itemFrom == ItemFrom.Consumables)
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemConsumables_PutAway()
+            {
+
+            });
         }
     }
     /// <summary>
@@ -202,7 +215,7 @@ public class ItemBase
     #region//在背包
     public virtual void InBag_Use()
     {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySwitchItemBetweenHandAndBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Switch()
         {
             index = itemPath.itemIndex
         });
@@ -545,7 +558,7 @@ public class ItemBase_Food : ItemBase
             ItemData _oldItem = itemData;
             ItemData _newItem = itemData;
             _newItem.Item_Count = (short)(_newItem.Item_Count - val);
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
             {
                 oldItem = _oldItem,
                 newItem = _newItem,
@@ -553,7 +566,7 @@ public class ItemBase_Food : ItemBase
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySubItemOnHand()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
             {
                 item = itemData,
             });
@@ -661,9 +674,8 @@ public class ItemBase_Gun : ItemBase
 
         string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Content.Item_Count.ToString());
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, "");
         gridCell.SetCell(stringInfo);
-        if(gridCell.itemPath_Bind.itemFrom == ItemFrom.Hand) gridCell.grid_Child.OpenGrid(itemData);
     }
     public override void GridCell_RightClick(UI_GridCell gridCell, ItemData itemData)
     {
@@ -686,26 +698,39 @@ public class ItemBase_Gun : ItemBase
     }
 }
 /// <summary>
-/// -----基本服装-----
+/// 物品_服装
 /// </summary>
 public class ItemBase_Clothes : ItemBase
 {
     public override void InBag_Use()
     {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySwitchItemBetweenBodyAndBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBody_Switch()
         {
             index = itemPath.itemIndex
         });
     }
 }
 /// <summary>
-/// 基本帽子
+/// 物品_帽子
 /// </summary>
 public class ItemBase_Hat : ItemBase
 {
     public override void InBag_Use()
     {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TrySwitchItemBetweenHeadAndBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHead_Switch()
+        {
+            index = itemPath.itemIndex
+        });
+    }
+}
+/// <summary>
+/// 物品_耗材
+/// </summary>
+public class ItemBase_Consumables : ItemBase
+{
+    public override void InBag_Use()
+    {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemConsumables_Switch()
         {
             index = itemPath.itemIndex
         });
@@ -719,13 +744,11 @@ public struct ItemData : INetworkStruct, IEquatable<ItemData>
     public short Item_Info;
     public sbyte Item_Durability;
     public short Item_SignTime;
-    public ContentData Item_Content;
     public bool Equals(ItemData other)
     {
         if (Item_ID == other.Item_ID && 
             Item_Info == other.Item_Info && 
-            Item_Count == other.Item_Count &&
-            Item_Content.Equals(other.Item_Content))
+            Item_Count == other.Item_Count)
         {
             return true;
         }
@@ -748,46 +771,6 @@ public struct ItemData : INetworkStruct, IEquatable<ItemData>
         Item_Info = 0;
         Item_Durability = 0;
         Item_SignTime = 0;
-
-        Item_Content = new ContentData();
-    }
-    public ItemData(ContentData contentData)
-    {
-        Item_ID = contentData.Item_ID;
-        Item_Count = contentData.Item_Count;
-        Item_Info = contentData.Item_Info;
-        Item_Durability = contentData.Item_Durability;
-        Item_SignTime = contentData.Item_DurabilityPoint;
-
-        Item_Content = new ContentData();
-    }
-}
-[Serializable]
-public struct ContentData : INetworkStruct
-{
-    public short Item_ID;
-    public short Item_Count;
-    public short Item_Info;
-    public sbyte Item_Durability;
-    public short Item_DurabilityPoint;
-    public ContentData(ItemData itemData)
-    {
-        Item_ID = itemData.Item_ID;
-        Item_Count = itemData.Item_Count;
-        Item_Info = itemData.Item_Info;
-        Item_Durability = itemData.Item_Durability;
-        Item_DurabilityPoint = itemData.Item_SignTime;
-    }
-    public bool Equals(ContentData other)
-    {
-        if (Item_ID == other.Item_ID && Item_Count == other.Item_Count)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
     }
 }
 /// <summary>
@@ -825,6 +808,14 @@ public enum ItemFrom
     /// 头部
     /// </summary>
     Head,
+    /// <summary>
+    /// 饰品
+    /// </summary>
+    Accessory,
+    /// <summary>
+    /// 耗材
+    /// </summary>
+    Consumables,
     /// <summary>
     /// 背包
     /// </summary>

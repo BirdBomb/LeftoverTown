@@ -1,13 +1,5 @@
-using DG.Tweening;
-using Fusion;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using UniRx;
 using UnityEngine;
-using UnityEngine.U2D;
-using static Fusion.Sockets.NetBitBuffer;
-using static UnityEngine.UI.GridLayoutGroup;
 
 public class ItemSystem2000 
 {
@@ -32,17 +24,17 @@ public class Item_2000 : ItemBase_Tool
     /// <summary>
     /// ËðºÄËÙ¶È
     /// </summary>
-    private readonly float LightSpeed_Base = 0.2f;
+    private readonly float ExpendSpeed_Base = 0.2f;
     /// <summary>
     /// ËðºÄËÙ¶ÈÐÞÕý
     /// </summary>
-    private float LightSpeed_Add;
+    private float ExpendSpeed_Add;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
         desc = desc.Replace("/LightRange/", (LightRange_Base + LightRange_Add).ToString());
-        desc = desc.Replace("/LightSpeed/",(LightSpeed_Base + LightSpeed_Add).ToString());
+        desc = desc.Replace("/ExpendSpeed/",(ExpendSpeed_Base + ExpendSpeed_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -51,10 +43,10 @@ public class Item_2000 : ItemBase_Tool
     {
         base.CalculateQuality();
         LightRange_Add = 0;
-        LightSpeed_Add = 0;
+        ExpendSpeed_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
-            LightSpeed_Add -= (float)Math.Round(LightSpeed_Base * 0.3f, 2);
+            ExpendSpeed_Add -= (float)Math.Round(ExpendSpeed_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Blue)
         {
@@ -62,7 +54,7 @@ public class Item_2000 : ItemBase_Tool
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            LightSpeed_Add -= (float)Math.Round(LightSpeed_Base * 0.3f, 2);
+            ExpendSpeed_Add -= (float)Math.Round(ExpendSpeed_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Gold)
         {
@@ -74,55 +66,9 @@ public class Item_2000 : ItemBase_Tool
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            LightSpeed_Add = -LightSpeed_Base;
+            ExpendSpeed_Add = -ExpendSpeed_Base;
         }
-
-        switch (itemQuality)
-        {
-            case ItemQuality.Gray:
-                {
-                    LightRange_Add = 0;
-                    LightSpeed_Add = 0.2f;
-                    break;
-                }
-            case ItemQuality.Green:
-                {
-                    LightRange_Add = 1;
-                    LightSpeed_Add = 0.2f;
-                    break;
-                }
-            case ItemQuality.Blue:
-                {
-                    LightRange_Add = 1;
-                    LightSpeed_Add = 0.1f;
-                    break;
-                }
-            case ItemQuality.Purple:
-                {
-                    LightRange_Add = 2;
-                    LightSpeed_Add = 0.1f;
-                    break;
-                }
-            case ItemQuality.Gold:
-                {
-                    LightRange_Add = 2;
-                    LightSpeed_Add = 0.05f;
-                    break;
-                }
-            case ItemQuality.Red:
-                {
-                    LightRange_Add = 3;
-                    LightSpeed_Add = 0f;
-                    break;
-                }
-            case ItemQuality.Rainbow:
-                {
-                    LightRange_Add = 5;
-                    LightSpeed_Add = 0f;
-                    break;
-                }
-        }
-        if (itemLocalObj_Torch) itemLocalObj_Torch.UpdateTorchData(LightRange_Base + LightRange_Add, LightSpeed_Base + LightSpeed_Add, itemQuality);
+        if (itemLocalObj_Torch) itemLocalObj_Torch.UpdateTorchData(LightRange_Base + LightRange_Add, ExpendSpeed_Base + ExpendSpeed_Add, itemQuality);
     }
 
     #endregion
@@ -171,52 +117,52 @@ public class Item_2010 : ItemBase_Tool
     /// <summary>
     /// Åü¿³ÉËº¦
     /// </summary>
-    private readonly int HackDamage_Base = 5;
+    private readonly int SlashingDamage_Base = 8;
     /// <summary>
     /// Åü¿³ÉËº¦ÐÞÕý
     /// </summary>
-    private int HackDamage_Add = 0;
+    private int SlashingDamage_Add = 0;
     /// <summary>
-    /// Åü¿³ËÙ¶È
+    /// ¹¥»÷ËÙ¶È
     /// </summary>
-    private readonly float HackSpeed_Base = 1;
+    private readonly float AttackSpeed_Base = 1.5f;
     /// <summary>
-    /// Åü¿³ËÙ¶ÈÐÞÕý
+    /// ¹¥»÷ËÙ¶ÈÐÞÕý
     /// </summary>
-    private float HackSpeed_Add = 0;
+    private float AttackSpeed_Add = 0;
     /// <summary>
-    /// Åü¿³¾àÀë
+    /// ¹¥»÷¾àÀë
     /// </summary>
-    private readonly float HackDistance_Base = 1;
+    private readonly float AttackDistance_Base = 1;
     /// <summary>
-    /// Åü¿³¾àÀëÐÞÕý
+    /// ¹¥»÷¾àÀëÐÞÕý
     /// </summary>
-    private float HackDistance_Add = 0;
+    private float AttackDistance_Add = 0;
     /// <summary>
-    /// Åü¿³·¶Î§
+    /// ¹¥»÷·¶Î§
     /// </summary>
-    private readonly float HackRange_Base = 60;
+    private readonly float AttackRange_Base = 60;
     /// <summary>
-    /// Åü¿³·¶Î§ÐÞÕý
+    /// ¹¥»÷·¶Î§ÐÞÕý
     /// </summary>
-    private float HackRange_Add = 0;
+    private float AttackRange_Add = 0;
     /// <summary>
-    /// Åü¿³ËðºÄ
+    /// ËðºÄ
     /// </summary>
-    private readonly float HackExpend_Base = 0;
+    private readonly float Expend_Base = 0.5f;
     /// <summary>
-    /// Åü¿³ËðºÄÐÞÕý
+    /// ËðºÄÐÞÕý
     /// </summary>
-    private float HackExpend_Add = 0;
+    private float Expend_Add = 0;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/HackDamage/", (HackDamage_Base + HackDamage_Add).ToString());
-        desc = desc.Replace("/HackSpeed/", (HackSpeed_Base + HackSpeed_Add).ToString());
-        desc = desc.Replace("/HackRange/", (HackRange_Base + HackRange_Add).ToString());
-        desc = desc.Replace("/HackDistance/", (HackDistance_Base + HackDistance_Add).ToString());
-        desc = desc.Replace("/HackExpend/", (HackExpend_Base + HackExpend_Add).ToString());
+        desc = desc.Replace("/SlashingDamage/", (SlashingDamage_Base + SlashingDamage_Add).ToString());
+        desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
+        desc = desc.Replace("/AttackRange/", (AttackRange_Base + AttackRange_Add).ToString());
+        desc = desc.Replace("/AttackDistance/", (AttackDistance_Base + AttackDistance_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -224,37 +170,37 @@ public class Item_2010 : ItemBase_Tool
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        HackDamage_Add = 0;
-        HackSpeed_Add = 0;
-        HackDistance_Add = 0;
-        HackRange_Add = 0;
-        HackExpend_Add = 0;
+        SlashingDamage_Add = 0;
+        AttackSpeed_Add = 0;
+        AttackDistance_Add = 0;
+        AttackRange_Add = 0;
+        Expend_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
-            HackSpeed_Add += 0.2f;
+            AttackSpeed_Add += 0.2f;
         }
         if (itemQuality >= ItemQuality.Blue)
         {
-            HackExpend_Add -= (float)Math.Round(HackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            HackDamage_Add += 1;
-            HackSpeed_Add += 0.3f;
+            SlashingDamage_Add += 1;
+            AttackSpeed_Add += 0.3f;
         }
         if (itemQuality >= ItemQuality.Gold)
         {
-            HackDamage_Add += 1;
+            SlashingDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            HackSpeed_Add += 0.3f;
+            AttackSpeed_Add += 0.3f;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            HackExpend_Add = -HackExpend_Base;
+            Expend_Add = -Expend_Base;
         }
-        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdateAexData(HackDamage_Base + HackDamage_Add, HackSpeed_Base + HackSpeed_Add, HackDistance_Base + HackDistance_Add, HackExpend_Base + HackExpend_Add, itemQuality);
+        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdateAexData(SlashingDamage_Base + SlashingDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
     }
     #endregion
     #region//Ê¹ÓÃÂß¼­
@@ -265,7 +211,7 @@ public class Item_2010 : ItemBase_Tool
         itemLocalObj_Axe = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2010").GetComponent<ItemLocalObj_Axe>();
         itemLocalObj_Axe.InitData(itemData);
         itemLocalObj_Axe.HoldingStart(owner, body);
-        itemLocalObj_Axe.UpdateAexData(HackDamage_Base + HackDamage_Add, HackSpeed_Base + HackSpeed_Add, HackDistance_Base + HackDistance_Add, HackExpend_Base + HackExpend_Add, itemQuality);
+        itemLocalObj_Axe.UpdateAexData(SlashingDamage_Base + SlashingDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
         base.OnHand_Start(owner, body);
     }
     public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
@@ -304,52 +250,52 @@ public class Item_2011 : ItemBase_Tool
     /// <summary>
     /// Åü¿³ÉËº¦
     /// </summary>
-    private readonly int HackDamage_Base = 7;
+    private readonly int SlashingDamage_Base = 5;
     /// <summary>
     /// Åü¿³ÉËº¦ÐÞÕý
     /// </summary>
-    private int HackDamage_Add = 0;
+    private int SlashingDamage_Add = 0;
     /// <summary>
-    /// Åü¿³ËÙ¶È
+    /// ¹¥»÷ËÙ¶È
     /// </summary>
-    private readonly float HackSpeed_Base = 1.2f;
+    private readonly float AttackSpeed_Base = 1.5f;
     /// <summary>
-    /// Åü¿³ËÙ¶ÈÐÞÕý
+    /// ¹¥»÷ËÙ¶ÈÐÞÕý
     /// </summary>
-    private float HackSpeed_Add = 0;
+    private float AttackSpeed_Add = 0;
     /// <summary>
-    /// Åü¿³¾àÀë
+    /// ¹¥»÷¾àÀë
     /// </summary>
-    private readonly float HackDistance_Base = 1;
+    private readonly float AttackDistance_Base = 1;
     /// <summary>
-    /// Åü¿³¾àÀëÐÞÕý
+    /// ¹¥»÷¾àÀëÐÞÕý
     /// </summary>
-    private float HackDistance_Add = 0;
+    private float AttackDistance_Add = 0;
     /// <summary>
-    /// Åü¿³·¶Î§
+    /// ¹¥»÷·¶Î§
     /// </summary>
-    private readonly float HackRange_Base = 60;
+    private readonly float AttackRange_Base = 60;
     /// <summary>
-    /// Åü¿³·¶Î§ÐÞÕý
+    /// ¹¥»÷·¶Î§ÐÞÕý
     /// </summary>
-    private float HackRange_Add = 0;
+    private float AttackRange_Add = 0;
     /// <summary>
-    /// Åü¿³ËðºÄ
+    /// ËðºÄ
     /// </summary>
-    private readonly float HackExpend_Base = 0;
+    private readonly float Expend_Base = 0.5f;
     /// <summary>
-    /// Åü¿³ËðºÄÐÞÕý
+    /// ËðºÄÐÞÕý
     /// </summary>
-    private float HackExpend_Add = 0;
+    private float Expend_Add = 0;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/HackDamage/", (HackDamage_Base + HackDamage_Add).ToString());
-        desc = desc.Replace("/HackSpeed/", (HackSpeed_Base + HackSpeed_Add).ToString());
-        desc = desc.Replace("/HackRange/", (HackRange_Base + HackRange_Add).ToString());
-        desc = desc.Replace("/HackDistance/", (HackDistance_Base + HackDistance_Add).ToString());
-        desc = desc.Replace("/HackExpend/", (HackExpend_Base + HackExpend_Add).ToString());
+        desc = desc.Replace("/SlashingDamage/", (SlashingDamage_Base + SlashingDamage_Add).ToString());
+        desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
+        desc = desc.Replace("/AttackRange/", (AttackRange_Base + AttackRange_Add).ToString());
+        desc = desc.Replace("/AttackDistance/", (AttackDistance_Base + AttackDistance_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -357,37 +303,37 @@ public class Item_2011 : ItemBase_Tool
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        HackDamage_Add = 0;
-        HackSpeed_Add = 0;
-        HackDistance_Add = 0;
-        HackRange_Add = 0;
-        HackExpend_Add = 0;
+        SlashingDamage_Add = 0;
+        AttackSpeed_Add = 0;
+        AttackDistance_Add = 0;
+        AttackRange_Add = 0;
+        Expend_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
-            HackSpeed_Add += 0.2f;
+            AttackSpeed_Add += 0.2f;
         }
         if (itemQuality >= ItemQuality.Blue)
         {
-            HackExpend_Add -= (float)Math.Round(HackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            HackDamage_Add += 1;
-            HackSpeed_Add += 0.3f;
+            SlashingDamage_Add += 1;
+            AttackSpeed_Add += 0.3f;
         }
         if (itemQuality >= ItemQuality.Gold)
         {
-            HackDamage_Add += 1;
+            SlashingDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            HackSpeed_Add += 0.3f;
+            AttackSpeed_Add += 0.3f;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            HackExpend_Add = -HackExpend_Base;
+            Expend_Add = -Expend_Base;
         }
-        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdateAexData(HackDamage_Base + HackDamage_Add, HackSpeed_Base + HackSpeed_Add, HackDistance_Base + HackDistance_Add, HackExpend_Base + HackExpend_Add, itemQuality);
+        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdateAexData(SlashingDamage_Base + SlashingDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
     }
     #endregion
     #region//Ê¹ÓÃÂß¼­
@@ -398,7 +344,7 @@ public class Item_2011 : ItemBase_Tool
         itemLocalObj_Axe = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2011").GetComponent<ItemLocalObj_Axe>();
         itemLocalObj_Axe.InitData(itemData);
         itemLocalObj_Axe.HoldingStart(owner, body);
-        itemLocalObj_Axe.UpdateAexData(HackDamage_Base + HackDamage_Add, HackSpeed_Base + HackSpeed_Add, HackDistance_Base + HackDistance_Add, HackExpend_Base + HackExpend_Add, itemQuality); 
+        itemLocalObj_Axe.UpdateAexData(SlashingDamage_Base + SlashingDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality); 
         base.OnHand_Start(owner, body);
     }
     public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
@@ -437,52 +383,52 @@ public class Item_2012 : ItemBase_Tool
     /// <summary>
     /// Åü¿³ÉËº¦
     /// </summary>
-    private readonly int HackDamage_Base = 7;
+    private readonly int SlashingDamage_Base = 7;
     /// <summary>
     /// Åü¿³ÉËº¦ÐÞÕý
     /// </summary>
-    private int HackDamage_Add = 0;
+    private int SlashingDamage_Add = 0;
     /// <summary>
-    /// Åü¿³ËÙ¶È
+    /// ¹¥»÷ËÙ¶È
     /// </summary>
-    private readonly float HackSpeed_Base = 1.2f;
+    private readonly float AttackSpeed_Base = 1.5f;
     /// <summary>
-    /// Åü¿³ËÙ¶ÈÐÞÕý
+    /// ¹¥»÷ËÙ¶ÈÐÞÕý
     /// </summary>
-    private float HackSpeed_Add = 0;
+    private float AttackSpeed_Add = 0;
     /// <summary>
-    /// Åü¿³¾àÀë
+    /// ¹¥»÷¾àÀë
     /// </summary>
-    private readonly float HackDistance_Base = 1;
+    private readonly float AttackDistance_Base = 1;
     /// <summary>
-    /// Åü¿³¾àÀëÐÞÕý
+    /// ¹¥»÷¾àÀëÐÞÕý
     /// </summary>
-    private float HackDistance_Add = 0;
+    private float AttackDistance_Add = 0;
     /// <summary>
-    /// Åü¿³·¶Î§
+    /// ¹¥»÷·¶Î§
     /// </summary>
-    private readonly float HackRange_Base = 60;
+    private readonly float AttackRange_Base = 60;
     /// <summary>
-    /// Åü¿³·¶Î§ÐÞÕý
+    /// ¹¥»÷·¶Î§ÐÞÕý
     /// </summary>
-    private float HackRange_Add = 0;
+    private float AttackRange_Add = 0;
     /// <summary>
-    /// Åü¿³ËðºÄ
+    /// ËðºÄ
     /// </summary>
-    private readonly float HackExpend_Base = 0;
+    private readonly float Expend_Base = 0.2f;
     /// <summary>
-    /// Åü¿³ËðºÄÐÞÕý
+    /// ËðºÄÐÞÕý
     /// </summary>
-    private float HackExpend_Add = 0;
+    private float Expend_Add = 0;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/HackDamage/", (HackDamage_Base + HackDamage_Add).ToString());
-        desc = desc.Replace("/HackSpeed/", (HackSpeed_Base + HackSpeed_Add).ToString());
-        desc = desc.Replace("/HackRange/", (HackRange_Base + HackRange_Add).ToString());
-        desc = desc.Replace("/HackDistance/", (HackDistance_Base + HackDistance_Add).ToString());
-        desc = desc.Replace("/HackExpend/", (HackExpend_Base + HackExpend_Add).ToString());
+        desc = desc.Replace("/SlashingDamage/", (SlashingDamage_Base + SlashingDamage_Add).ToString());
+        desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
+        desc = desc.Replace("/AttackRange/", (AttackRange_Base + AttackRange_Add).ToString());
+        desc = desc.Replace("/AttackDistance/", (AttackDistance_Base + AttackDistance_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -490,37 +436,37 @@ public class Item_2012 : ItemBase_Tool
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        HackDamage_Add = 0;
-        HackSpeed_Add = 0;
-        HackDistance_Add = 0;
-        HackRange_Add = 0;
-        HackExpend_Add = 0;
+        SlashingDamage_Add = 0;
+        AttackSpeed_Add = 0;
+        AttackDistance_Add = 0;
+        AttackRange_Add = 0;
+        Expend_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
-            HackSpeed_Add += 0.2f;
+            AttackSpeed_Add += 0.2f;
         }
         if (itemQuality >= ItemQuality.Blue)
         {
-            HackExpend_Add -= (float)Math.Round(HackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            HackDamage_Add += 1;
-            HackSpeed_Add += 0.3f;
+            SlashingDamage_Add += 1;
+            AttackSpeed_Add += 0.3f;
         }
         if (itemQuality >= ItemQuality.Gold)
         {
-            HackDamage_Add += 1;
+            SlashingDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            HackSpeed_Add += 0.3f;
+            AttackSpeed_Add += 0.3f;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            HackExpend_Add = -HackExpend_Base;
+            Expend_Add = -Expend_Base;
         }
-        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdateAexData(HackDamage_Base + HackDamage_Add, HackSpeed_Base + HackSpeed_Add, HackDistance_Base + HackDistance_Add, HackExpend_Base + HackExpend_Add, itemQuality);
+        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdateAexData(SlashingDamage_Base + SlashingDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
     }
 
     #endregion
@@ -532,7 +478,7 @@ public class Item_2012 : ItemBase_Tool
         itemLocalObj_Axe = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2012").GetComponent<ItemLocalObj_Axe>();
         itemLocalObj_Axe.InitData(itemData);
         itemLocalObj_Axe.HoldingStart(owner, body);
-        itemLocalObj_Axe.UpdateAexData(HackDamage_Base + HackDamage_Add, HackSpeed_Base + HackSpeed_Add, HackDistance_Base + HackDistance_Add, HackExpend_Base + HackExpend_Add, itemQuality);
+        itemLocalObj_Axe.UpdateAexData(SlashingDamage_Base + SlashingDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
         base.OnHand_Start(owner, body);
     }
 
@@ -570,54 +516,54 @@ public class Item_2020 : ItemBase_Tool
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// Åü¿³ÉËº¦
+    /// ¶Û»÷ÉËº¦
     /// </summary>
-    private readonly int HackDamage_Base = 10;
+    private readonly int BludgeoningDamage_Base = 5;
     /// <summary>
-    /// Åü¿³ÉËº¦ÐÞÕý
+    /// ¶Û»÷ÉËº¦ÐÞÕý
     /// </summary>
-    private int HackDamage_Add = 0;
+    private int BludgeoningDamage_Add = 0;
     /// <summary>
-    /// Åü¿³ËÙ¶È
+    /// ¹¥»÷ËÙ¶È
     /// </summary>
-    private readonly float HackSpeed_Base = 0.5f;
+    private readonly float AttackSpeed_Base = 1.5f;
     /// <summary>
-    /// Åü¿³ËÙ¶ÈÐÞÕý
+    /// ¹¥»÷ËÙ¶ÈÐÞÕý
     /// </summary>
-    private float HackSpeed_Add = 0;
+    private float AttackSpeed_Add = 0;
     /// <summary>
-    /// Åü¿³¾àÀë
+    /// ¹¥»÷¾àÀë
     /// </summary>
-    private readonly float HackDistance_Base = 1;
+    private readonly float AttackDistance_Base = 1;
     /// <summary>
-    /// Åü¿³¾àÀëÐÞÕý
+    /// ¹¥»÷¾àÀëÐÞÕý
     /// </summary>
-    private float HackDistance_Add = 0;
+    private float AttackDistance_Add = 0;
     /// <summary>
-    /// Åü¿³·¶Î§
+    /// ¹¥»÷·¶Î§
     /// </summary>
-    private readonly float HackRange_Base = 60;
+    private readonly float AttackRange_Base = 60;
     /// <summary>
-    /// Åü¿³·¶Î§ÐÞÕý
+    /// ¹¥»÷·¶Î§ÐÞÕý
     /// </summary>
-    private float HackRange_Add = 0;
+    private float AttackRange_Add = 0;
     /// <summary>
-    /// Åü¿³ËðºÄ
+    /// ËðºÄ
     /// </summary>
-    private readonly float HackExpend_Base = 0;
+    private readonly float Expend_Base = 0.5f;
     /// <summary>
-    /// Åü¿³ËðºÄÐÞÕý
+    /// ËðºÄÐÞÕý
     /// </summary>
-    private float HackExpend_Add = 0;
+    private float Expend_Add = 0;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/HackDamage/", (HackDamage_Base + HackDamage_Add).ToString());
-        desc = desc.Replace("/HackSpeed/", (HackSpeed_Base + HackSpeed_Add).ToString());
-        desc = desc.Replace("/HackRange/", (HackRange_Base + HackRange_Add).ToString());
-        desc = desc.Replace("/HackDistance/", (HackDistance_Base + HackDistance_Add).ToString());
-        desc = desc.Replace("/HackExpend/", (HackExpend_Base + HackExpend_Add).ToString());
+        desc = desc.Replace("/BludgeoningDamage/", (BludgeoningDamage_Base + BludgeoningDamage_Add).ToString());
+        desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
+        desc = desc.Replace("/AttackRange/", (AttackRange_Base + AttackRange_Add).ToString());
+        desc = desc.Replace("/AttackDistance/", (AttackDistance_Base + AttackDistance_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -625,49 +571,49 @@ public class Item_2020 : ItemBase_Tool
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        HackDamage_Add = 0;
-        HackSpeed_Add = 0;
-        HackDistance_Add = 0;
-        HackRange_Add = 0;
-        HackExpend_Add = 0;
+        BludgeoningDamage_Add = 0;
+        AttackSpeed_Add = 0;
+        AttackDistance_Add = 0;
+        AttackRange_Add = 0;
+        Expend_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
-            HackSpeed_Add += 0.2f;
+            AttackSpeed_Add += 0.2f;
         }
         if (itemQuality >= ItemQuality.Blue)
         {
-            HackExpend_Add -= (float)Math.Round(HackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            HackDamage_Add += 1;
-            HackSpeed_Add += 0.3f;
+            BludgeoningDamage_Add += 1;
+            AttackSpeed_Add += 0.3f;
         }
         if (itemQuality >= ItemQuality.Gold)
         {
-            HackDamage_Add += 1;
+            BludgeoningDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            HackSpeed_Add += 0.3f;
+            AttackSpeed_Add += 0.3f;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            HackExpend_Add = -HackExpend_Base;
+            Expend_Add = -Expend_Base;
         }
-        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdateAexData(HackDamage_Base + HackDamage_Add, HackSpeed_Base + HackSpeed_Add, HackDistance_Base + HackDistance_Add, HackExpend_Base + HackExpend_Add, itemQuality);
+        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdatePickaxeData(BludgeoningDamage_Base + BludgeoningDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
     }
 
     #endregion
     #region//Ê¹ÓÃÂß¼­
-    private ItemLocalObj_Axe itemLocalObj_Axe;
+    private ItemLocalObj_Pickaxe itemLocalObj_Axe;
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
     {
         this.owner = owner;
-        itemLocalObj_Axe = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2020").GetComponent<ItemLocalObj_Axe>();
+        itemLocalObj_Axe = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2020").GetComponent<ItemLocalObj_Pickaxe>();
         itemLocalObj_Axe.InitData(itemData);
         itemLocalObj_Axe.HoldingStart(owner, body);
-        itemLocalObj_Axe.UpdateAexData(HackDamage_Base + HackDamage_Add, HackSpeed_Base + HackSpeed_Add, HackDistance_Base + HackDistance_Add, HackExpend_Base + HackExpend_Add, itemQuality);
+        itemLocalObj_Axe.UpdatePickaxeData(BludgeoningDamage_Base + BludgeoningDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
         base.OnHand_Start(owner, body);
     }
     public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
@@ -704,54 +650,54 @@ public class Item_2021 : ItemBase_Tool
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// Åü¿³ÉËº¦
+    /// ¶Û»÷ÉËº¦
     /// </summary>
-    private readonly int HackDamage_Base = 12;
+    private readonly int BludgeoningDamage_Base = 7;
     /// <summary>
-    /// Åü¿³ÉËº¦ÐÞÕý
+    /// ¶Û»÷ÉËº¦ÐÞÕý
     /// </summary>
-    private int HackDamage_Add = 0;
+    private int BludgeoningDamage_Add = 0;
     /// <summary>
-    /// Åü¿³ËÙ¶È
+    /// ¹¥»÷ËÙ¶È
     /// </summary>
-    private readonly float HackSpeed_Base = 0.7f;
+    private readonly float AttackSpeed_Base = 1.5f;
     /// <summary>
-    /// Åü¿³ËÙ¶ÈÐÞÕý
+    /// ¹¥»÷ËÙ¶ÈÐÞÕý
     /// </summary>
-    private float HackSpeed_Add = 0;
+    private float AttackSpeed_Add = 0;
     /// <summary>
-    /// Åü¿³¾àÀë
+    /// ¹¥»÷¾àÀë
     /// </summary>
-    private readonly float HackDistance_Base = 1;
+    private readonly float AttackDistance_Base = 1;
     /// <summary>
-    /// Åü¿³¾àÀëÐÞÕý
+    /// ¹¥»÷¾àÀëÐÞÕý
     /// </summary>
-    private float HackDistance_Add = 0;
+    private float AttackDistance_Add = 0;
     /// <summary>
-    /// Åü¿³·¶Î§
+    /// ¹¥»÷·¶Î§
     /// </summary>
-    private readonly float HackRange_Base = 60;
+    private readonly float AttackRange_Base = 60;
     /// <summary>
-    /// Åü¿³·¶Î§ÐÞÕý
+    /// ¹¥»÷·¶Î§ÐÞÕý
     /// </summary>
-    private float HackRange_Add = 0;
+    private float AttackRange_Add = 0;
     /// <summary>
-    /// Åü¿³ËðºÄ
+    /// ËðºÄ
     /// </summary>
-    private readonly float HackExpend_Base = 0.8f;
+    private readonly float Expend_Base = 0.5f;
     /// <summary>
-    /// Åü¿³ËðºÄÐÞÕý
+    /// ËðºÄÐÞÕý
     /// </summary>
-    private float HackExpend_Add = 0;
+    private float Expend_Add = 0;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/HackDamage/", (HackDamage_Base + HackDamage_Add).ToString());
-        desc = desc.Replace("/HackSpeed/", (HackSpeed_Base + HackSpeed_Add).ToString());
-        desc = desc.Replace("/HackRange/", (HackRange_Base + HackRange_Add).ToString());
-        desc = desc.Replace("/HackDistance/", (HackDistance_Base + HackDistance_Add).ToString());
-        desc = desc.Replace("/HackExpend/", (HackExpend_Base + HackExpend_Add).ToString());
+        desc = desc.Replace("/BludgeoningDamage/", (BludgeoningDamage_Base + BludgeoningDamage_Add).ToString());
+        desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
+        desc = desc.Replace("/AttackRange/", (AttackRange_Base + AttackRange_Add).ToString());
+        desc = desc.Replace("/AttackDistance/", (AttackDistance_Base + AttackDistance_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -759,74 +705,74 @@ public class Item_2021 : ItemBase_Tool
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        HackDamage_Add = 0;
-        HackSpeed_Add = 0;
-        HackDistance_Add = 0;
-        HackRange_Add = 0;
-        HackExpend_Add = 0;
+        BludgeoningDamage_Add = 0;
+        AttackSpeed_Add = 0;
+        AttackDistance_Add = 0;
+        AttackRange_Add = 0;
+        Expend_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
-            HackSpeed_Add += 0.2f;
+            AttackSpeed_Add += 0.2f;
         }
         if (itemQuality >= ItemQuality.Blue)
         {
-            HackExpend_Add -= (float)Math.Round(HackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            HackDamage_Add += 1; 
-            HackSpeed_Add += 0.3f;
+            BludgeoningDamage_Add += 1;
+            AttackSpeed_Add += 0.3f;
         }
         if (itemQuality >= ItemQuality.Gold)
         {
-            HackDamage_Add += 1;
+            BludgeoningDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            HackSpeed_Add += 0.3f;
+            AttackSpeed_Add += 0.3f;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            HackExpend_Add = -HackExpend_Base;
+            Expend_Add = -Expend_Base;
         }
-        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdateAexData(HackDamage_Base + HackDamage_Add, HackSpeed_Base + HackSpeed_Add, HackDistance_Base + HackDistance_Add, HackExpend_Base + HackExpend_Add, itemQuality);
+        if (itemLocalObj_Pickaxe) itemLocalObj_Pickaxe.UpdatePickaxeData(BludgeoningDamage_Base + BludgeoningDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
     }
 
     #endregion
     #region//Ê¹ÓÃÂß¼­
-    private ItemLocalObj_Axe itemLocalObj_Axe;
+    private ItemLocalObj_Pickaxe itemLocalObj_Pickaxe;
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
     {
         this.owner = owner;
-        itemLocalObj_Axe = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2021").GetComponent<ItemLocalObj_Axe>();
-        itemLocalObj_Axe.InitData(itemData);
-        itemLocalObj_Axe.HoldingStart(owner, body);
-        itemLocalObj_Axe.UpdateAexData(HackDamage_Base + HackDamage_Add, HackSpeed_Base + HackSpeed_Add, HackDistance_Base + HackDistance_Add, HackExpend_Base + HackExpend_Add, itemQuality);
+        itemLocalObj_Pickaxe = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2021").GetComponent<ItemLocalObj_Pickaxe>();
+        itemLocalObj_Pickaxe.InitData(itemData);
+        itemLocalObj_Pickaxe.HoldingStart(owner, body);
+        itemLocalObj_Pickaxe.UpdatePickaxeData(BludgeoningDamage_Base + BludgeoningDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
         base.OnHand_Start(owner, body);
     }
     public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
     {
-        return itemLocalObj_Axe.PressLeftMouse(pressTimer, owner.actorAuthority);
+        return itemLocalObj_Pickaxe.PressLeftMouse(pressTimer, owner.actorAuthority);
     }
     public override void OnHand_ReleaseLeftPress(bool state, bool input, bool player)
     {
-        itemLocalObj_Axe.ReleaseLeftMouse();
+        itemLocalObj_Pickaxe.ReleaseLeftMouse();
         base.OnHand_ReleaseLeftPress(state, input, player);
     }
     public override void OnHand_UpdateMousePos(Vector3 mouse)
     {
-        itemLocalObj_Axe.UpdateMousePos(mouse);
+        itemLocalObj_Pickaxe.UpdateMousePos(mouse);
         inputData.mousePosition = mouse;
         base.OnHand_UpdateMousePos(mouse);
     }
     public override void UpdateDataFromNet(ItemData data)
     {
-        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdateDataByNet(data);
+        if (itemLocalObj_Pickaxe) itemLocalObj_Pickaxe.UpdateDataByNet(data);
         base.UpdateDataFromNet(data);
     }
     public override void UpdateDataFromLocal(ItemData data)
     {
-        if (itemLocalObj_Axe) itemLocalObj_Axe.UpdateDataByLocal(data);
+        if (itemLocalObj_Pickaxe) itemLocalObj_Pickaxe.UpdateDataByLocal(data);
         base.UpdateDataFromLocal(data);
     }
     #endregion
@@ -1005,16 +951,16 @@ public class Item_2040 : ItemBase_Tool
     /// <summary>
     /// Ê¹ÓÃËðºÄ
     /// </summary>
-    private readonly float HoeExpend_Base = 2f;
+    private readonly float Expend_Base = 2f;
     /// <summary>
     /// Ê¹ÓÃËðºÄÐÞÕý
     /// </summary>
-    private float HoeExpend_Add = 0;
+    private float Expend_Add = 0;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/HoeExpend/", (HoeExpend_Base + HoeExpend_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -1022,32 +968,32 @@ public class Item_2040 : ItemBase_Tool
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        HoeExpend_Add = 0;
+        Expend_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
-            HoeExpend_Add -= (float)Math.Round(HoeExpend_Base * 0.1f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.1f, 2);
         }
         if (itemQuality >= ItemQuality.Blue)
         {
-            HoeExpend_Add -= (float)Math.Round(HoeExpend_Base * 0.1f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.1f, 2);
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            HoeExpend_Add -= (float)Math.Round(HoeExpend_Base * 0.1f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.1f, 2);
         }
         if (itemQuality >= ItemQuality.Gold)
         {
-            HoeExpend_Add -= (float)Math.Round(HoeExpend_Base * 0.1f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.1f, 2);
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            HoeExpend_Add -= (float)Math.Round(HoeExpend_Base * 0.1f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.1f, 2);
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            HoeExpend_Add = -HoeExpend_Base;
+            Expend_Add = -Expend_Base;
         }
-        if (itemLocalObj_Hoe) itemLocalObj_Hoe.UpdateHoeData(HoeExpend_Base + HoeExpend_Add, itemQuality);
+        if (itemLocalObj_Hoe) itemLocalObj_Hoe.UpdateHoeData(Expend_Base + Expend_Add, itemQuality);
     }
 
     #endregion
@@ -1060,7 +1006,7 @@ public class Item_2040 : ItemBase_Tool
         itemLocalObj_Hoe = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2040").GetComponent<ItemLocalObj_Hoe>();
         itemLocalObj_Hoe.InitData(itemData);
         itemLocalObj_Hoe.HoldingStart(owner, body);
-        itemLocalObj_Hoe.UpdateHoeData(HoeExpend_Base + HoeExpend_Add, itemQuality);
+        itemLocalObj_Hoe.UpdateHoeData(Expend_Base + Expend_Add, itemQuality);
         base.OnHand_Start(owner, body);
     }
     public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
@@ -1090,6 +1036,252 @@ public class Item_2040 : ItemBase_Tool
     }
     #endregion
 }
+/// <summary>
+/// Ä¾Á­µ¶
+/// </summary>
+public class Item_2050 : ItemBase_Tool
+{
+    #region//»ù´¡ÊýÖµ
+    /// <summary>
+    /// ÉËº¦
+    /// </summary>
+    private readonly int AttackDamage_Base = 5;
+    /// <summary>
+    /// ËÙ¶È
+    /// </summary>
+    private readonly float AttackSpeed_Base = 2f;
+    /// <summary>
+    /// ÊÕ¸îËÙ¶ÈÐÞÕý
+    /// </summary>
+    private float AttackSpeed_Add = 0;
+    /// <summary>
+    /// Ê¹ÓÃËðºÄ
+    /// </summary>
+    private readonly float Expend_Base = 2f;
+    /// <summary>
+    /// Ê¹ÓÃËðºÄÐÞÕý
+    /// </summary>
+    private float Expend_Add = 0;
+    #endregion
+    #region//ÐÞ¸ÄÃèÊö
+    public override string GridCell_UpdateDesc(string desc)
+    {
+        desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
+        return base.GridCell_UpdateDesc(desc);
+    }
+    #endregion
+    #region//ÐÞ¸ÄÆ·ÖÊ
+    public override void CalculateQuality()
+    {
+        base.CalculateQuality();
+        Expend_Add = 0;
+        if (itemQuality >= ItemQuality.Green)
+        {
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.1f, 2);
+        }
+        if (itemQuality >= ItemQuality.Blue)
+        {
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.1f, 2);
+        }
+        if (itemQuality >= ItemQuality.Purple)
+        {
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.1f, 2);
+        }
+        if (itemQuality >= ItemQuality.Gold)
+        {
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.1f, 2);
+        }
+        if (itemQuality >= ItemQuality.Red)
+        {
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.1f, 2);
+        }
+        if (itemQuality >= ItemQuality.Rainbow)
+        {
+            Expend_Add = -Expend_Base;
+        }
+        if (itemLocalObj_Sickle) itemLocalObj_Sickle.UpdateSickleData(AttackDamage_Base, AttackSpeed_Base + AttackSpeed_Add, Expend_Base + Expend_Add, itemQuality);
+    }
+
+    #endregion
+
+    #region//Ê¹ÓÃÂß¼­
+    private ItemLocalObj_Sickle itemLocalObj_Sickle;
+    public override void OnHand_Start(ActorManager owner, BodyController_Human body)
+    {
+        this.owner = owner;
+        itemLocalObj_Sickle = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2050").GetComponent<ItemLocalObj_Sickle>();
+        itemLocalObj_Sickle.InitData(itemData);
+        itemLocalObj_Sickle.HoldingStart(owner, body);
+        itemLocalObj_Sickle.UpdateSickleData(AttackDamage_Base, AttackSpeed_Base + AttackSpeed_Add, Expend_Base + Expend_Add, itemQuality);
+        base.OnHand_Start(owner, body);
+    }
+    public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
+    {
+        return itemLocalObj_Sickle.PressLeftMouse(pressTimer, owner.actorAuthority);
+    }
+    public override void OnHand_ReleaseLeftPress(bool state, bool input, bool player)
+    {
+        itemLocalObj_Sickle.ReleaseLeftMouse();
+        base.OnHand_ReleaseLeftPress(state, input, player);
+    }
+    public override void OnHand_UpdateMousePos(Vector3 mouse)
+    {
+        itemLocalObj_Sickle.UpdateMousePos(mouse);
+        inputData.mousePosition = mouse;
+        base.OnHand_UpdateMousePos(mouse);
+    }
+    public override void UpdateDataFromNet(ItemData data)
+    {
+        if (itemLocalObj_Sickle) itemLocalObj_Sickle.UpdateDataByNet(data);
+        base.UpdateDataFromNet(data);
+    }
+    public override void UpdateDataFromLocal(ItemData data)
+    {
+        if (itemLocalObj_Sickle) itemLocalObj_Sickle.UpdateDataByLocal(data);
+        base.UpdateDataFromLocal(data);
+    }
+    #endregion
+}
+/// <summary>
+/// Ä¾´¸
+/// </summary>
+public class Item_2060 : ItemBase_Tool
+{
+    #region//»ù´¡ÊýÖµ
+    /// <summary>
+    /// ²ðÐ¶ÉËº¦
+    /// </summary>
+    private readonly int StructureDamage_Base = 10;
+    /// <summary>
+    /// ¶Û»÷ÉËº¦
+    /// </summary>
+    private readonly int BludgeoningDamage_Base = 10;
+    /// <summary>
+    /// ¶Û»÷ÉËº¦ÐÞÕý
+    /// </summary>
+    private int BludgeoningDamage_Add = 0;
+    /// <summary>
+    /// ¹¥»÷ËÙ¶È
+    /// </summary>
+    private readonly float AttackSpeed_Base = 1f;
+    /// <summary>
+    /// ¹¥»÷ËÙ¶ÈÐÞÕý
+    /// </summary>
+    private float AttackSpeed_Add = 0;
+    /// <summary>
+    /// ¹¥»÷¾àÀë
+    /// </summary>
+    private readonly float AttackDistance_Base = 1;
+    /// <summary>
+    /// ¹¥»÷¾àÀëÐÞÕý
+    /// </summary>
+    private float AttackDistance_Add = 0;
+    /// <summary>
+    /// ¹¥»÷·¶Î§
+    /// </summary>
+    private readonly float AttackRange_Base = 60;
+    /// <summary>
+    /// ¹¥»÷·¶Î§ÐÞÕý
+    /// </summary>
+    private float AttackRange_Add = 0;
+    /// <summary>
+    /// ËðºÄ
+    /// </summary>
+    private readonly float Expend_Base = 0.5f;
+    /// <summary>
+    /// ËðºÄÐÞÕý
+    /// </summary>
+    private float Expend_Add = 0;
+    #endregion
+    #region//ÐÞ¸ÄÃèÊö
+    public override string GridCell_UpdateDesc(string desc)
+    {
+        desc = desc.Replace("/BludgeoningDamage/", (BludgeoningDamage_Base + BludgeoningDamage_Add).ToString());
+        desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
+        desc = desc.Replace("/AttackRange/", (AttackRange_Base + AttackRange_Add).ToString());
+        desc = desc.Replace("/AttackDistance/", (AttackDistance_Base + AttackDistance_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
+        return base.GridCell_UpdateDesc(desc);
+    }
+    #endregion
+    #region//ÐÞ¸ÄÆ·ÖÊ
+    public override void CalculateQuality()
+    {
+        base.CalculateQuality();
+        BludgeoningDamage_Add = 0;
+        AttackSpeed_Add = 0;
+        AttackDistance_Add = 0;
+        AttackRange_Add = 0;
+        Expend_Add = 0;
+        if (itemQuality >= ItemQuality.Green)
+        {
+            AttackSpeed_Add += 0.2f;
+        }
+        if (itemQuality >= ItemQuality.Blue)
+        {
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
+        }
+        if (itemQuality >= ItemQuality.Purple)
+        {
+            BludgeoningDamage_Add += 1;
+            AttackSpeed_Add += 0.3f;
+        }
+        if (itemQuality >= ItemQuality.Gold)
+        {
+            BludgeoningDamage_Add += 1;
+        }
+        if (itemQuality >= ItemQuality.Red)
+        {
+            AttackSpeed_Add += 0.3f;
+        }
+        if (itemQuality >= ItemQuality.Rainbow)
+        {
+            Expend_Add = -Expend_Base;
+        }
+        if (itemLocalObj_Hammer) itemLocalObj_Hammer.UpdateHammerData(StructureDamage_Base, BludgeoningDamage_Base + BludgeoningDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
+    }
+
+    #endregion
+    #region//Ê¹ÓÃÂß¼­
+    private ItemLocalObj_Hammer itemLocalObj_Hammer;
+    public override void OnHand_Start(ActorManager owner, BodyController_Human body)
+    {
+        this.owner = owner;
+        itemLocalObj_Hammer = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2060").GetComponent<ItemLocalObj_Hammer>();
+        itemLocalObj_Hammer.InitData(itemData);
+        itemLocalObj_Hammer.HoldingStart(owner, body);
+        itemLocalObj_Hammer.UpdateHammerData(StructureDamage_Base, BludgeoningDamage_Base + BludgeoningDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackDistance_Base + AttackDistance_Add, Expend_Base + Expend_Add, itemQuality);
+        base.OnHand_Start(owner, body);
+    }
+    public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
+    {
+        return itemLocalObj_Hammer.PressLeftMouse(pressTimer, owner.actorAuthority);
+    }
+    public override void OnHand_ReleaseLeftPress(bool state, bool input, bool player)
+    {
+        itemLocalObj_Hammer.ReleaseLeftMouse();
+        base.OnHand_ReleaseLeftPress(state, input, player);
+    }
+    public override void OnHand_UpdateMousePos(Vector3 mouse)
+    {
+        itemLocalObj_Hammer.UpdateMousePos(mouse);
+        inputData.mousePosition = mouse;
+        base.OnHand_UpdateMousePos(mouse);
+    }
+    public override void UpdateDataFromNet(ItemData data)
+    {
+        if (itemLocalObj_Hammer) itemLocalObj_Hammer.UpdateDataByNet(data);
+        base.UpdateDataFromNet(data);
+    }
+    public override void UpdateDataFromLocal(ItemData data)
+    {
+        if (itemLocalObj_Hammer) itemLocalObj_Hammer.UpdateDataByLocal(data);
+        base.UpdateDataFromLocal(data);
+    }
+    #endregion
+}
+
 #endregion
 #region//½üÕ½ÎäÆ÷
 /// <summary>
@@ -1101,19 +1293,19 @@ public class Item_2100 : ItemBase_Weapon
     /// <summary>
     /// ´Á´ÌÉËº¦
     /// </summary>
-    private readonly int StabDamage_Base = 6;
+    private readonly int PiercingDamage_Base = 6;
     /// <summary>
     /// ´Á´ÌÉËº¦ÐÞÕý
     /// </summary>
-    private int StabDamage_Add = 0;
+    private int PiercingDamage_Add = 0;
     /// <summary>
     /// ºáÉ¨ÉËº¦
     /// </summary>
-    private readonly int HackDamage_Base = 4;
+    private readonly int SlashingDamage_Base = 4;
     /// <summary>
     /// ºáÉ¨ÉËº¦ÐÞÕý
     /// </summary>
-    private int HackDamage_Add = 0;
+    private int SlashingDamage_Add = 0;
     /// <summary>
     /// ¹¥»÷ËÙ¶È
     /// </summary>
@@ -1133,20 +1325,20 @@ public class Item_2100 : ItemBase_Weapon
     /// <summary>
     /// ¹¥»÷ËðºÄ
     /// </summary>
-    private readonly float AttackExpend_Base = 0.8f;
+    private readonly float Expend_Base = 0.8f;
     /// <summary>
     /// ¹¥»÷ËðºÄÐÞÕý
     /// </summary>
-    private float AttackExpend_Add = 0;
+    private float Expend_Add = 0;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/StabDamage/", (StabDamage_Base + StabDamage_Add).ToString());
-        desc = desc.Replace("/HackDamage/", (HackDamage_Base + HackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
+        desc = desc.Replace("/SlashingDamage/", (SlashingDamage_Base + SlashingDamage_Add).ToString());
         desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
         desc = desc.Replace("/AttackDistance/", (AttackDistance_Base + AttackDistance_Add).ToString());
-        desc = desc.Replace("/AttackExpend/", (AttackExpend_Base + AttackExpend_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -1154,11 +1346,11 @@ public class Item_2100 : ItemBase_Weapon
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        HackDamage_Add = 0;
-        StabDamage_Add = 0;
+        SlashingDamage_Add = 0;
+        PiercingDamage_Add = 0;
         AttackDistance_Add = 0;
         AttackSpeed_Add = 0;
-        AttackExpend_Add = 0;
+        Expend_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
             AttackSpeed_Add += 0.2f;
@@ -1166,35 +1358,35 @@ public class Item_2100 : ItemBase_Weapon
         if (itemQuality >= ItemQuality.Blue)
         {
             AttackSpeed_Add += 0.2f;
-            AttackExpend_Add -= (float)Math.Round(AttackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            HackDamage_Add += 1;
-            StabDamage_Add += 1;
+            SlashingDamage_Add += 1;
+            PiercingDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Gold)
         {
             AttackSpeed_Add += 0.2f;
-            AttackExpend_Add -= (float)Math.Round(AttackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            HackDamage_Add += 1;
-            StabDamage_Add += 1;
+            SlashingDamage_Add += 1;
+            PiercingDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            AttackExpend_Add = -AttackExpend_Base;
+            Expend_Add = -Expend_Base;
         }
         if (itemLocalObj_Spear)
         {
             itemLocalObj_Spear.UpdateSpearData(
-                StabDamage_Base + StabDamage_Add,
-                HackDamage_Base + HackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
+                SlashingDamage_Base + SlashingDamage_Add,
                 AttackSpeed_Base + AttackSpeed_Add,
                 AttackDistance_Base + AttackDistance_Add,
-                AttackExpend_Base + AttackExpend_Add,
+                Expend_Base + Expend_Add,
                 itemQuality);
         }
     }
@@ -1209,11 +1401,11 @@ public class Item_2100 : ItemBase_Weapon
         itemLocalObj_Spear.InitData(itemData);
         itemLocalObj_Spear.HoldingStart(owner, body);
         itemLocalObj_Spear.UpdateSpearData(
-            StabDamage_Base + StabDamage_Add,
-            HackDamage_Base + HackDamage_Add,
+            PiercingDamage_Base + PiercingDamage_Add,
+            SlashingDamage_Base + SlashingDamage_Add,
             AttackSpeed_Base + AttackSpeed_Add,
             AttackDistance_Base + AttackDistance_Add,
-            AttackExpend_Base + AttackExpend_Add, 
+            Expend_Base + Expend_Add, 
             itemQuality);
         base.OnHand_Start(owner, body);
     }
@@ -1259,23 +1451,23 @@ public class Item_2101 : ItemBase_Weapon
     /// <summary>
     /// ´Á´ÌÉËº¦
     /// </summary>
-    private readonly int StabDamage_Base = 8;
+    private readonly int PiercingDamage_Base = 8;
     /// <summary>
     /// ´Á´ÌÉËº¦ÐÞÕý
     /// </summary>
-    private int StabDamage_Add = 0;
+    private int PiercingDamage_Add = 0;
     /// <summary>
     /// ºáÉ¨ÉËº¦
     /// </summary>
-    private readonly int HackDamage_Base = 6;
+    private readonly int SlashingDamage_Base = 6;
     /// <summary>
     /// ºáÉ¨ÉËº¦ÐÞÕý
     /// </summary>
-    private int HackDamage_Add = 0;
+    private int SlashingDamage_Add = 0;
     /// <summary>
     /// ¹¥»÷ËÙ¶È
     /// </summary>
-    private readonly float AttackSpeed_Base = 1.2f;
+    private readonly float AttackSpeed_Base = 1f;
     /// <summary>
     /// ¹¥»÷ËÙ¶ÈÐÞÕý
     /// </summary>
@@ -1291,20 +1483,20 @@ public class Item_2101 : ItemBase_Weapon
     /// <summary>
     /// ¹¥»÷ËðºÄ
     /// </summary>
-    private readonly float AttackExpend_Base = 0.8f;
+    private readonly float Expend_Base = 0.8f;
     /// <summary>
     /// ¹¥»÷ËðºÄÐÞÕý
     /// </summary>
-    private float AttackExpend_Add = 0;
+    private float Expend_Add = 0;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/StabDamage/", (StabDamage_Base + StabDamage_Add).ToString());
-        desc = desc.Replace("/HackDamage/", (HackDamage_Base + HackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
+        desc = desc.Replace("/SlashingDamage/", (SlashingDamage_Base + SlashingDamage_Add).ToString());
         desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
         desc = desc.Replace("/AttackDistance/", (AttackDistance_Base + AttackDistance_Add).ToString());
-        desc = desc.Replace("/AttackExpend/", (AttackExpend_Base + AttackExpend_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -1312,11 +1504,11 @@ public class Item_2101 : ItemBase_Weapon
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        HackDamage_Add = 0;
-        StabDamage_Add = 0;
+        SlashingDamage_Add = 0;
+        PiercingDamage_Add = 0;
         AttackDistance_Add = 0;
         AttackSpeed_Add = 0;
-        AttackExpend_Add = 0;
+        Expend_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
             AttackSpeed_Add += 0.2f;
@@ -1324,40 +1516,40 @@ public class Item_2101 : ItemBase_Weapon
         if (itemQuality >= ItemQuality.Blue)
         {
             AttackSpeed_Add += 0.2f;
-            AttackExpend_Add -= (float)Math.Round(AttackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            HackDamage_Add += 1;
-            StabDamage_Add += 1;
+            SlashingDamage_Add += 1;
+            PiercingDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Gold)
         {
             AttackSpeed_Add += 0.2f;
-            AttackExpend_Add -= (float)Math.Round(AttackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            HackDamage_Add += 1;
-            StabDamage_Add += 1;
+            SlashingDamage_Add += 1;
+            PiercingDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            AttackExpend_Add = -AttackExpend_Base;
+            Expend_Add = -Expend_Base;
         }
         if (itemLocalObj_Spear)
         {
             itemLocalObj_Spear.UpdateSpearData(
-                StabDamage_Base + StabDamage_Add, 
-                HackDamage_Base + HackDamage_Add, 
-                AttackSpeed_Base + AttackSpeed_Add, 
-                AttackDistance_Base + AttackDistance_Add, 
-                AttackExpend_Base + AttackExpend_Add, 
+                PiercingDamage_Base + PiercingDamage_Add,
+                SlashingDamage_Base + SlashingDamage_Add,
+                AttackSpeed_Base + AttackSpeed_Add,
+                AttackDistance_Base + AttackDistance_Add,
+                Expend_Base + Expend_Add,
                 itemQuality);
         }
     }
-    #endregion
 
+    #endregion
     #region//Ê¹ÓÃÂß¼­
     private ItemLocalObj_Spear itemLocalObj_Spear;
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
@@ -1367,11 +1559,11 @@ public class Item_2101 : ItemBase_Weapon
         itemLocalObj_Spear.InitData(itemData);
         itemLocalObj_Spear.HoldingStart(owner, body);
         itemLocalObj_Spear.UpdateSpearData(
-            StabDamage_Base + StabDamage_Add,
-            HackDamage_Base + HackDamage_Add,
+            PiercingDamage_Base + PiercingDamage_Add,
+            SlashingDamage_Base + SlashingDamage_Add,
             AttackSpeed_Base + AttackSpeed_Add,
             AttackDistance_Base + AttackDistance_Add,
-            AttackExpend_Base + AttackExpend_Add,
+            Expend_Base + Expend_Add,
             itemQuality);
         base.OnHand_Start(owner, body);
     }
@@ -1415,13 +1607,13 @@ public class Item_2102 : ItemBase_Weapon
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// ¹¥»÷ÉËº¦
+    /// ´Á´ÌÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 8;
+    private readonly int PiercingDamage_Base = 8;
     /// <summary>
-    /// ¹¥»÷ÉËº¦ÐÞÕý
+    /// ´Á´ÌÉËº¦ÐÞÕý
     /// </summary>
-    private int AttackDamage_Add = 0;
+    private int PiercingDamage_Add = 0;
     /// <summary>
     /// ¹¥»÷ËÙ¶È
     /// </summary>
@@ -1433,18 +1625,18 @@ public class Item_2102 : ItemBase_Weapon
     /// <summary>
     /// ¹¥»÷ËðºÄ
     /// </summary>
-    private readonly float AttackExpend_Base = 0.8f;
+    private readonly float Expend_Base = 0.8f;
     /// <summary>
     /// ¹¥»÷ËðºÄÐÞÕý
     /// </summary>
-    private float AttackExpend_Add = 0;
+    private float Expend_Add = 0;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
-        desc = desc.Replace("/AttackExpend/", (AttackExpend_Base + AttackExpend_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -1452,9 +1644,9 @@ public class Item_2102 : ItemBase_Weapon
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         AttackSpeed_Add = 0;
-        AttackExpend_Add = 0;
+        Expend_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
             AttackSpeed_Add += 0.2f;
@@ -1462,28 +1654,28 @@ public class Item_2102 : ItemBase_Weapon
         if (itemQuality >= ItemQuality.Blue)
         {
             AttackSpeed_Add += 0.2f;
-            AttackExpend_Add -= (float)Math.Round(AttackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            AttackDamage_Add += 1;
+            PiercingDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Gold)
         {
             AttackSpeed_Add += 0.2f;
-            AttackExpend_Add -= (float)Math.Round(AttackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 4;
+            PiercingDamage_Add += 4;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            AttackExpend_Add = -AttackExpend_Base;
+            Expend_Add = -Expend_Base;
         }
         if (itemLocalObj_Dagger)
         {
-            itemLocalObj_Dagger.UpdateDaggerData(AttackDamage_Base + AttackDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackExpend_Base + AttackExpend_Add, itemQuality);
+            itemLocalObj_Dagger.UpdateDaggerData(PiercingDamage_Base + PiercingDamage_Add, AttackSpeed_Base + AttackSpeed_Add, Expend_Base + Expend_Add, itemQuality);
         }
     }
     #endregion
@@ -1496,7 +1688,7 @@ public class Item_2102 : ItemBase_Weapon
         itemLocalObj_Dagger = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2102").GetComponent<ItemLocalObj_Dagger>();
         itemLocalObj_Dagger.InitData(itemData);
         itemLocalObj_Dagger.HoldingStart(owner, body);
-        itemLocalObj_Dagger.UpdateDaggerData(AttackDamage_Base + AttackDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackExpend_Base + AttackExpend_Add, itemQuality);
+        itemLocalObj_Dagger.UpdateDaggerData(PiercingDamage_Base + PiercingDamage_Add, AttackSpeed_Base + AttackSpeed_Add, Expend_Base + Expend_Add, itemQuality);
         base.OnHand_Start(owner, body);
     }
     public override void OnHand_UpdateMousePos(Vector3 mouse)
@@ -1539,13 +1731,13 @@ public class Item_2103 : ItemBase_Weapon
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// ¹¥»÷ÉËº¦
+    /// Åü¿³ÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 6;
+    private readonly int SlashingDamage_Base = 6;
     /// <summary>
-    /// ¹¥»÷ÉËº¦ÐÞÕý
+    /// Åü¿³ÉËº¦ÐÞÕý
     /// </summary>
-    private int AttackDamage_Add = 0;
+    private int SlashingDamage_Add = 0;
     /// <summary>
     /// ¹¥»÷ËÙ¶È
     /// </summary>
@@ -1555,20 +1747,20 @@ public class Item_2103 : ItemBase_Weapon
     /// </summary>
     private float AttackSpeed_Add = 0;
     /// <summary>
-    /// ¹¥»÷ËðºÄ
+    /// ËðºÄ
     /// </summary>
-    private readonly float AttackExpend_Base = 0.5f;
+    private readonly float Expend_Base = 0.5f;
     /// <summary>
-    /// ¹¥»÷ËðºÄÐÞÕý
+    /// ËðºÄÐÞÕý
     /// </summary>
-    private float AttackExpend_Add = 0;
+    private float Expend_Add = 0;
     #endregion
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/SlashingDamage/", (SlashingDamage_Base + SlashingDamage_Add).ToString());
         desc = desc.Replace("/AttackSpeed/", (AttackSpeed_Base + AttackSpeed_Add).ToString());
-        desc = desc.Replace("/AttackExpend/", (AttackExpend_Base + AttackExpend_Add).ToString());
+        desc = desc.Replace("/Expend/", (Expend_Base + Expend_Add).ToString());
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
@@ -1576,9 +1768,9 @@ public class Item_2103 : ItemBase_Weapon
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        SlashingDamage_Add = 0;
         AttackSpeed_Add = 0;
-        AttackExpend_Add = 0;
+        Expend_Add = 0;
         if (itemQuality >= ItemQuality.Green)
         {
             AttackSpeed_Add += 0.2f;
@@ -1586,28 +1778,28 @@ public class Item_2103 : ItemBase_Weapon
         if (itemQuality >= ItemQuality.Blue)
         {
             AttackSpeed_Add += 0.2f;
-            AttackExpend_Add -= (float)Math.Round(AttackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Purple)
         {
-            AttackDamage_Add += 1;
+            SlashingDamage_Add += 1;
         }
         if (itemQuality >= ItemQuality.Gold)
         {
             AttackSpeed_Add += 0.2f;
-            AttackExpend_Add -= (float)Math.Round(AttackExpend_Base * 0.3f, 2);
+            Expend_Add -= (float)Math.Round(Expend_Base * 0.3f, 2);
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 4;
+            SlashingDamage_Add += 4;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
-            AttackExpend_Add = -AttackExpend_Base;
+            Expend_Add = -Expend_Base;
         }
         if (itemLocalObj_Broadsword)
         {
-            itemLocalObj_Broadsword.UpdateBroadswordData(AttackDamage_Base + AttackDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackExpend_Base + AttackExpend_Add, itemQuality);
+            itemLocalObj_Broadsword.UpdateBroadswordData(SlashingDamage_Base + SlashingDamage_Add, AttackSpeed_Base + AttackSpeed_Add, Expend_Base + Expend_Add, itemQuality);
         }
     }
     #endregion
@@ -1620,7 +1812,7 @@ public class Item_2103 : ItemBase_Weapon
         itemLocalObj_Broadsword = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_2103").GetComponent<ItemLocalObj_Broadsword>();
         itemLocalObj_Broadsword.InitData(itemData);
         itemLocalObj_Broadsword.HoldingStart(owner, body);
-        itemLocalObj_Broadsword.UpdateBroadswordData(AttackDamage_Base + AttackDamage_Add, AttackSpeed_Base + AttackSpeed_Add, AttackExpend_Base + AttackExpend_Add, itemQuality);
+        itemLocalObj_Broadsword.UpdateBroadswordData(SlashingDamage_Base + SlashingDamage_Add, AttackSpeed_Base + AttackSpeed_Add, Expend_Base + Expend_Add, itemQuality);
         base.OnHand_Start(owner, body);
     }
     public override void OnHand_UpdateMousePos(Vector3 mouse)
@@ -1667,17 +1859,13 @@ public class Item_2200 : ItemBase_Gun
     /// <summary>
     /// ÎïÀíÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 0;
-    private int AttackDamage_Add;
+    private readonly int PiercingDamage_Base = 0;
+    private int PiercingDamage_Add;
     /// <summary>
     /// Ä§·¨ÉËº¦
     /// </summary>
     private readonly int MagicDamage_Base = 0;
     private int MagicDamage_Add;
-    /// <summary>
-    /// µ¯ÈÝÁ¿
-    /// </summary>
-    private readonly int BulletCapacity_Base = 10;
     /// <summary>
     /// Éä»÷ËÙ¶È
     /// </summary>
@@ -1712,9 +1900,8 @@ public class Item_2200 : ItemBase_Gun
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/MagicDamage/", (MagicDamage_Base + MagicDamage_Add).ToString());
-        desc = desc.Replace("/BulletCapacity/", (BulletCapacity_Base).ToString());
         desc = desc.Replace("/ShotSpeed/", (ShotSpeed_Base + ShotSpeed_Add).ToString());
         desc = desc.Replace("/ReadySpeed/", (ReadySpeed_Base + ReadySpeed_Add).ToString());
         desc = desc.Replace("/AimSpeed/", (AimSpeed_Base + AimSpeed_Add).ToString());
@@ -1727,7 +1914,7 @@ public class Item_2200 : ItemBase_Gun
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         MagicDamage_Add = 0;
         ShotSpeed_Add = 0;
         ReadySpeed_Add = 0;
@@ -1757,7 +1944,7 @@ public class Item_2200 : ItemBase_Gun
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 5;
+            PiercingDamage_Add += 5;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
@@ -1766,9 +1953,8 @@ public class Item_2200 : ItemBase_Gun
         if (itemLocalObj_Bow)
         {
             itemLocalObj_Bow.UpdateBowData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 ReadySpeed_Base + ReadySpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
@@ -1776,32 +1962,6 @@ public class Item_2200 : ItemBase_Gun
                 AimRangeMax_Base + AimRangeMax_Add,
                 Recoil_Base + Recoil_Add,
                 itemQuality);
-        }
-    }
-    #endregion
-    #region//×°Ìî
-    public override void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
-    {
-        newContent = oldContent;
-        resItem = addItem;
-        short cap =(short)(BulletCapacity_Base);
-        if (oldContent.Item_Content.Item_Count == 0 || oldContent.Item_Content.Item_ID == 0 || oldContent.Item_Content.Item_ID == addItem.Item_ID)
-        {
-            if (ItemConfigData.GetItemConfig(addItem.Item_ID).Item_Type == ItemType.Arrow)
-            {
-                if (oldContent.Item_Content.Item_Count + addItem.Item_Count <= cap)
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = (short)(oldContent.Item_Content.Item_Count + addItem.Item_Count);
-                    resItem.Item_Count = 0;
-                }
-                else
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = cap;
-                    resItem.Item_Count = (short)(addItem.Item_Count + oldContent.Item_Content.Item_Count - cap);
-                }
-            }
         }
     }
     #endregion
@@ -1814,9 +1974,8 @@ public class Item_2200 : ItemBase_Gun
         itemLocalObj_Bow.InitData(itemData);
         itemLocalObj_Bow.HoldingStart(owner, body);
         itemLocalObj_Bow.UpdateBowData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 ReadySpeed_Base + ReadySpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
@@ -1870,17 +2029,13 @@ public class Item_2201 : ItemBase_Gun
     /// <summary>
     /// ÎïÀíÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 0;
-    private int AttackDamage_Add;
+    private readonly int PiercingDamage_Base = 0;
+    private int PiercingDamage_Add;
     /// <summary>
     /// Ä§·¨ÉËº¦
     /// </summary>
     private readonly int MagicDamage_Base = 0;
     private int MagicDamage_Add;
-    /// <summary>
-    /// µ¯ÈÝÁ¿
-    /// </summary>
-    private readonly int BulletCapacity_Base = 15;
     /// <summary>
     /// Éä»÷ËÙ¶È
     /// </summary>
@@ -1915,9 +2070,8 @@ public class Item_2201 : ItemBase_Gun
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/MagicDamage/", (MagicDamage_Base + MagicDamage_Add).ToString());
-        desc = desc.Replace("/BulletCapacity/", (BulletCapacity_Base).ToString());
         desc = desc.Replace("/ShotSpeed/", (ShotSpeed_Base + ShotSpeed_Add).ToString());
         desc = desc.Replace("/ReadySpeed/", (ReadySpeed_Base + ReadySpeed_Add).ToString());
         desc = desc.Replace("/AimSpeed/", (AimSpeed_Base + AimSpeed_Add).ToString());
@@ -1930,7 +2084,7 @@ public class Item_2201 : ItemBase_Gun
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         MagicDamage_Add = 0;
         ShotSpeed_Add = 0;
         ReadySpeed_Add = 0;
@@ -1960,7 +2114,7 @@ public class Item_2201 : ItemBase_Gun
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 5;
+            PiercingDamage_Add += 5;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
@@ -1969,9 +2123,8 @@ public class Item_2201 : ItemBase_Gun
         if (itemLocalObj_Bow)
         {
             itemLocalObj_Bow.UpdateBowData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 ReadySpeed_Base + ReadySpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
@@ -1979,33 +2132,6 @@ public class Item_2201 : ItemBase_Gun
                 AimRangeMax_Base + AimRangeMax_Add,
                 Recoil_Base + Recoil_Add,
                 itemQuality);
-        }
-    }
-    #endregion
-    #region//×°Ìî
-    short config_bulletCapacity = 10;
-    public override void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
-    {
-        newContent = oldContent;
-        resItem = addItem;
-        short cap = (short)(BulletCapacity_Base);
-        if (oldContent.Item_Content.Item_Count == 0 || oldContent.Item_Content.Item_ID == 0 || oldContent.Item_Content.Item_ID == addItem.Item_ID)
-        {
-            if (ItemConfigData.GetItemConfig(addItem.Item_ID).Item_Type == ItemType.Arrow)
-            {
-                if (oldContent.Item_Content.Item_Count + addItem.Item_Count <= cap)
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = (short)(oldContent.Item_Content.Item_Count + addItem.Item_Count);
-                    resItem.Item_Count = 0;
-                }
-                else
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = cap;
-                    resItem.Item_Count = (short)(addItem.Item_Count + oldContent.Item_Content.Item_Count - cap);
-                }
-            }
         }
     }
     #endregion
@@ -2018,9 +2144,8 @@ public class Item_2201 : ItemBase_Gun
         itemLocalObj_Bow.InitData(itemData);
         itemLocalObj_Bow.HoldingStart(owner, body);
         itemLocalObj_Bow.UpdateBowData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 ReadySpeed_Base + ReadySpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
@@ -2074,17 +2199,13 @@ public class Item_2202 : ItemBase_Gun
     /// <summary>
     /// ÎïÀíÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 0;
-    private int AttackDamage_Add;
+    private readonly int PiercingDamage_Base = 0;
+    private int PiercingDamage_Add;
     /// <summary>
     /// Ä§·¨ÉËº¦
     /// </summary>
     private readonly int MagicDamage_Base = 0;
     private int MagicDamage_Add;
-    /// <summary>
-    /// µ¯ÈÝÁ¿
-    /// </summary>
-    private readonly int BulletCapacity_Base = 15;
     /// <summary>
     /// Éä»÷ËÙ¶È
     /// </summary>
@@ -2119,9 +2240,8 @@ public class Item_2202 : ItemBase_Gun
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/MagicDamage/", (MagicDamage_Base + MagicDamage_Add).ToString());
-        desc = desc.Replace("/BulletCapacity/", (BulletCapacity_Base).ToString());
         desc = desc.Replace("/ShotSpeed/", (ShotSpeed_Base + ShotSpeed_Add).ToString());
         desc = desc.Replace("/ReadySpeed/", (ReadySpeed_Base + ReadySpeed_Add).ToString());
         desc = desc.Replace("/AimSpeed/", (AimSpeed_Base + AimSpeed_Add).ToString());
@@ -2134,7 +2254,7 @@ public class Item_2202 : ItemBase_Gun
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         MagicDamage_Add = 0;
         ShotSpeed_Add = 0;
         ReadySpeed_Add = 0;
@@ -2164,7 +2284,7 @@ public class Item_2202 : ItemBase_Gun
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 5;
+            PiercingDamage_Add += 5;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
@@ -2173,9 +2293,8 @@ public class Item_2202 : ItemBase_Gun
         if (itemLocalObj_Bow)
         {
             itemLocalObj_Bow.UpdateBowData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 ReadySpeed_Base + ReadySpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
@@ -2183,34 +2302,6 @@ public class Item_2202 : ItemBase_Gun
                 AimRangeMax_Base + AimRangeMax_Add,
                 Recoil_Base + Recoil_Add,
                 itemQuality);
-        }
-    }
-    #endregion
-
-    #region//×°Ìî
-    short config_bulletCapacity = 10;
-    public override void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
-    {
-        newContent = oldContent;
-        resItem = addItem;
-        short cap = (short)(BulletCapacity_Base);
-        if (oldContent.Item_Content.Item_Count == 0 || oldContent.Item_Content.Item_ID == 0 || oldContent.Item_Content.Item_ID == addItem.Item_ID)
-        {
-            if (ItemConfigData.GetItemConfig(addItem.Item_ID).Item_Type == ItemType.Arrow)
-            {
-                if (oldContent.Item_Content.Item_Count + addItem.Item_Count <= cap)
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = (short)(oldContent.Item_Content.Item_Count + addItem.Item_Count);
-                    resItem.Item_Count = 0;
-                }
-                else
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = cap;
-                    resItem.Item_Count = (short)(addItem.Item_Count + oldContent.Item_Content.Item_Count - cap);
-                }
-            }
         }
     }
     #endregion
@@ -2223,9 +2314,8 @@ public class Item_2202 : ItemBase_Gun
         itemLocalObj_Bow.InitData(itemData);
         itemLocalObj_Bow.HoldingStart(owner, body);
         itemLocalObj_Bow.UpdateBowData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 ReadySpeed_Base + ReadySpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
@@ -2279,19 +2369,15 @@ public class Item_2300 : ItemBase_Gun
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// ÎïÀíÉËº¦
+    /// ´Á´ÌÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 0;
-    private int AttackDamage_Add;
+    private readonly int PiercingDamage_Base = 0;
+    private int PiercingDamage_Add;
     /// <summary>
     /// Ä§·¨ÉËº¦
     /// </summary>
     private readonly int MagicDamage_Base = 0;
     private int MagicDamage_Add;
-    /// <summary>
-    /// µ¯ÈÝÁ¿
-    /// </summary>
-    private readonly int BulletCapacity_Base = 10;
     /// <summary>
     /// Éä»÷ËÙ¶È
     /// </summary>
@@ -2321,9 +2407,8 @@ public class Item_2300 : ItemBase_Gun
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/MagicDamage/", (MagicDamage_Base + MagicDamage_Add).ToString());
-        desc = desc.Replace("/BulletCapacity/", (BulletCapacity_Base).ToString());
         desc = desc.Replace("/ShotSpeed/", (ShotSpeed_Base + ShotSpeed_Add).ToString());
         desc = desc.Replace("/AimSpeed/", (AimSpeed_Base + AimSpeed_Add).ToString());
         desc = desc.Replace("/AimRange/", (AimRangeMin_Base + AimRangeMin_Add).ToString() + "-" + (AimRangeMax_Base + AimRangeMax_Add).ToString());
@@ -2335,7 +2420,7 @@ public class Item_2300 : ItemBase_Gun
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         MagicDamage_Add = 0;
         ShotSpeed_Add = 0;
         AimSpeed_Add = 0;
@@ -2364,7 +2449,7 @@ public class Item_2300 : ItemBase_Gun
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 5;
+            PiercingDamage_Add += 5;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
@@ -2373,41 +2458,14 @@ public class Item_2300 : ItemBase_Gun
         if (itemLocalObj_Pistol)
         {
             itemLocalObj_Pistol.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,
                 AimRangeMax_Base + AimRangeMax_Add,
                 Recoil_Base + Recoil_Add,
                 itemQuality);
-        }
-    }
-    #endregion
-    #region//×°Ìî
-    public override void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
-    {
-        newContent = oldContent;
-        resItem = addItem;
-        short cap = (short)(BulletCapacity_Base);
-        if (oldContent.Item_Content.Item_Count == 0 || oldContent.Item_Content.Item_ID == 0 || oldContent.Item_Content.Item_ID == addItem.Item_ID)
-        {
-            if (ItemConfigData.GetItemConfig(addItem.Item_ID).Item_Type == ItemType.Bullet)
-            {
-                if (oldContent.Item_Content.Item_Count + addItem.Item_Count <= cap)
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = (short)(oldContent.Item_Content.Item_Count + addItem.Item_Count);
-                    resItem.Item_Count = 0;
-                }
-                else
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = cap;
-                    resItem.Item_Count = (short)(addItem.Item_Count + oldContent.Item_Content.Item_Count - cap);
-                }
-            }
         }
     }
     #endregion
@@ -2420,9 +2478,8 @@ public class Item_2300 : ItemBase_Gun
         itemLocalObj_Pistol.InitData(itemData);
         itemLocalObj_Pistol.HoldingStart(owner, body);
         itemLocalObj_Pistol.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,
@@ -2472,19 +2529,15 @@ public class Item_2301 : ItemBase_Gun
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// ÎïÀíÉËº¦
+    /// ´Á´ÌÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 0;
-    private int AttackDamage_Add;
+    private readonly int PiercingDamage_Base = 0;
+    private int PiercingDamage_Add;
     /// <summary>
     /// Ä§·¨ÉËº¦
     /// </summary>
     private readonly int MagicDamage_Base = 0;
     private int MagicDamage_Add;
-    /// <summary>
-    /// µ¯ÈÝÁ¿
-    /// </summary>
-    private readonly int BulletCapacity_Base = 25;
     /// <summary>
     /// Éä»÷ËÙ¶È
     /// </summary>
@@ -2514,9 +2567,8 @@ public class Item_2301 : ItemBase_Gun
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/MagicDamage/", (MagicDamage_Base + MagicDamage_Add).ToString());
-        desc = desc.Replace("/BulletCapacity/", (BulletCapacity_Base).ToString());
         desc = desc.Replace("/ShotSpeed/", (ShotSpeed_Base + ShotSpeed_Add).ToString());
         desc = desc.Replace("/AimSpeed/", (AimSpeed_Base + AimSpeed_Add).ToString());
         desc = desc.Replace("/AimRange/", (AimRangeMin_Base + AimRangeMin_Add).ToString() + "-" + (AimRangeMax_Base + AimRangeMax_Add).ToString());
@@ -2528,7 +2580,7 @@ public class Item_2301 : ItemBase_Gun
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         MagicDamage_Add = 0;
         ShotSpeed_Add = 0;
         AimSpeed_Add = 0;
@@ -2557,7 +2609,7 @@ public class Item_2301 : ItemBase_Gun
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 5;
+            PiercingDamage_Add += 5;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
@@ -2566,41 +2618,14 @@ public class Item_2301 : ItemBase_Gun
         if (itemLocalObj_Pistol)
         {
             itemLocalObj_Pistol.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,
                 AimRangeMax_Base + AimRangeMax_Add,
                 Recoil_Base + Recoil_Add,
                 itemQuality);
-        }
-    }
-    #endregion
-    #region//×°Ìî
-    public override void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
-    {
-        newContent = oldContent;
-        resItem = addItem;
-        short cap = (short)BulletCapacity_Base;
-        if (oldContent.Item_Content.Item_Count == 0 || oldContent.Item_Content.Item_ID == 0 || oldContent.Item_Content.Item_ID == addItem.Item_ID)
-        {
-            if (ItemConfigData.GetItemConfig(addItem.Item_ID).Item_Type == ItemType.Bullet)
-            {
-                if (oldContent.Item_Content.Item_Count + addItem.Item_Count <= cap)
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = (short)(oldContent.Item_Content.Item_Count + addItem.Item_Count);
-                    resItem.Item_Count = 0;
-                }
-                else
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = cap;
-                    resItem.Item_Count = (short)(addItem.Item_Count + oldContent.Item_Content.Item_Count - cap);
-                }
-            }
         }
     }
     #endregion
@@ -2613,9 +2638,8 @@ public class Item_2301 : ItemBase_Gun
         itemLocalObj_Pistol.InitData(itemData);
         itemLocalObj_Pistol.HoldingStart(owner, body);
         itemLocalObj_Pistol.UpdateGunData(
-            AttackDamage_Base + AttackDamage_Add,
+            PiercingDamage_Base + PiercingDamage_Add,
             MagicDamage_Base + MagicDamage_Add,
-            BulletCapacity_Base,
             ShotSpeed_Base + ShotSpeed_Add,
             AimSpeed_Base + AimSpeed_Add,
             AimRangeMin_Base + AimRangeMin_Add,
@@ -2666,19 +2690,15 @@ public class Item_2302 : ItemBase_Gun
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// ÎïÀíÉËº¦
+    /// ´Á´ÌÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 0;
-    private int AttackDamage_Add;
+    private readonly int PiercingDamage_Base = 0;
+    private int PiercingDamage_Add;
     /// <summary>
     /// Ä§·¨ÉËº¦
     /// </summary>
     private readonly int MagicDamage_Base = 0;
     private int MagicDamage_Add;
-    /// <summary>
-    /// µ¯ÈÝÁ¿
-    /// </summary>
-    private readonly int BulletCapacity_Base = 35;
     /// <summary>
     /// Éä»÷ËÙ¶È
     /// </summary>
@@ -2708,9 +2728,8 @@ public class Item_2302 : ItemBase_Gun
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/MagicDamage/", (MagicDamage_Base + MagicDamage_Add).ToString());
-        desc = desc.Replace("/BulletCapacity/", (BulletCapacity_Base).ToString());
         desc = desc.Replace("/ShotSpeed/", (ShotSpeed_Base + ShotSpeed_Add).ToString());
         desc = desc.Replace("/AimSpeed/", (AimSpeed_Base + AimSpeed_Add).ToString());
         desc = desc.Replace("/AimRange/", (AimRangeMin_Base + AimRangeMin_Add).ToString() + "-" + (AimRangeMax_Base + AimRangeMax_Add).ToString());
@@ -2722,7 +2741,7 @@ public class Item_2302 : ItemBase_Gun
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         MagicDamage_Add = 0;
         ShotSpeed_Add = 0;
         AimSpeed_Add = 0;
@@ -2751,7 +2770,7 @@ public class Item_2302 : ItemBase_Gun
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 5;
+            PiercingDamage_Add += 5;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
@@ -2760,41 +2779,14 @@ public class Item_2302 : ItemBase_Gun
         if (itemLocalObj_Rifle)
         {
             itemLocalObj_Rifle.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,
                 AimRangeMax_Base + AimRangeMax_Add,
                 Recoil_Base + Recoil_Add,
                 itemQuality);
-        }
-    }
-    #endregion
-    #region//×°Ìî
-    public override void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
-    {
-        newContent = oldContent;
-        resItem = addItem;
-        short cap = (short)BulletCapacity_Base;
-        if (oldContent.Item_Content.Item_Count == 0 || oldContent.Item_Content.Item_ID == 0 || oldContent.Item_Content.Item_ID == addItem.Item_ID)
-        {
-            if (ItemConfigData.GetItemConfig(addItem.Item_ID).Item_Type == ItemType.Bullet)
-            {
-                if (oldContent.Item_Content.Item_Count + addItem.Item_Count <= cap)
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = (short)(oldContent.Item_Content.Item_Count + addItem.Item_Count);
-                    resItem.Item_Count = 0;
-                }
-                else
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = cap;
-                    resItem.Item_Count = (short)(addItem.Item_Count + oldContent.Item_Content.Item_Count - cap);
-                }
-            }
         }
     }
     #endregion
@@ -2807,9 +2799,8 @@ public class Item_2302 : ItemBase_Gun
         itemLocalObj_Rifle.InitData(itemData);
         itemLocalObj_Rifle.HoldingStart(owner, body);
         itemLocalObj_Rifle.UpdateGunData(
-            AttackDamage_Base + AttackDamage_Add,
+            PiercingDamage_Base + PiercingDamage_Add,
             MagicDamage_Base + MagicDamage_Add,
-            BulletCapacity_Base,
             ShotSpeed_Base + ShotSpeed_Add,
             AimSpeed_Base + AimSpeed_Add,
             AimRangeMin_Base + AimRangeMin_Add,
@@ -2859,19 +2850,15 @@ public class Item_2303 : ItemBase_Gun
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// ÎïÀíÉËº¦
+    /// ´Á´ÌÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 0;
-    private int AttackDamage_Add;
+    private readonly int PiercingDamage_Base = 0;
+    private int PiercingDamage_Add;
     /// <summary>
     /// Ä§·¨ÉËº¦
     /// </summary>
     private readonly int MagicDamage_Base = 0;
     private int MagicDamage_Add;
-    /// <summary>
-    /// µ¯ÈÝÁ¿
-    /// </summary>
-    private readonly int BulletCapacity_Base = 10;
     /// <summary>
     /// Éä»÷ËÙ¶È
     /// </summary>
@@ -2901,9 +2888,8 @@ public class Item_2303 : ItemBase_Gun
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/MagicDamage/", (MagicDamage_Base + MagicDamage_Add).ToString());
-        desc = desc.Replace("/BulletCapacity/", (BulletCapacity_Base).ToString());
         desc = desc.Replace("/ShotSpeed/", (ShotSpeed_Base + ShotSpeed_Add).ToString());
         desc = desc.Replace("/AimSpeed/", (AimSpeed_Base + AimSpeed_Add).ToString());
         desc = desc.Replace("/AimRange/", (AimRangeMin_Base + AimRangeMin_Add).ToString() + "-" + (AimRangeMax_Base + AimRangeMax_Add).ToString());
@@ -2915,7 +2901,7 @@ public class Item_2303 : ItemBase_Gun
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         MagicDamage_Add = 0;
         ShotSpeed_Add = 0;
         AimSpeed_Add = 0;
@@ -2944,7 +2930,7 @@ public class Item_2303 : ItemBase_Gun
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 5;
+            PiercingDamage_Add += 5;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
@@ -2953,41 +2939,14 @@ public class Item_2303 : ItemBase_Gun
         if (itemLocalObj_Pistol)
         {
             itemLocalObj_Pistol.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,
                 AimRangeMax_Base + AimRangeMax_Add,
                 Recoil_Base + Recoil_Add,
                 itemQuality);
-        }
-    }
-    #endregion
-    #region//×°Ìî
-    public override void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
-    {
-        newContent = oldContent;
-        resItem = addItem;
-        short cap = (short)BulletCapacity_Base;
-        if (oldContent.Item_Content.Item_Count == 0 || oldContent.Item_Content.Item_ID == 0 || oldContent.Item_Content.Item_ID == addItem.Item_ID)
-        {
-            if (ItemConfigData.GetItemConfig(addItem.Item_ID).Item_Type == ItemType.Bullet)
-            {
-                if (oldContent.Item_Content.Item_Count + addItem.Item_Count <= cap)
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = (short)(oldContent.Item_Content.Item_Count + addItem.Item_Count);
-                    resItem.Item_Count = 0;
-                }
-                else
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = cap;
-                    resItem.Item_Count = (short)(addItem.Item_Count + oldContent.Item_Content.Item_Count - cap);
-                }
-            }
         }
     }
     #endregion
@@ -3002,9 +2961,8 @@ public class Item_2303 : ItemBase_Gun
         if (itemLocalObj_Pistol)
         {
             itemLocalObj_Pistol.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,
@@ -3056,19 +3014,15 @@ public class Item_2304 : ItemBase_Gun
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// ÎïÀíÉËº¦
+    /// ´Á´ÌÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 0;
-    private int AttackDamage_Add;
+    private readonly int PiercingDamage_Base = 0;
+    private int PiercingDamage_Add;
     /// <summary>
     /// Ä§·¨ÉËº¦
     /// </summary>
     private readonly int MagicDamage_Base = 0;
     private int MagicDamage_Add;
-    /// <summary>
-    /// µ¯ÈÝÁ¿
-    /// </summary>
-    private readonly int BulletCapacity_Base = 5;
     /// <summary>
     /// Éä»÷ËÙ¶È
     /// </summary>
@@ -3098,9 +3052,8 @@ public class Item_2304 : ItemBase_Gun
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/MagicDamage/", (MagicDamage_Base + MagicDamage_Add).ToString());
-        desc = desc.Replace("/BulletCapacity/", (BulletCapacity_Base).ToString());
         desc = desc.Replace("/ShotSpeed/", (ShotSpeed_Base + ShotSpeed_Add).ToString());
         desc = desc.Replace("/AimSpeed/", (AimSpeed_Base + AimSpeed_Add).ToString());
         desc = desc.Replace("/AimRange/", (AimRangeMin_Base + AimRangeMin_Add).ToString() + "-" + (AimRangeMax_Base + AimRangeMax_Add).ToString());
@@ -3112,7 +3065,7 @@ public class Item_2304 : ItemBase_Gun
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         MagicDamage_Add = 0;
         ShotSpeed_Add = 0;
         AimSpeed_Add = 0;
@@ -3141,7 +3094,7 @@ public class Item_2304 : ItemBase_Gun
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 5;
+            PiercingDamage_Add += 5;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
@@ -3150,9 +3103,8 @@ public class Item_2304 : ItemBase_Gun
         if (itemLocalObj_ScatterGun)
         {
             itemLocalObj_ScatterGun.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,
@@ -3161,33 +3113,6 @@ public class Item_2304 : ItemBase_Gun
                 itemQuality);
         }
     }
-    #endregion
-    #region//×°Ìî
-    public override void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
-    {
-        newContent = oldContent;
-        resItem = addItem;
-        short cap = (short)BulletCapacity_Base;
-        if (oldContent.Item_Content.Item_Count == 0 || oldContent.Item_Content.Item_ID == 0 || oldContent.Item_Content.Item_ID == addItem.Item_ID)
-        {
-            if (ItemConfigData.GetItemConfig(addItem.Item_ID).Item_Type == ItemType.Bullet)
-            {
-                if (oldContent.Item_Content.Item_Count + addItem.Item_Count <= cap)
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = (short)(oldContent.Item_Content.Item_Count + addItem.Item_Count);
-                    resItem.Item_Count = 0;
-                }
-                else
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = cap;
-                    resItem.Item_Count = (short)(addItem.Item_Count + oldContent.Item_Content.Item_Count - cap);
-                }
-            }
-        }
-    }
-
     #endregion
     #region//Ê¹ÓÃÂß¼­
     private ItemLocalObj_ScatterGun itemLocalObj_ScatterGun;
@@ -3198,9 +3123,8 @@ public class Item_2304 : ItemBase_Gun
         itemLocalObj_ScatterGun.InitData(itemData);
         itemLocalObj_ScatterGun.HoldingStart(owner, body);
         itemLocalObj_ScatterGun.UpdateGunData(
-            AttackDamage_Base + AttackDamage_Add,
+            PiercingDamage_Base + PiercingDamage_Add,
             MagicDamage_Base + MagicDamage_Add,
-            BulletCapacity_Base,
             ShotSpeed_Base + ShotSpeed_Add,
             AimSpeed_Base + AimSpeed_Add,
             AimRangeMin_Base + AimRangeMin_Add,
@@ -3251,19 +3175,15 @@ public class Item_2305 : ItemBase_Gun
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// ÎïÀíÉËº¦
+    /// ´Á´ÌÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 0;
-    private int AttackDamage_Add;
+    private readonly int PiercingDamage_Base = 0;
+    private int PiercingDamage_Add;
     /// <summary>
     /// Ä§·¨ÉËº¦
     /// </summary>
     private readonly int MagicDamage_Base = 0;
     private int MagicDamage_Add;
-    /// <summary>
-    /// µ¯ÈÝÁ¿
-    /// </summary>
-    private readonly int BulletCapacity_Base = 60;
     /// <summary>
     /// Éä»÷ËÙ¶È
     /// </summary>
@@ -3293,9 +3213,8 @@ public class Item_2305 : ItemBase_Gun
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/MagicDamage/", (MagicDamage_Base + MagicDamage_Add).ToString());
-        desc = desc.Replace("/BulletCapacity/", (BulletCapacity_Base).ToString());
         desc = desc.Replace("/ShotSpeed/", (ShotSpeed_Base + ShotSpeed_Add).ToString());
         desc = desc.Replace("/AimSpeed/", (AimSpeed_Base + AimSpeed_Add).ToString());
         desc = desc.Replace("/AimRange/", (AimRangeMin_Base + AimRangeMin_Add).ToString() + "-" + (AimRangeMax_Base + AimRangeMax_Add).ToString());
@@ -3307,7 +3226,7 @@ public class Item_2305 : ItemBase_Gun
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         MagicDamage_Add = 0;
         ShotSpeed_Add = 0;
         AimSpeed_Add = 0;
@@ -3336,7 +3255,7 @@ public class Item_2305 : ItemBase_Gun
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 5;
+            PiercingDamage_Add += 5;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
@@ -3345,41 +3264,14 @@ public class Item_2305 : ItemBase_Gun
         if (itemLocalObj_Rifle)
         {
             itemLocalObj_Rifle.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,
                 AimRangeMax_Base + AimRangeMax_Add,
                 Recoil_Base + Recoil_Add,
                 itemQuality);
-        }
-    }
-    #endregion
-    #region//×°Ìî
-    public override void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
-    {
-        newContent = oldContent;
-        resItem = addItem;
-        short cap = (short)BulletCapacity_Base;
-        if (oldContent.Item_Content.Item_Count == 0 || oldContent.Item_Content.Item_ID == 0 || oldContent.Item_Content.Item_ID == addItem.Item_ID)
-        {
-            if (ItemConfigData.GetItemConfig(addItem.Item_ID).Item_Type == ItemType.Bullet)
-            {
-                if (oldContent.Item_Content.Item_Count + addItem.Item_Count <= cap)
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = (short)(oldContent.Item_Content.Item_Count + addItem.Item_Count);
-                    resItem.Item_Count = 0;
-                }
-                else
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = cap;
-                    resItem.Item_Count = (short)(addItem.Item_Count + oldContent.Item_Content.Item_Count - cap);
-                }
-            }
         }
     }
     #endregion
@@ -3392,9 +3284,8 @@ public class Item_2305 : ItemBase_Gun
         itemLocalObj_Rifle.InitData(itemData);
         itemLocalObj_Rifle.HoldingStart(owner, body);
         itemLocalObj_Rifle.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,
@@ -3444,19 +3335,15 @@ public class Item_2306 : ItemBase_Gun
 {
     #region//»ù´¡ÊýÖµ
     /// <summary>
-    /// ÎïÀíÉËº¦
+    /// ´Á´ÌÉËº¦
     /// </summary>
-    private readonly int AttackDamage_Base = 0;
-    private int AttackDamage_Add;
+    private readonly int PiercingDamage_Base = 0;
+    private int PiercingDamage_Add;
     /// <summary>
     /// Ä§·¨ÉËº¦
     /// </summary>
     private readonly int MagicDamage_Base = 0;
     private int MagicDamage_Add;
-    /// <summary>
-    /// µ¯ÈÝÁ¿
-    /// </summary>
-    private readonly int BulletCapacity_Base = 30;
     /// <summary>
     /// Éä»÷ËÙ¶È
     /// </summary>
@@ -3486,9 +3373,8 @@ public class Item_2306 : ItemBase_Gun
     #region//ÐÞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
     {
-        desc = desc.Replace("/AttackDamage/", (AttackDamage_Base + AttackDamage_Add).ToString());
+        desc = desc.Replace("/PiercingDamage/", (PiercingDamage_Base + PiercingDamage_Add).ToString());
         desc = desc.Replace("/MagicDamage/", (MagicDamage_Base + MagicDamage_Add).ToString());
-        desc = desc.Replace("/BulletCapacity/", (BulletCapacity_Base).ToString());
         desc = desc.Replace("/ShotSpeed/", (ShotSpeed_Base + ShotSpeed_Add).ToString());
         desc = desc.Replace("/AimSpeed/", (AimSpeed_Base + AimSpeed_Add).ToString());
         desc = desc.Replace("/AimRange/", (AimRangeMin_Base + AimRangeMin_Add).ToString() + "-" + (AimRangeMax_Base + AimRangeMax_Add).ToString());
@@ -3500,7 +3386,7 @@ public class Item_2306 : ItemBase_Gun
     public override void CalculateQuality()
     {
         base.CalculateQuality();
-        AttackDamage_Add = 0;
+        PiercingDamage_Add = 0;
         MagicDamage_Add = 0;
         ShotSpeed_Add = 0;
         AimSpeed_Add = 0;
@@ -3529,7 +3415,7 @@ public class Item_2306 : ItemBase_Gun
         }
         if (itemQuality >= ItemQuality.Red)
         {
-            AttackDamage_Add += 5;
+            PiercingDamage_Add += 5;
         }
         if (itemQuality >= ItemQuality.Rainbow)
         {
@@ -3538,41 +3424,14 @@ public class Item_2306 : ItemBase_Gun
         if (itemLocalObj_Rifle)
         {
             itemLocalObj_Rifle.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,
                 AimRangeMax_Base + AimRangeMax_Add,
                 Recoil_Base + Recoil_Add,
                 itemQuality);
-        }
-    }
-    #endregion
-    #region//×°Ìî
-    public override void StaticAction_FillUp(ItemData oldContent, ItemData addItem, out ItemData newContent, out ItemData resItem)
-    {
-        newContent = oldContent;
-        resItem = addItem;
-        short cap = (short)BulletCapacity_Base;
-        if (oldContent.Item_Content.Item_Count == 0 || oldContent.Item_Content.Item_ID == 0 || oldContent.Item_Content.Item_ID == addItem.Item_ID)
-        {
-            if (ItemConfigData.GetItemConfig(addItem.Item_ID).Item_Type == ItemType.Bullet)
-            {
-                if (oldContent.Item_Content.Item_Count + addItem.Item_Count <= cap)
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = (short)(oldContent.Item_Content.Item_Count + addItem.Item_Count);
-                    resItem.Item_Count = 0;
-                }
-                else
-                {
-                    newContent.Item_Content.Item_ID = addItem.Item_ID;
-                    newContent.Item_Content.Item_Count = cap;
-                    resItem.Item_Count = (short)(addItem.Item_Count + oldContent.Item_Content.Item_Count - cap);
-                }
-            }
         }
     }
     #endregion
@@ -3585,9 +3444,8 @@ public class Item_2306 : ItemBase_Gun
         itemLocalObj_Rifle.InitData(itemData);
         itemLocalObj_Rifle.HoldingStart(owner, body);
         itemLocalObj_Rifle.UpdateGunData(
-                AttackDamage_Base + AttackDamage_Add,
+                PiercingDamage_Base + PiercingDamage_Add,
                 MagicDamage_Base + MagicDamage_Add,
-                BulletCapacity_Base,
                 ShotSpeed_Base + ShotSpeed_Add,
                 AimSpeed_Base + AimSpeed_Add,
                 AimRangeMin_Base + AimRangeMin_Add,

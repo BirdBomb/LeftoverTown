@@ -109,14 +109,14 @@ public class TileUI_Smelter : TileUI
             else if (addData.Item_ID == buildingObj_Bind.itemData_RefiningBefore.Item_ID)
             {
                 buildingObj_Bind.itemData_RefiningBefore = GameToolManager.Instance.CombineItem(buildingObj_Bind.itemData_RefiningBefore, addData, out ItemData res);
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = res,
                 });
             }
             else
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = addData,
                 });
@@ -124,7 +124,7 @@ public class TileUI_Smelter : TileUI
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
             });
@@ -139,7 +139,7 @@ public class TileUI_Smelter : TileUI
     }
     private void RefiningAfterPutIn(ItemData addData, ItemPath path)
     {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
         {
             itemData = addData,
         });
@@ -165,14 +165,14 @@ public class TileUI_Smelter : TileUI
             else if (addData.Item_ID == buildingObj_Bind.itemData_Fuel.Item_ID)
             {
                 buildingObj_Bind.itemData_Fuel = GameToolManager.Instance.CombineItem(buildingObj_Bind.itemData_Fuel, addData, out ItemData res);
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = res,
                 });
             }
             else
             {
-                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = addData,
                 });
@@ -180,7 +180,7 @@ public class TileUI_Smelter : TileUI
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
             });

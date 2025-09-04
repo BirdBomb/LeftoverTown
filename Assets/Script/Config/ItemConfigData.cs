@@ -63,6 +63,8 @@ public class ItemConfigData
         /*Ìú¸ä*/new ItemConfig(){ Item_ID = 2021,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 18,Item_Rarity = ItemRarity.Green },
         /*Ä¾¸Í*/new ItemConfig(){ Item_ID = 2030,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 10,Item_Rarity = ItemRarity.Gray },
         /*Ä¾³ú*/new ItemConfig(){ Item_ID = 2040,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
+        /*Ä¾Á­µ¶*/new ItemConfig(){ Item_ID = 2050,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
+        /*Ä¾´¸×Ó*/new ItemConfig(){ Item_ID = 2060,Item_Size = ItemSize.Con,Item_Max = 1,Item_Type = ItemType.Tool,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//2100-2199½üÕ½ÎäÆ÷
         /*Ä¾¹÷*/new ItemConfig(){ Item_ID = 2100,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Weapon,Item_Value = 15,Item_Rarity = ItemRarity.Gray },

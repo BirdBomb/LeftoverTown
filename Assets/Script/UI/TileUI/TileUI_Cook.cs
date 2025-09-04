@@ -78,7 +78,7 @@ public class TileUI_Cook : TileUI
             putIn.Item_Count = 1;
             buildingObj_Bind.itemData_Raw0 = putIn;
             ItemData resData = GameToolManager.Instance.SplitItem(addData, putIn);
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
             });
@@ -86,7 +86,7 @@ public class TileUI_Cook : TileUI
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
             });
@@ -107,7 +107,7 @@ public class TileUI_Cook : TileUI
             putIn.Item_Count = 1;
             buildingObj_Bind.itemData_Raw1 = putIn;
             ItemData resData = GameToolManager.Instance.SplitItem(addData, putIn);
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
             });
@@ -115,7 +115,7 @@ public class TileUI_Cook : TileUI
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
             });
@@ -136,7 +136,7 @@ public class TileUI_Cook : TileUI
             putIn.Item_Count = 1;
             buildingObj_Bind.itemData_Raw2 = putIn;
             ItemData resData = GameToolManager.Instance.SplitItem(addData, putIn);
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
             });
@@ -144,7 +144,7 @@ public class TileUI_Cook : TileUI
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
             });
@@ -158,7 +158,7 @@ public class TileUI_Cook : TileUI
     }
     public void FoodPutIn(ItemData addData, ItemPath path)
     {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
         {
             itemData = addData,
         });

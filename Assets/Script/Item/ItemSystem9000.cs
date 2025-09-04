@@ -11,7 +11,7 @@ public class ItemSystem9000
 /// <summary>
 /// ´ÖÖÆÄ¾¼ı
 /// </summary>
-public class Item_9000 : ItemBase
+public class Item_9000 : ItemBase_Consumables
 {
     #region//ĞŞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
@@ -22,12 +22,11 @@ public class Item_9000 : ItemBase
         return base.GridCell_UpdateDesc(desc);
     }
     #endregion
-
 }
 /// <summary>
 /// ¾«ÖÆÄ¾¼ı
 /// </summary>
-public class Item_9001 : ItemBase
+public class Item_9001 : ItemBase_Consumables
 {
     #region//ĞŞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
@@ -42,7 +41,7 @@ public class Item_9001 : ItemBase
 /// <summary>
 /// ÖÂÉËÄ¾¼ı
 /// </summary>
-public class Item_9002 : ItemBase
+public class Item_9002 : ItemBase_Consumables
 {
     #region//ĞŞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
@@ -57,7 +56,7 @@ public class Item_9002 : ItemBase
 /// <summary>
 /// ĞÅºÅÄ¾¼ı
 /// </summary>
-public class Item_9003 : ItemBase
+public class Item_9003 : ItemBase_Consumables
 {
     #region//ĞŞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
@@ -72,7 +71,7 @@ public class Item_9003 : ItemBase
 /// <summary>
 /// µ¯Íè
 /// </summary>
-public class Item_9010 : ItemBase
+public class Item_9010 : ItemBase_Consumables
 {
     #region//ĞŞ¸ÄÃèÊö
     public override string GridCell_UpdateDesc(string desc)
@@ -87,7 +86,7 @@ public class Item_9010 : ItemBase
 /// <summary>
 /// ´ÎÔªµ¯Ï»
 /// </summary>
-public class Item_9020 : ItemBase
+public class Item_9020 : ItemBase_Consumables
 {
 }
 

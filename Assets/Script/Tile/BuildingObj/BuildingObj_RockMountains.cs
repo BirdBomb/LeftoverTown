@@ -8,7 +8,6 @@ public class BuildingObj_RockMountains : BuildingObj
     public Sprite[] sprite;
     public SpriteRenderer spriteRenderer;
     private Material material;
-    private Sequence sequence;
     public ParticleSystem bitsParticle;
     [SerializeField, Header("常态基本掉落物")]
     private List<BaseLootInfo> baseLootInfos = new List<BaseLootInfo>();
@@ -354,19 +353,36 @@ public class BuildingObj_RockMountains : BuildingObj
         }
         return val;
     }
-    #region//岩石墙
-    public override void All_PlayHpDown()
+    public override void Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
     {
-        All_RockShake();
-        All_RockFlash();
+        if (damageState == DamageState.AttackBludgeoningDamage)
+        {
+            base.Local_TakeDamage(val, damageState, from);
+        }
+        else
+        {
+            Local_IneffectiveDamage(damageState, from);
+        }
     }
-    private void All_RockShake()
+    #region//岩石墙
+    public override void All_PlayHpDown(int offset)
+    {
+        if (offset < 0)
+        {
+            AudioManager.Instance.Play3DEffect(3002, transform.position);
+            All_Flash();
+        }
+        All_Shake();
+    }
+    private void All_Shake()
     {
         bitsParticle.Play();
-        AudioManager.Instance.Play3DEffect(3002, transform.position);
+        transform.DOKill();
+        transform.localScale = Vector3.one;
         transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
     }
-    private void All_RockFlash()
+    private Sequence sequence;
+    private void All_Flash()
     {
         float light = 1;
         if (sequence != null) sequence.Kill();

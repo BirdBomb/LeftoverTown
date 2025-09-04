@@ -7,6 +7,7 @@ using static UnityEngine.UI.GridLayoutGroup;
 using UnityEngine.Windows;
 using UniRx;
 using System.Security.Policy;
+using static Fusion.Sockets.NetBitBuffer;
 
 public class ItemLocalObj_Bow : ItemLocalObj
 {
@@ -73,10 +74,6 @@ public class ItemLocalObj_Bow : ItemLocalObj
     /// 瞄准时间
     /// </summary>
     private float AimTime;
-    /// <summary>
-    /// 弹容量
-    /// </summary>
-    private int BulletCapacity;
     private InputData inputData = new InputData();
     public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
@@ -95,11 +92,10 @@ public class ItemLocalObj_Bow : ItemLocalObj
 
         base.HoldingStart(owner, body);
     }
-    public void UpdateBowData(int attackDamage,int magicDamage, int bulletCapacity, float shotSpeed, float readySpeed, float aimSpeed, int aimRangeMin, int aimRangeMax, float shotRecoil, ItemQuality itemQuality)
+    public void UpdateBowData(int attackDamage,int magicDamage, float shotSpeed, float readySpeed, float aimSpeed, int aimRangeMin, int aimRangeMax, float shotRecoil, ItemQuality itemQuality)
     {
         AttackDamage = attackDamage;
         MagicDamage = magicDamage;
-        BulletCapacity = bulletCapacity;
         ShotCD = 60f / shotSpeed;
         ReadyTime = 1f / readySpeed;
         AimTime = 1f / aimSpeed;
@@ -126,9 +122,9 @@ public class ItemLocalObj_Bow : ItemLocalObj
     {
         if (actorManager.actorAuthority.isPlayer)
         {
-            if (itemData.Item_Content.Item_Count > 0)
+            if (actorManager.actorNetManager.Net_ItemConsumables.Item_Count > 0)
             {
-                Sprite sprite = spriteAtlas_Item.GetSprite("Item_" + itemData.Item_Content.Item_ID);
+                Sprite sprite = spriteAtlas_Item.GetSprite("Item_" + actorManager.actorNetManager.Net_ItemConsumables.Item_ID);
                 spriteRenderer_Arrow.DOKill();
                 spriteRenderer_Arrow.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.1f);
                 spriteRenderer_Arrow.sprite = sprite;
@@ -161,7 +157,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
         {
             if (inputData.leftPressTimer >= temp_NextShotPoint)
             {
-                TryToShot(GetAttackRange());
+                TryToShoot(GetAttackRange());
                 temp_NextShotPoint = inputData.leftPressTimer + ShotCD;
                 temp_NextReadyPoint = inputData.rightPressTimer + ShotCD;
                 if (temp_NextAimPoint > inputData.rightPressTimer)
@@ -209,6 +205,86 @@ public class ItemLocalObj_Bow : ItemLocalObj
         base.UpdateMousePos(mouse);
     }
     /// <summary>
+    /// 更新技能指示器
+    /// </summary>
+    private void UpdateSkillSector()
+    {
+        if (inputData.rightPressTimer > ReadyTime)
+        {
+            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, 1.5f, GetAttackRange(), 1);
+        }
+        else
+        {
+            if (inputData.rightPressTimer == 0)
+            {
+                skillIndicators.Draw_SkillIndicators(inputData.mousePosition, 0, 0, 0);
+            }
+            else
+            {
+                skillIndicators.Draw_SkillIndicators(inputData.mousePosition, 1.5f, GetAttackRange(), 0.2f);
+            }
+        }
+    }
+    #region//子弹操作
+    private List<short> bulletList = new List<short>() { 9000,9001,9002,9003 };
+    /// <summary>
+    /// 检查子弹
+    /// </summary>
+    /// <returns>可以射击</returns>
+    public virtual bool CheckBullet(out short bulletID)
+    {
+        if (actorManager.actorAuthority.isPlayer)
+        {
+            ItemData itemData = actorManager.actorNetManager.Net_ItemConsumables;
+            if (bulletList.Contains(itemData.Item_ID) && itemData.Item_Count > 0)
+            {
+                UseBullet(1);
+                bulletID = itemData.Item_ID;
+                return true;
+            }
+            else
+            {
+                bulletID = 0;
+                return false;
+            }
+        }
+        else
+        {
+            bulletID = bulletList[0];
+            return true;
+        }
+    }
+    /// <summary>
+    /// 消耗子弹
+    /// </summary>
+    public virtual void UseBullet(int count)
+    {
+        if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+        {
+            ItemData _oldItemConsumables = actorManager.actorNetManager.Net_ItemConsumables;
+            ItemData _newItemConsumables = _oldItemConsumables;
+            _newItemConsumables.Item_Count--;
+            if (_newItemConsumables.Item_Count <= 0)
+            {
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemConsumables_Sub()
+                {
+                    item = _oldItemConsumables,
+                });
+            }
+            else
+            {
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemConsumables_Change()
+                {
+                    oldItem = _oldItemConsumables,
+                    newItem = _newItemConsumables,
+                });
+            }
+        }
+    }
+
+    #endregion
+    #region//弓箭操作
+    /// <summary>
     /// 获得射击范围
     /// </summary>
     /// <returns></returns>
@@ -232,19 +308,29 @@ public class ItemLocalObj_Bow : ItemLocalObj
     /// </summary>
     /// <param name="offset"></param>
     /// <param name="inputState"></param>
-    private void TryToShot(float offset)
+    private void TryToShoot(float offset)
     {
         if (CheckBullet(out short bulletID))
         {
-            Shot(bulletID, GetRandomDir(offset), actorManager);
+            Shoot(bulletID, GetRandomDir(offset), actorManager);
+            LoseDurability();
             PutArrowOn();
             animator.SetTrigger("Shoot");
         }
     }
+    public void LoseDurability()
+    {
+        ItemData _oldItemHand = itemData;
+        ItemData _newItemHand = itemData;
+        _newItemHand.Item_Durability--;
+        UpdateDataByLocal(_newItemHand);
+        actorManager.actorNetManager.Net_ItemHand = _newItemHand;
+    }
+
     /// <summary>
     /// 射击
     /// </summary>
-    private void Shot(short bulletID, Vector3 dir, ActorManager actor)
+    private void Shoot(short bulletID, Vector3 dir, ActorManager actor)
     {
         GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_" + bulletID);
         if (obj.TryGetComponent(out BulletBase bulletBase))
@@ -262,7 +348,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
             temp_Aiming = on;
             if (on)
             {
-                temp_NextAimPoint = ReadyTime; 
+                temp_NextAimPoint = ReadyTime;
                 animator.SetBool("Ready", on);
                 PutArrowOn();
             }
@@ -274,85 +360,6 @@ public class ItemLocalObj_Bow : ItemLocalObj
         }
 
     }
-    /// <summary>
-    /// 检查子弹
-    /// </summary>
-    /// <returns>可以射击</returns>
-    public virtual bool CheckBullet(out short bulletID)
-    {
-        if (actorManager.actorAuthority.isPlayer)
-        {
-            if (itemData.Item_Content.Item_ID != 0 && itemData.Item_Content.Item_Count > 0)
-            {
-                bulletID = itemData.Item_Content.Item_ID;
-                UseBullet();
-                return true;
-            }
-            else
-            {
-                bulletID = 0;
-                return false;
-            }
-        }
-        else
-        {
-            if (itemData.Item_Content.Item_ID == 0 || itemData.Item_Content.Item_Count == 0)
-            {
-                AddBullet();
-            }
-            bulletID = itemData.Item_Content.Item_ID;
-            UseBullet();
-            return true;
-        }
-    }
-    /// <summary>
-    /// 添加子弹
-    /// </summary>
-    public virtual void AddBullet()
-    {
-        ItemData bullet = new ItemData();
-        bullet.Item_ID = 9001;
-        bullet.Item_Count = (short)(BulletCapacity / 2 + 1);
-        itemData.Item_Content = new ContentData(bullet);
-    }
-    /// <summary>
-    /// 消耗子弹
-    /// </summary>
-    private void UseBullet()
-    {
-        ItemData _oldItem = itemData;
-        ItemData _newItem = _oldItem;
-        _newItem.Item_Content.Item_Count--;
-        _newItem.Item_Durability--;
-        UpdateDataByLocal(_newItem);
-        if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
-        {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemOnHand()
-            {
-                oldItem = _oldItem,
-                newItem = _newItem,
-            });
-        }
-    }
-    /// <summary>
-    /// 更新技能指示器
-    /// </summary>
-    private void UpdateSkillSector()
-    {
-        if (inputData.rightPressTimer > ReadyTime)
-        {
-            skillIndicators.Draw_SkillIndicators(inputData.mousePosition, 1.5f, GetAttackRange(), 1);
-        }
-        else
-        {
-            if (inputData.rightPressTimer == 0)
-            {
-                skillIndicators.Draw_SkillIndicators(inputData.mousePosition, 0, 0, 0);
-            }
-            else
-            {
-                skillIndicators.Draw_SkillIndicators(inputData.mousePosition, 1.5f, GetAttackRange(), 0.2f);
-            }
-        }
-    }
+
+    #endregion
 }

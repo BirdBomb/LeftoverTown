@@ -16,7 +16,7 @@ public class MapEvent : MonoBehaviour
         /// <summary>
         /// 地图尺寸
         /// </summary>
-        public int mapSize;
+        public short mapSize;
     }
     /// <summary>
     /// 请求保存地图数据

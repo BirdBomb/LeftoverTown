@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-public class BuildingObj_Home_Rabbit : BuildingObj
+public class BuildingObj_Home_Rabbit : BuildingObj_Manmade
 {
     private ActorManager actor_Bind;
     public override void Start()
@@ -32,5 +32,4 @@ public class BuildingObj_Home_Rabbit : BuildingObj
             })
         });
     }
-
 }

@@ -1,5 +1,4 @@
 using DG.Tweening;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -128,11 +127,11 @@ public class Bullet_Iron : BulletBase
             actor.actionManager.AddForce(vectoe3_MoveDir, float_BulletForce);
             if (float_BulletAttackDemage > 0)
             {
-                actor.AllClient_Listen_TakeAttackDamage(float_BulletAttackDemage, actorManager_Owner.actorNetManager);
+                actor.AllClient_Listen_TakeDamage(float_BulletAttackDemage, DamageState.AttackPiercingDamage, actorManager_Owner.actorNetManager);
             }
             if (float_BulletMagicDemage > 0)
             {
-                actor.AllClient_Listen_TakeMagicDamage(float_BulletMagicDemage, actorManager_Owner.actorNetManager);
+                actor.AllClient_Listen_TakeDamage(float_BulletMagicDemage, DamageState.MagicDamage, actorManager_Owner.actorNetManager);
             }
         }
     }

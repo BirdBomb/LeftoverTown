@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-public class BuildingObj_Home_Zombie : BuildingObj
+public class BuildingObj_Home_Zombie : BuildingObj_Manmade
 {
     private ActorManager zombie;
     public override void Start()

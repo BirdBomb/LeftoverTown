@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingObj_Door : BuildingObj
+public class BuildingObj_Door : BuildingObj_Manmade
 {
     [SerializeField]
     private GameObject obj_Door;

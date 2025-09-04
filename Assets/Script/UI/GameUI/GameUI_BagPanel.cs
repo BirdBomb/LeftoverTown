@@ -18,10 +18,6 @@ public class GameUI_BagPanel : MonoBehaviour
     public List<UI_GridCell> gridCells_BagCellList = new List<UI_GridCell>();
     [Header("排序按钮")]
     public Button btn_PutSort;
-    [Header("打开按钮")]
-    public Button btn_Show;
-    [Header("关闭按钮")]
-    public Button btn_Hide;
     [Header("背包锁")]
     public List<Image> images_BagLockList = new List<Image>();
     private List<ItemData> itemDatas_BagList = new List<ItemData>();
@@ -65,6 +61,21 @@ public class GameUI_BagPanel : MonoBehaviour
         BindAllCell();
         InvokeRepeating("ShowNextInfo", 2, float_DurTime);
     }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if (show)
+            {
+                HidePanel();
+            }
+            else
+            {
+                ShowPanel();
+            }
+        }
+
+    }
     private void BindAllCell()
     {
         for (int i = 0; i < gridCells_BagCellList.Count; i++)
@@ -73,14 +84,6 @@ public class GameUI_BagPanel : MonoBehaviour
             gridCells_BagCellList[index].BindGrid(new ItemPath(ItemFrom.Bag, index), PutIn, PutOut, ClickCellLeft, ClickCellRight);
         }
         btn_PutSort.onClick.AddListener(BatchSort);
-        btn_Show.onClick.AddListener(() =>
-        {
-            ShowPanel();
-        });
-        btn_Hide.onClick.AddListener(() =>
-        {
-            HidePanel();
-        });
     }
     #region//绘制
     private void BagUpdateItem()
@@ -124,7 +127,7 @@ public class GameUI_BagPanel : MonoBehaviour
     }
     public void PutIn(ItemData data, ItemPath path)
     {
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryAddItemInBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
         {
             index = path.itemIndex,
             itemData = data,
@@ -133,7 +136,7 @@ public class GameUI_BagPanel : MonoBehaviour
     public ItemData PutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
         ItemData itemData_New = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryChangeItemInBag()
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
         {
             itemData = itemData_New,
             index = itemPath.itemIndex
@@ -142,9 +145,9 @@ public class GameUI_BagPanel : MonoBehaviour
     }
     private void BatchSort()
     {
-        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_GetBagItem();
+        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         itemDatas = GameToolManager.Instance.SortItemList(itemDatas);
-        GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_SetBagItem(itemDatas);
+        GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Set(itemDatas);
     }
     #endregion
     #region//打开隐藏
@@ -155,10 +158,8 @@ public class GameUI_BagPanel : MonoBehaviour
     public void ShowPanel()
     {
         show = true;
-        btn_Show.gameObject.SetActive(!show);
-        btn_Hide.gameObject.SetActive(show);
         tran_Panel.DOKill();
-        tran_Panel.DOLocalMoveY(280, 0.2f);
+        tran_Panel.DOLocalMoveY(214, 0.2f);
     }
     /// <summary>
     /// 隐藏
@@ -166,10 +167,8 @@ public class GameUI_BagPanel : MonoBehaviour
     public void HidePanel()
     {
         show = false;
-        btn_Show.gameObject.SetActive(!show);
-        btn_Hide.gameObject.SetActive(show);
         tran_Panel.DOKill();
-        tran_Panel.DOLocalMoveY(0, 0.2f);
+        tran_Panel.DOLocalMoveY(-62, 0.2f);
     }
     #endregion
     #region//弹出信息

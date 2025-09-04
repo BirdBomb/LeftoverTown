@@ -66,6 +66,18 @@ public class CreateRawConfigData
             /*Ê÷Ö¦4,Ä¾²Ä4*/
             Create_RawList = new List<ItemRaw>(){ new ItemRaw(1001,4), new ItemRaw(1100, 4) }
         },
+        /*Ä¾Á­µ¶*/new CreateRawConfig()
+        {
+            Create_TargetID = 2050, Create_TargetCount = 1,
+            /*Ê÷Ö¦4,Ä¾²Ä4*/
+            Create_RawList = new List<ItemRaw>(){ new ItemRaw(1001,4), new ItemRaw(1100, 4) }
+        },
+        /*Ä¾é¢×Ó*/new CreateRawConfig()
+        {
+            Create_TargetID = 2060, Create_TargetCount = 1,
+            /*Ê÷Ö¦4,Ä¾²Ä4*/
+            Create_RawList = new List<ItemRaw>(){ new ItemRaw(1001,4), new ItemRaw(1100, 4) }
+        },
         /*Ä¾¹÷*/new CreateRawConfig()
         {
             Create_TargetID = 2100, Create_TargetCount = 1,

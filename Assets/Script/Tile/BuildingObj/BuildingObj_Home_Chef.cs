@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-public class BuildingObj_Home_Chef : BuildingObj
+public class BuildingObj_Home_Chef : BuildingObj_Manmade
 {
     private ActorManager actor_Bind;
     public override void Start()
