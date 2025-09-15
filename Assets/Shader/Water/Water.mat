@@ -120,7 +120,7 @@ Material:
     - _CausticBaseColor: {r: 0.7452829, g: 1, b: 0.96881014, a: 0}
     - _CausticHighLightColor: {r: 1, g: 1, b: 1, a: 0}
     - _DistortColor: {r: 0.74509805, g: 1, b: 0.9686275, a: 0.5019608}
-    - _DistortTran: {r: 8.527485, g: -20.789707, b: 0.02, a: 0.02}
+    - _DistortTran: {r: 0.49999997, g: -3.8124993, b: 0.02, a: 0.02}
     - _EdgeColor: {r: 0.40000004, g: 0.8000001, b: 1, a: 1}
     - _EdgeHighLightColor: {r: 0.64465404, g: 0.9680601, b: 1, a: 1}
     - _EdgeWaveColor: {r: 0.5, g: 1, b: 1, a: 1}
