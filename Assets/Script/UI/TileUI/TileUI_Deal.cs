@@ -53,6 +53,7 @@ public class TileUI_Deal : TileUI
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
         {
             itemData = itemData,
+            itemFrom = ItemFrom.OutSide
         });
     }
     public ItemData GoodsPutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
@@ -160,6 +161,7 @@ public class TileUI_Deal : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = itemData,
+                itemFrom = ItemFrom.OutSide
             });
         }
     }

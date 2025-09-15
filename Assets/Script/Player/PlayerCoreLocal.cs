@@ -26,7 +26,7 @@ public class PlayerCoreLocal : MonoBehaviour
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.Local_ItemBag_Add(_.index, _.itemData);
+                actorManager_Bind.actorNetManager.Local_ItemBag_Add(_.index, _.itemData,_.itemFrom);
                 Debug.Log(_.itemData.Item_ID);
                 Local_SaveActorData();
             }
@@ -360,6 +360,8 @@ public class PlayerCoreLocal : MonoBehaviour
                     actorManager_Bind.actorNetManager.Local_ItemBag_Change(i, new ItemData());
                 }
             }
+            actorManager_Bind.actorNetManager.Local_SetLevel(playerData_Local.Level_Cur);
+            actorManager_Bind.actorNetManager.Local_SetExp(playerData_Local.Exp_Cur);
             actorManager_Bind.actorNetManager.Local_SetBuffList(playerData_Local.BuffList);
             //Debug.Log("--初始化玩家手部");
             actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHand_Add(playerData_Local.HandItem);
@@ -392,6 +394,8 @@ public class PlayerCoreLocal : MonoBehaviour
         playerData_Local.BodyItem = actorManager_Bind.actorNetManager.Net_ItemBody;
         playerData_Local.BagItems = actorManager_Bind.actorNetManager.Local_ItemBag_Get();
 
+        playerData_Local.Level_Cur = actorManager_Bind.actorNetManager.Local_GetLevel();
+        playerData_Local.Exp_Cur = actorManager_Bind.actorNetManager.Local_GetExp();
         playerData_Local.Hp_Cur = actorManager_Bind.actorNetManager.Net_HpCur;
         playerData_Local.Hp_Max = actorManager_Bind.actorNetManager.Local_HpMax;
         playerData_Local.Food_Cur = actorManager_Bind.actorNetManager.Net_FoodCur;
@@ -452,9 +456,39 @@ public class PlayerCoreLocal : MonoBehaviour
 
     #endregion
     #region//玩家输入
+    /// <summary>
+    /// 切换索引
+    /// </summary>
+    private int temp_SwitchIndex = 0;
+    /// <summary>
+    /// 切换索引归零倒计时
+    /// </summary>
+    private float temp_SwitchTimer = 0;
     private void Local_PlayerInputKey()
     {
-        if (!actorManager_Bind || !Input.anyKeyDown) return;
+        if (!actorManager_Bind) return;
+        if (temp_SwitchIndex > 0 && temp_SwitchTimer > 0)
+        {
+            temp_SwitchTimer -= Time.deltaTime;
+            if (temp_SwitchTimer <= 0) { temp_SwitchIndex = 0; temp_SwitchTimer = 0; }
+        }
+        if (Input.GetAxis("Mouse ScrollWheel") > 0)
+        {
+            actorManager_Bind.inputManager.InputAlpha(temp_SwitchIndex);
+            temp_SwitchIndex += 1;
+            if (temp_SwitchIndex > 9) temp_SwitchIndex = 0;
+            temp_SwitchTimer = 1;
+            actorManager_Bind.inputManager.InputAlpha(temp_SwitchIndex);
+        }
+        if (Input.GetAxis("Mouse ScrollWheel") < 0)
+        {
+            actorManager_Bind.inputManager.InputAlpha(temp_SwitchIndex);
+            temp_SwitchIndex -= 1;
+            if (temp_SwitchIndex < 0) temp_SwitchIndex = 9;
+            temp_SwitchTimer = 1;
+            actorManager_Bind.inputManager.InputAlpha(temp_SwitchIndex);
+        }
+        if (!Input.anyKeyDown) return;
         if (Input.GetKeyDown(KeyCode.Alpha1)) actorManager_Bind.inputManager.InputAlpha(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) actorManager_Bind.inputManager.InputAlpha(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) actorManager_Bind.inputManager.InputAlpha(2);

@@ -83,7 +83,7 @@ public class TileUI_SunPiece : TileUI
             case 0:
                 if (buildingObj_Bind.info_ItemData.Item_ID == 1000)
                 {
-                    buildingObj_Bind.info_ItemData = buildingObj_Bind.State_GetItemData(2010, 1);
+                    buildingObj_Bind.info_ItemData = buildingObj_Bind.Local_GetItemData(2010, 1);
                     buildingObj_Bind.info_Level = 1;
                     buildingObj_Bind.WriteInfo();
                 }
@@ -102,6 +102,7 @@ public class TileUI_SunPiece : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
+                itemFrom = ItemFrom.OutSide
             });
         }
         buildingObj_Bind.WriteInfo();

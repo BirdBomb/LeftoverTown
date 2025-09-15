@@ -39,9 +39,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     private Func<ItemData, ItemData, ItemPath, ItemData> action_PutOut;
     private Action<UI_GridCell> action_ClickLeft;
     private Action<UI_GridCell> action_ClickRight;
-    private string str_itemName = "";
-    private string str_itemQuality = "";
-    private string str_itemDesc = "";
     private string str_itemInfo = "";
 
     public ItemBase _bindItemBase = null;
@@ -143,13 +140,12 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// <param name="backGround"></param>
     /// <param name="name"></param>
     /// <param name="info"></param>
-    public void DrawCell(string mainIcon, string backGround, string name, string info)
+    public void DrawCell(string mainIcon, string backGround, string info)
     {
         bool_Showing = true;
         image_IconBG.gameObject.SetActive(true);
         image_IconMain.sprite = spriteAtlas_ItemIcon.GetSprite(mainIcon);
         image_IconBG.sprite = spriteAtlas_ItemBG.GetSprite(backGround);
-        str_itemName = name;
         text_CornerMark.text = info;
     }
     /// <summary>
@@ -177,8 +173,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     {
         bool_Showing = false;
         text_CornerMark.text = "";
-        str_itemName = "";
-        str_itemDesc = "";
         str_itemInfo = "";
         image_IconMain.sprite = spriteAtlas_ItemIcon.GetSprite("Item_Default");
         image_IconBG.gameObject.SetActive(false);

@@ -308,7 +308,8 @@ public class ItemLocalObj_FishRod : ItemLocalObj
                 AudioManager.Instance.Play2DEffect(1000);
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
-                    itemData = initData
+                    itemData = initData,
+                    itemFrom = ItemFrom.OutSide
                 });
             }
         });

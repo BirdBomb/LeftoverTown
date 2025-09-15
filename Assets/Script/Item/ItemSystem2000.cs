@@ -889,7 +889,7 @@ public class Item_2030 : ItemBase
 
         string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Count.ToString());
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.Item_Count.ToString());
         gridCell.SetCell(stringInfo);
     }
     #endregion

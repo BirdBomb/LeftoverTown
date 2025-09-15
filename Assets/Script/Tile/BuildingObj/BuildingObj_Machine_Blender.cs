@@ -87,6 +87,7 @@ public class BuildingObj_Machine_Blender : BuildingObj_Manmade
                         {
                             index = 0,
                             itemData = itemData_Res,
+                            itemFrom =ItemFrom.OutSide
                         });
                     }
                 }

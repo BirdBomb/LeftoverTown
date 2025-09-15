@@ -78,6 +78,7 @@ public class TileUI_BoxFreeze : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
+                itemFrom = ItemFrom.OutSide
             });
         }
         buildingObj_Bind.WriteInfo();

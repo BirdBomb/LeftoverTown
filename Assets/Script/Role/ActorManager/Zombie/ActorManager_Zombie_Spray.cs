@@ -388,32 +388,32 @@ public class ActorManager_Zombie_Spray : ActorManager
     {
         actionManager.TurnTo(actorNetManager.Runner.FindObject(networkId).transform.position - transform.position);
         bodyController.SetAnimatorTrigger(BodyPart.Body, "Bump");
-        if (actorAuthority.isState)
+        bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
         {
-            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+            if (str.Equals("Bump"))
             {
-                if (str.Equals("Bump"))
+                RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1.5f, Vector2.zero);
+                foreach (RaycastHit2D hit2D in raycastHit2Ds)
                 {
-                    RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1.5f, Vector2.zero);
-                    foreach (RaycastHit2D hit2D in raycastHit2Ds)
+                    if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
                     {
-                        if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
+                        if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                         {
-                            if (actorManager.statusManager.statusType != StatusType.Monster_Common)
+                            if (actorManager.actorAuthority.isLocal)
                             {
-                                actorManager.AllClient_Listen_TakeDamage(config.float_BumpDamage, DamageState.AttackBludgeoningDamage, actorNetManager);
-                                actorManager.actionManager.AddForce((actorManager.transform.position - transform.position).normalized, 25);
+                                actorManager.AllClient_Listen_TakeDamage(config.int_BumpDamage, DamageState.AttackBludgeoningDamage, actorNetManager);
+                                actorManager.AllClient_Listen_TakeForce((actorManager.transform.position - transform.position).normalized, 25);
                             }
                         }
                     }
-                    return true;
                 }
-                else
-                {
-                    return false;
-                }
-            });
-        }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        });
     }
     private void AllClient_Spray(Vector3Int vector3, NetworkId networkId)
     {
@@ -422,28 +422,25 @@ public class ActorManager_Zombie_Spray : ActorManager
             Vector2 dir = actorNetManager.Runner.FindObject(networkId).transform.position - transform.position;
             actionManager.TurnTo(dir);
             bodyController.SetAnimatorTrigger(BodyPart.Body, "Spray");
-            if (actorAuthority.isState)
+            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
             {
-                bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+                if (str.Equals("Spray"))
                 {
-                    if (str.Equals("Spray"))
+                    GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_100");
+                    if (obj.TryGetComponent(out BulletBase bulletBase))
                     {
-                        GameObject obj = PoolManager.Instance.GetObject("Bullet/Bullet_100");
-                        if (obj.TryGetComponent(out BulletBase bulletBase))
-                        {
-                            bulletBase.InitBullet();
-                            bulletBase.SetPhysics(trans_Muzzle.transform.position, dir, 0, 0);
-                            bulletBase.SetDamage(0, 0);
-                            bulletBase.SetOwner(this);
-                        }
-                        return true;
+                        bulletBase.InitBullet();
+                        bulletBase.SetPhysics(trans_Muzzle.transform.position, dir, 0, 0);
+                        bulletBase.SetDamage(0, 0);
+                        bulletBase.SetOwner(this);
                     }
-                    else
-                    {
-                        return false;
-                    }
-                });
-            }
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            });
         }
     }
     #endregion
@@ -466,7 +463,7 @@ public struct ActorConfig_ZombieSpray
     [Header("×²»÷¹¥»÷¾àÀë"), Range(1, 5)]
     public float float_BumpDistance;
     [Header("×²»÷ÉËº¦")]
-    public int float_BumpDamage;
+    public int int_BumpDamage;
     [Header("ÅçÉä¹¥»÷¾àÀë"), Range(1, 25)]
     public float float_SprayDistance;
     [Header("ÊÓÒ°¾àÀë"), Range(1, 99)]

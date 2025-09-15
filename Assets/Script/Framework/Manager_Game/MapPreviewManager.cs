@@ -84,18 +84,24 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
             }
             if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.TryBuildBuilding)
             {
-                if (Input.GetAxis("Mouse ScrollWheel") > 0)
+                if (Input.GetKeyDown(KeyCode.Tab))
                 {
                     int_GroupIndex += 1;
                     int_GroupIndex = Mathf.Abs(int_GroupIndex);
                     UpdateSprite();
                 }
-                if (Input.GetAxis("Mouse ScrollWheel") < 0)
-                {
-                    int_GroupIndex -= 1;
-                    int_GroupIndex = Mathf.Abs(int_GroupIndex);
-                    UpdateSprite();
-                }
+                //if (Input.GetAxis("Mouse ScrollWheel") > 0)
+                //{
+                //    int_GroupIndex += 1;
+                //    int_GroupIndex = Mathf.Abs(int_GroupIndex);
+                //    UpdateSprite();
+                //}
+                //if (Input.GetAxis("Mouse ScrollWheel") < 0)
+                //{
+                //    int_GroupIndex -= 1;
+                //    int_GroupIndex = Mathf.Abs(int_GroupIndex);
+                //    UpdateSprite();
+                //}
             }
         }
 

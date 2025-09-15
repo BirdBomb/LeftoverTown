@@ -187,7 +187,7 @@ public class Item_4105 : ItemBase_Food
 /// <summary>
 /// Äñ¹ûÖ­
 /// </summary>
-public class Item_4200 : ItemBase_Food
+public class Item_4200 : ItemBase_Potion
 {
     private int config_Food = 20;
     public override void Eat()

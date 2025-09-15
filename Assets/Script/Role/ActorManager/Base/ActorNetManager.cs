@@ -1,5 +1,6 @@
 using Fusion;
 using Fusion.Addons.Physics;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -196,6 +197,52 @@ public class ActorNetManager : NetworkBehaviour
     public short Local_EyeID { get; set; } = 0;
     public short Local_HairID { get; set; } = 0;
     public Color32 Local_HairColor { get; set; } = Color.white;
+    #endregion
+    #region//经验值(只在本地端计算)
+    private short Local_Level { get; set; }
+    private short Local_ExpCur { get; set; }
+    private short Local_ExpMax { get; set; }
+    public short Local_GetExp()
+    {
+        return Local_ExpCur;
+    }
+    public void Local_SetExp(short exp)
+    {
+        if (Local_Level < 1) { return; }
+        Local_ExpMax = (short)(Local_Level * 5 + 45);
+        if (exp > Local_ExpMax)
+        {
+            Local_ExpCur = (short)(exp - Local_ExpMax);
+            Local_SetLevel((short)(Local_Level + 1));
+        }
+        if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateExpData()
+            {
+                Level = Local_Level,
+                Exp_Cur = Local_ExpCur,
+                Exp_Max = Local_ExpMax,
+            });
+        }
+    }
+    public short Local_GetLevel()
+    {
+        return Local_Level;
+    }
+    public void Local_SetLevel(short level)
+    {
+        Local_Level = level;
+        Local_ExpMax = (short)(Local_Level * 5 + 45);
+        if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
+        {
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateExpData()
+            {
+                Level = Local_Level,
+                Exp_Cur = Local_ExpCur,
+                Exp_Max = Local_ExpMax,
+            });
+        }
+    }
     #endregion
     #region//生命值(所有客户端)
     /// <summary>
@@ -452,7 +499,7 @@ public class ActorNetManager : NetworkBehaviour
         Net_ItemHand = GameToolManager.Instance.CombineItem(Net_ItemHand, itemData_Add, out ItemData itemData_Res);
         if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
         {
-            RPC_State_ItemInBag_Add(itemData_Res);
+            RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Hand);
         }
     }
     /// <summary>
@@ -510,7 +557,7 @@ public class ActorNetManager : NetworkBehaviour
         Net_ItemHead = GameToolManager.Instance.CombineItem(Net_ItemHead, itemData_Add, out ItemData itemData_Res);
         if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
         {
-            RPC_State_ItemInBag_Add(itemData_Res);
+            RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Head);
         }
     }
     /// <summary>
@@ -563,7 +610,7 @@ public class ActorNetManager : NetworkBehaviour
         Net_ItemBody = GameToolManager.Instance.CombineItem(Net_ItemBody, itemData_Add, out ItemData itemData_Res);
         if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
         {
-            RPC_State_ItemInBag_Add(itemData_Res);
+            RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Body);
         }
     }
     /// <summary>
@@ -613,7 +660,7 @@ public class ActorNetManager : NetworkBehaviour
         Net_ItemAccessory = GameToolManager.Instance.CombineItem(Net_ItemAccessory, itemData_Add, out ItemData itemData_Res);
         if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
         {
-            RPC_State_ItemInBag_Add(itemData_Res);
+            RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Accessory);
         }
     }
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
@@ -656,7 +703,7 @@ public class ActorNetManager : NetworkBehaviour
         Net_ItemConsumables = GameToolManager.Instance.CombineItem(Net_ItemConsumables, itemData_Add, out ItemData itemData_Res);
         if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
         {
-            RPC_State_ItemInBag_Add(itemData_Res);
+            RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Consumables);
         }
     }
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
@@ -719,7 +766,7 @@ public class ActorNetManager : NetworkBehaviour
     /// </summary>
     /// <param name="itemData"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    public void RPC_State_ItemInBag_Add(ItemData addData)
+    public void RPC_State_ItemInBag_Add(ItemData addData,short from)
     {
         if (actorManager_Local.actorAuthority.isLocal)
         {
@@ -728,16 +775,17 @@ public class ActorNetManager : NetworkBehaviour
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     index = 0,
-                    itemData = addData
+                    itemData = addData,
+                    itemFrom = (ItemFrom)(from),
                 });
             }
             else
             {
-                Local_ItemBag_Add(0, addData);
+                Local_ItemBag_Add(0, addData, (ItemFrom)(from));
             }
         }
     }
-    public void Local_ItemBag_Add(int index, ItemData addData)
+    public void Local_ItemBag_Add(int index, ItemData addData,ItemFrom from)
     {
         if (addData.Item_ID > 0)
         {
@@ -753,7 +801,7 @@ public class ActorNetManager : NetworkBehaviour
                     pos = transform.position,
                 });
             }
-            if (actorManager_Local.actorAuthority.isPlayer)
+            if (actorManager_Local.actorAuthority.isPlayer && from == ItemFrom.OutSide)
             {
                 MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
                 {
@@ -831,31 +879,31 @@ public class ActorNetManager : NetworkBehaviour
                     {
                         ItemData temp = itemData;
                         temp.Item_Count = (short)(itemData.Item_Count - itemDatas[index].Item_Count);
-                        MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
-                        {
-                            item = temp
-                        });
+                        //MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
+                        //{
+                        //    item = temp
+                        //});
                     }
                     else if (itemDatas[index].Item_Count > itemData.Item_Count)
                     {
                         ItemData temp = itemData;
                         temp.Item_Count = (short)(itemDatas[index].Item_Count - itemData.Item_Count);
-                        MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
-                        {
-                            item = temp
-                        });
+                        //MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
+                        //{
+                        //    item = temp
+                        //});
                     }
                 }
                 else
                 {
-                    MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
-                    {
-                        item = itemDatas[index]
-                    });
-                    MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
-                    {
-                        item = itemData
-                    });
+                    //MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
+                    //{
+                    //    item = itemDatas[index]
+                    //});
+                    //MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
+                    //{
+                    //    item = itemData
+                    //});
                 }
             }
         }
@@ -1062,6 +1110,37 @@ public class ActorNetManager : NetworkBehaviour
             }
         }
     }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_AllClient_AddForce(Vector2 dir, short force)
+    {
+        if (actorManager_Local.actorAuthority.isState)
+        {
+            State_AddForce(dir, force);
+        }
+    }
+    private void State_AddForce(Vector2 dir, short force)
+    {
+        if (networkRigidbody.Rigidbody.velocity == Vector2.zero)
+        {
+            networkRigidbody.Rigidbody.velocity = dir * force;
+        }
+        else
+        {
+            if (Vector2.Dot(networkRigidbody.Rigidbody.velocity, dir) > 0.2)
+            {
+                /*同向--取大*/
+                if ((dir * force).magnitude > networkRigidbody.Rigidbody.velocity.magnitude)
+                {
+                    networkRigidbody.Rigidbody.velocity = dir * force;
+                }
+            }
+            else
+            {
+                /*异向--抵消*/
+                networkRigidbody.Rigidbody.velocity += dir * force;
+            }
+        }
+    }
     #endregion
     #region//其他操作
     /// <summary>
@@ -1113,7 +1192,7 @@ public class ActorNetManager : NetworkBehaviour
                     if (networkPlayerObject != null && networkPlayerObject.transform.TryGetComponent(out ItemNetObj itemNetObj))
                     {
                         itemNetObj.State_PickUp(Object.Id, out ItemData itemData_Pick);
-                        RPC_State_ItemInBag_Add(itemData_Pick);
+                        RPC_State_ItemInBag_Add(itemData_Pick, (short)ItemFrom.OutSide);
                     }
                 }
                 return true;
@@ -1138,7 +1217,7 @@ public class ActorNetManager : NetworkBehaviour
             if (Object.HasStateAuthority)
             {
                 itemNetObj.State_PickUp(Object.Id, out ItemData itemData_Pick);
-                RPC_State_ItemInBag_Add(itemData_Pick);
+                RPC_State_ItemInBag_Add(itemData_Pick, (short)ItemFrom.OutSide);
             }
             GameObject itemObj = PoolManager.Instance.GetObject("Effect/Effect_ItemObj");
             itemObj.transform.position = itemNetObj.transform.position;

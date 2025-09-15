@@ -124,7 +124,7 @@ public class Bullet_Iron : BulletBase
     {
         if (actorAuthority_Owner.isLocal)
         {
-            actor.actionManager.AddForce(vectoe3_MoveDir, float_BulletForce);
+            actor.AllClient_Listen_TakeForce(vectoe3_MoveDir, (short)float_BulletForce);
             if (float_BulletAttackDemage > 0)
             {
                 actor.AllClient_Listen_TakeDamage(float_BulletAttackDemage, DamageState.AttackPiercingDamage, actorManager_Owner.actorNetManager);

@@ -353,31 +353,31 @@ public class ActorManager_Zombie_Common : ActorManager
     {
         actionManager.TurnTo(((Vector3)(vector3 - pathManager.vector3Int_CurPos)));
         bodyController.SetAnimatorTrigger(BodyPart.Body, "Bite");
-        if (actorAuthority.isState)
+        bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
         {
-            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+            if (str.Equals("Bite"))
             {
-                if (str.Equals("Bite"))
+                RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1, Vector2.zero);
+                foreach (RaycastHit2D hit2D in raycastHit2Ds)
                 {
-                    RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1, Vector2.zero);
-                    foreach (RaycastHit2D hit2D in raycastHit2Ds)
+                    if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
                     {
-                        if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
+                        if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                         {
-                            if (actorManager.statusManager.statusType != StatusType.Monster_Common)
+                            if (actorManager.actorAuthority.isLocal)
                             {
                                 actorManager.AllClient_Listen_TakeDamage(config.int_BiteDamage, DamageState.AttackSlashingDamage, actorNetManager);
                             }
                         }
                     }
-                    return true;
                 }
-                else
-                {
-                    return false;
-                }
-            });
-        }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        });
     }
     #endregion
 }

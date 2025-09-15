@@ -152,12 +152,9 @@ public class Item_3110 : ItemBase_Food
 /// <summary>
 /// √Ê∑€
 /// </summary>
-public class Item_3200 : ItemBase_Food
+public class Item_3200 : ItemBase_Materials
 {
-    public override void Eat()
-    {
-        base.Eat();
-    }
+    
 }
 /// <summary>
 /// ∏Ø¿√ ≥ŒÔ

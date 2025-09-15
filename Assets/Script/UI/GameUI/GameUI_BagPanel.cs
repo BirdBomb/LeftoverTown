@@ -131,6 +131,7 @@ public class GameUI_BagPanel : MonoBehaviour
         {
             index = path.itemIndex,
             itemData = data,
+            itemFrom = ItemFrom.Bag
         });
     }
     public ItemData PutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)

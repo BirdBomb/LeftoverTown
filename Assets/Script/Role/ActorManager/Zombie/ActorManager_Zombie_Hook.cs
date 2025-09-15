@@ -424,31 +424,32 @@ public class ActorManager_Zombie_Hook : ActorManager
     {
         actionManager.TurnTo(actorNetManager.Runner.FindObject(networkId).transform.position - transform.position);
         bodyController.SetAnimatorTrigger(BodyPart.Body, "Punch");
-        if (actorAuthority.isState)
+        bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
         {
-            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+            if (str.Equals("Punch"))
             {
-                if (str.Equals("Punch"))
+                RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, config.float_PunchDistance, Vector2.zero);
+                foreach (RaycastHit2D hit2D in raycastHit2Ds)
                 {
-                    RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, config.float_PunchDistance, Vector2.zero);
-                    foreach (RaycastHit2D hit2D in raycastHit2Ds)
+                    if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
                     {
-                        if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
+                        if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                         {
-                            if (actorManager.statusManager.statusType != StatusType.Monster_Common)
+                            if (actorManager.actorAuthority.isLocal)
                             {
                                 actorManager.AllClient_Listen_TakeDamage(config.int_PunchDamage, DamageState.AttackBludgeoningDamage, actorNetManager);
+                                actorManager.AllClient_Listen_TakeForce((actorManager.transform.position - transform.position).normalized, 25);
                             }
                         }
                     }
-                    return true;
                 }
-                else
-                {
-                    return false;
-                }
-            });
-        }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        });
     }
     private void AllClient_Jump(Vector3Int vector3, NetworkId networkId)
     {
@@ -457,48 +458,48 @@ public class ActorManager_Zombie_Hook : ActorManager
             Vector2 dir = actorNetManager.Runner.FindObject(networkId).transform.position - transform.position;
             actionManager.TurnTo(dir);
             bodyController.SetAnimatorTrigger(BodyPart.Body, "Jump");
-            if (actorAuthority.isState)
+            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
             {
-                bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+                if (str.Equals("StartJump"))
                 {
-                    if (str.Equals("StartJump"))
-                    {
-                        actionManager.AddForce(dir.normalized, 40);
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                });
-                bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+                    AllClient_Listen_TakeForce(dir.normalized, 40);
+                    return true;
+                }
+                else
                 {
-                    if (str.Equals("OverJump"))
-                    {
-                        GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_ThunderWaves");
-                        effect.GetComponent<EffectBase>().SetEffect(Vector3.zero);
-                        effect.transform.position = transform.position;
+                    return false;
+                }
+            });
+            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+            {
+                if (str.Equals("OverJump"))
+                {
+                    GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_ThunderWaves");
+                    effect.GetComponent<EffectBase>().SetEffect(Vector3.zero);
+                    effect.transform.position = transform.position;
 
-                        RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1.5f, Vector2.zero);
-                        foreach (RaycastHit2D hit2D in raycastHit2Ds)
+                    RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1.5f, Vector2.zero);
+                    foreach (RaycastHit2D hit2D in raycastHit2Ds)
+                    {
+                        if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
                         {
-                            if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
+                            if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                             {
-                                if (actorManager.statusManager.statusType != StatusType.Monster_Common)
+                                if (actorManager.actorAuthority.isLocal)
                                 {
                                     actorManager.AllClient_Listen_TakeDamage(config.int_JumpDamage, DamageState.AttackBludgeoningDamage, actorNetManager);
                                 }
                             }
                         }
+                    }
 
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                });
-            }
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            });
         }
     }
 

@@ -122,6 +122,16 @@ public class BuildingConfigData : MonoBehaviour
             Building_ID = 1019,Building_Hp = 20,Building_Armor = 0,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
             Building_Raw = new List<ItemRaw>(){},
         },
+        /*Ä¾Ïä·ÏÐæ*/new BuildingConfig()
+        {
+            Building_ID = 1020,Building_Hp = 20,Building_Armor = 0,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
+        /*Êí¹ûÖ²Öê*/new BuildingConfig()
+        {
+            Building_ID = 1021,Building_Hp = 20,Building_Armor = 0,Building_Size = AreaSize._1X1,Building_Type =BuildingType.Other,Building_Age = AgeGroup.Nature,
+            Building_Raw = new List<ItemRaw>(){},
+        },
         #endregion
         #region//·Ç×ÔÈ»½¨Öþ2000
         /*Ì«Ñô¼ÀÌ³*/new BuildingConfig()

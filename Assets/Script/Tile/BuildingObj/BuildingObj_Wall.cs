@@ -5,6 +5,8 @@ using UnityEngine;
 public class BuildingObj_Wall : BuildingObj_Manmade
 {
     public Sprite[] sprite;
+    public Sprite[] spriteList_0;
+    public Sprite[] spriteList_1;
     public SpriteRenderer spriteRenderer;
     public override void All_Draw()
     {

@@ -112,6 +112,7 @@ public class TileUI_Smelter : TileUI
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = res,
+                    itemFrom = ItemFrom.OutSide
                 });
             }
             else
@@ -119,6 +120,7 @@ public class TileUI_Smelter : TileUI
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = addData,
+                    itemFrom = ItemFrom.OutSide
                 });
             }
         }
@@ -127,6 +129,7 @@ public class TileUI_Smelter : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
+                itemFrom = ItemFrom.OutSide
             });
         }
         buildingObj_Bind.WriteInfo();
@@ -142,6 +145,7 @@ public class TileUI_Smelter : TileUI
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
         {
             itemData = addData,
+            itemFrom = ItemFrom.OutSide
         });
     }
     private ItemData RefiningAfterPutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
@@ -168,6 +172,7 @@ public class TileUI_Smelter : TileUI
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = res,
+                    itemFrom = ItemFrom.OutSide
                 });
             }
             else
@@ -175,6 +180,7 @@ public class TileUI_Smelter : TileUI
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = addData,
+                    itemFrom = ItemFrom.OutSide
                 });
             }
         }
@@ -183,6 +189,7 @@ public class TileUI_Smelter : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
+                itemFrom = ItemFrom.OutSide
             });
         }
         buildingObj_Bind.WriteInfo();

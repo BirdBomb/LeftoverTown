@@ -231,6 +231,7 @@ public class TileUI_CreateItem : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = initData,
+                itemFrom = ItemFrom.OutSide
             });
         }
         else

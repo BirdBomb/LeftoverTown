@@ -9,6 +9,12 @@ using UnityEngine.UI;
 
 public class GameUI_Status : MonoBehaviour
 {
+    [Header("等级")]
+    public Text text_Lv;
+    [Header("经验值")]
+    public Text text_Exp;
+    [Header("经验条")]
+    public Transform bar_Exp;
     [Header("生命值")]
     public Text text_Hp;
     [Header("生命条")]
@@ -43,26 +49,35 @@ public class GameUI_Status : MonoBehaviour
     private List<int> BuffIconList = new List<int>();
     private void Start()
     {
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateExpData>().Subscribe(_ =>
+        {
+            Debug.Log("aaaaaaaaaaaaaaaaaaaaa");
+            text_Lv.text = _.Level.ToString();
+            text_Lv.transform.DOShakePosition(0.1f, 5);
+            text_Exp.text = (_.Exp_Cur + "/" + _.Exp_Max).ToString();
+            bar_Exp.DOKill();
+            bar_Exp.DOScaleX(((float)_.Exp_Cur + 0.1f) / ((float)_.Exp_Max + 0.1f), 0.1f);
+        }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateHPData>().Subscribe(_ =>
         {
             text_Hp.text = _.HP_Cur.ToString();
             text_Hp.transform.DOShakePosition(0.1f, 5);
             bar_Hp.DOKill();
-            bar_Hp.DOScaleY((float)_.HP_Cur / (float)_.HP_Max, 0.1f);
+            bar_Hp.DOScaleY(((float)_.HP_Cur + 0.1f) / ((float)_.HP_Max + 0.1f), 0.1f);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateFoodData>().Subscribe(_ =>
         {
             text_Food.text = _.Food_Cur.ToString();
             text_Food.transform.DOShakePosition(0.1f, 5);
             bar_Food.DOKill();
-            bar_Food.DOScaleY((float)_.Food_Cur / (float)_.Food_Max, 0.1f);
+            bar_Food.DOScaleY(((float)_.Food_Cur + 0.1f) / ((float)_.Food_Max + 0.1f), 0.1f);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateSanData>().Subscribe(_ =>
         {
             text_San.text = _.San_Cur.ToString();
             text_San.transform.DOShakePosition(0.1f, 5);
             bar_San.DOKill();
-            bar_San.DOScaleY((float)_.San_Cur / (float)_.San_Max, 0.1f);
+            bar_San.DOScaleY(((float)_.San_Cur + 0.1f) / ((float)_.San_Max + 0.1f), 0.1f);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateArmorData>().Subscribe(_ =>
         {

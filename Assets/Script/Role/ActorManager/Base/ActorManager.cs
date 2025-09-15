@@ -422,6 +422,16 @@ public class ActorManager : MonoBehaviour
         actionManager.TakeDamage(val, damageState, from);
     }
     /// <summary>
+    /// 监听受力(客户端)
+    /// </summary>
+    /// <param name="dir"></param>
+    /// <param name="force"></param>
+
+    public virtual void AllClient_Listen_TakeForce(Vector2 dir, short force)
+    {
+        actionManager.TakeForce(dir, force);
+    }
+    /// <summary>
     /// 监听治疗(客户端)
     /// </summary>
     public virtual void AllClient_Listen_Heal(int val)

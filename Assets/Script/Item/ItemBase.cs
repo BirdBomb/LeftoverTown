@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 using WebSocketSharp;
+using static UnityEngine.UI.GridLayoutGroup;
 using Vector3 = UnityEngine.Vector3;
 
 /// <summary>
@@ -110,7 +111,7 @@ public class ItemBase
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         string stringInfo = stringName + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Count.ToString());
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.Item_Count.ToString());
         gridCell.SetCell(stringInfo);
     }
     /// <summary>
@@ -418,13 +419,17 @@ public class ItemBase_Food : ItemBase
     public override void UpdateDataFromNet(ItemData itemData)
     {
         base.UpdateDataFromNet(itemData);
-        CalculateDurability();
+        CalculateDurability(int_rotBase);
     }
+    /// <summary>
+    /// 腐烂基本数值
+    /// </summary>
+    private int int_rotBase = -5;
     /// <summary>
     /// 计算新鲜度
     /// </summary>
     /// <param name="nowTime"></param>
-    public virtual void CalculateDurability()
+    public virtual void CalculateDurability(float ratBase)
     {
         /*当前时间*/
         int nowTime = MapManager.Instance.mapNetManager.Day * 10 + MapManager.Instance.mapNetManager.Hour;
@@ -432,21 +437,28 @@ public class ItemBase_Food : ItemBase
         int lastTime = itemData.Item_SignTime;
         /*腐败速率*/
         float rotSpeed = itemData.Item_Info * 0.01f;
-        int offset = (int)((nowTime - lastTime) * rotSpeed * - 5);
-        if (itemData.Item_Durability + offset >= 0)
+        int offset = (int)((nowTime - lastTime) * rotSpeed * ratBase);
+        if (offset <= -1)
         {
-            itemData.Item_Durability += (sbyte)offset;
-            itemData.Item_SignTime = (short)nowTime;
+            /*腐烂大于1*/
+            if (itemData.Item_Durability + offset >= 0)
+            {
+                itemData.Item_Durability += (sbyte)offset;
+                if(itemData.Item_Durability <= 0) itemData.Item_Durability = 0;
+                itemData.Item_SignTime = (short)nowTime;
+            }
+            else
+            {
+                itemData.Item_Durability = 0;
+                itemData.Item_SignTime = (short)nowTime;
+            }
+
         }
         else
         {
-            itemData.Item_Durability = 0;
-            itemData.Item_SignTime = (short)nowTime;
-            itemData.Item_ID = 3999;
-            itemConfig = ItemConfigData.GetItemConfig(3999);
+            /*腐烂小于1*/
         }
     }
-
     public override void StaticAction_Combine(ItemData mainItem, ItemData addItem, short maxCap, out ItemData newItem, out ItemData resItem)
     {
         newItem = mainItem;
@@ -474,11 +486,19 @@ public class ItemBase_Food : ItemBase
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
         string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+        string stringRotten = LocalizationManager.Instance.GetLocalization("Item_String","Rotten");
         string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
+        string stringInfo;
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
-        string stringInfo = stringName + "\n" + stringDesc;
-
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Count.ToString());
+        if(itemData.Item_Durability <= 0)
+        {
+            stringInfo = stringName + "("+ stringRotten + ")" + "\n" + stringDesc;
+        }
+        else
+        {
+            stringInfo = stringName + "\n" + stringDesc;
+        }
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.Item_Count.ToString());
         gridCell.SetCell(stringInfo);
         gridCell.SetSliderVal(itemData.Item_Durability / 100f);
         if (itemData.Item_Info == 0)
@@ -492,6 +512,105 @@ public class ItemBase_Food : ItemBase
             gridCell.SetSliderColor(new Color(Mathf.Lerp(1, 0, itemData.Item_Durability / 100f), Mathf.Lerp(0f, 1, itemData.Item_Durability / 100f), 0, 1));
         }
     }
+    #region//持有
+    private ItemLocalObj_Food itemLocalObj_Food;
+    public override void OnHand_Start(ActorManager owner, BodyController_Human body)
+    {
+        this.owner = owner;
+        itemLocalObj_Food = PoolManager.Instance.GetObject("ItemObj/ItemLocalObj_Food").GetComponent<ItemLocalObj_Food>();
+        itemLocalObj_Food.InitData(itemData);
+        itemLocalObj_Food.HoldingStart(owner, body);
+    }
+    public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
+    {
+        itemLocalObj_Food.PressLeftMouse(pressTimer, owner.actorAuthority);
+        if (inputData.leftPressTimer == 0)
+        {
+            if (owner)
+            {
+                owner.bodyController.SetAnimatorTrigger(BodyPart.Hand, "Eat");
+                owner.bodyController.SetAnimatorTrigger(BodyPart.Head, "Eat");
+                BodyController_Human bodyController_Human = (BodyController_Human)owner.bodyController;
+                bodyController_Human.transform_ItemInRightHand.DOKill();
+                bodyController_Human.transform_ItemInRightHand.localScale = Vector3.one;
+                bodyController_Human.transform_ItemInRightHand.DOPunchScale(new Vector3(-0.2f, 0.2f, 1), 0.2f);
+                AudioManager.Instance.Play3DEffect(2004, owner.transform.position);
+                itemLocalObj_Food.PlayParticle();
+                owner.bodyController.SetAnimatorFunc(BodyPart.Head, (string str) =>
+                {
+                    if (str.Equals("Eat"))
+                    {
+                        bodyController_Human.transform_ItemInRightHand.DOKill();
+                        bodyController_Human.transform_ItemInRightHand.localScale = Vector3.one;
+                        bodyController_Human.transform_ItemInRightHand.DOPunchScale(new Vector3(0.2f, -0.2f, 1), 0.2f);
+                        AudioManager.Instance.Play3DEffect(2005, owner.transform.position);
+                        itemLocalObj_Food.StopParticle();
+                        if (input)
+                        {
+                            Eat();
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                });
+            }
+        }
+        inputData.leftPressTimer = pressTimer;
+        return base.OnHand_UpdateLeftPress(pressTimer, state, input, player);
+    }
+    public override void OnHand_ReleaseLeftPress(bool state, bool input, bool player)
+    {
+        itemLocalObj_Food.ReleaseLeftMouse();
+        inputData.leftPressTimer = 0;
+        base.OnHand_ReleaseLeftPress(state, input, player);
+    }
+    public virtual void Eat()
+    {
+        if (itemData.Item_Durability <= 0)
+        {
+            Posion();
+        }
+        Expend(1);
+    }
+    public virtual void Posion()
+    {
+
+    }
+    public virtual void Expend(int val)
+    {
+        if (itemData.Item_Count > val)
+        {
+            ItemData _oldItem = itemData;
+            ItemData _newItem = itemData;
+            _newItem.Item_Count = (short)(_newItem.Item_Count - val);
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
+            {
+                oldItem = _oldItem,
+                newItem = _newItem,
+            });
+        }
+        else
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
+            {
+                item = itemData,
+            });
+        }
+    }
+    #endregion
+    public override void InBag_Use()
+    {
+        base.InBag_Use();
+    }
+}
+/// <summary>
+/// -----基本药剂-----
+/// </summary>
+public class ItemBase_Potion : ItemBase
+{
     #region//持有
     private ItemLocalObj_Food itemLocalObj_Food;
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
@@ -596,7 +715,7 @@ public class ItemBase_Weapon : ItemBase
 
         string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Durability.ToString() + "%");
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.Item_Durability.ToString() + "%");
         gridCell.SetCell(stringInfo);
     }
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
@@ -635,7 +754,7 @@ public class ItemBase_Tool : ItemBase
 
         string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, itemData.Item_Durability.ToString() + "%");
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.Item_Durability.ToString() + "%");
         gridCell.SetCell(stringInfo);
     }
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
@@ -674,7 +793,7 @@ public class ItemBase_Gun : ItemBase
 
         string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, stringName, "");
+        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity,"");
         gridCell.SetCell(stringInfo);
     }
     public override void GridCell_RightClick(UI_GridCell gridCell, ItemData itemData)

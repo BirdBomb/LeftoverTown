@@ -166,7 +166,7 @@ public class BuildingObj : MonoBehaviour
         {
             for (int i = 0; i < baseLootInfos.Count; i++)
             {
-                lootItemDatas.Add(State_GetItemData(baseLootInfos[i].ID, (short)new System.Random().Next(baseLootInfos[i].CountMin, baseLootInfos[i].CountMax + 1)));
+                lootItemDatas.Add(Local_GetItemData(baseLootInfos[i].ID, (short)new System.Random().Next(baseLootInfos[i].CountMin, baseLootInfos[i].CountMax + 1)));
             }
         }
         if (extraLootInfos != null)
@@ -176,7 +176,7 @@ public class BuildingObj : MonoBehaviour
                 int random = new System.Random().Next(0, 1000);
                 if (random <= extraLootInfos[i].Weight)
                 {
-                    lootItemDatas.Add(State_GetItemData(extraLootInfos[i].ID, extraLootInfos[i].Count));
+                    lootItemDatas.Add(Local_GetItemData(extraLootInfos[i].ID, extraLootInfos[i].Count));
                 }
             }
         }
@@ -205,7 +205,7 @@ public class BuildingObj : MonoBehaviour
             });
         }
     }
-    public ItemData State_GetItemData(short ID, short Count)
+    public ItemData Local_GetItemData(short ID, short Count)
     {
         Type type = Type.GetType("Item_" + ID.ToString());
         ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(ID, out ItemData initData);

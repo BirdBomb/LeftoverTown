@@ -7,6 +7,8 @@ public class PlayerData
     public PlayerData()
     {
         Name = "";
+        Level_Cur = 1;
+        Exp_Cur = 0;
         Hp_Cur = 100;
         Hp_Max = 100;
         Armor_Cur = 0;
@@ -30,6 +32,21 @@ public class PlayerData
     /// </summary>
     [SerializeField]
     public short Speed_Common;
+    /// <summary>
+    /// 当前等级
+    /// </summary>
+    [SerializeField]
+    public short Level_Cur;
+    /// <summary>
+    /// 当前经验
+    /// </summary>
+    [SerializeField]
+    public short Exp_Cur;
+    /// <summary>
+    /// 当前天赋
+    /// </summary>
+    [SerializeField]
+    public List<short> TalentList = new List<short>();
     /// <summary>
     /// 当前生命值
     /// </summary>

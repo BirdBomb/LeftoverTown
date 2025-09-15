@@ -81,6 +81,7 @@ public class TileUI_Cook : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
+                itemFrom = ItemFrom.OutSide
             });
             buildingObj_Bind.WriteInfo();
         }
@@ -89,6 +90,7 @@ public class TileUI_Cook : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
+                itemFrom = ItemFrom.OutSide
             });
         }
     }
@@ -110,6 +112,7 @@ public class TileUI_Cook : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
+                itemFrom = ItemFrom.OutSide
             });
             buildingObj_Bind.WriteInfo();
         }
@@ -118,6 +121,7 @@ public class TileUI_Cook : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
+                itemFrom = ItemFrom.OutSide
             });
         }
     }
@@ -139,6 +143,7 @@ public class TileUI_Cook : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
+                itemFrom = ItemFrom.OutSide,
             });
             buildingObj_Bind.WriteInfo();
         }
@@ -147,6 +152,7 @@ public class TileUI_Cook : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
+                itemFrom = ItemFrom.OutSide
             });
         }
     }
@@ -161,6 +167,7 @@ public class TileUI_Cook : TileUI
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
         {
             itemData = addData,
+            itemFrom = ItemFrom.OutSide
         });
     }
     public ItemData FoodPutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)

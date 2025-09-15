@@ -390,53 +390,56 @@ public class AcrorManager_Zombie_Runner : ActorManager
     {
         actionManager.TurnTo(actorNetManager.Runner.FindObject(networkId).transform.position - transform.position);
         bodyController.SetAnimatorTrigger(BodyPart.Body, "Hack");
-        if (actorAuthority.isState)
+        bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
         {
-            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+            if (str.Equals("Hack_0"))
             {
-                if (str.Equals("Hack_0"))
+                RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1.5f, Vector2.zero);
+                foreach (RaycastHit2D hit2D in raycastHit2Ds)
                 {
-                    RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1.5f, Vector2.zero);
-                    foreach (RaycastHit2D hit2D in raycastHit2Ds)
+                    if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
                     {
-                        if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
+                        if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                         {
-                            if (actorManager.statusManager.statusType != StatusType.Monster_Common)
+                            if (actorManager.actorAuthority.isLocal)
                             {
                                 actorManager.AllClient_Listen_TakeDamage(config.int_HackDamage, DamageState.AttackSlashingDamage, actorNetManager);
                             }
                         }
                     }
-                    return true;
                 }
-                else
-                {
-                    return false;
-                }
-            });
-            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+                return true;
+            }
+            else
             {
-                if (str.Equals("Hack_1"))
+                return false;
+            }
+        });
+        bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+        {
+            if (str.Equals("Hack_1"))
+            {
+                RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1.5f, Vector2.zero);
+                foreach (RaycastHit2D hit2D in raycastHit2Ds)
                 {
-                    RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1.5f, Vector2.zero);
-                    foreach (RaycastHit2D hit2D in raycastHit2Ds)
+                    if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
                     {
-                        if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
+                        if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                         {
-                            if (actorManager.statusManager.statusType != StatusType.Monster_Common)
+                            if (actorManager.actorAuthority.isLocal)
                             {
                                 actorManager.AllClient_Listen_TakeDamage(config.int_HackDamage, DamageState.AttackSlashingDamage, actorNetManager);
                             }
                         }
                     }
-                    return true;
                 }
-                else
-                {
-                    return false;
-                }
-            });
-        }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        });
     }
     private void AllClient_Jump(Vector3Int vector3, NetworkId networkId)
     {
@@ -445,44 +448,43 @@ public class AcrorManager_Zombie_Runner : ActorManager
             Vector2 dir = actorNetManager.Runner.FindObject(networkId).transform.position - transform.position;
             actionManager.TurnTo(dir);
             bodyController.SetAnimatorTrigger(BodyPart.Body, "Jump");
-            if (actorAuthority.isState)
+            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
             {
-                bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+                if (str.Equals("StartJump"))
                 {
-                    if (str.Equals("StartJump"))
-                    {
-                        actionManager.AddForce(dir.normalized, 40);
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                });
-                bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+                    AllClient_Listen_TakeForce(dir.normalized, 40);
+                    return true;
+                }
+                else
                 {
-                    if (str.Equals("OverJump"))
+                    return false;
+                }
+            });
+            bodyController.SetAnimatorFunc(BodyPart.Body, (str) =>
+            {
+                if (str.Equals("OverJump"))
+                {
+                    RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1.5f, Vector2.zero);
+                    foreach (RaycastHit2D hit2D in raycastHit2Ds)
                     {
-                        RaycastHit2D[] raycastHit2Ds = Physics2D.CircleCastAll(transform.position, 1.5f, Vector2.zero);
-                        foreach (RaycastHit2D hit2D in raycastHit2Ds)
+                        if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
                         {
-                            if (hit2D.collider.isTrigger && hit2D.collider.gameObject.TryGetComponent(out ActorManager actorManager))
+                            if (actorManager.statusManager.statusType != StatusType.Monster_Common)
                             {
-                                if (actorManager.statusManager.statusType != StatusType.Monster_Common)
+                                if (actorManager.actorAuthority.isLocal)
                                 {
                                     actorManager.AllClient_Listen_TakeDamage(config.int_JumpDamage, DamageState.AttackSlashingDamage, actorNetManager);
                                 }
                             }
                         }
-
-                        return true;
                     }
-                    else
-                    {
-                        return false;
-                    }
-                });
-            }
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            });
         }
     }
     #endregion

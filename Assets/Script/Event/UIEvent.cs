@@ -77,6 +77,12 @@ public static class UIEvent
     {
         public StatusType statusType;
     }
+    public class UIEvent_UpdateExpData
+    {
+        public short Level;
+        public short Exp_Cur;
+        public short Exp_Max;
+    }
     /// <summary>
     /// UI-更新个人属性HP
     /// </summary>

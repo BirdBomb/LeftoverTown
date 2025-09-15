@@ -63,6 +63,7 @@ public class TileUI_Home_ZombieHook : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
+                itemFrom = ItemFrom.OutSide
             });
             MessageBroker.Default.Publish(new GameEvent.GameEvent_Local_SpawnActor()
             {
@@ -76,6 +77,7 @@ public class TileUI_Home_ZombieHook : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = addData,
+                itemFrom = ItemFrom.OutSide
             });
         }
     }

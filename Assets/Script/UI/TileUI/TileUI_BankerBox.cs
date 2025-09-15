@@ -83,6 +83,7 @@ public class TileUI_BankerBox : TileUI
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
+                itemFrom = ItemFrom.OutSide
             });
         }
         buildingObj_Bind.WriteInfo();
@@ -117,6 +118,7 @@ public class TileUI_BankerBox : TileUI
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                     {
                         itemData = itemData_Res,
+                        itemFrom = ItemFrom.OutSide
                     });
                 }
             }
@@ -138,7 +140,8 @@ public class TileUI_BankerBox : TileUI
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     index = indexInBag,
-                    itemData = itemData
+                    itemData = itemData,
+                    itemFrom = ItemFrom.OutSide
                 });
             }
             else
@@ -146,7 +149,8 @@ public class TileUI_BankerBox : TileUI
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     index = 0,
-                    itemData = itemData
+                    itemData = itemData,
+                    itemFrom = ItemFrom.OutSide
                 });
             }
         }

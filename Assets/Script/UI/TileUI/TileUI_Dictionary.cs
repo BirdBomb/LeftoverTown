@@ -46,6 +46,7 @@ public class TileUI_Dictionary : TileUI
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
         {
             itemData = itemData,
+            itemFrom = ItemFrom.Bag
         });
         itemData_Check = itemData;
         DrawSellCell();

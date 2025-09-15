@@ -21,6 +21,7 @@ public class PlayerEvent
     {
         public int index;
         public ItemData itemData;
+        public ItemFrom itemFrom;
     }
     /// <summary>
     /// 本地玩家:更改背包物体

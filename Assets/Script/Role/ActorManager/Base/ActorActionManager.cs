@@ -18,10 +18,6 @@ public class ActorActionManager
         layerMask_ItemObj = LayerMask.GetMask("ItemObj");
         layerMask_Wall = LayerMask.GetMask("TileObj_Wall");
     }
-    public void AddForce(Vector3 dir, float force)
-    {
-        actorManager.actorNetManager.networkRigidbody.Rigidbody.velocity = dir * force;
-    }
     /// <summary>
     /// 捡起
     /// </summary>
@@ -278,48 +274,6 @@ public class ActorActionManager
         }
     }
     /// <summary>
-    /// 物理伤害
-    /// </summary>
-    /// <param name="val"></param>
-    /// <param name="from"></param>
-    public void TakeAttackDamage(int val, ActorNetManager from)
-    {
-        if (actorManager.actorState != ActorState.Dead)
-        {
-            NetworkId networkId = new NetworkId();
-            if (from && from.Object) { networkId = from.Object.Id; }
-            val -= actorManager.actorNetManager.Net_Armor;
-            if (val > 0)
-            {
-                actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
-            }
-            else
-            {
-                actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.AttackDamage, networkId);
-            }
-        }
-    }
-    /// <summary>
-    /// 魔法伤害
-    /// </summary>
-    public void TakeMagicDamage(int val, ActorNetManager from)
-    {
-        if (actorManager.actorState != ActorState.Dead)
-        {
-            NetworkId networkId = new NetworkId();
-            if (from) { networkId = from.Object.Id; }
-            val -= actorManager.actorNetManager.Net_Resistance;
-            if (val > 0)
-            {
-                actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.MagicDamage, networkId);
-            }
-            else
-            {
-                actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.MagicDamage, networkId);
-            }
-        }
-    }
-    /// <summary>
     /// 伤害
     /// </summary>
     /// <param name="val"></param>
@@ -382,6 +336,15 @@ public class ActorActionManager
             bodyController.Flash();
             bodyController.Shake();
         }
+    }
+    /// <summary>
+    /// 受力
+    /// </summary>
+    /// <param name="dir"></param>
+    /// <param name="force"></param>
+    public void TakeForce(Vector2 dir, short force)
+    {
+        actorManager.actorNetManager.RPC_AllClient_AddForce(dir, force);
     }
     public bool PayCoin(int coin)
     {

@@ -162,6 +162,7 @@ public class ItemConfigData
         /*生命水晶*/new ItemConfig(){ Item_ID = 6000,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 500,Item_Rarity = ItemRarity.Gray },
         /*薯果种子*/new ItemConfig(){ Item_ID = 6100,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
         /*辣椒种子*/new ItemConfig(){ Item_ID = 6101,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
+        /*小麦种子*/new ItemConfig(){ Item_ID = 6102,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//9000-9999其他
         #region//9000-9099弹药
