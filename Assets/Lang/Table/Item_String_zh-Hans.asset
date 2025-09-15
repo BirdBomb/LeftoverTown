@@ -910,6 +910,18 @@ MonoBehaviour:
     m_Localized: "\u53EF\u4EE5\u7528\u6765\u9524\u4EBA\u6216\u8005\u7528\u6765\u62C6\u9664\u5EFA\u7B51\n<color=#ffffff>\u949D\u51FB\u4F24\u5BB3\uFF1A</color>/BludgeoningDamage/\n<color=#ffffff>\u653B\u51FB\u901F\u5EA6\uFF1A</color>/AttackSpeed/\n<color=#ffffff>\u653B\u51FB\u8DDD\u79BB\uFF1A</color>/AttackDistance/\n<color=#ffffff>\u635F\u8017\uFF1A</color>/Expend/"
     m_Metadata:
       m_Items: []
+  - m_Id: 43804063352000512
+    m_Localized: "\u5C0F\u9EA6\u79CD\u5B50"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43804138581037056
+    m_Localized: "\u5C0F\u9EA6\u79CD\u5B50"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44153692501348352
+    m_Localized: "\u8150\u70C2"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

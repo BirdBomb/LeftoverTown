@@ -812,6 +812,10 @@ MonoBehaviour:
     m_Localized: "\u6781\u5176\u8010\u7528\u7684\u65A7\u5B50"
     m_Metadata:
       m_Items: []
+  - m_Id: 44153692501348352
+    m_Localized: Rotten
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
