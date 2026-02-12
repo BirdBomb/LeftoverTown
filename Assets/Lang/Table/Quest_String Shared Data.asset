@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Quest_String Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: Quest_String
+  m_TableCollectionNameGuidString: d475f02b75bdd684d9ec317fc465aa0b
+  m_Entries:
+  - m_Id: 14079184896
+    m_Key: Quest_1000
+    m_Metadata:
+      m_Items: []
+  - m_Id: 141095292928
+    m_Key: Quest_1001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 151866265600
+    m_Key: Quest_1002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183814279168
+    m_Key: Quest_1003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 196124561408
+    m_Key: Quest_2000
+    m_Metadata:
+      m_Items: []
+  - m_Id: 241825697792
+    m_Key: Quest_2001
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 5984342058936041474
+  references:
+    version: 2
+    RefIds:
+    - rid: 5984342058936041474
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1768815804022

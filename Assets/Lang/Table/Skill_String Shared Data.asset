@@ -10,63 +10,59 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
-  m_Name: Ground_String Shared Data
+  m_Name: Skill_String Shared Data
   m_EditorClassIdentifier: 
-  m_TableCollectionName: Ground_String
-  m_TableCollectionNameGuidString: f4a9699f32ae0f94b8b3df171799f5f6
+  m_TableCollectionName: Skill_String
+  m_TableCollectionNameGuidString: 666a44e6d980ec046bf8091fd6dab89b
   m_Entries:
-  - m_Id: 806678990848
-    m_Key: Ground_9999
+  - m_Id: 635907903488
+    m_Key: Skill_10000
     m_Metadata:
       m_Items: []
-  - m_Id: 466097311744
-    m_Key: Ground_9000
+  - m_Id: 728140648448
+    m_Key: Skill_10001
     m_Metadata:
       m_Items: []
-  - m_Id: 18231281776103424
-    m_Key: Ground_2002
+  - m_Id: 774416404480
+    m_Key: Skill_10002
     m_Metadata:
       m_Items: []
-  - m_Id: 414524149760
-    m_Key: Ground_2001
+  - m_Id: 3658189148160
+    m_Key: Skill_10010
     m_Metadata:
       m_Items: []
-  - m_Id: 403455381504
-    m_Key: Ground_2000
+  - m_Id: 3667693441024
+    m_Key: Skill_10011
     m_Metadata:
       m_Items: []
-  - m_Id: 18231202793164800
-    m_Key: Ground_1005
+  - m_Id: 4756195020800
+    m_Key: Skill_10012
     m_Metadata:
       m_Items: []
-  - m_Id: 18231126351974400
-    m_Key: Ground_1004
+  - m_Id: 5558418575360
+    m_Key: Skill_10020
     m_Metadata:
       m_Items: []
-  - m_Id: 18231041325043712
-    m_Key: Ground_1003
+  - m_Id: 5888388665344
+    m_Key: Skill_10021
     m_Metadata:
       m_Items: []
-  - m_Id: 18230987340156928
-    m_Key: Ground_1002
+  - m_Id: 7127797108736
+    m_Key: Skill_10022
     m_Metadata:
       m_Items: []
-  - m_Id: 393120616448
-    m_Key: Ground_1001
-    m_Metadata:
-      m_Items: []
-  - m_Id: 345309745152
-    m_Key: Ground_1000
+  - m_Id: 7833216126976
+    m_Key: Skill_10023
     m_Metadata:
       m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
-    rid: 1077783634370363401
+    rid: 5984341840972480514
   references:
     version: 2
     RefIds:
-    - rid: 1077783634370363401
+    - rid: 5984341840972480514
       type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
       data:
-        m_CustomEpoch: 1748130833912
+        m_CustomEpoch: 1767969573150

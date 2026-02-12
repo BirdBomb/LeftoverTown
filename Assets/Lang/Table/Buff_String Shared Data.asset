@@ -1,0 +1,124 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Buff_String Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: Buff_String
+  m_TableCollectionNameGuidString: fc0d45f4e9e168e4a9369073b7221324
+  m_Entries:
+  - m_Id: 36169665343344640
+    m_Key: Buff_100
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35113880228155392
+    m_Key: Buff_10000
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35114257518383104
+    m_Key: Buff_10001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35113892844621824
+    m_Key: Buff_10002_State0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36496010552233984
+    m_Key: Buff_10002_State1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 173989203968
+    m_Key: Buff_1001_Lv1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35113935827849216
+    m_Key: Buff_10010
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35113977938661376
+    m_Key: Buff_10011
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35113992635502592
+    m_Key: Buff_10012
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35114509113708544
+    m_Key: Buff_10020
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35114048474271744
+    m_Key: Buff_10021
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35114059480125440
+    m_Key: Buff_10022
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35114073103224832
+    m_Key: Buff_10023
+    m_Metadata:
+      m_Items: []
+  - m_Id: 223721066496
+    m_Key: Buff_1003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 162052214784
+    m_Key: Buff_1004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328075350016
+    m_Key: Buff_1005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36169697962446848
+    m_Key: Buff_101
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36173149836890112
+    m_Key: Buff_101_State0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36173454817316864
+    m_Key: Buff_101_State1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36173640339771392
+    m_Key: Buff_101_State2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36173714629283840
+    m_Key: Buff_101_State3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36169719034630144
+    m_Key: Buff_102
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37197012326633472
+    m_Key: Buff_102_State0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37197042689200128
+    m_Key: Buff_102_State1
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 2926175543728799748
+  references:
+    version: 2
+    RefIds:
+    - rid: 2926175543728799748
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1759852615959
