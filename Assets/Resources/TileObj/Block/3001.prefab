@@ -50,6 +50,7 @@ MonoBehaviour:
   info: 
   local_Hp: 0
   local_Armor: 0
+  boxCollider: {fileID: 8171702290166202748}
   obj_Door: {fileID: 6140818249491637518}
   spriteRenderer: {fileID: 1731769702342163012}
   sprite_Door_H_Close: {fileID: 21300000, guid: e6891904d7cde16439f4a4db8d328662, type: 3}

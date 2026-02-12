@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8721843472562826823}
   - component: {fileID: 5912875140467498111}
-  - component: {fileID: 7488933108786519995}
+  - component: {fileID: 1828712181511386850}
   m_Layer: 10
-  m_Name: 1016
+  m_Name: 1120
   m_TagString: TileObj
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,10 +64,10 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.5, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -78,9 +78,9 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2, y: 1}
   m_EdgeRadius: 0
---- !u!114 &7488933108786519995
+--- !u!114 &1828712181511386850
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -89,70 +89,53 @@ MonoBehaviour:
   m_GameObject: {fileID: 223198607764510710}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c0ea1b5da5949348989984fcfd77ef5, type: 3}
+  m_Script: {fileID: 11500000, guid: c8ee211f072c33041a4b26506dfd46a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   buildingTile: {fileID: 0}
   info: 
   local_Hp: 0
   local_Armor: 0
-  sprite:
-  - {fileID: 1031718007, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1140143777, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1060386881, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -78444479, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1881849622, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1292881412, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -555811120, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 2032545431, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -2038118924, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1675273646, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1971369917, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 846977108, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1632011926, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 580484150, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -826932962, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -442512106, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1619839010, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -56214041, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1036174389, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1272569519, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 564773185, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1496871214, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -18449621, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -641868539, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -902434721, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -480604508, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1435426471, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1961201130, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1663664397, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1762013257, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1071670733, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1085716375, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -435236888, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1671334199, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -727737724, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 2111540101, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1439301021, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1647292876, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1062574129, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1909076396, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 257769275, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -297648599, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -306804553, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 1163599724, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -894755024, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 2007797253, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: 735030144, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1025341586, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
-  - {fileID: -1058655008, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
   spriteRenderer: {fileID: 1716183126745274280}
-  bitsParticle: {fileID: 4200786546529140071}
-  baseLootInfos:
-  - ID: 1016
+  boxCollider: {fileID: 5912875140467498111}
+  rockState_Now: 2
+  sprites_RockBase:
+  - {fileID: 21300000, guid: 4b3d784d09e52f14a90ae31489043a63, type: 3}
+  sprites_RockOpen:
+  - {fileID: 21300000, guid: 66e6290ad37d09342af20ec1a9fa4014, type: 3}
+  - {fileID: 21300000, guid: 608b21075d38d254b95aed630b658a57, type: 3}
+  - {fileID: 21300000, guid: a5c585853a6e1b04db50cc22ba51d461, type: 3}
+  - {fileID: 21300000, guid: 2a6aa8c4759855342a1b932eb0fe343a, type: 3}
+  - {fileID: 21300000, guid: acdad3ccb09149044ac542b95745045b, type: 3}
+  - {fileID: 21300000, guid: 39296856c1bb723419c3870ed9b4d123, type: 3}
+  sprites_RockComplete:
+  - {fileID: 21300000, guid: 37016dbdf68c13742b97d60de2da7cdd, type: 3}
+  int_RockBaseTime: 2
+  int_RockOpenTime: 2
+  int_RockHp: 10
+  baseLootInfos_Complete:
+  - ID: 1010
     CountMin: 2
-    CountMax: 3
-  extraLootInfos: []
+    CountMax: 5
+  baseLootInfos_Open:
+  - ID: 1010
+    CountMin: 4
+    CountMax: 6
+  - ID: 1011
+    CountMin: 4
+    CountMax: 6
+  - ID: 1012
+    CountMin: 4
+    CountMax: 6
+  - ID: 1013
+    CountMin: 4
+    CountMax: 6
+  - ID: 1014
+    CountMin: 4
+    CountMax: 6
+  - ID: 1015
+    CountMin: 4
+    CountMax: 6
 --- !u!1 &4651839316280365571
 GameObject:
   m_ObjectHideFlags: 0
@@ -5114,7 +5097,7 @@ SpriteRenderer:
   m_SortingLayerID: 680613467
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: 580484150, guid: 0fc8049fc475d2d4789d457ddc33ba3d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 50e91f8e0f3fd95418e5f3bf6f5222aa, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
