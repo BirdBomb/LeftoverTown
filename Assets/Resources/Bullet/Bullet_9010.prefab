@@ -53,6 +53,7 @@ MonoBehaviour:
   float_BulletMagicDemage: 0
   float_BulletSpeed: 0
   float_BulletForce: 0
+  actorManager_Owner: {fileID: 0}
   float_Life: 3
   str_BulletPath: Bullet/Bullet_9010
   layerMask_Target:
@@ -63,6 +64,7 @@ MonoBehaviour:
   config_BaseAttackDamage: 10
   config_BaseMagicDamage: 0
   config_BaseSpeed: 25
+  config_DownSpeed: 0
   config_BaseForce: 2
 --- !u!1 &5199270181708958086
 GameObject:
@@ -219,7 +221,7 @@ MonoBehaviour:
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0
-  m_PointLightOuterRadius: 1
+  m_PointLightOuterRadius: 10
   m_ShapeLightParametricSides: 5
   m_ShapeLightParametricAngleOffset: 0
   m_ShapeLightParametricRadius: 1

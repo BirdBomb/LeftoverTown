@@ -45,7 +45,7 @@ Animator:
   m_GameObject: {fileID: 2506372697350697604}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 61c526c673dcb8449b7592225dd3ffc0, type: 2}
+  m_Controller: {fileID: 9100000, guid: d1e9afa6ef56c8c49b492f2a5f84cccc, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -4924,7 +4924,7 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 4
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -5030,7 +5030,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 680613467
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 4
   m_Sprite: {fileID: 1888890999, guid: 1a498be4e6fca4041b946f1870eb6333, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

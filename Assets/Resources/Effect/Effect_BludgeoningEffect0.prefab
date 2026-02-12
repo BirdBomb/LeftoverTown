@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6309452969810010411}
   - component: {fileID: 9163818859290609143}
   m_Layer: 0
-  m_Name: Effect_BulletBoom
+  m_Name: Effect_BludgeoningEffect0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,7 +44,7 @@ Animator:
   m_GameObject: {fileID: 2506372697350697604}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: e7430c199d9dfd946adeba3f6d4984a0, type: 2}
+  m_Controller: {fileID: 9100000, guid: 1c43edf52b5170340a9de2d1fbd226a5, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -67,8 +67,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 877005a8287e67643b5f6b8b81100840, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  life: 0.1333333
-  path: Effect/Effect_BulletBoom
+  life: 0.33
+  path: Effect/Effect_BludgeoningEffect0
 --- !u!1 &8962162109927398957
 GameObject:
   m_ObjectHideFlags: 0
@@ -142,7 +142,7 @@ SpriteRenderer:
   m_SortingLayerID: 680613467
   m_SortingLayer: 4
   m_SortingOrder: 4
-  m_Sprite: {fileID: 166189630, guid: 9ae2761db47e7ef4c9d9693656d936b3, type: 3}
+  m_Sprite: {fileID: 55443549, guid: b853778f33554fa45a76094dd68abcc6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -150,6 +150,6 @@ SpriteRenderer:
   m_Size: {x: 2, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0

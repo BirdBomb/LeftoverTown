@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2223536068474592604
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8162776191078638922}
+  m_Layer: 0
+  m_Name: Hit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8162776191078638922
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2223536068474592604}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.4, y: -0.25, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5343816820679316790}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2669667905542710800
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,12 +202,7 @@ MonoBehaviour:
     Item_Info: 0
     Item_Durability: 0
     Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
+  transform_PickaxeHit: {fileID: 8162776191078638922}
   animator: {fileID: 146852062998226876}
   spriteRenderer_Hand: {fileID: 4613846074096414838}
   skillIndicators: {fileID: 1094821721386985714}
@@ -230,7 +256,8 @@ Transform:
   m_LocalPosition: {x: 0.28125, y: 0.15625, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8162776191078638922}
   m_Father: {fileID: 156553442119304864}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6312033933144091887

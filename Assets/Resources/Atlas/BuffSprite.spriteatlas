@@ -50,39 +50,60 @@ SpriteAtlas:
     isAtlasV2: 0
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
-    - 37cc93e05121e64408977316cee6f35d: 21300000
-    - 24199d013ee35034fb9e0cd72a5d87bb: 21300000
-    - 81cb1952088332b4ea8e35c93b0f93ce: 21300000
-    - 69d300c39171c7d4ea63c7664fd28688: 21300000
-    - 4a1cbf26044c5ce4d80bb4486fa86d48: 21300000
-    - 551e4ec60c0d32046b8fe3132449f1b4: 21300000
-    - ae76bbd684b7d5543acbdd68d0967b93: 21300000
-    - dd7135a9ba044cf4fbb1585aa0e556d8: 21300000
-    - 9177b66e5057e5143a6f19bf5b3a6145: 21300000
-    - 7e7d1eae65e18904694a6411b232494f: 21300000
+    - 20de272060124804daba831d27a7bab9: 21300000
+    - 3b9a99f105862914da4a2127b9ae3fda: 21300000
+    - 663f97d3b213f994b81e34a7a16ab273: 21300000
+    - 1fa70ff3e59264740946c4b41ba246d3: 21300000
+    - 050c2e041a6e6e24bb44f5468a2be7a0: 21300000
+    - 58ec672483b53234c8334af8f7c2e3c7: 21300000
+    - c34678856b2d30447a286f168888696d: 21300000
+    - 68ecc7b674310c34589d9947901e55ad: 21300000
+    - 680994174468bb84393ba17b71b2159f: 21300000
+    - 55284d5745abff849996c1288978c54b: 21300000
+    - d7187308adb7d4d4aaaeef51868fe138: 21300000
+    - c7a0d7389463c6948949a6fd3ded05f9: 21300000
+    - 46fad9e806318484b98e1eff6e443cce: 21300000
+    - 58bb6a29ec88a3c4cac828fce5d45a3f: 21300000
+    - dd3a750c48950674ba050a4480bfdeab: 21300000
+    - 5622c90d68a2ed14c8e29d1e3a5a5f20: 21300000
+    - 5a57a9eed3342ce47ae5b64e786c2948: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: 37cc93e05121e64408977316cee6f35d, type: 3}
-  - {fileID: 21300000, guid: 24199d013ee35034fb9e0cd72a5d87bb, type: 3}
-  - {fileID: 21300000, guid: 81cb1952088332b4ea8e35c93b0f93ce, type: 3}
-  - {fileID: 21300000, guid: 69d300c39171c7d4ea63c7664fd28688, type: 3}
-  - {fileID: 21300000, guid: 4a1cbf26044c5ce4d80bb4486fa86d48, type: 3}
-  - {fileID: 21300000, guid: 551e4ec60c0d32046b8fe3132449f1b4, type: 3}
-  - {fileID: 21300000, guid: ae76bbd684b7d5543acbdd68d0967b93, type: 3}
-  - {fileID: 21300000, guid: dd7135a9ba044cf4fbb1585aa0e556d8, type: 3}
-  - {fileID: 21300000, guid: 9177b66e5057e5143a6f19bf5b3a6145, type: 3}
-  - {fileID: 21300000, guid: 7e7d1eae65e18904694a6411b232494f, type: 3}
+  - {fileID: 21300000, guid: 20de272060124804daba831d27a7bab9, type: 3}
+  - {fileID: 21300000, guid: 3b9a99f105862914da4a2127b9ae3fda, type: 3}
+  - {fileID: 21300000, guid: 663f97d3b213f994b81e34a7a16ab273, type: 3}
+  - {fileID: 21300000, guid: 1fa70ff3e59264740946c4b41ba246d3, type: 3}
+  - {fileID: 21300000, guid: 050c2e041a6e6e24bb44f5468a2be7a0, type: 3}
+  - {fileID: 21300000, guid: 58ec672483b53234c8334af8f7c2e3c7, type: 3}
+  - {fileID: 21300000, guid: c34678856b2d30447a286f168888696d, type: 3}
+  - {fileID: 21300000, guid: 68ecc7b674310c34589d9947901e55ad, type: 3}
+  - {fileID: 21300000, guid: 680994174468bb84393ba17b71b2159f, type: 3}
+  - {fileID: 21300000, guid: 55284d5745abff849996c1288978c54b, type: 3}
+  - {fileID: 21300000, guid: d7187308adb7d4d4aaaeef51868fe138, type: 3}
+  - {fileID: 21300000, guid: c7a0d7389463c6948949a6fd3ded05f9, type: 3}
+  - {fileID: 21300000, guid: 46fad9e806318484b98e1eff6e443cce, type: 3}
+  - {fileID: 21300000, guid: 58bb6a29ec88a3c4cac828fce5d45a3f, type: 3}
+  - {fileID: 21300000, guid: dd3a750c48950674ba050a4480bfdeab, type: 3}
+  - {fileID: 21300000, guid: 5622c90d68a2ed14c8e29d1e3a5a5f20, type: 3}
+  - {fileID: 21300000, guid: 5a57a9eed3342ce47ae5b64e786c2948, type: 3}
   m_PackedSpriteNamesToIndex:
-  - Buff2010
-  - Buff100
-  - Buff200
-  - Buff2002
-  - Buff2011
-  - Buff2030
-  - Buff2000
-  - Buff2001
-  - Buff2020
-  - Buff2003
+  - Buff_10022
+  - Buff_101_State1
+  - Buff_10010
+  - Buff_10011
+  - Buff_101_State0
+  - Buff_10002
+  - Buff_101_State3
+  - Buff_102_State1
+  - Buff_101_State2
+  - Buff_10021
+  - Buff_10012
+  - Buff_102_State0
+  - Buff_10023
+  - Buff_1001_Lv1
+  - Buff_10000
+  - Buff_10001
+  - Buff_10020
   m_RenderDataMap: {}
   m_Tag: BuffSprite
   m_IsVariant: 0
