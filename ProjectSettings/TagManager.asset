@@ -8,6 +8,7 @@ TagManager:
   - Item
   - BuildingNatural
   - BuildingManmade
+  - TileObj
   layers:
   - Default
   - TransparentFX
@@ -53,6 +54,9 @@ TagManager:
     locked: 0
   - name: Ground
     uniqueID: 2286351593
+    locked: 0
+  - name: ShadowCatch
+    uniqueID: 1741681941
     locked: 0
   - name: OnGround
     uniqueID: 680613467
