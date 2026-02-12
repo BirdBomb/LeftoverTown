@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45a37e370e4ee754ea637535f1acc1a4, type: 3}
-  m_Name: 1017
+  m_Name: 1113
   m_EditorClassIdentifier: 
-  config_Sprite: {fileID: 21300000, guid: 8ab61770bd24c0446ba5e19c45a1290c, type: 3}
-  config_InstancedGameObject: {fileID: 223198607764510710, guid: e61b4c31942462c48bcacbbea7974d75, type: 3}
+  config_Sprite: {fileID: 21300000, guid: 023008b5fbe77db408b0f5faecf63ca0, type: 3}
+  config_InstancedGameObject: {fileID: 223198607764510710, guid: f642fffa967994947a1c48c25fb9cde8, type: 3}
   config_Pass: 0
   config_Drag: 1
   tileID: 0

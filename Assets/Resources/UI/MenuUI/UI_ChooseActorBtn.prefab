@@ -507,6 +507,7 @@ MonoBehaviour:
   spriteAtlas_Eye: {fileID: 4343727234628468602, guid: 48552f0cd65b6224eb37eb61ffbba325, type: 2}
   bind_Data: 
   bind_Path: 
+  bind_Index: 0
 --- !u!1 &8446182153616569304
 GameObject:
   m_ObjectHideFlags: 0
