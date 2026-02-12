@@ -167,6 +167,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 6666499714398119443}
   - {fileID: 5061607933794539187}
+  ForceRemoteRenderTimeframe: 0
 --- !u!114 &6666499714398119443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,6 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5e690b5fb1084f5ab1c86457af401d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0.15
   SyncScale: 0
   SyncParent: 0
   _interpolationTarget: {fileID: 0}
@@ -209,42 +211,36 @@ MonoBehaviour:
   _Net_SpeedCommon: 0
   _Net_Armor: 0
   _Net_Resistance: 0
-  _Net_ItemInHand:
+  _Net_ItemHand:
     Item_ID: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
     Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
-  _Net_ItemOnHead:
+  _Net_ItemHead:
     Item_ID: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
     Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
-  _Net_ItemOnBody:
+  _Net_ItemBody:
     Item_ID: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
     Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
+  _Net_ItemAccessory:
+    Item_ID: 0
+    Item_Count: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_SignTime: 0
+  _Net_ItemConsumables:
+    Item_ID: 0
+    Item_Count: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_SignTime: 0
   Local_BagCapacity: 40
   Local_BagItemCount: 0
 --- !u!114 &465596038164059928
@@ -271,13 +267,8 @@ MonoBehaviour:
     short_Hp: 500
     short_Armor: 0
     short_Resistance: 0
-    short_MoveSpeed: 50
+    short_Speed: 50
     short_MoveStep: 2
-    float_HookDistance: 10
-    int_HookDamage: 5
-    float_PunchDistance: 2
-    int_PunchDamage: 10
-    int_JumpDamage: 12
     float_ViewDistance: 99
     lootInfos_Base:
     - ID: 3104
@@ -287,7 +278,17 @@ MonoBehaviour:
       CountMin: 2
       CountMax: 3
     lootInfos_Extra: []
-  float_AttackCD: 1
+  float_StateThinkTimer: 0
+  float_StateThinkCD: 1
+  float_StateAttackTimer: 0
+  float_StateAttackCD: 3
+  Punch_DamageVal: 5
+  Punch_Range: 1
+  Hook_DamageVal: 5
+  Jump_DamageVal: 5
+  Jump_DamageDistance: 1.5
+  Jump_MinDistance: 3
+  Jump_MaxDistance: 8
   bullet_Hook: {fileID: 5819643357714154495}
 --- !u!1 &1761792966591504158
 GameObject:
@@ -502,6 +503,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   float_Speed: 0
+  bodyAction_Cur: 0
   faceDir: {x: 0, y: 0}
   turnDir: {x: 0, y: 0}
   transform_Body: {fileID: 2329605869351102004}

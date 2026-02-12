@@ -162,9 +162,9 @@ GameObject:
   - component: {fileID: 1871608857187948625}
   - component: {fileID: 4934783304059163558}
   - component: {fileID: 6152101677706244354}
-  - component: {fileID: 7564272404293185594}
+  - component: {fileID: 2740869155865617461}
   m_Layer: 6
-  m_Name: Animal_Chicken
+  m_Name: Monster_Slime
   m_TagString: Actor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -306,7 +306,7 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SortKey: 1616979101
+  SortKey: 1471604111
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
@@ -350,7 +350,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   networkRigidbody: {fileID: 4934783304059163558}
-  actorManager_Local: {fileID: 7564272404293185594}
+  actorManager_Local: {fileID: 2740869155865617461}
   _Net_HpCur: 0
   _Net_FoodCur: 0
   _Net_SanCur: 0
@@ -389,7 +389,7 @@ MonoBehaviour:
     S: 0
   Local_BagCapacity: 40
   Local_BagItemCount: 0
---- !u!114 &7564272404293185594
+--- !u!114 &2740869155865617461
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -398,33 +398,32 @@ MonoBehaviour:
   m_GameObject: {fileID: 6825515710627865195}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 914015fa446f8fc4287a13de4d786a1f, type: 3}
+  m_Script: {fileID: 11500000, guid: b5855fa6c0166d34db158fda9ddfb2f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   playerSimulation: {fileID: 0}
-  rigidbody2: {fileID: 5614024351997551555}
-  actorUI: {fileID: 7074665964387966742}
-  actorNetManager: {fileID: 6152101677706244354}
-  bodyController: {fileID: 2218173247021416680}
+  rigidbody2: {fileID: 0}
+  actorUI: {fileID: 0}
+  actorNetManager: {fileID: 0}
+  bodyController: {fileID: 0}
   actorState: 0
-  viewManager: {fileID: 4909571679106528117}
+  viewManager: {fileID: 0}
   config:
-    status_Type: 4
-    short_Hp: 10
+    status_Type: 3
+    short_Hp: 15
     short_Armor: 0
     short_Resistance: 0
-    short_Speed: 40
-    short_MoveStep: 2
-    float_ViewDistance: 20
-    lootInfos_Base:
-    - ID: 3101
-      CountMin: 1
-      CountMax: 1
+    short_Speed: 25
+    short_MoveStep: 3
+    float_ViewDistance: 10
+    lootInfos_Base: []
     lootInfos_Extra: []
   float_StateThinkTimer: 0
   float_StateThinkCD: 1
   float_StateAttackTimer: 0
   float_StateAttackCD: 1
+  Attack_DamageVal: 5
+  Attack_Range: 1
 --- !u!1 &7595980126660594269
 GameObject:
   m_ObjectHideFlags: 0
@@ -501,7 +500,7 @@ Animator:
   m_GameObject: {fileID: 8256137117525206588}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 39fc42e72b6bb214a97881778166e2f9, type: 2}
+  m_Controller: {fileID: 9100000, guid: c61abf8049d71be48beb4636d7039e03, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -553,7 +552,7 @@ SpriteRenderer:
   m_SortingLayerID: 680613467
   m_SortingLayer: 4
   m_SortingOrder: 2
-  m_Sprite: {fileID: -1528206284, guid: de7ffcdf6177bcb4db754b800a9a35f4, type: 3}
+  m_Sprite: {fileID: -631400975, guid: 0d0716b7a7aaae946b3ce941e715b2fa, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -642,14 +641,3 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5677282177641982469, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
   m_PrefabInstance: {fileID: 1358487143884572705}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7074665964387966742 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8139152322388875063, guid: 4cff7eb698115634586e9845c090e5e7, type: 3}
-  m_PrefabInstance: {fileID: 1358487143884572705}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a7a636a89c11114d8f65c7e68ca2240, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

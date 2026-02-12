@@ -286,6 +286,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 833268091245602669}
   - {fileID: 6956655073632736828}
+  ForceRemoteRenderTimeframe: 0
 --- !u!114 &833268091245602669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,6 +299,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5e690b5fb1084f5ab1c86457af401d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0.15
   SyncScale: 0
   SyncParent: 0
   _interpolationTarget: {fileID: 0}
@@ -328,42 +330,38 @@ MonoBehaviour:
   _Net_SpeedCommon: 0
   _Net_Armor: 0
   _Net_Resistance: 0
-  _Net_ItemInHand:
-    Item_ID: 0
-    Item_Count: 0
-    Item_Info: 0
-    Item_Durability: 0
-    Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
-  _Net_ItemOnHead:
-    Item_ID: 0
-    Item_Count: 0
-    Item_Info: 0
-    Item_Durability: 0
-    Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
-  _Net_ItemOnBody:
-    Item_ID: 0
-    Item_Count: 0
-    Item_Info: 0
-    Item_Durability: 0
-    Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
+  _Net_ItemHand:
+    I: 0
+    C: 0
+    V: 0
+    D: 0
+    S: 0
+  _Net_ItemHead:
+    I: 0
+    C: 0
+    V: 0
+    D: 0
+    S: 0
+  _Net_ItemBody:
+    I: 0
+    C: 0
+    V: 0
+    D: 0
+    S: 0
+  _Net_ItemAccessory:
+    I: 0
+    C: 0
+    V: 0
+    D: 0
+    S: 0
+  _Net_ItemConsumables:
+    I: 0
+    C: 0
+    V: 0
+    D: 0
+    S: 0
+  Local_BagCapacity: 40
+  Local_BagItemCount: 0
 --- !u!114 &2990789205298689109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,7 +388,8 @@ MonoBehaviour:
     short_Coin: 12
     short_Armor: 10
     short_Resistance: 10
-    short_View: 2
+    short_Fine: 0
+    short_View: 10
     short_Speed: 0
     short_HatID: 0
     short_ClothesID: 0
@@ -405,6 +404,10 @@ MonoBehaviour:
       CountMin: 2
       CountMax: 3
     goodInfos_Extra: []
+  float_StateThinkTimer: 0
+  float_StateThinkCD: 1
+  float_StateAttackTimer: 0
+  float_StateAttackCD: 1
 --- !u!1 &5089723123130192823
 GameObject:
   m_ObjectHideFlags: 0
@@ -576,6 +579,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   float_Speed: 0
+  bodyAction_Cur: 0
   faceDir: {x: 0, y: 0}
   turnDir: {x: 0, y: 0}
   transform_Body: {fileID: 3522904942328631546}

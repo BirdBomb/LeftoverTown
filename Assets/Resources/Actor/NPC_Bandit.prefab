@@ -1007,6 +1007,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 8651354378395626961}
   - {fileID: 1520171933959079591}
+  ForceRemoteRenderTimeframe: 0
 --- !u!114 &8651354378395626961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1019,6 +1020,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5e690b5fb1084f5ab1c86457af401d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0.15
   SyncScale: 0
   SyncParent: 0
   _interpolationTarget: {fileID: 0}
@@ -1049,42 +1051,36 @@ MonoBehaviour:
   _Net_SpeedCommon: 0
   _Net_Armor: 0
   _Net_Resistance: 0
-  _Net_ItemInHand:
+  _Net_ItemHand:
     Item_ID: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
     Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
-  _Net_ItemOnHead:
+  _Net_ItemHead:
     Item_ID: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
     Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
-  _Net_ItemOnBody:
+  _Net_ItemBody:
     Item_ID: 0
     Item_Count: 0
     Item_Info: 0
     Item_Durability: 0
     Item_SignTime: 0
-    Item_Content:
-      Item_ID: 0
-      Item_Count: 0
-      Item_Info: 0
-      Item_Durability: 0
-      Item_DurabilityPoint: 0
+  _Net_ItemAccessory:
+    Item_ID: 0
+    Item_Count: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_SignTime: 0
+  _Net_ItemConsumables:
+    Item_ID: 0
+    Item_Count: 0
+    Item_Info: 0
+    Item_Durability: 0
+    Item_SignTime: 0
   Local_BagCapacity: 40
   Local_BagItemCount: 0
 --- !u!114 &4347614665135472339
@@ -1113,23 +1109,23 @@ MonoBehaviour:
     short_Coin: 0
     short_Armor: 0
     short_Resistance: 0
+    short_Fine: 500
     short_View: 20
-    short_Speed: 50
-    short_HatID: 5004
-    short_ClothesID: 5101
+    short_Speed: 40
+    short_HatID: 0
+    short_ClothesID: 0
     bagInfos_Base:
-    - ID: 2302
+    - ID: 2304
       CountMin: 1
-      CountMax: 2
-    lootInfos_Base:
-    - ID: 2302
-      CountMin: 1
-      CountMax: 2
+      CountMax: 1
+    lootInfos_Base: []
     lootInfos_Extra: []
     goodInfos_Base: []
     goodInfos_Extra: []
-  float_AttackCD: 2
-  globalTime_Work: 5
+  float_StateThinkTimer: 0
+  float_StateThinkCD: 1
+  float_StateAttackTimer: 0
+  float_StateAttackCD: 1
 --- !u!1 &6185899936281475845
 GameObject:
   m_ObjectHideFlags: 0
@@ -1428,6 +1424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   float_Speed: 0
+  bodyAction_Cur: 0
   faceDir: {x: 0, y: 0}
   turnDir: {x: 0, y: 0}
   transform_Body: {fileID: 7228444344110146700}
@@ -1435,6 +1432,9 @@ MonoBehaviour:
   transform_Hand: {fileID: 472243740540234843}
   transform_RightHand: {fileID: 7191257967783816004}
   transform_LeftHand: {fileID: 6174125281398155878}
+  particleSystem_Dust_Left: {fileID: 0}
+  particleSystem_Dust_Right: {fileID: 0}
+  particleSystem_Dust_Small: {fileID: 0}
   spriteRenderer_Body: {fileID: 6221374949785941071}
   spriteRenderer_Hair: {fileID: 9067726950698616398}
   spriteRenderer_Eye: {fileID: 4936083843463860809}
