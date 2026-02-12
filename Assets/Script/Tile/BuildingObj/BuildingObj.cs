@@ -41,9 +41,9 @@ public class BuildingObj : MonoBehaviour
     }
     #region//交互
     /// <summary>
-    /// 角色输入
+    /// 本地角色输入
     /// </summary>
-    public virtual void All_ActorInputKeycode(ActorManager actor, KeyCode code)
+    public virtual void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
 
     }
@@ -51,21 +51,21 @@ public class BuildingObj : MonoBehaviour
     /// 玩家高亮
     /// </summary>
     /// <param name="on"></param>
-    public virtual void All_PlayerHighlight(bool on)
+    public virtual void Local_PlayerHighlight(bool on)
     {
 
     }
     /// <summary>
     /// 玩家靠近
     /// </summary>
-    public virtual void All_PlayerNearby()
+    public virtual void Local_PlayerNearby()
     {
 
     }
     /// <summary>
     /// 玩家远离
     /// </summary>
-    public virtual void All_PlayerFaraway()
+    public virtual void Local_PlayerFaraway()
     {
 
     }
@@ -130,31 +130,6 @@ public class BuildingObj : MonoBehaviour
         this.info = info;
     }
     #endregion
-    #region//周期
-    /// <summary>
-    /// 绘制
-    /// </summary>
-    public virtual void All_Draw()
-    {
-
-    }
-    /// <summary>
-    /// 破坏
-    /// </summary>
-    public virtual void All_Broken()
-    {
-        All_PlayBroken();
-        if (MapManager.Instance.mapNetManager.Object.HasStateAuthority)
-        {
-            MessageBroker.Default.Publish(new MapEvent.MapEvent_State_ChangeBuildingArea()
-            {
-                buildingID = 0,
-                buildingPos = buildingTile.tilePos,
-                areaSize = BuildingConfigData.GetBuildingConfig(buildingTile.tileID).Building_Size
-            });
-        }
-    }
-    #endregion
     #region//掉落
     /// <summary>
     /// 计算掉落物
@@ -209,7 +184,7 @@ public class BuildingObj : MonoBehaviour
     {
         Type type = Type.GetType("Item_" + ID.ToString());
         ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(ID, out ItemData initData);
-        initData.Item_Count = Count;
+        initData.C = Count;
         return initData;
     }
     #endregion
@@ -218,7 +193,7 @@ public class BuildingObj : MonoBehaviour
     /// 本地端造成伤害
     /// </summary>
     /// <param name="val"></param>
-    public virtual void Local_TakeDamage(int val, DamageState damageState,ActorNetManager from)
+    public virtual int Local_TakeDamage(int val, DamageState damageState,ActorNetManager from)
     {
         if (val > local_Armor)
         {
@@ -228,11 +203,11 @@ public class BuildingObj : MonoBehaviour
         {
             val = 0;
         }
-
         Vector2 offset = 0.025f * new Vector2(new System.Random().Next(-10, 10), new System.Random().Next(-5, 5));
-        Effect_NumUI damageUI = PoolManager.Instance.GetObject("Effect/Effect_NumUI").GetComponent<Effect_NumUI>();
+        Effect_NumUI damageUI = PoolManager.Instance.GetEffectObj("Effect/Effect_NumUI").GetComponent<Effect_NumUI>();
         damageUI.transform.position = (Vector2)transform.position + Vector2.up + offset;
         damageUI.PlayShow((-val).ToString(), Color.white, offset);
+        return val;
     }
     /// <summary>
     /// 本地端无效伤害
@@ -268,6 +243,10 @@ public class BuildingObj : MonoBehaviour
     {
         local_Armor = armor;
     }
+    /// <summary>
+    /// 生命值更新
+    /// </summary>
+    /// <param name="newHp"></param>
     public virtual void All_UpdateHP(int newHp)
     {
         if (newHp <= 0) { All_Broken(); }
@@ -284,26 +263,81 @@ public class BuildingObj : MonoBehaviour
         }
         Local_SetHp(newHp);
     }
+    /// <summary>
+    /// 生命值降低
+    /// </summary>
+    /// <param name="offset"></param>
     public virtual void All_HpDown(int offset)
     {
-        All_PlayHpDown(offset);
+        All_OnHpDown(offset);
     }
+    /// <summary>
+    /// 生命值提高
+    /// </summary>
+    /// <param name="offset"></param>
     public virtual void All_HpUp(int offset)
     {
 
     }
+    /// <summary>
+    /// 破坏
+    /// </summary>
+    public virtual void All_Broken()
+    {
+        All_OnBroken();
+        if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
+        {
+            MessageBroker.Default.Publish(new MapEvent.MapEvent_State_CreateBuildingArea()
+            {
+                buildingID = 0,
+                buildingPos = buildingTile.tilePos,
+                areaSize = BuildingConfigData.GetBuildingConfig(buildingTile.tileID).Building_Size
+            });
+        }
+    }
+
     #endregion
-    #region//特效
-    public virtual void All_PlayHpDown(int offset)
+    #region//事件
+    /// <summary>
+    /// 创造调用
+    /// </summary>
+    public virtual void All_OnCreate()
+    {
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_SmokeBomb");
+        effect.transform.position = transform.position;
+    }
+    /// <summary>
+    /// 绘制调用
+    /// </summary>
+    public virtual void All_OnDraw()
+    {
+
+    }
+    /// <summary>
+    /// 受伤调用
+    /// </summary>
+    /// <param name="offset"></param>
+    public virtual void All_OnHpDown(int offset)
     {
         transform.DOKill();
         transform.localScale = Vector3.one;
         transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
     }
-    public virtual void All_PlayBroken()
+    /// <summary>
+    /// 破坏调用
+    /// </summary>
+    public virtual void All_OnBroken()
     {
-        GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_BombSmoke");
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_SmokeBomb");
         effect.transform.position = transform.position;
     }
+    /// <summary>
+    /// 删除调用
+    /// </summary>
+    public virtual void All_OnDelete()
+    {
+
+    }
+
     #endregion
 }

@@ -22,6 +22,8 @@ public class GroundConfigData
             Ground_Raw=new List<ItemRaw>(){ new ItemRaw(1001,2) } },
         /*É³Ä®*/new GroundConfig(){ Ground_ID = 1005,Ground_Age = AgeGroup.Nature,Ground_Color = new Color32(175,147,92,255),
             Ground_Raw=new List<ItemRaw>(){ new ItemRaw(1001,2) } },
+        /*ÕÓÔó*/new GroundConfig(){ Ground_ID = 1006,Ground_Age = AgeGroup.Nature,Ground_Color = new Color32(175,147,92,255),
+            Ground_Raw=new List<ItemRaw>(){ new ItemRaw(1001,2) } },
         /*Ä¾ÖÆµØ°å*/new GroundConfig(){ Ground_ID = 2000,Ground_Age = AgeGroup.StoneAge,Ground_Color = new Color32(129,91,53,255),
             Ground_Raw=new List<ItemRaw>(){ new ItemRaw(1001,2) } },
         /*Ê¯×©µØ°å*/new GroundConfig(){ Ground_ID = 2001,Ground_Age = AgeGroup.StoneAge,Ground_Color = new Color32(93,102,116,255),

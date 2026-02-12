@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class BuildingObj_RockMountains : BuildingObj
 {
-    public Sprite[] sprite;
+    public Sprite[] spriteList_0;
+    public Sprite[] spriteList_1;
     public SpriteRenderer spriteRenderer;
     private Material material;
     public ParticleSystem bitsParticle;
@@ -13,16 +14,33 @@ public class BuildingObj_RockMountains : BuildingObj
     private List<BaseLootInfo> baseLootInfos = new List<BaseLootInfo>();
     [SerializeField, Header("常态额外掉落物")]
     private List<ExtraLootInfo> extraLootInfos = new List<ExtraLootInfo>();
-
     public override void Start()
     {
         material = new Material(spriteRenderer.sharedMaterial);
         spriteRenderer.material = material;
     }
-    public override void All_Draw()
+    public override void Init(int id)
     {
-        spriteRenderer.sprite = sprite[GetInde(MapManager.Instance.CheckBuilding_EightSide(buildingTile.tileID, buildingTile.tilePos))];
-        base.All_Draw();
+        DrawShadow();
+        base.Init(id);
+    }
+    public void OnDisable()
+    {
+        RemoveShadow();
+    }
+    public override void All_OnDraw()
+    {
+        int index = GetInde(MapManager.Instance.CheckBuilding_EightSide(1110, 1120, buildingTile.tilePos));
+        if (new System.Random().Next(0, 2) == 0)
+        {
+            spriteRenderer.sprite = spriteList_0[index];
+        }
+        else
+        {
+            spriteRenderer.sprite = spriteList_1[index];
+        }
+
+        base.All_OnDraw();
     }
     private int GetInde(Around aroundState)
     {
@@ -353,19 +371,20 @@ public class BuildingObj_RockMountains : BuildingObj
         }
         return val;
     }
-    public override void Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    public override int Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
     {
         if (damageState == DamageState.AttackBludgeoningDamage)
         {
-            base.Local_TakeDamage(val, damageState, from);
+            return base.Local_TakeDamage(val, damageState, from);
         }
         else
         {
             Local_IneffectiveDamage(damageState, from);
+            return 0;
         }
     }
     #region//岩石墙
-    public override void All_PlayHpDown(int offset)
+    public override void All_OnHpDown(int offset)
     {
         if (offset < 0)
         {
@@ -393,18 +412,29 @@ public class BuildingObj_RockMountains : BuildingObj
         { material.SetFloat("_White", light); });
     }
 
-    public override void All_PlayBroken()
+    public override void All_OnBroken()
     {
         AudioManager.Instance.Play3DEffect(3003, transform.position);
-        base.All_PlayBroken();
+        base.All_OnBroken();
     }
     public override void All_Broken()
     {
-        if (MapManager.Instance.mapNetManager.Object.HasStateAuthority)
+        if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
         {
             State_CreateLootItem(State_GetLootItem(baseLootInfos, extraLootInfos));
         }
         base.All_Broken();
+    }
+    #endregion
+    #region//阴影
+    public PolygonCollider2D polyCollider;
+    private void DrawShadow()
+    {
+        ShadowManager.Instance.AddCollider((Vector2Int)buildingTile.tilePos, polyCollider);
+    }
+    private void RemoveShadow()
+    {
+        ShadowManager.Instance.RemoveCollider((Vector2Int)buildingTile.tilePos);
     }
     #endregion
 }

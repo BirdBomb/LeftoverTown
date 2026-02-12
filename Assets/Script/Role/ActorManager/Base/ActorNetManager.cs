@@ -198,52 +198,6 @@ public class ActorNetManager : NetworkBehaviour
     public short Local_HairID { get; set; } = 0;
     public Color32 Local_HairColor { get; set; } = Color.white;
     #endregion
-    #region//经验值(只在本地端计算)
-    private short Local_Level { get; set; }
-    private short Local_ExpCur { get; set; }
-    private short Local_ExpMax { get; set; }
-    public short Local_GetExp()
-    {
-        return Local_ExpCur;
-    }
-    public void Local_SetExp(short exp)
-    {
-        if (Local_Level < 1) { return; }
-        Local_ExpMax = (short)(Local_Level * 5 + 45);
-        if (exp > Local_ExpMax)
-        {
-            Local_ExpCur = (short)(exp - Local_ExpMax);
-            Local_SetLevel((short)(Local_Level + 1));
-        }
-        if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
-        {
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateExpData()
-            {
-                Level = Local_Level,
-                Exp_Cur = Local_ExpCur,
-                Exp_Max = Local_ExpMax,
-            });
-        }
-    }
-    public short Local_GetLevel()
-    {
-        return Local_Level;
-    }
-    public void Local_SetLevel(short level)
-    {
-        Local_Level = level;
-        Local_ExpMax = (short)(Local_Level * 5 + 45);
-        if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
-        {
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateExpData()
-            {
-                Level = Local_Level,
-                Exp_Cur = Local_ExpCur,
-                Exp_Max = Local_ExpMax,
-            });
-        }
-    }
-    #endregion
     #region//生命值(所有客户端)
     /// <summary>
     /// 当前生命值
@@ -289,15 +243,18 @@ public class ActorNetManager : NetworkBehaviour
     }
     private void OnlyState_HpChange(int parameter, int reason, NetworkId networkId)
     {
-        if (Net_HpCur + parameter <= 0)
+        int hp = Net_HpCur + parameter;
+        if (hp < 0)
         {
             Net_HpCur = 0;
             Net_SpeedCommon = 0;
+            actorManager_Local.State_Listen_MyselfDead(parameter, (HpChangeReason)reason, networkId);
             RPC_AllClient_Dead();
         }
-        else if (Net_HpCur + parameter > Local_HpMax)
+        else if (hp > Local_HpMax)
         {
             Net_HpCur = Local_HpMax;
+            actorManager_Local.State_Listen_MyselfHpChange(parameter, (HpChangeReason)reason, networkId);
         }
         else
         {
@@ -336,14 +293,18 @@ public class ActorNetManager : NetworkBehaviour
     public short Local_FoodMax { get; set; }
     public void OnCurFoodChange()
     {
-        if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
+        if (actorManager_Local.actorAuthority.isLocal)
         {
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateFoodData()
+            if (actorManager_Local.actorAuthority.isPlayer)
             {
-                Food_Cur = Net_FoodCur,
-                Food_Max = Local_FoodMax,
-            });
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateFoodData()
+                {
+                    Food_Cur = Net_FoodCur,
+                    Food_Max = Local_FoodMax,
+                });
+            }
         }
+        actorManager_Local.buffManager.Listen_UpdateHungry();
     }
     /// <summary>
     /// RPC:饥饿值改变
@@ -390,6 +351,7 @@ public class ActorNetManager : NetworkBehaviour
                 San_Max = Local_SanMax,
             });
         }
+        actorManager_Local.buffManager.Listen_UpdateSan();
     }
     /// <summary>
     /// RPC:精神值改变
@@ -497,7 +459,7 @@ public class ActorNetManager : NetworkBehaviour
     public void OnlyState_ItemHand_Add(ItemData itemData_Add)
     {
         Net_ItemHand = GameToolManager.Instance.CombineItem(Net_ItemHand, itemData_Add, out ItemData itemData_Res);
-        if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
+        if (itemData_Res.I > 0 && itemData_Res.C > 0)
         {
             RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Hand);
         }
@@ -549,13 +511,13 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
     public void RPC_LocalInput_ItemHead_Add(ItemData itemData_Add)
     {
-        Debug.Log(itemData_Add.Item_ID);
+        Debug.Log(itemData_Add.I);
         OnlyState_ItemHead_Add(itemData_Add);
     }
     public void OnlyState_ItemHead_Add(ItemData itemData_Add)
     {
         Net_ItemHead = GameToolManager.Instance.CombineItem(Net_ItemHead, itemData_Add, out ItemData itemData_Res);
-        if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
+        if (itemData_Res.I > 0 && itemData_Res.C > 0)
         {
             RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Head);
         }
@@ -608,7 +570,7 @@ public class ActorNetManager : NetworkBehaviour
     public void OnlyState_ItemBody_Add(ItemData itemData_Add)
     {
         Net_ItemBody = GameToolManager.Instance.CombineItem(Net_ItemBody, itemData_Add, out ItemData itemData_Res);
-        if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
+        if (itemData_Res.I > 0 && itemData_Res.C > 0)
         {
             RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Body);
         }
@@ -658,7 +620,7 @@ public class ActorNetManager : NetworkBehaviour
     public void OnlyState_ItemAccessory_Add(ItemData itemData_Add)
     {
         Net_ItemAccessory = GameToolManager.Instance.CombineItem(Net_ItemAccessory, itemData_Add, out ItemData itemData_Res);
-        if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
+        if (itemData_Res.I > 0 && itemData_Res.C > 0)
         {
             RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Accessory);
         }
@@ -701,7 +663,7 @@ public class ActorNetManager : NetworkBehaviour
     public void OnlyState_ItemConsumables_Add(ItemData itemData_Add)
     {
         Net_ItemConsumables = GameToolManager.Instance.CombineItem(Net_ItemConsumables, itemData_Add, out ItemData itemData_Res);
-        if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count > 0)
+        if (itemData_Res.I > 0 && itemData_Res.C > 0)
         {
             RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Consumables);
         }
@@ -750,14 +712,15 @@ public class ActorNetManager : NetworkBehaviour
         Local_BagItemCount = 0;
         for (int i = 0; i < itemDatas.Count; i++)
         {
-            if (itemDatas[i].Item_ID != 0) { Local_BagItemCount++; }
+            if (itemDatas[i].I != 0) { Local_BagItemCount++; }
             Local_ItemBag.Add(itemDatas[i]);
         }
         if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
         {
             MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateItemInBag()
             {
-                itemDatas = Local_ItemBag_Get()
+                itemDatas = Local_ItemBag_Get(),
+                itemCount = Local_BagItemCount
             });
         }
     }
@@ -787,12 +750,12 @@ public class ActorNetManager : NetworkBehaviour
     }
     public void Local_ItemBag_Add(int index, ItemData addData,ItemFrom from)
     {
-        if (addData.Item_ID > 0)
+        if (addData.I > 0)
         {
             List<ItemData> itemDatas = Local_ItemBag_Get();
             GameToolManager.Instance.PutInItemList(itemDatas, addData, index, Local_BagCapacity, out ItemData resData);
             Local_ItemBag_Set(itemDatas);
-            if (resData.Item_Count > 0)
+            if (resData.C > 0)
             {
                 MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
                 {
@@ -873,21 +836,21 @@ public class ActorNetManager : NetworkBehaviour
         {
             if (index < itemDatas.Count)
             {
-                if (itemDatas[index].Item_ID == itemData.Item_ID)
+                if (itemDatas[index].I == itemData.I)
                 {
-                    if (itemDatas[index].Item_Count < itemData.Item_Count)
+                    if (itemDatas[index].C < itemData.C)
                     {
                         ItemData temp = itemData;
-                        temp.Item_Count = (short)(itemData.Item_Count - itemDatas[index].Item_Count);
+                        temp.C = (short)(itemData.C - itemDatas[index].C);
                         //MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemInBag()
                         //{
                         //    item = temp
                         //});
                     }
-                    else if (itemDatas[index].Item_Count > itemData.Item_Count)
+                    else if (itemDatas[index].C > itemData.C)
                     {
                         ItemData temp = itemData;
-                        temp.Item_Count = (short)(itemDatas[index].Item_Count - itemData.Item_Count);
+                        temp.C = (short)(itemDatas[index].C - itemData.C);
                         //MessageBroker.Default.Publish(new UIEvent.UIEvent_PutItemOutBag()
                         //{
                         //    item = temp
@@ -979,42 +942,188 @@ public class ActorNetManager : NetworkBehaviour
 
     #endregion
     #region//Buff(只在本地端计算)
-    private List<BuffData> Local_BuffList { get; } = new List<BuffData>();
     public List<BuffData> Local_GetBuffList()
     {
-        return new List<BuffData>(Local_BuffList);
+        actorManager_Local.buffManager.Local_GetBuff(out List<BuffData> buffdata);
+        return buffdata;
     }
     public void Local_SetBuffList(List<BuffData> buffDatas)
     {
-        Local_BuffList.Clear();
-        for (int i = 0; i < buffDatas.Count; i++)
-        {
-            Local_BuffList.Add(buffDatas[i]);
-        }
-        actorManager_Local.buffManager.Local_InitBuffs(Local_BuffList);
+        actorManager_Local.buffManager.Local_InitBuffs(buffDatas);
     }
-    public void Local_AddBuff(BuffData buffData)
+    public void Local_AddBuff(short buffData, short buffVal,Vector3Int buffPos)
     {
-        if (!Local_BuffList.Contains(buffData))
-        {
-            Local_BuffList.Add(buffData);
-            actorManager_Local.buffManager.Local_AddBuff(buffData);
-        }
+        actorManager_Local.buffManager.Local_AddBuff(new BuffData(buffData, buffVal, buffPos));
     }
-    public void Local_SubBuff(short buffID)
+    public void Local_RemoveBuff(short buffID)
     {
-        BuffData buffData = Local_BuffList.Find((x) => { return x.BuffID == buffID; });
-        if (buffData.BuffID != 0)
-        {
-            Local_BuffList.Remove(buffData);
-            actorManager_Local.buffManager.Local_RemoveBuff(buffID);
-        }
+        actorManager_Local.buffManager.Local_RemoveBuff(buffID);
     }
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_Local_PlayBuffEffect(short ID,short index)
     {
         actorManager_Local.buffManager.All_PlayBuffEffect(ID,index);
     }
+    #endregion
+    #region//Skill(只在本地端计算)
+    private List<short> Local_SkillList { get; } = new List<short>();
+    public List<short> Local_GetSkillList()
+    {
+        return new List<short>(Local_SkillList);
+    }
+    public void Local_SetSkillList(List<short> skillDatas)
+    {
+        Local_ClearSkill();
+        for (int i = 0; i < skillDatas.Count; i++)
+        {
+            Local_AddSkill(skillDatas[i]);
+        }
+        
+    }
+    public void Local_AddSkill(short skill)
+    {
+        if (!Local_SkillList.Contains(skill))
+        {
+            Local_SkillList.Add(skill);
+
+            int skillPoint = Local_Level;
+            for (int i = 0; i < Local_SkillList.Count; i++)
+            {
+                skillPoint -= SkillConfigData.GetStatusConfig(Local_SkillList[i]).Skill_Cost;
+            }
+            Local_AddBuff(skill, 0, Vector3Int.zero);
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateSkill()
+            {
+                Skills = new List<short>(Local_SkillList),
+                Point = skillPoint
+            });
+        }
+    }
+    public void Local_ClearSkill()
+    {
+        for (int i = 0; i < Local_SkillList.Count; i++)
+        {
+            //Local_AddSkill(skillDatas[i]);
+        }
+        Local_SkillList.Clear();
+        int skillPoint = Local_Level;
+        for (int i = 0; i < Local_SkillList.Count; i++)
+        {
+            skillPoint -= SkillConfigData.GetStatusConfig(Local_SkillList[i]).Skill_Cost;
+        }
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateSkill()
+        {
+            Skills = new List<short>(Local_SkillList),
+            Point = skillPoint
+        });
+
+    }
+    #endregion
+    #region//Level(只在本地端计算)
+    private int Local_Level { get; set; }
+    private int Local_Exp { get; set; }
+    public int Local_GetLevel()
+    {
+        return Local_Level;
+    }
+    public int Local_GetExp()
+    {
+        return Local_Exp;
+    }
+    public void Local_SetLevelAndExp(int level, int exp)
+    {
+        Local_LevelUp(level - Local_Level);
+        Local_ExpUp(exp - Local_Exp);
+    }
+    public void Local_ExpUp(int val)
+    {
+        int levelUp = 0;
+        int expCur = Local_Exp + val;
+        int expCapacity = (Local_Level + levelUp) * 5 + 45;
+        while (expCur > expCapacity)
+        {
+            levelUp++;
+            expCur = expCur - expCapacity;
+            expCapacity = (Local_Level + levelUp) * 5 + 45;
+        }
+        Local_LevelUp(levelUp);
+        Local_Exp = expCur;
+        int skillPoint = Local_Level;
+        for (int i = 0; i < Local_SkillList.Count; i++)
+        {
+            skillPoint -= SkillConfigData.GetStatusConfig(Local_SkillList[i]).Skill_Cost;
+        }
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateSkill()
+        {
+            Skills = new List<short>(Local_SkillList),
+            Point = skillPoint
+        });
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateExpData()
+        {
+            Level = Local_Level,
+            Exp_Cur = Local_Exp,
+            Exp_Capacity = expCapacity,
+        });
+    }
+    public void Local_LevelUp(int val)
+    {
+        Local_Level += val;
+        int skillPoint = Local_Level;
+        int expCapacity = Local_Level * 5 + 45;
+
+        for (int i = 0; i < Local_SkillList.Count; i++)
+        {
+            skillPoint -= SkillConfigData.GetStatusConfig(Local_SkillList[i]).Skill_Cost;
+        }
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateSkill()
+        {
+            Skills = new List<short>(Local_SkillList),
+            Point = skillPoint
+        });
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateExpData()
+        {
+            Level = Local_Level,
+            Exp_Cur = Local_Exp,
+            Exp_Capacity = expCapacity,
+        });
+    }
+    #endregion
+    #region//Quest(只在本地端计算)
+    private List<int> Local_QuestList { get; } = new List<int>();
+    private short Local_QuestLevel;
+    public List<int> Local_GetQuestList()
+    {
+        return new List<int>(Local_QuestList);
+    }
+    public short Local_GetQuestLevel()
+    {
+        return Local_QuestLevel;
+    }
+    public void Local_SetQuestList(List<int> questDatas,short level)
+    {
+        Local_ClearQuest();
+        for (int i = 0; i < questDatas.Count; i++)
+        {
+            Local_AddQuest(questDatas[i]);
+        }
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateQuest()
+        {
+            Quests = Local_GetQuestList(),
+            Level = Local_GetQuestLevel()
+        });
+    }
+    public void Local_AddQuest(int quest)
+    {
+        if (!Local_QuestList.Contains(quest))
+        {
+            Local_QuestList.Add(quest);
+        }
+    }
+    public void Local_ClearQuest()
+    {
+        Local_QuestList.Clear();
+    }
+
     #endregion
     #region//掉落物品(只在本地端计算)
     private List<ItemData> Local_LootItems { get; } = new List<ItemData>(15);
@@ -1066,6 +1175,21 @@ public class ActorNetManager : NetworkBehaviour
             actorManager_Local.State_Listen_ChangeAttackTarget(id);
         }
     }
+
+    /// <summary>
+    /// 更改威胁目标
+    /// </summary>
+    /// <param name="id"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    public void RPC_State_NpcChangeThreatenedTarget(NetworkId id)
+    {
+        actorManager_Local.AllClient_Listen_ChangeThreatenedTarget(id);
+        if (actorManager_Local.actorAuthority.isState)
+        {
+            actorManager_Local.State_Listen_ChangeThreatenedTarget(id);
+        }
+    }
+
     /// <summary>
     /// 使用技能
     /// </summary>
@@ -1087,26 +1211,38 @@ public class ActorNetManager : NetworkBehaviour
     #endregion
     #region//角色位移
     /// <summary>
+    /// 锁定位置倒数
+    /// </summary>
+    float time_LockPos = 0;
+    /// <summary>
     /// 本地端更改玩家位置
     /// </summary>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_Local_SetNetworkTransform(Vector3 pos)
     {
         State_SetNetworkRigidbody(pos);
     }
     private void State_SetNetworkRigidbody(Vector3 pos)
     {
+        time_LockPos = 0.5f;
         networkRigidbody.Rigidbody.velocity = Vector2.zero;
         networkRigidbody.Rigidbody.position = (pos);
     }
-    public void State_UpdateNetworkRigidbody(Vector3 pos, float speed)
+    public void State_UpdateNetworkRigidbody(Vector3 pos, float speed, float dt)
     {
         if (networkRigidbody/* && actorManager_Local.actorAuthority.isState*/)
         {
-            if (networkRigidbody.Rigidbody.velocity.magnitude <= speed)
+            if (time_LockPos <= 0)
             {
-                networkRigidbody.Rigidbody.velocity = Vector2.zero;
-                networkRigidbody.Rigidbody.position = (pos);
+                if (networkRigidbody.Rigidbody.velocity.magnitude <= speed)
+                {
+                    networkRigidbody.Rigidbody.velocity = Vector2.zero;
+                    networkRigidbody.Rigidbody.position = (pos);
+                }
+            }
+            else
+            {
+                time_LockPos -= dt;
             }
         }
     }
@@ -1142,14 +1278,39 @@ public class ActorNetManager : NetworkBehaviour
         }
     }
     #endregion
+    #region//角色动作
+    
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_Local_SetBodyAction(short id)
+    {
+        actorManager_Local.bodyController.PlayBodyAction((BodyAction)id);
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_Local_SetHeadAction(short id)
+    {
+        actorManager_Local.bodyController.PlayHeadAction((HeadAction)id);
+    }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_Local_SetHandAction(short id)
+    {
+        actorManager_Local.bodyController.PlayHandAction((HandAction)id);
+    }
+
+    #endregion
     #region//其他操作
     /// <summary>
     /// 本地端发送表情
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_LocalInput_SendEmoji(int id)
+    public void RPC_LocalInput_SendEmoji(short id,short distance)
     {
-        actorManager_Local.actionManager.SendEmoji(id);
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_SomeoneSendEmoji
+        {
+            actor = actorManager_Local,
+            emoji = (Emoji)id,
+            distance = distance
+        });
+        actorManager_Local.actorUI.SendEmoji((Emoji)id);
     }
     /// <summary>
     /// 本地端发送语言
@@ -1159,7 +1320,13 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_LocalInput_SendText(string text, int id)
     {
-        actorManager_Local.actionManager.SendText(text, id);
+        MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_SomeoneSendEmoji
+        {
+            actor = actorManager_Local,
+            emoji = (Emoji)id,
+            distance = 10
+        });
+        actorManager_Local.actorUI.SendText(text);
     }
     /// <summary>
     /// 本地端犯罪
@@ -1167,9 +1334,9 @@ public class ActorNetManager : NetworkBehaviour
     /// <param name="text"></param>
     /// <param name="id"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_LocalInput_Commit(short fine)
+    public void RPC_LocalInput_Commit(short commit,short fine)
     {
-        actorManager_Local.actionManager.Commit(fine);
+        actorManager_Local.actionManager.AllClient_Commit((CommitState)commit, fine);
     }
     /// <summary>
     /// RPC:本地端主动拾起物品
@@ -1219,7 +1386,7 @@ public class ActorNetManager : NetworkBehaviour
                 itemNetObj.State_PickUp(Object.Id, out ItemData itemData_Pick);
                 RPC_State_ItemInBag_Add(itemData_Pick, (short)ItemFrom.OutSide);
             }
-            GameObject itemObj = PoolManager.Instance.GetObject("Effect/Effect_ItemObj");
+            GameObject itemObj = PoolManager.Instance.GetEffectObj("Effect/Effect_ItemObj");
             itemObj.transform.position = itemNetObj.transform.position;
             itemObj.GetComponent<Effect_ItemObj>().DrawSpriter(itemNetObj.spriteRenderer_Icon.sprite);
             itemObj.GetComponent<Effect_ItemObj>().BindFollow(transform);
@@ -1233,7 +1400,7 @@ public class ActorNetManager : NetworkBehaviour
     {
         if (actorManager_Local.actorAuthority.isState)
         {
-            actorManager_Local.pathManager.State_StandDown(time);
+            actorManager_Local.pathManager.State_SetFrezzeTime(time);
         }
     }
     /// <summary>

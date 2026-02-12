@@ -41,7 +41,7 @@ public class GameUI_ItemHolding : MonoBehaviour
 
     private void UpdateHolding()
     {
-        if (itemData_Holding.Item_ID > 0 && itemData_Holding.Item_Count > 0)
+        if (itemData_Holding.I > 0 && itemData_Holding.C > 0)
         {
             isHolding = true;
             StartHolding();
@@ -54,8 +54,8 @@ public class GameUI_ItemHolding : MonoBehaviour
     }
     public void StartHolding()
     {
-        image_ItemIcon.sprite = spriteAtlas_ItemAtlas.GetSprite("Item_" + itemData_Holding.Item_ID);
-        text_ItemCount.text = itemData_Holding.Item_Count.ToString();
+        image_ItemIcon.sprite = spriteAtlas_ItemAtlas.GetSprite("Item_" + itemData_Holding.I);
+        text_ItemCount.text = itemData_Holding.C.ToString();
         image_ItemIcon.gameObject.SetActive(true);
         image_ItemIcon.transform.DOKill();
         image_ItemIcon.transform.localScale = Vector3.one;
@@ -73,7 +73,7 @@ public class GameUI_ItemHolding : MonoBehaviour
     }
     public ItemData PutOutFromCell(UI_GridCell gridCell, ItemData itemData_From, ItemData itemData_Out)
     {
-        if (itemData_Out.Item_ID <= 0 || itemData_Out.Item_ID == itemData_Holding.Item_ID)
+        if (itemData_Out.I <= 0 || itemData_Out.I == itemData_Holding.I)
         {
             return new ItemData();
         }
@@ -84,14 +84,14 @@ public class GameUI_ItemHolding : MonoBehaviour
     }
     public void PutInToCell(UI_GridCell gridCell, ItemData itemData_In)
     {
-        if (itemData_In.Item_ID > 0)
+        if (itemData_In.I > 0)
         {
             gridCell.PutIn(itemData_In);
         }
     }
     public void Drop()
     {
-        if (itemData_Holding.Item_ID > 0 && itemData_Holding.Item_Count > 0)
+        if (itemData_Holding.I > 0 && itemData_Holding.C > 0)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
             {

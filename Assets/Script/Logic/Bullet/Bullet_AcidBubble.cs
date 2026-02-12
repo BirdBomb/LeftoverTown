@@ -109,20 +109,24 @@ public class Bullet_AcidBubble : BulletBase
     {
         if (actorAuthority_Owner.isLocal)
         {
-            actor.AllClient_Listen_TakeForce(vectoe3_MoveDir, (short)float_BulletForce);
+            actor.actionManager.Client_TakeForce(vectoe3_MoveDir, (short)float_BulletForce);
             if (float_BulletAttackDemage > 0)
             {
-                actor.AllClient_Listen_TakeDamage(float_BulletAttackDemage, DamageState.AttackPiercingDamage, actorManager_Owner.actorNetManager);
+                GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+                effect.GetComponent<Effect_Impact>().PlayPiercing(vectoe3_MoveDir);
+                effect.transform.position = actor.transform.position;
+
+                actor.actorHpManager.TakeDamage(float_BulletAttackDemage, DamageState.AttackPiercingDamage, actorManager_Owner.actorNetManager);
             }
             if (float_BulletMagicDemage > 0)
             {
-                actor.AllClient_Listen_TakeDamage(float_BulletMagicDemage, DamageState.MagicDamage, actorManager_Owner.actorNetManager);
+                actor.actorHpManager.TakeDamage(float_BulletMagicDemage, DamageState.MagicDamage, actorManager_Owner.actorNetManager);
             }
         }
     }
     private void Boom(Vector2 pos)
     {
-        GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_AcidBubbleBoom");
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_AcidBubbleBoom");
         effect.transform.localScale = new Vector3(1 - (2 * new System.Random().Next(0, 2)), 1, 1);
         effect.transform.position = pos;
         float_BulletSpeed = 0;

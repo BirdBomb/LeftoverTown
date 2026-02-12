@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -12,6 +13,7 @@ public class ActorPathManager
     }
     public Vector3Int vector3Int_LastPos;
     public Vector3Int vector3Int_CurPos;
+    
     private Vector2 vector2_CurPos;
     /// <summary>
     /// 冻结时间
@@ -63,6 +65,11 @@ public class ActorPathManager
         {
             buildingTile.StandOnTileByActor(actorManager);
         }
+        if (MapManager.Instance.GetGround(vector3Int_CurPos, out GroundTile groundTile))
+        { 
+
+            groundTile.StandOnTileByActor(actorManager);
+        }
         /*剔除上次检测的地块*/
         for (int i = 0; i < buildingTiles_NearbyRecord.Count; i++)
         {
@@ -95,6 +102,42 @@ public class ActorPathManager
     /// 目标地块(主机)
     /// </summary>
     private GroundTile groundTile_TargetTile = null;
+    /// <summary>
+    /// 路径(总长度)
+    /// </summary>
+    public int State_PathLenght;
+    /// <summary>
+    /// 路径(已完成)
+    /// </summary>
+    public int State_PathCompleted;
+    /// <summary>
+    /// 完成回调
+    /// </summary>
+    public Action State_ArriveCallBack;
+    /// <summary>
+    /// 检查剩余路径百分比(主机)
+    /// </summary>
+    /// <returns>剩余百分比</returns>
+    public float State_CheckRemainingPathProportion()
+    {
+        if(State_PathLenght == 0) { return 1; }
+        else
+        {
+            return (float)(State_PathCompleted + 1) / (float)State_PathLenght;
+        }
+    }
+    /// <summary>
+    /// 检查剩余路径数量(主机)
+    /// </summary>
+    /// <returns>剩余数量</returns>
+    public int State_CheckRemainingPathCount()
+    {
+        if (State_PathLenght == 0) { return 0; }
+        else
+        {
+            return State_PathLenght - State_PathCompleted;
+        }
+    }
     /// <summary>
     /// 执行路径(主机)
     /// </summary>
@@ -131,13 +174,12 @@ public class ActorPathManager
                     if (groundTiles_TargetPath.Count > 0)
                     {
                         /*路径还未结束*/
-                        State_UpdateTargetTile(groundTiles_TargetPath[0]);
-                        groundTiles_TargetPath.RemoveAt(0);
+                        State_GoToNext(false);
                     }
                     else
                     {
                         /*路径已经结束*/
-                        State_UpdateTargetTile(null);
+                        State_GoToNext(true);
                     }
                     return;
                 }
@@ -163,10 +205,50 @@ public class ActorPathManager
                 }
             }
             temp = temp.normalized;
-            float commonSpeed = actorManager.actorNetManager.Net_SpeedCommon * 0.1f;
+            float commonSpeed = actorManager.actionManager.Client_GetSpeed();
             Vector2 velocity = new Vector2(temp.x * commonSpeed, temp.y * commonSpeed);
             Vector3 newPos = actorManager.transform.position + new UnityEngine.Vector3(velocity.x * dt, velocity.y * dt, 0);
-            actorManager.actorNetManager.State_UpdateNetworkRigidbody(newPos, velocity.magnitude);
+            actorManager.actorNetManager.State_UpdateNetworkRigidbody(newPos, velocity.magnitude, dt);
+        }
+    }
+    /// <summary>
+    /// 设置路径(主机)
+    /// </summary>
+    public void State_SettingPath(List<GroundTile> path, Action callBack)
+    {
+        State_ArriveCallBack = callBack;
+        groundTiles_TargetPath = path;
+        State_PathLenght = groundTiles_TargetPath.Count;
+        State_PathCompleted = -1;
+        State_GoToNext(false);
+    }
+    public void State_ClearPath()
+    {
+        groundTiles_TargetPath.Clear();
+        groundTile_TargetTile = null;
+        State_PathLenght = 0;
+        State_PathCompleted = -1;
+    }
+    /// <summary>
+    /// 前往下一个目标点(主机)
+    /// </summary>
+    /// <param name="ending">抵达终点</param>
+    public void State_GoToNext(bool ending)
+    {
+        if (ending)
+        { 
+            State_PathCompleted = State_PathLenght;
+            State_UpdateTargetTile(null);
+            if (State_ArriveCallBack != null) 
+            {
+                State_ArriveCallBack.Invoke(); 
+            }
+        }
+        else
+        {
+            State_PathCompleted++;
+            State_UpdateTargetTile(groundTiles_TargetPath[0]);
+            groundTiles_TargetPath.RemoveAt(0);
         }
     }
     /// <summary>
@@ -177,19 +259,17 @@ public class ActorPathManager
         groundTile_TargetTile = groundTile;
     }
     /// <summary>
-    /// 移动
+    /// 移动至(坐标)
     /// </summary>
     /// <param name="targetPos"></param>
     /// <returns></returns>
     public bool State_MovePostion(Vector3Int targetPos,int maxStep = 100)
     {
-        groundTiles_TargetPath.Clear();
-        List<GroundTile> temp = MapManager.Instance.navManager.FindPath(targetPos, vector3Int_CurPos, maxStep);
+        List<GroundTile> temp = NavManager.Instance.FindPath(targetPos, vector3Int_CurPos, maxStep);
         if (temp.Count > 0)
         {
-            groundTiles_TargetPath = temp;
-            State_UpdateTargetTile(groundTiles_TargetPath[0]);
-            groundTiles_TargetPath.RemoveAt(0);
+            State_ClearPath();
+            State_SettingPath(temp, null);
             return true;
         }
         else
@@ -198,14 +278,95 @@ public class ActorPathManager
         }
     }
     /// <summary>
-    /// 停下
+    /// 移动至(坐标)
+    /// </summary>
+    /// <param name="targetPos">目标位置</param>
+    /// <param name="callBack">抵达回调</param>
+    /// <param name="maxStep">最大步数</param>
+    /// <returns></returns>
+    public bool State_MovePostion(Vector3Int targetPos, Action callBack, int maxStep = 100)
+    {
+        List<GroundTile> temp = NavManager.Instance.FindPath(targetPos, vector3Int_CurPos, maxStep);
+        if (temp.Count > 0)
+        {
+            State_ClearPath();
+            State_SettingPath(temp, callBack);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    /// <summary>
+    /// 移动至(方向)
+    /// </summary>
+    /// <param name="startPos">起点</param>
+    /// <param name="targetDir">方向</param>
+    /// <param name="minDistance">移动最小距离</param>
+    /// <param name="maxDistance">移动最大距离</param>
+    /// <returns></returns>
+    public bool State_MoveDiraction(Vector3Int startPos, Vector3Int targetDir, int minDistance, int maxDistance, Action callBack = null)
+    {
+        int minDistanceNew = minDistance;
+        for (int i = minDistance; i < maxDistance; i++)
+        {
+            if (MapManager.Instance.GetGround(startPos + targetDir * i, out GroundTile groundTile))
+            {
+                //目标地块存在
+                if (groundTile.offset_Pass)
+                {
+                    //目标地块可通过
+                    //更新最小移动距离
+                    minDistanceNew = i;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else { break; }
+        }
+        for (int i = minDistanceNew; i < maxDistance; i++)
+        {
+            if (State_MovePostion(startPos + targetDir * i, callBack))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    /// <summary>
+    /// 移动至(区域)
+    /// </summary>
+    /// <param name="centerPos"></param>
+    /// <param name="radio"></param>
+    /// <param name=""></param>
+    /// <returns></returns>
+    public bool State_MoveArea(Vector3Int centerPos, int size, int dir_x, int dir_y, Action callBack = null)
+    {
+        Vector3Int offset = Vector3Int.zero;
+        for (int x = 0; x < size; x++)
+        {
+            for (int y = 0; y < size; y++)
+            {
+                offset.x = x * dir_x;
+                offset.y = y * dir_y;
+                if (State_MovePostion(centerPos + offset, callBack))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    /// <summary>
+    /// 设置冻结时间
     /// </summary>
     /// <param name="time">冻结秒数</param>
-    public void State_StandDown(float time)
+    public void State_SetFrezzeTime(float time)
     {
         time_Frezze = time;
-        groundTiles_TargetPath.Clear();
-        groundTile_TargetTile = null;
     }
     #endregion
 }

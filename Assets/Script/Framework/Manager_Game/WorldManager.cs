@@ -6,6 +6,7 @@ using UnityEngine.U2D;
 using DG.Tweening;
 using UnityEngine.Rendering;
 using UniRx;
+using System;
 
 /// <summary>
 /// 世界管理器
@@ -13,20 +14,21 @@ using UniRx;
 /// </summary>
 public class WorldManager : SingleTon<WorldManager>, ISingleTon
 {
-    private GlobalTime globalTimeNow;
-    public GlobalTime GlobalTimeNow
-    {
-        get { return globalTimeNow; }
-        set { globalTimeNow = value; }
-    }
-
     public void Init()
     {
-        volume.profile.TryGet(out _whiteBalance);
-        volume.profile.TryGet(out _colorAdjustments);
+        if (volume)
+        {
+            volume.profile.TryGet(out _whiteBalance);
+            volume.profile.TryGet(out _colorAdjustments);
+        }
         AudioManager.Instance.PlayMusic(9000, 0, true);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_BindLocalPlayer>().Subscribe(_ =>
+        {
+            playerCoreLocal = _.playerCore;
+        }).AddTo(this);
     }
     #region//世界角色
+    public PlayerCoreLocal playerCoreLocal;
     public List<ActorManager> actors = new List<ActorManager>();
     public void AddActor(ActorManager actorManager)
     {
@@ -64,6 +66,20 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
     }
     #endregion
     #region//世界时间
+    private GlobalTime globalTimeNow;
+    public GlobalTime GlobalTimeNow
+    {
+        get { return globalTimeNow; }
+        set { globalTimeNow = value; }
+    }
+    private Weather weatherNow;
+    public Weather WeatherNow
+    {
+        get { return weatherNow; }
+        set { weatherNow = value; }
+    }
+
+
     public void UpdateSecond(int second, int hour, int day)
     {
         MessageBroker.Default.Publish(new GameEvent.GameEvent_All_UpdateSecond()
@@ -142,42 +158,48 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
     public void UpdateGlobalTime(GlobalTime globalTime)
     {
         Debug.Log("当前时间" + globalTime);
-
-        if (globalTime == GlobalTime.Morning)
-        {
-            PlayMorningLight();
-        }
-        else if (globalTime == GlobalTime.Forenoon)
-        {
-            PlayForenoonLight();
-        }
-        else if (globalTime == GlobalTime.Highnoon)
-        {
-            PlayHighnoonLight();
-        }
-        else if (globalTime == GlobalTime.Afternoon)
-        {
-            PlayAfternoonLight();
-        }
-        else if (globalTime == GlobalTime.Dusk)
-        {
-            PlayDuskLight();
-        }
-        else if (globalTime == GlobalTime.Evening)
-        {
-            PlayEveningLight();
-        }
         GlobalTimeNow = globalTime;
+        ChangeWhiteBalance();
+        ChangeLight();
     }
-
+    public void UpdateWeather(Weather weather)
+    {
+        WeatherNow = weather;
+        ChangeWhiteBalance();
+        ChangeLight();
+    }
+    public void GetTime(out int day, out int hour, out GlobalTime globalTime)
+    {
+        day = gameNetManager ? gameNetManager.Day : 0;
+        hour = gameNetManager ? gameNetManager.Hour : 0;
+        globalTime = GlobalTimeNow;
+    }
     #endregion
     #region//世界光源
     [SerializeField, Header("后处理")]
     private Volume volume;
     [SerializeField, Header("太阳光")]
     private Light2D light2D_Spot;
+    [Range(0f, 1f), Header("太阳光强度")]
+    public float light2D_Spot_Intensity = 1;
     [SerializeField, Header("全局光")]
     private Light2D light2D_Global;
+    [SerializeField, Header("玩家地面光")]
+    public Light2D light2D_Ground;
+    [SerializeField, Header("玩家地上光")]
+    public Light2D light2D_OnGround;
+    [Header("--光(早上)--")]
+    public LightData lightData_Morning;
+    [Header("--光(上午)--")]
+    public LightData lightData_Forenoon;
+    [Header("--光(正午)--")]
+    public LightData lightData_Highnoon;
+    [Header("--光(下午)--")]
+    public LightData lightData_Afternoon;
+    [Header("--光(黄昏)--")]
+    public LightData lightData_Dusk;
+    [Header("--光(晚上)--")]
+    public LightData lightData_Evening;
     /// <summary>
     /// 平白横
     /// </summary>
@@ -196,92 +218,159 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
         light2D_Spot.pointLightInnerRadius = distance - 5;
         int_Distance = distance;
     }
-    private void PlayMorningLight()
-    {
-        DOTween.To(() => temperature, x => temperature = x, 25, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.temperature.Override(temperature);
-        });
-        DOTween.To(() => temperature, x => tint = x, 0, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.tint.Override(tint);
-        });
-        DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.9f, 5f);
-        DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(0.75f, 1, 1, 1), 5f);
-    }
-    private void PlayForenoonLight()
-    {
-        DOTween.To(() => temperature, x => temperature = x, 0, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.temperature.Override(temperature);
-        });
-        DOTween.To(() => temperature, x => tint = x, 0, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.tint.Override(tint);
-        });
-        DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.9f, 5f);
-        DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(1, 1, 0.75f, 1), 5f);
-
-    }
-    private void PlayHighnoonLight()
-    {
-        DOTween.To(() => temperature, x => temperature = x, 25, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.temperature.Override(temperature);
-        });
-        DOTween.To(() => temperature, x => tint = x, 25, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.tint.Override(tint);
-        });
-        DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 1f, 5f);
-        DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(1, 1, 0.7f, 1), 5f);
-
-    }
-    private void PlayAfternoonLight()
-    {
-        DOTween.To(() => temperature, x => temperature = x, 25, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.temperature.Override(temperature);
-        });
-        DOTween.To(() => temperature, x => tint = x, 25, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.tint.Override(tint);
-        });
-        DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.9f, 5f);
-        DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(1, 1, 0.75f, 1), 5f);
-
-    }
-    private void PlayDuskLight()
-    {
-        DOTween.To(() => temperature, x => temperature = x, 75, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.temperature.Override(temperature);
-        });
-        DOTween.To(() => temperature, x => tint = x, 25, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.tint.Override(tint);
-        });
-        DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.8f, 5f);
-        DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(1, 0.75f, 0.5f, 1), 5f);
-
-    }
-    private void PlayEveningLight()
-    {
-        DOTween.To(() => temperature, x => temperature = x, 50, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.temperature.Override(temperature);
-        });
-        DOTween.To(() => temperature, x => tint = x, 50, 5f).OnUpdate(() =>
-        {
-            _whiteBalance.tint.Override(tint);
-        });
-        DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, 0.6f, 5f);
-        DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, new Color(0.75f, 0.5f, 1, 1), 5f);
-
-    }
     public void ChangeSaturability(float val)
     {
         _colorAdjustments.saturation.Override(val);
+    }
+    /// <summary>
+    /// 更改平白横
+    /// </summary>
+    private void ChangeWhiteBalance()
+    {
+        /*蓝-橙*/
+        float temp_temperature = 0;
+        /*绿-紫*/
+        float temp_tint = 0;
+        switch (GlobalTimeNow)
+        {
+            case GlobalTime.Morning:
+                {
+                    temp_temperature = 25;
+                    temp_tint = 0;
+                }
+                break;
+            case GlobalTime.Forenoon:
+                {
+                    temp_temperature = 0;
+                    temp_tint = 0;
+                }
+                break;
+            case GlobalTime.Highnoon:
+                {
+                    temp_temperature = 25;
+                    temp_tint = 25;
+                }
+                break;
+            case GlobalTime.Afternoon:
+                {
+                    temp_temperature = 25;
+                    temp_tint = 25;
+                }
+                break;
+            case GlobalTime.Dusk:
+                {
+                    temp_temperature = 75;
+                    temp_tint = 25;
+                }
+                break;
+            case GlobalTime.Evening:
+                {
+                    temp_temperature = 50;
+                    temp_tint = 50;
+                }
+                break;
+        }
+        switch (WeatherNow) 
+        {
+            case Weather.Default:
+                {
+                    
+                }
+                break;
+            case Weather.Rain:
+                {
+                    temp_temperature = Mathf.Lerp(-100, temp_temperature, 0.5f);
+                    temp_tint = Mathf.Lerp(50, temp_tint, 0.5f);
+                }
+                break;
+            case Weather.Fierce:
+                {
+                    temp_temperature = Mathf.Lerp(-50, temp_temperature, 0.5f);
+                }
+                break;
+        }
+
+        DOTween.To(() => temperature, x => temperature = x, temp_temperature, 5f).OnUpdate(() =>
+        {
+            _whiteBalance.temperature.Override(temperature);
+        });
+        DOTween.To(() => temperature, x => tint = x, temp_tint, 5f).OnUpdate(() =>
+        {
+            _whiteBalance.tint.Override(tint);
+        });
+
+    }
+    /// <summary>
+    /// 更改光照
+    /// </summary>
+    private void ChangeLight()
+    {
+        Color temp_lightColor = new Color(1, 1, 1, 1);
+        float temp_lightIntensity = 0;
+        switch (GlobalTimeNow)
+        {
+            case GlobalTime.Morning:
+                {
+                    temp_lightIntensity = lightData_Morning.lightIntensity;
+                    temp_lightColor = lightData_Morning.lightColor;
+                }
+                break;
+            case GlobalTime.Forenoon:
+                {
+                    temp_lightIntensity = lightData_Forenoon.lightIntensity;
+                    temp_lightColor = lightData_Forenoon.lightColor;
+                }
+                break;
+            case GlobalTime.Highnoon:
+                {
+                    temp_lightIntensity = lightData_Highnoon.lightIntensity;
+                    temp_lightColor = lightData_Highnoon.lightColor;
+                }
+                break;
+            case GlobalTime.Afternoon:
+                {
+                    temp_lightIntensity = lightData_Afternoon.lightIntensity;
+                    temp_lightColor = lightData_Afternoon.lightColor;
+                }
+                break;
+            case GlobalTime.Dusk:
+                {
+                    temp_lightIntensity = lightData_Dusk.lightIntensity;
+                    temp_lightColor = lightData_Dusk.lightColor;
+                }
+                break;
+            case GlobalTime.Evening:
+                {
+                    temp_lightIntensity = lightData_Evening.lightIntensity;
+                    temp_lightColor = lightData_Evening.lightColor;
+                }
+                break;
+        }
+        switch (WeatherNow)
+        {
+            case Weather.Default:
+                {
+
+                }
+                break;
+            case Weather.Rain:
+                {
+                    temp_lightIntensity = Mathf.Lerp(0.5f, temp_lightIntensity, 0.5f);
+                    temp_lightColor = new Color(Mathf.Lerp(0.5f, temp_lightColor.r, 0.5f),Mathf.Lerp(0.5f, temp_lightColor.g, 0.5f),Mathf.Lerp(1, temp_lightColor.b, 0.5f),temp_lightColor.a);
+                }
+                break;
+            case Weather.Fierce:
+                {
+                    temp_lightIntensity = Mathf.Lerp(0.5f, temp_lightIntensity, 0.5f);
+                    temp_lightColor = new Color(Mathf.Lerp(0.5f, temp_lightColor.r, 0.5f), Mathf.Lerp(0.5f, temp_lightColor.g, 0.5f), Mathf.Lerp(1, temp_lightColor.b, 0.5f), temp_lightColor.a);
+                }
+                break;
+        }
+        temp_lightIntensity = Mathf.Lerp(0, temp_lightIntensity, light2D_Spot_Intensity);
+        DOTween.To(() => light2D_Spot.intensity, x => light2D_Spot.intensity = x, temp_lightIntensity, 5f);
+        DOTween.To(() => light2D_Spot.color, x => light2D_Spot.color = x, temp_lightColor, 5f);
+        DOTween.To(() => light2D_Ground.color, x => light2D_Ground.color = x, temp_lightColor, 5f);
+        DOTween.To(() => light2D_OnGround.color, x => light2D_OnGround.color = x, temp_lightColor, 5f);
     }
     #endregion
     #region//世界事件
@@ -304,7 +393,7 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
     /// </summary>
     public void ZombieComing()
     {
-        if (MapManager.Instance.mapNetManager.Object.HasStateAuthority)
+        if (gameNetManager.Object.HasStateAuthority)
         {
             for(int i = 0; i<actors.Count; i++)
             {
@@ -327,7 +416,7 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
                             pos = enemyPos,
                             callBack = ((actor) =>
                             {
-                                actor.GetComponent<ActorManager>().brainManager.SetActivity(actors[i].pathManager.vector3Int_CurPos);
+                                actor.GetComponent<ActorManager>().brainManager.State_SetActivityPos(actors[i].pathManager.vector3Int_CurPos);
                             })
                         });
                     }
@@ -397,13 +486,45 @@ public class WorldManager : SingleTon<WorldManager>, ISingleTon
         return points;
     }
     #endregion
+    #region//网络组件
+    [Header("网络组件")]
+    public GameNetManager gameNetManager;
+    #endregion
 }
+/// <summary>
+/// 
+/// </summary>
 public enum GlobalTime
 {
+    /// <summary>
+    /// 0
+    /// </summary>
     Morning,
+    /// <summary>
+    /// 1-2
+    /// </summary>
     Forenoon,
+    /// <summary>
+    /// 3
+    /// </summary>
     Highnoon,
+    /// <summary>
+    /// 4-5
+    /// </summary>
     Afternoon,
+    /// <summary>
+    /// 6
+    /// </summary>
     Dusk,
+    /// <summary>
+    /// 7-9
+    /// </summary>
     Evening,
+}
+[Serializable]
+public struct LightData
+{
+    [Range(0,1f)]
+    public float lightIntensity;
+    public Color lightColor;
 }

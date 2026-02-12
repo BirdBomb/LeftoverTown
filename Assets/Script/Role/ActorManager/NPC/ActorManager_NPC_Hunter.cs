@@ -8,226 +8,107 @@ using static GameEvent;
 
 public class ActorManager_NPC_Hunter : ActorManager_NPC
 {
-    [Header("攻击间隔"), Range(1, 10)]
-    public float float_AttackCD;
-    private float float_ThinkCD = 1;
-    private float float_SearchTime = 4;
-    private float float_AttackTimer;
-    private float float_ThinkTimer;
-    [HideInInspector]
-    public GlobalTime globalTime_Work = GlobalTime.Evening;
-    #region//初始化
-    public override void State_Init()
-    {
-        float_ThinkCD += new System.Random().Next(0, 100) * 0.01f;
-        float_ThinkTimer = float_ThinkCD;
-        base.State_Init();
-    }
-    #endregion
-    #region//时间周期
-    public override void FixedUpdate()
-    {
-        AllClient_AttackLoop(Time.fixedDeltaTime);
-        base.FixedUpdate();
-    }
-    public override void State_FixedUpdateNetwork(float dt)
-    {
-        if (brainManager.allClient_actorManager_AttackTarget)
-        {
-            float_AttackTimer -= dt;
-            if (float_AttackTimer < 0)
-            {
-                float_AttackTimer = float_AttackCD;
-                float val = State_CheckingAttackingDistance();
-                if (val > 1)
-                {
-                    State_Follow(brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos);
-                }
-                else
-                {
-                    if (brainManager.allClient_actorManager_AttackTarget.actorState != ActorState.Dead)
-                    {
-                        actorNetManager.RPC_State_NpcChangeAttackState(true);
-                    }
-                    else
-                    {
-                        actorNetManager.RPC_State_NpcChangeAttackTarget(new NetworkId());
-                    }
-                    if (val < 0.5f)
-                    {
-                        State_RunAway(brainManager.allClient_actorManager_AttackTarget);
-                    }
-                    else
-                    {
-                        State_Elude();
-                    }
-
-                }
-            }
-        }
-        else
-        {
-            float_ThinkTimer -= dt;
-            if (float_ThinkTimer < 0)
-            {
-                float_ThinkTimer = float_ThinkCD;
-                if (State_CheckToPickUp()) 
-                { 
-                    State_MoveToPickUp(); 
-                }
-                else 
-                { 
-                    State_Think(); 
-                }
-            }
-        }
-        base.State_FixedUpdateNetwork(dt);
-    }
-    public override void State_CustomUpdate()
-    {
-        State_CheckNearby();
-        base.State_CustomUpdate();
-    }
-    #endregion
-    #region//对外界的反应
-    public override void AllClient_Listen_MoveMyself(Vector3Int pos)
-    {
-        if (brainManager.globalTime_Now == globalTime_Work && brainManager.workPostion.isValue && brainManager.workPostion.postion == pos + Vector3Int.up)
-        {
-            if (MapManager.Instance.GetBuilding(pathManager.vector3Int_CurPos + Vector3Int.up, out BuildingTile buildingTile))
-            {
-                if (buildingTile.tileID == 2003)
-                {
-                    AllClient_WorkStart();
-                }
-            }
-        }
-        else
-        {
-            AllClient_WorkOver();
-        }
-        base.AllClient_Listen_MoveMyself(pos);
-    }
-    public override void AllClient_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
-    {
-        brainManager.SetTime(globalTime);
-        base.AllClient_Listen_UpdateTime(hour, date, globalTime);
-    }
-    public override void State_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
-    {
-        base.State_Listen_UpdateTime(hour, date, globalTime);
-    }
+    #region//监听
     public override void State_Listen_MyselfHpChange(int parameter, HpChangeReason reason, NetworkId id)
     {
         NetworkObject networkObject = actorNetManager.Runner.FindObject(id);
-        if (networkObject != null)
+        if (networkObject != null && parameter < 0)
         {
             ActorManager who = networkObject.GetComponent<ActorManager>();
-            if (who.actorAuthority.isPlayer && actionManager.LookAt(who, config.short_View))
+            if (who.actorAuthority.isPlayer)
             {
-                who.actionManager.SetFine(500);
-                if (brainManager.allClient_actorManager_AttackTarget == null)
-                {
-                    State_TryToSendEmoji(0, Emoji.Menace);
-                    State_InAttack(who);
-                }
-                else
-                {
-                    if (!brainManager.allClient_actorManager_AttackTarget.actorAuthority.isPlayer)
-                    {
-                        State_InAttack(who);
-                    }
-                }
+                State_InAttack(who);
+
+                State_TryToSendEmoji(0, Emoji.Menace);
             }
         }
-        base.State_Listen_MyselfHpChange(parameter, reason, id);
-    }
-    public override void State_Listen_RoleCommit(ActorManager who, short val)
-    {
-        if (who.actorAuthority.isPlayer && actionManager.LookAt(who, config.short_View))
-        {
-            who.actionManager.SetFine(val);
-            State_TryToSendEmoji(0, Emoji.Yell);
-        }
-        base.State_Listen_RoleCommit(who, val);
     }
     public override void State_Listen_RoleSendEmoji(ActorManager actor, Emoji emoji, float distance)
     {
+        if (brainManager.allClient_actorManager_AttackTarget != null || brainManager.allClient_actorManager_ThreatenedTarget != null)
+        {
+            return;
+        }
         if (actionManager.HearTo(actor, distance))
         {
-            switch (emoji)
+            if (emoji == Emoji.Yell)
             {
-                case Emoji.Yell:
-                    if (brainManager.allClient_actorManager_AttackTarget == null)
-                    {
-                        brainManager.SetSearch(actor.pathManager.vector3Int_CurPos);
-                        State_TryToSendEmoji(0, Emoji.Puzzled);
-                        State_Search();
-                        pathManager.State_MovePostion(actor.pathManager.vector3Int_CurPos);
-                    }
-                    break;
+                State_TryToSendEmoji(0.5f, Emoji.Puzzled);
+                State_Follow(actor.pathManager.vector3Int_CurPos);
             }
         }
         base.State_Listen_RoleSendEmoji(actor, emoji, distance);
     }
-    public override void State_Listen_RoleInView(ActorManager actor)
-    {
-        brainManager.actorManagers_Nearby.Add(actor);
-        base.State_Listen_RoleInView(actor);
-    }
-    public override void State_Listen_RoleOutView(ActorManager actor)
-    {
-        brainManager.actorManagers_Nearby.Remove(actor);
-        base.State_Listen_RoleInView(actor);
-    }
-    public override void State_Listen_ItemInView(ItemNetObj obj)
-    {
-        brainManager.ItemNetObj_Nearby.Add(obj);
-        base.State_Listen_ItemInView(obj);
-    }
-    public override void State_Listen_ItemOutView(ItemNetObj obj)
-    {
-        brainManager.ItemNetObj_Nearby.Remove(obj);
-        base.State_Listen_ItemOutView(obj);
-    }
+    #endregion
+    #region//检查
     /// <summary>
     /// 检查附近
     /// </summary>
-    public void State_CheckNearby()
+    public override void State_CheckNearby()
     {
         if (brainManager.allClient_actorManager_AttackTarget != null)
         {
+            //存在攻击目标
             if (!actionManager.LookAt(brainManager.allClient_actorManager_AttackTarget, config.short_View))
             {
                 State_TryToSendEmoji(0, Emoji.Search);
-                State_Search();
+                State_Search(5);
                 State_OutAttack();
             }
             else
             {
-                brainManager.SetSearch(brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos);
+                brainManager.State_SetSearchPos(brainManager.allClient_actorManager_AttackTarget.pathManager.vector3Int_CurPos);
             }
+            return;
         }
         else
         {
             if (brainManager.allClient_actorManager_AttackTargetID != new Fusion.NetworkId())
             {
-                State_Search();
+                State_Search(5);
                 State_OutAttack();
             }
             State_CheckNearbyActor();
         }
+        if (brainManager.allClient_actorManager_ThreatenedTarget != null)
+        {
+            //存在威胁目标
+            if (actionManager.LookAt(brainManager.allClient_actorManager_ThreatenedTarget, State_CalculateView()))
+            {
+                State_StartRunAway(brainManager.allClient_actorManager_ThreatenedTarget.transform);
+            }
+            else
+            {
+                State_OutThreatened();
+            }
+        }
+        else
+        {
+            if (brainManager.allClient_actorManager_ThreatenedTargetID != new Fusion.NetworkId())
+            {
+                State_OutThreatened();
+            }
+            State_CheckNearbyActor();
+        }
+
     }
     /// <summary>
     /// 检查附近角色
     /// </summary>
     /// <returns>终止思考</returns>
-    private bool State_CheckNearbyActor()
+    public override bool State_CheckNearbyActor()
     {
         for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
         {
             if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], config.short_View))
             {
+                if (brainManager.actorManagers_Nearby[i].actorNetManager.Local_Fine > 100)
+                {
+                    /*发现罪犯*/
+                    State_TryToSendEmoji(0, Emoji.Attack);
+                    State_InAttack(brainManager.actorManagers_Nearby[i]);
+                    return true;
+                }
                 if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Monster_Common)
                 {
                     /*发现怪物*/
@@ -242,282 +123,131 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
                     State_InAttack(brainManager.actorManagers_Nearby[i]);
                     return true;
                 }
-                if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Human_Offender)
+            }
+        }
+        return false;
+    }
+
+    #endregion
+    #region//行为逻辑
+    /// <summary>
+    /// 根据时间决定动作(经常触发)
+    /// </summary>
+    public override void State_ThinkByTimeUpdate(int date, int hour, GlobalTime time)
+    {
+        if (time == GlobalTime.Highnoon)
+        {
+            if (!State_Think_GoForFood())
+            {
+                State_Think_GoToStroll_Long(10, 5);
+            }
+            return;
+        }
+        if (time == GlobalTime.Dusk)
+        {
+            if (!State_Think_GoToWork())
+            {
+                State_Think_GoToStroll_Long(10, 5);
+            }
+            return;
+        }
+        if (time == GlobalTime.Evening)
+        {
+            if (!State_Think_GoToSleep())
+            {
+                State_Think_GoToStroll_Long(10, 5);
+            }
+            return;
+        }
+        State_Think_GoToStroll_Long(10, 5);
+    }
+    /// <summary>
+    /// 根据时间变化决定动作(关键时间触发)
+    /// </summary>
+    public override void State_ThinkByTimeChange(int date, int hour, GlobalTime globalTime)
+    {
+        switch (globalTime)
+        {
+            case GlobalTime.Morning:
+                break;
+            case GlobalTime.Forenoon:
+                break;
+            case GlobalTime.Highnoon:
+                State_Think_FindFood();
+                break;
+            case GlobalTime.Afternoon:
+                break;
+            case GlobalTime.Dusk:
+                State_Think_FindWork();
+                break;
+            case GlobalTime.Evening:
+                State_Think_FindBed();
+                break;
+        }
+    }
+
+    public override bool State_Think_FindWork()
+    {
+        brainManager.State_ResetWorkPos();
+        for (int i = -5; i < 5; i++)
+        {
+            for (int j = -5; j < 5; j++)
+            {
+                if (MapManager.Instance.GetBuilding(brainManager.state_homePostion.position + new Vector3Int(i, j, 0), out BuildingTile buildingTile))
                 {
-                    /*发现罪犯*/
-                    State_TryToSendEmoji(0, Emoji.Attack);
-                    State_InAttack(brainManager.actorManagers_Nearby[i]);
-                    return true;
+                    if (buildingTile.tileID == 2003)
+                    {
+                        brainManager.State_SetWorkPos(brainManager.state_homePostion.position + new Vector3Int(i, j, 0));
+                        return true;
+                    }
                 }
             }
         }
         return false;
     }
-    #endregion
-    #region//拾取状态
-    /// <summary>
-    /// 检查拾取
-    /// </summary>
-    /// <returns>发现目标</returns>
-    private bool State_CheckToPickUp()
+    public override void State_Think_BetweenStroll()
     {
-        ItemNetObj target = null;
-        float distance = float.MaxValue;
-        for (int i = 0; i < brainManager.ItemNetObj_Nearby.Count; i++)
+        for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
         {
-            float temp = Vector2.Distance(transform.position, brainManager.ItemNetObj_Nearby[i].transform.position);
-            if (temp < distance)
+            if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], 5))
             {
-                distance = temp;
-                target = brainManager.ItemNetObj_Nearby[i];
+                if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Human_Common)
+                {
+                    State_TryToSendEmoji(0.5f, Emoji.Greeting, 5);
+                }
+                else if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Human_Bigwigs)
+                {
+                    State_TryToSendEmoji(0.5f, Emoji.Greeting, 5);
+                }
             }
         }
-        if (target != null)
-        {
-            /*前往目标*/
-            brainManager.ItemNetObj_Target = target;
-            return true;
-        }
-        else
-        {
-            /*没有目标*/
-            brainManager.ItemNetObj_Target = null;
-            return false;
-        }
+        base.State_Think_BetweenStroll();
     }
     /// <summary>
-    /// 前往拾取
+    /// 开始谈话
     /// </summary>
-    private void State_MoveToPickUp()
+    /// <param name="who"></param>
+    public override void State_Think_TalkStart(ActorManager who)
     {
-        if (brainManager.ItemNetObj_Target != null)
-        {
-            Vector3Int targetPos = MapManager.Instance.grid_Ground.WorldToCell(brainManager.ItemNetObj_Target.transform.position);
-            if (pathManager.State_MovePostion(targetPos))
-            {
-                State_TryToSendEmoji(0, Emoji.Happy);
-            }
-            actionManager.PickUp(1f);
-        }
+        State_RsetThinkTime(5);
+        State_TryToSendEmoji(0.2f, Emoji.Talking);
     }
-    #endregion
-    #region//战斗状态
     /// <summary>
-    /// 进入攻击状态
+    /// 结束谈话
     /// </summary>
-    /// <param name="actor"></param>
-    private void State_InAttack(ActorManager actor)
+    public override void State_Think_TalkEnd(ActorManager who)
     {
-        actorNetManager.RPC_State_NpcChangeAttackTarget(actor.actorNetManager.Object.Id);
-        State_PutOnHand((itemConfig) =>
-        {
-            if (itemConfig.Item_Type == ItemType.Weapon) return true;
-            return false;
-        });
+
     }
     /// <summary>
     /// 离开攻击状态
     /// </summary>
-    private void State_OutAttack()
+    public override void State_OutAttack()
     {
-        actorNetManager.RPC_State_NpcChangeAttackTarget(new NetworkId());
         State_PutDownHand();
-    }
-    /// <summary>
-    /// 检查攻击距离
-    /// </summary>
-    /// <returns>实际距离/射程</returns>
-    public float State_CheckingAttackingDistance()
-    {
-        float attackDistance = WeaponConfigData.GetWeaponConfig(itemManager.itemBase_OnHand.itemData.Item_ID).Distance;
-        float realDistance = Vector3.Distance(brainManager.allClient_actorManager_AttackTarget.transform.position, transform.position);
-        return realDistance / attackDistance;
-    }
-    /// <summary>
-    /// 躲避
-    /// </summary>
-    private void State_Elude()
-    {
-        Vector3Int vector3 = Vector3Int.zero;
-        int random = new System.Random().Next(1, 5);
-        if (random == 1) vector3 = Vector3Int.down;
-        if (random == 2) vector3 = Vector3Int.up;
-        if (random == 3) vector3 = Vector3Int.right;
-        if (random == 4) vector3 = Vector3Int.left;
-        Vector3Int pos_R = pathManager.vector3Int_CurPos + vector3;
-        pathManager.State_MovePostion(pos_R);
-    }
-    /// <summary>
-    /// 追击
-    /// </summary>
-    /// <param name="vector2"></param>
-    private void State_Follow(Vector3Int to)
-    {
-        pathManager.State_MovePostion(to);
-    }
-    /// <summary>
-    /// 逃离
-    /// </summary>
-    /// <param name="from"></param>
-    private void State_RunAway(ActorManager from)
-    {
-        int randomX = new System.Random().Next(0, 2);
-        int randomY = new System.Random().Next(0, 2);
-        Vector3Int dirX = Vector3Int.zero;
-        Vector3Int dirY = Vector3Int.zero;
-
-        #region//首先尝试对角逃跑
-        if (from.pathManager.vector3Int_CurPos.x > pathManager.vector3Int_CurPos.x)
-        {
-            dirX += Vector3Int.left;
-        }
-        else if (from.pathManager.vector3Int_CurPos.x < pathManager.vector3Int_CurPos.x)
-        {
-            dirX += Vector3Int.right;
-        }
-        if (from.pathManager.vector3Int_CurPos.y > pathManager.vector3Int_CurPos.y)
-        {
-            dirY += Vector3Int.down;
-        }
-        else if (from.pathManager.vector3Int_CurPos.y < pathManager.vector3Int_CurPos.y)
-        {
-            dirY += Vector3Int.up;
-        }
-        if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirX + dirY)) return;
-        #endregion
-        #region//然后尝试四向逃跑
-        int distanceX = Math.Abs(from.pathManager.vector3Int_CurPos.x - pathManager.vector3Int_CurPos.x);
-        int distanceY = Math.Abs(from.pathManager.vector3Int_CurPos.y - pathManager.vector3Int_CurPos.y);
-        if (distanceX >= distanceY)
-        {
-            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirX)) return;
-            if (randomY == 0)
-            {
-                dirY = Vector3Int.up;
-            }
-            else
-            {
-                dirY = Vector3Int.down;
-            }
-            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirY)) return;
-            dirY = -dirY;
-            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirY)) return;
-        }
-        else
-        {
-            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirY)) return;
-            if (randomX == 0)
-            {
-                dirX = Vector3Int.right;
-            }
-            else
-            {
-                dirX = Vector3Int.left;
-            }
-            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirX)) return;
-            dirX = -dirX;
-            if (pathManager.State_MovePostion(pathManager.vector3Int_CurPos + dirX)) return;
-        }
-        #endregion
+        base.State_OutAttack();
     }
 
-    /// <summary>
-    /// 搜寻
-    /// </summary>
-    /// <param name="vector2"></param>
-    private void State_Search()
-    {
-        if (brainManager.searchPostion.isValue)
-        {
-            float_ThinkTimer = float_SearchTime;
-            pathManager.State_MovePostion(brainManager.searchPostion.postion);
-            brainManager.ResetSearch();
-        }
-    }
-    /// <summary>
-    /// 攻击循环
-    /// </summary>
-    public void AllClient_AttackLoop(float dt)
-    {
-        if (brainManager.allClient_actorManager_AttackTarget)
-        {
-            inputManager.Simulate_InputMousePos(brainManager.allClient_actorManager_AttackTarget.transform.position);
-            if (brainManager.bool_AttackState)
-            {
-                brainManager.bool_AttackState = !inputManager.Simulate_InputMousePress(dt, ActorInputManager.MouseInputType.PressRightThenPressLeft);
-            }
-        }
-        else
-        {
-            actionManager.FaceTo(bodyController.turnDir);
-        }
-    }
-    #endregion
-    #region//闲置状态
-    /// <summary>
-    /// 思考该做什么
-    /// </summary>
-    private void State_Think()
-    {
-        if (brainManager.globalTime_Now == globalTime_Work && brainManager.workPostion.isValue)
-        {
-            if (brainManager.workPostion.postion != pathManager.vector3Int_CurPos)
-            {
-                State_Think_GoToWork();
-            }
-        }
-        else
-        {
-            State_Think_Stroll(3);
-        }
-    }
-    /// <summary>
-    /// 去工作
-    /// </summary>
-    private void State_Think_GoToWork()
-    {
-        pathManager.State_MovePostion(brainManager.workPostion.postion);
-    }
-    /// <summary>
-    /// 闲逛
-    /// </summary>
-    private void State_Think_Stroll(int distance, int tryTime = 0)
-    {
-        if (distance < 1 || tryTime > 3)
-        {
-            /*闲逛失败*/
-            State_TryToSendEmoji(0.1f, Emoji.Search);
-        }
-        else
-        {
-            Vector3Int random = new Vector3Int(new System.Random().Next(-distance, distance + 1), new System.Random().Next(-distance, distance + 1));
-            Vector3Int offset = Vector3Int.zero;
-            if (brainManager.activityPostion.isValue)
-            {
-                if (brainManager.activityPostion.postion.x - pathManager.vector3Int_CurPos.x > 5)
-                {
-                    offset += Vector3Int.right;
-                }
-                if (brainManager.activityPostion.postion.x - pathManager.vector3Int_CurPos.x < -5)
-                {
-                    offset += Vector3Int.left;
-                }
-                if (brainManager.activityPostion.postion.y - pathManager.vector3Int_CurPos.y > 5)
-                {
-                    offset += Vector3Int.up;
-                }
-                if (brainManager.activityPostion.postion.y - pathManager.vector3Int_CurPos.y < -5)
-                {
-                    offset += Vector3Int.down;
-                }
-            }
-            if (!pathManager.State_MovePostion(pathManager.vector3Int_CurPos + random + offset, distance * 3))
-            {
-                /*无法抵达*/
-                State_Think_Stroll(distance - 1, tryTime + 1);
-            }
-        }
-    }
     #endregion
     #region//交互
     /// <summary>
@@ -611,19 +341,9 @@ public class ActorManager_NPC_Hunter : ActorManager_NPC
     /// <returns></returns>
     public override int Local_Offer(ItemData itemData)
     {
-        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.Item_ID);
-        int offer = itemConfig.Item_Value * itemData.Item_Count / 2 + 1;
+        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.I);
+        int offer = itemConfig.Item_Value * itemData.C / 2 + 1;
         return offer;
-    }
-    #endregion
-    #region//技能
-    private void AllClient_WorkStart()
-    {
-        bodyController.SetAnimatorBool(BodyPart.Hand, "Work", true);
-    }
-    private void AllClient_WorkOver()
-    {
-        bodyController.SetAnimatorBool(BodyPart.Hand, "Work", false);
     }
     #endregion
 }

@@ -49,7 +49,7 @@ public class TileUI_BoxFreeze : TileUI
         {
             if (i < buildingObj_Bind.itemDatas_List.Count)
             {
-                if (buildingObj_Bind.itemDatas_List[i].Item_ID != 0)
+                if (buildingObj_Bind.itemDatas_List[i].I != 0)
                 {
                     gridCells_List[i].UpdateData(buildingObj_Bind.itemDatas_List[i]);
                 }
@@ -66,14 +66,14 @@ public class TileUI_BoxFreeze : TileUI
     }
     public void PutIn(ItemData addData, ItemPath path)
     {
-        ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.Item_ID);
+        ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.I);
         if (itemConfig.Item_Type == ItemType.Food || itemConfig.Item_Type == ItemType.Dishes) 
         {
-            addData.Item_Info = 0;
+            addData.V = 0;
         }
 
         GameToolManager.Instance.PutInItemList(buildingObj_Bind.itemDatas_List, addData, path.itemIndex, gridCells_List.Count, out ItemData resData);
-        if (resData.Item_ID > 0 && resData.Item_Count != 0)
+        if (resData.I > 0 && resData.C != 0)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
@@ -88,10 +88,10 @@ public class TileUI_BoxFreeze : TileUI
         ItemData itemData_New = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
         buildingObj_Bind.itemDatas_List = GameToolManager.Instance.ChangeItemList(buildingObj_Bind.itemDatas_List, itemData_New, itemPath.itemIndex);
 
-        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData_Out.Item_ID);
+        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData_Out.I);
         if (itemConfig.Item_Type == ItemType.Food || itemConfig.Item_Type == ItemType.Dishes)
         {
-            itemData_Out.Item_Info = 100;
+            itemData_Out.V = 100;
         }
 
         buildingObj_Bind.WriteInfo();

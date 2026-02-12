@@ -29,7 +29,8 @@ public class BuildingObj_Supply : BuildingObj
         {
             All_UpdateTime(_.hour + _.day * 10);
         }).AddTo(this);
-        All_UpdateTime(MapManager.Instance.mapNetManager.Day * 10 + MapManager.Instance.mapNetManager.Hour);
+        WorldManager.Instance.GetTime(out int day, out int hour, out _);
+        All_UpdateTime(day * 10 + hour);
     }
     #region//信息更新与上传
     public override void All_UpdateInfo(string info)
@@ -76,23 +77,23 @@ public class BuildingObj_Supply : BuildingObj
     }
     #endregion
     #region//瓦片交互
-    public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
+    public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseUI(tileUI_Bind == null);
         }
-        base.All_ActorInputKeycode(actor, code);
+        base.Local_ActorInputKeycode(actor, code);
     }
-    public override void All_PlayerHighlight(bool on)
+    public override void Local_PlayerHighlight(bool on)
     {
         OpenOrCloseHighlightUI(on);
-        base.All_PlayerHighlight(on);
+        base.Local_PlayerHighlight(on);
     }
-    public override void All_PlayerFaraway()
+    public override void Local_PlayerFaraway()
     {
         OpenOrCloseUI(false);
-        base.All_PlayerFaraway();
+        base.Local_PlayerFaraway();
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {

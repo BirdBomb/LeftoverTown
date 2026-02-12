@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -27,6 +28,12 @@ public class GameUI_Status : MonoBehaviour
     public Text text_San;
     [Header("精神条")]
     public Transform bar_San;
+    [Header("建造")]
+    public Text text_CreateCount;
+    [Header("技能")]
+    public Text text_SkillPoint;
+    [Header("背包")]
+    public Text text_BagCount;
     [Header("护甲")]
     public Text text_Armor;
     [Header("魔抗")]
@@ -51,12 +58,11 @@ public class GameUI_Status : MonoBehaviour
     {
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateExpData>().Subscribe(_ =>
         {
-            Debug.Log("aaaaaaaaaaaaaaaaaaaaa");
             text_Lv.text = _.Level.ToString();
             text_Lv.transform.DOShakePosition(0.1f, 5);
-            text_Exp.text = (_.Exp_Cur + "/" + _.Exp_Max).ToString();
+            text_Exp.text = (_.Exp_Cur + "/" + _.Exp_Capacity).ToString();
             bar_Exp.DOKill();
-            bar_Exp.DOScaleX(((float)_.Exp_Cur + 0.1f) / ((float)_.Exp_Max + 0.1f), 0.1f);
+            bar_Exp.DOScaleX(((float)_.Exp_Cur + 0.1f) / ((float)_.Exp_Capacity + 0.1f), 0.1f);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateHPData>().Subscribe(_ =>
         {
@@ -107,17 +113,29 @@ public class GameUI_Status : MonoBehaviour
                 text_Fine.transform.DOShakeRotation(0.1f, new Vector3(0, 0, 30));
             });
         }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateCreateCount>().Subscribe(_ =>
+        {
+            text_CreateCount.text = _.Count.ToString();
+        }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateSkill>().Subscribe(_ =>
+        {
+            text_SkillPoint.text = _.Point.ToString();
+        }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
+        {
+            text_BagCount.text = _.itemCount.ToString();
+        }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdatePing>().Subscribe(_ =>
         {
             text_Ping.text = ((int)(_.ping * 1000)).ToString();
         }).AddTo(this);
-        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateBuffList>().Subscribe(_ =>
+        MessageBroker.Default.Receive<UIEvent.UIEvent_ClearBuff>().Subscribe(_ =>
         {
-            ResetBuffIcon(_.buffList);
+            ClearBuffIcon();
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_AddBuff>().Subscribe(_ =>
         {
-            CreateBuffIcon(_.buffData);
+            CreateBuffIcon(_.buffID,_.image,_.desc);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_SubBuff>().Subscribe(_ =>
         {
@@ -131,7 +149,10 @@ public class GameUI_Status : MonoBehaviour
         text_Fine.text = val_Fine.ToString();
     }
     #region//Buff
-    private void ResetBuffIcon(List<BuffData> buffDatas)
+    /// <summary>
+    /// 清除BuffIcon
+    /// </summary>
+    private void ClearBuffIcon()
     {
         for(int i = 0; i< BuffIconList.Count; i++)
         {
@@ -142,29 +163,32 @@ public class GameUI_Status : MonoBehaviour
         }
         BuffIconDic.Clear();
         BuffIconList.Clear();
-        for (int i = 0; i < buffDatas.Count; i++)
-        {
-            CreateBuffIcon(buffDatas[i]);
-        }
     }
-    private void CreateBuffIcon(BuffData buffData)
+    /// <summary>
+    /// 创建BuffIcon
+    /// </summary>
+    /// <param name="buffData"></param>
+    /// <param name="image"></param>
+    /// <param name="desc"></param>
+    private void CreateBuffIcon(BuffData buffData, string image,string desc)
     {
-        BuffConfig buffConfig = BuffConfigData.GetBuffConfig(buffData.BuffID);
-        if (buffConfig.Buff_Icon && !BuffIconDic.ContainsKey(buffData.BuffID))
+        if (!BuffIconDic.ContainsKey(buffData.BuffID))
         {
             GameObject gameObject = Instantiate(pref_BuffIcon);
-            UI_BuffIcon buffIcon = gameObject.GetComponent<UI_BuffIcon>();
-            buffIcon.DrawIcon(spriteAtlas_Buff.GetSprite("Buff" + buffData.BuffID));
             BuffIconDic.Add(buffData.BuffID, gameObject);
             BuffIconList.Add(buffData.BuffID);
             gameObject.transform.SetParent(transform_BuffPanel);
             gameObject.transform.localScale = Vector3.one;
         }
+        BuffIconDic[buffData.BuffID].GetComponent<UI_BuffIcon>().InitIcon(spriteAtlas_Buff.GetSprite(image), desc);
     }
+    /// <summary>
+    /// 删除BuffIcon
+    /// </summary>
+    /// <param name="buffID"></param>
     private void DestroyBuffIcon(short buffID)
     {
-        BuffConfig buffConfig = BuffConfigData.GetBuffConfig(buffID);
-        if (buffConfig.Buff_Icon && BuffIconDic.ContainsKey(buffID))
+        if (BuffIconDic.ContainsKey(buffID))
         {
             Destroy(BuffIconDic[buffID]);
             BuffIconDic.Remove(buffID);

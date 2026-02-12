@@ -91,7 +91,7 @@ public class Bullet_Arrow : BulletBase
                     if (!actorManagers_Ignore.Contains(actor))
                     {
                         actorManagers_Ignore.Add(actor);
-                        GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_Blood");
+                        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Blood");
                         effect.GetComponent<EffectBase>().SetEffect(vectoe3_MoveDir);
                         effect.transform.position = actor.transform.position;
                         Attack(actor);
@@ -113,17 +113,21 @@ public class Bullet_Arrow : BulletBase
         {
             if (float_BulletAttackDemage > 0)
             {
-                actor.AllClient_Listen_TakeDamage(float_BulletAttackDemage, DamageState.AttackPiercingDamage, actorManager_Owner.actorNetManager);
+                GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+                effect.GetComponent<Effect_Impact>().PlayPiercing(vectoe3_MoveDir);
+                effect.transform.position = actor.transform.position;
+
+                actor.actorHpManager.TakeDamage(float_BulletAttackDemage, DamageState.AttackPiercingDamage, actorManager_Owner.actorNetManager);
             }
             if (float_BulletMagicDemage > 0)
             {
-                actor.AllClient_Listen_TakeDamage(float_BulletMagicDemage, DamageState.MagicDamage, actorManager_Owner.actorNetManager);
+                actor.actorHpManager.TakeDamage(float_BulletMagicDemage, DamageState.MagicDamage, actorManager_Owner.actorNetManager);
             }
         }
     }
     private void Boom(Vector2 pos)
     {
-        GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_WoodBoom");
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_WoodBoom");
         effect.transform.localScale = new Vector3(1 - (2 * new System.Random().Next(0, 2)), 1, 1);
         effect.transform.position = pos;
         if (float_BulletSpeed > 0)
@@ -140,7 +144,7 @@ public class Bullet_Arrow : BulletBase
             {
                 Type type = Type.GetType("Item_" + int_ArrowID.ToString());
                 ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(int_ArrowID, out ItemData initData);
-                initData.Item_Count = 1;
+                initData.C = 1;
                 MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
                 {
                     itemData = initData,

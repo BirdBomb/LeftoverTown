@@ -13,6 +13,7 @@ public class FuelConfigData
         new FuelConfig(){FuelID = 1000,FuelSecond = 10},
         new FuelConfig(){FuelID = 1001,FuelSecond = 10},
         new FuelConfig(){FuelID = 1011,FuelSecond = 60},
+        new FuelConfig(){FuelID = 1111,FuelSecond = 20},
     };
 }
 public struct FuelConfig

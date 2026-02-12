@@ -86,6 +86,12 @@ public class Item_1002 : ItemBase_Materials
 {
 }
 /// <summary>
+/// 花
+/// </summary>
+public class Item_1003 : ItemBase_Materials
+{
+}
+/// <summary>
 /// 石头
 /// </summary>
 public class Item_1010 : ItemBase_Materials
@@ -98,45 +104,39 @@ public class Item_1011 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 金矿石
+/// 硝石
 /// </summary>
 public class Item_1012 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 铁矿石
+/// 铜矿
 /// </summary>
 public class Item_1013 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 高能矿
+/// 铁矿
 /// </summary>
 public class Item_1014 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 翡翠原石
+/// 金矿
 /// </summary>
 public class Item_1015 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 硝矿
+/// 骨头
 /// </summary>
-public class Item_1016 : ItemBase_Materials
+public class Item_1021 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 红水晶原石
+/// 毛皮
 /// </summary>
-public class Item_1017 : ItemBase_Materials
-{
-}
-/// <summary>
-/// 蛋白原石
-/// </summary>
-public class Item_1018 : ItemBase_Materials
+public class Item_1022 : ItemBase_Materials
 {
 }
 #endregion
@@ -154,45 +154,39 @@ public class Item_1101 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 铁锭
+/// 
 /// </summary>
 public class Item_1110 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 金锭
+/// 煤粉
 /// </summary>
 public class Item_1111 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 高能水晶
+/// 硝粉
 /// </summary>
 public class Item_1112 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 翡翠
+/// 铜锭
 /// </summary>
 public class Item_1113 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 硝石碎块
+/// 铁锭
 /// </summary>
 public class Item_1114 : ItemBase_Materials
 {
 }
 /// <summary>
-/// 红水晶
+/// 金锭
 /// </summary>
 public class Item_1115 : ItemBase_Materials
-{
-}
-/// <summary>
-/// 蛋白石
-/// </summary>
-public class Item_1116 : ItemBase_Materials
 {
 }
 #endregion

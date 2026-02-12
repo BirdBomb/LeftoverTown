@@ -100,8 +100,11 @@ public class TileUI_CreateItem : TileUI
                 ItemConfig itemConfig = ItemConfigData.GetItemConfig(createRawConfig.Create_TargetID);
                 Sprite icon = spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString());
                 Sprite bg = spriteAtlas_ItemBG.GetSprite("ItemBG_" + (int)itemConfig.Item_Rarity);
-                string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-                string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+
+                string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+                string itemName = parts.Length > 0 ? parts[0] : "Error";
+                string itemDesc = parts.Length > 1 ? parts[1] : "Error";
+
                 itemCells_PoolIcon[i].DrawCellInfo(createRawConfig.Create_TargetCount.ToString(), itemName, itemDesc, itemConfig.Item_Rarity);
                 if (CheckRaw(createRawConfig.Create_RawList))
                 {
@@ -149,18 +152,20 @@ public class TileUI_CreateItem : TileUI
                     ItemConfig itemConfig = ItemConfigData.GetItemConfig(createRawConfig_Temp.Create_RawList[i].ID);
                     Sprite icon = spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString());
                     Sprite bg = spriteAtlas_ItemBG.GetSprite("ItemBG_" + (int)itemConfig.Item_Rarity);
-                    List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+                    List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
                     int itemCount = 0;
                     for (int k = 0; k < itemDatas.Count; k++)
                     {
-                        if (itemDatas[k].Item_ID == createRawConfig_Temp.Create_RawList[i].ID)
+                        if (itemDatas[k].I == createRawConfig_Temp.Create_RawList[i].ID)
                         {
-                            itemCount += itemDatas[k].Item_Count;
+                            itemCount += itemDatas[k].C;
                         }
                     }
                     string info_temp = itemCount.ToString() + "/" + createRawConfig_Temp.Create_RawList[i].Count.ToString();
-                    string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-                    string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+
+                    string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+                    string itemName = parts.Length > 0 ? parts[0] : "Error";
+                    string itemDesc = parts.Length > 1 ? parts[1] : "Error";
                     itemCells_RawIcon[i].DrawCellInfo(info_temp, itemName, itemDesc, itemConfig.Item_Rarity);
                     if (itemCount < createRawConfig_Temp.Create_RawList[i].Count)
                     {
@@ -226,7 +231,7 @@ public class TileUI_CreateItem : TileUI
             ExpendRaw(createRawConfig.Create_RawList);
             Type type = Type.GetType("Item_" + createRawConfig.Create_TargetID.ToString());
             ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData((short)createRawConfig.Create_TargetID, out ItemData initData);
-            initData.Item_Count = (short)createRawConfig.Create_TargetCount;
+            initData.C = (short)createRawConfig.Create_TargetCount;
             AudioManager.Instance.Play2DEffect(1000);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
@@ -249,16 +254,16 @@ public class TileUI_CreateItem : TileUI
     {
         if (raws == null) { return false; }
         bool temp = true;
-        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < raws.Count; i++)
         {
             ItemConfig itemConfig = ItemConfigData.GetItemConfig(raws[i].ID);
             int itemCount = 0;
             for (int j = 0; j < itemDatas.Count; j++)
             {
-                if (itemDatas[j].Item_ID == raws[i].ID)
+                if (itemDatas[j].I == raws[i].ID)
                 {
-                    itemCount += itemDatas[j].Item_Count;
+                    itemCount += itemDatas[j].C;
                 }
             }
             if (itemCount < raws[i].Count)

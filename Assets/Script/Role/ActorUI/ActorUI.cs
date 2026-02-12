@@ -24,6 +24,7 @@ public class ActorUI : MonoBehaviour
     {
         transform_HPBar.localScale = new Vector3(val, 1, 1);
     }
+    #region//Emoji
     public void SendEmoji(Emoji emoji)
     {
         if (!transform_Singal.gameObject.activeSelf)
@@ -31,7 +32,15 @@ public class ActorUI : MonoBehaviour
             transform_Emoji.transform.DOKill();
             transform_Emoji.transform.localScale = Vector3.zero;
             transform_Emoji.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
-            spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite("Emoji_" + (int)emoji);
+            if (emoji == Emoji.Talking)
+            {
+                int random = new System.Random().Next(0, 10);
+                spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite("Emoji_" + (int)emoji + "_" + random);
+            }
+            else
+            {
+                spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite("Emoji_" + (int)emoji);
+            }
             textMeshPro_Text.text = "";
             if (IsInvoking("ResetEmoji"))
             {
@@ -45,6 +54,8 @@ public class ActorUI : MonoBehaviour
         transform_Emoji.transform.DOScale(Vector3.zero, 0.25f);
         textMeshPro_Text.text = "";
     }
+    #endregion
+    #region//Text
     public void SendText(string text)
     {
         if (!transform_Singal.gameObject.activeSelf)
@@ -65,6 +76,8 @@ public class ActorUI : MonoBehaviour
         transform_Bubble.transform.DOScale(Vector3.zero, 0.25f);
         textMeshPro_Text.text = "";
     }
+    #endregion
+    #region//Name
     public void ShowName(string str)
     {
         if (!str.Equals(""))
@@ -72,6 +85,8 @@ public class ActorUI : MonoBehaviour
             textMeshPro_Name.text = str;
         }
     }
+    #endregion
+    #region//Singal
     public void ShowSingal()
     {
         ResetEmoji();
@@ -85,6 +100,11 @@ public class ActorUI : MonoBehaviour
             CancelInvoke("HideSingal");
         }
         Invoke("HideSingal", 5);
+    }
+    public void HideSingal()
+    {
+        transform_Singal.gameObject.SetActive(false);
+        textMeshPro_Text.text = "";
     }
     public void ShowSingalR()
     {
@@ -108,11 +128,8 @@ public class ActorUI : MonoBehaviour
         transform_Singal.transform.localScale = Vector3.one;
         transform_Singal.DOPunchScale(new Vector3(-0.1f, 0.1f, 0), 0.2f);
     }
-    public void HideSingal()
-    {
-        transform_Singal.gameObject.SetActive(false);
-        textMeshPro_Text.text = "";
-    }
+
+    #endregion
 }
 public enum Emoji
 {
@@ -156,4 +173,12 @@ public enum Emoji
     /// ËÑÑ°
     /// </summary>
     Search,
+    /// <summary>
+    /// ¿ªÊ¼ÏÐÁÄ
+    /// </summary>
+    Talking,
+    /// <summary>
+    /// ½áÊøÏÐÁÄ
+    /// </summary>
+    TalkEnd,
 }

@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -11,26 +12,20 @@ using UnityEngine.UI;
 
 public class GameUI_Build : MonoBehaviour
 {
+    private bool bool_Awake = false;
     private List<BuildingConfig> buildingConfigs_TempList = new List<BuildingConfig>();
     private List<GroundConfig> groundConfigs_TempList = new List<GroundConfig>();
     public Transform tran_Panel;
     public Transform tran_ShowBtn;
     public void Start()
     {
-        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(async _ =>
         {
-            DrawBuildingList();
-            if (index >= 0)
+            if (bool_Awake)
             {
-                if (CurType == BuildingType.Ground)
-                {
-                    DrawBuildingRaw(buildingConfig_Temp, index);
-                }
-                else
-                {
-                    DrawBuildingRaw(groundConfig_Temp, index);
-                }
+                DrawBuildingList();
             }
+            await CheckBuildConfigAsync(_.itemDatas);
         }).AddTo(this);
 
         button_LastPage.onClick.AddListener(ClickLastPageBtn);
@@ -65,14 +60,17 @@ public class GameUI_Build : MonoBehaviour
     }
     private void ShowPanel()
     {
+        bool_Awake = true;
         tran_ShowBtn.gameObject.SetActive(false);
         tran_Panel.gameObject.SetActive(true);
         tran_Panel.DOKill();
         tran_Panel.localScale = Vector3.one;
         tran_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.2f);
+        DrawBuildingList();
     }
     private void HidePanel()
     {
+        bool_Awake = false;
         tran_ShowBtn.gameObject.SetActive(true);
         tran_Panel.gameObject.SetActive(false);
         DrawBuildingRaw(new BuildingConfig(), 0);
@@ -278,6 +276,9 @@ public class GameUI_Build : MonoBehaviour
         CurPage = 0;
         DrawBuildingList();
     }
+    /// <summary>
+    /// 绘制建筑列表
+    /// </summary>
     private void DrawBuildingList()
     {
         textMeshProUGUI_Page.text = CurPage.ToString();
@@ -348,12 +349,12 @@ public class GameUI_Build : MonoBehaviour
     private void ClickBuildingBtn(BuildingConfig buildingConfig, int index)
     {
         DrawBuildingRaw(buildingConfig, index);
-        MapPreviewManager.Instance.Init(buildingConfig, MapPreviewManager.BuildState.TryBuildBuilding);
+        MapPreviewManager.Instance.Local_Init(buildingConfig, MapPreviewManager.BuildState.TryBuildBuilding);
     }
     private void ClickBuildingBtn(GroundConfig groundConfig, int index)
     {
         DrawBuildingRaw(groundConfig, index);
-        MapPreviewManager.Instance.Init(groundConfig, MapPreviewManager.BuildState.TryBuildFloor);
+        MapPreviewManager.Instance.Local_Init(groundConfig, MapPreviewManager.BuildState.TryBuildFloor);
     }
 
     #endregion
@@ -369,6 +370,11 @@ public class GameUI_Build : MonoBehaviour
     private BuildingConfig buildingConfig_Temp;
     private GroundConfig groundConfig_Temp;
     private int index = -1;
+    /// <summary>
+    /// 绘制建筑原料
+    /// </summary>
+    /// <param name="config"></param>
+    /// <param name="index"></param>
     private void DrawBuildingRaw(BuildingConfig config, int index)
     {
         buildingConfig_Temp = config;
@@ -379,8 +385,8 @@ public class GameUI_Build : MonoBehaviour
         }
         if (config.Building_ID > 0 && buildingConfigs_TempList.Count > index && buildingConfigs_TempList[index + CurPage * buttons_Icon.Count].Equals(config))
         {
-            text_TargetName.text = LocalizationManager.Instance.GetLocalization("Building_String", config.Building_ID + "_Name"); 
-            CheckBuildingRaw(config);
+            text_TargetName.text = LocalizationManager.Instance.GetLocalization("Building_String", "Building_" + config.Building_ID); 
+            CheckAndDrawBuildingRaw(config);
         }
         else
         {
@@ -391,13 +397,18 @@ public class GameUI_Build : MonoBehaviour
             }
         }
     }
+    /// <summary>
+    /// 检查建筑原料
+    /// </summary>
+    /// <param name="config"></param>
+    /// <returns></returns>
     private bool CheckBuildingRaw(BuildingConfig config)
     {
         bool temp = true;
         List<ItemData> itemDatas;
-        if (GameLocalManager.Instance.playerCoreLocal != null)
+        if (WorldManager.Instance.playerCoreLocal != null)
         {
-            itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+            itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         }
         else
         {
@@ -409,33 +420,70 @@ public class GameUI_Build : MonoBehaviour
             int itemCount = 0;
             for (int j = 0; j < itemDatas.Count; j++)
             {
-                if (itemDatas[j].Item_ID == config.Building_Raw[i].ID)
+                if (itemDatas[j].I == config.Building_Raw[i].ID)
                 {
-                    itemCount += itemDatas[j].Item_Count;
+                    itemCount += itemDatas[j].C;
+                }
+            }
+            if (itemCount < config.Building_Raw[i].Count)
+            {
+                temp = false;
+            }
+        }
+        return temp;
+    }
+    /// <summary>
+    /// 检查建筑原料然后绘制
+    /// </summary>
+    /// <param name="config"></param>
+    private void CheckAndDrawBuildingRaw(BuildingConfig config)
+    {
+        List<ItemData> itemDatas;
+        if (WorldManager.Instance.playerCoreLocal != null)
+        {
+            itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        }
+        else
+        {
+            itemDatas = new List<ItemData>();
+        }
+        for (int i = 0; i < config.Building_Raw.Count; i++)
+        {
+            ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Building_Raw[i].ID);
+            int itemCount = 0;
+            for (int j = 0; j < itemDatas.Count; j++)
+            {
+                if (itemDatas[j].I == config.Building_Raw[i].ID)
+                {
+                    itemCount += itemDatas[j].C;
                 }
             }
             string info = itemCount.ToString() + "/" + config.Building_Raw[i].Count.ToString();
             Sprite sprite_Icon = spriteAtlas_Item.GetSprite("Item_" + itemConfig.Item_ID.ToString());
             Sprite sprite_BG = spriteAtlas_ItemBG.GetSprite("ItemBG_" + (int)itemConfig.Item_Rarity);
-            string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-            string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+
+            string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+            string itemName = parts.Length > 0 ? parts[0] : "Error";
+            string itemDesc = parts.Length > 1 ? parts[1] : "Error";
+
             itemCells_TargetRawList[i].DrawCellInfo(info, itemName, itemDesc, itemConfig.Item_Rarity);
             if (itemCount < config.Building_Raw[i].Count)
             {
-                temp = false;
                 itemCells_TargetRawList[i].DrawCellIcon(sprite_Icon, Color.red, sprite_BG, Color.red);
             }
             else
             {
-                temp = true;
                 itemCells_TargetRawList[i].DrawCellIcon(sprite_Icon, Color.white, sprite_BG, Color.white);
             }
         }
-        return temp;
     }
+    /// <summary>
+    /// 绘制地板原料
+    /// </summary>
+    /// <param name="config"></param>
+    /// <param name="index"></param>
     private void DrawBuildingRaw(GroundConfig config, int index)
     {
-        Debug.Log(index + "/" + groundConfigs_TempList.Count + "//" + config.Ground_ID);
         groundConfig_Temp = config;
         this.index = index;
         for (int i = 0; i < itemCells_TargetRawList.Count; i++)
@@ -444,49 +492,152 @@ public class GameUI_Build : MonoBehaviour
         }
         if (config.Ground_ID > 0 && groundConfigs_TempList.Count > index && groundConfigs_TempList[index + CurPage * buttons_Icon.Count].Equals(config))
         {
-            text_TargetName.text = LocalizationManager.Instance.GetLocalization("Ground_String", config.Ground_ID + "_Name");
-            CheckBuildingRaw(config);
+            text_TargetName.text = LocalizationManager.Instance.GetLocalization("Ground_String", "Ground_" + config.Ground_ID);
+
+            CheckAndDrawBuildingRaw(config);
         }
         else
         {
             text_TargetName.text = "";
         }
     }
+    /// <summary>
+    /// 检查地板原料
+    /// </summary>
+    /// <param name="config"></param>
+    /// <returns></returns>
     private bool CheckBuildingRaw(GroundConfig config)
     {
         bool temp = true;
-        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < config.Ground_Raw.Count; i++)
         {
             ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Ground_Raw[i].ID);
             int itemCount = 0;
             for (int j = 0; j < itemDatas.Count; j++)
             {
-                if (itemDatas[j].Item_ID == config.Ground_Raw[i].ID)
+                if (itemDatas[j].I == config.Ground_Raw[i].ID)
                 {
-                    itemCount += itemDatas[j].Item_Count;
+                    itemCount += itemDatas[j].C;
+                }
+            }
+            if (itemCount < config.Ground_Raw[i].Count)
+            {
+                temp = false;
+            }
+        }
+        return temp;
+    }
+    /// <summary>
+    /// 检查地板原料然后绘制
+    /// </summary>
+    /// <param name="config"></param>
+    /// <returns></returns>
+    private void CheckAndDrawBuildingRaw(GroundConfig config)
+    {
+        List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        for (int i = 0; i < config.Ground_Raw.Count; i++)
+        {
+            ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Ground_Raw[i].ID);
+            int itemCount = 0;
+            for (int j = 0; j < itemDatas.Count; j++)
+            {
+                if (itemDatas[j].I == config.Ground_Raw[i].ID)
+                {
+                    itemCount += itemDatas[j].C;
                 }
             }
             string info = itemCount.ToString() + "/" + config.Ground_Raw[i].Count.ToString();
             Sprite sprite_Icon = spriteAtlas_Item.GetSprite("Item_" + itemConfig.Item_ID.ToString());
             Sprite sprite_BG = spriteAtlas_ItemBG.GetSprite("ItemBG_" + (int)itemConfig.Item_Rarity);
+
+            string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+            string itemName = parts.Length > 0 ? parts[0] : "Error";
+            string itemDesc = parts.Length > 1 ? parts[1] : "Error";
+
+            itemCells_TargetRawList[i].DrawCellInfo(info, itemName, itemDesc, itemConfig.Item_Rarity);
             if (itemCount < config.Ground_Raw[i].Count)
             {
-                temp = false;
-                string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-                string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
                 itemCells_TargetRawList[i].DrawCellIcon(sprite_Icon, Color.red, sprite_BG, Color.red);
-                itemCells_TargetRawList[i].DrawCellInfo(info, itemName, itemDesc, itemConfig.Item_Rarity);
             }
             else
             {
-                string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-                string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
                 itemCells_TargetRawList[i].DrawCellIcon(sprite_Icon, Color.white, sprite_BG, Color.white);
-                itemCells_TargetRawList[i].DrawCellInfo(info, itemName, itemDesc, itemConfig.Item_Rarity);
             }
         }
-        return temp;
+    }
+    #endregion
+
+    #region//检查全部建筑
+    /// <summary>
+    /// 建筑池
+    /// </summary>
+    public List<BuildingConfig> buildingConfigs_Pool = new List<BuildingConfig>();
+    /// <summary>
+    /// 原料池
+    /// </summary>
+    public List<ItemRaw> itemRaws_Pool = new List<ItemRaw>();
+    /// <summary>
+    /// 检查可建造建筑(异步)
+    /// </summary>
+    /// <param name="itemDatas"></param>
+    public async Task CheckBuildConfigAsync(List<ItemData> itemDatas)
+    {
+        int index = 0;
+        itemRaws_Pool.Clear();
+        if (buildingConfigs_Pool.Count == 0)
+        {
+            buildingConfigs_Pool = BuildingConfigData.buildConfigs.FindAll((x) =>
+            {
+                return x.Building_ID >= 3000 && x.Building_ID <= 9999;
+            });
+        }
+        for (int i = 0; i < itemDatas.Count; i++)/*统计原料*/
+        {
+            bool hasRaw = false;
+            for (int j = 0; j < itemRaws_Pool.Count; j++)
+            {
+                if (itemRaws_Pool[j].ID == itemDatas[i].I)
+                {
+                    hasRaw = true;
+                    int count = itemRaws_Pool[j].Count + itemDatas[i].C;
+                    itemRaws_Pool[j] = new ItemRaw(itemRaws_Pool[j].ID, count);
+                }
+            }
+            if (!hasRaw)
+            {
+                itemRaws_Pool.Add(new ItemRaw(itemDatas[i].I, itemDatas[i].C));
+            }
+        }
+
+        for (int i = 0; i < buildingConfigs_Pool.Count; i++)/*遍历建筑*/
+        {
+            bool temp = true;
+            if (i % 10 == 0) { await Task.Yield(); }
+            BuildingConfig config = buildingConfigs_Pool[i];
+            for (int j = 0; j < config.Building_Raw.Count; j++)
+            {
+                ItemRaw itemRaw = itemRaws_Pool.Find((x) => { return x.ID == config.Building_Raw[j].ID; });
+                if(itemRaw.ID == 0) /*没有原料*/
+                {
+                    temp = false;
+                    continue; 
+                }
+                else
+                {
+                    if (itemRaw.Count < config.Building_Raw[j].Count)/*不足原料*/
+                    {
+                        temp = false;
+                        continue;
+                    }
+                }
+            }
+            if (temp) { index++; }
+        }
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateCreateCount()
+        {
+            Count = index
+        });
     }
     #endregion
 }

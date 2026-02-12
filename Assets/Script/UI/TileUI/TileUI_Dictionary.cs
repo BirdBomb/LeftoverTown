@@ -59,7 +59,7 @@ public class TileUI_Dictionary : TileUI
     }
     private void DrawSellCell()
     {
-        if (itemData_Check.Item_ID > 0)
+        if (itemData_Check.I > 0)
         {
             gridCell_Check.UpdateData(itemData_Check);
         }
@@ -114,7 +114,7 @@ public class TileUI_Dictionary : TileUI
             int temp = itemList[i];
             Debug.Log(temp);
             CreateRawConfig rawConfig = CreateRawConfigData.GetCreateRawConfig(temp);
-            if (rawConfig.Create_RawList.Find((x) => { return x.ID == itemData_Check.Item_ID; }).ID != 0)
+            if (rawConfig.Create_RawList.Find((x) => { return x.ID == itemData_Check.I; }).ID != 0)
             {
                 itemIDs_List.Add(rawConfig.Create_TargetID);
             }
@@ -134,8 +134,9 @@ public class TileUI_Dictionary : TileUI
                 ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemIDs_List[i]);
                 Sprite icon = spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString());
                 Sprite bg = spriteAtlas_ItemBG.GetSprite("ItemBG_" + (int)itemConfig.Item_Rarity);
-                string itemName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-                string itemDesc = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc");
+                string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+                string itemName = parts.Length > 0 ? parts[0] : "Error";
+                string itemDesc = parts.Length > 1 ? parts[1] : "Error";
                 itemCell_List[i].DrawCellIcon(icon, Color.gray, bg, Color.gray);
                 itemCell_List[i].DrawCellInfo("", itemName, itemDesc, itemConfig.Item_Rarity);
             }

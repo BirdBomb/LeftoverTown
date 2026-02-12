@@ -5,9 +5,13 @@ using UnityEngine;
 using System;
 using UniRx;
 
-public class NavManager : MonoBehaviour
+public class NavManager : SingleTon<NavManager>, ISingleTon
 {
     public MapManager mapManager;
+    public void Init()
+    {
+        
+    }
     /// <summary>
     /// 未选中列表
     /// </summary>
@@ -236,4 +240,5 @@ public class NavManager : MonoBehaviour
     {
         return from._temp_DistanceToFrom + Vector3.Distance(surround.tilePos, from.tilePos);
     }
+
 }

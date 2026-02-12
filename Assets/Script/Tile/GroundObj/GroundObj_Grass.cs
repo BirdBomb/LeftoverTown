@@ -341,4 +341,9 @@ public class GroundObj_Grass : GroundObj
         }
         return val;
     }
+    public override void All_ActorStandOn(ActorManager actor)
+    {
+        actor.bodyController.SetStep(40020);
+        base.All_ActorStandOn(actor);
+    }
 }

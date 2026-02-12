@@ -24,11 +24,12 @@ public class BuildingObj_Home_Rabbit : BuildingObj_Manmade
         MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
         {
             name = "Actor/Animal_Rabbit",
+
             pos = transform.position,
             callBack = ((actor) =>
             {
                 actor_Bind = actor.GetComponent<ActorManager>();
-                actor_Bind.brainManager.SetHome(buildingTile.tilePos);
+                actor_Bind.brainManager.State_SetHomePos(buildingTile.tilePos);
             })
         });
     }

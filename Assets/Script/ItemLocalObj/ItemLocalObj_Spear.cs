@@ -151,7 +151,6 @@ public class ItemLocalObj_Spear : ItemLocalObj
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
             skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, PiercingRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
@@ -160,24 +159,25 @@ public class ItemLocalObj_Spear : ItemLocalObj
                 {
                     if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        if (actor == actorManager) { continue; }
-                        else
-                        {
-                            actor.AllClient_Listen_TakeDamage(PiercingDamage, DamageState.AttackPiercingDamage, actorManager.actorNetManager);
-                            temp = AttackExpend;
-                        }
+                        if (actor != actorManager) { StabActor(actor); }
                     }
                 }
             }
-
-            AddAbrasion(temp);
         }
+    }
+    private void StabActor(ActorManager actor)
+    {
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+        effect.GetComponent<Effect_Impact>().PlayPiercing(actor.transform.position - actorManager.transform.position, true);
+        effect.transform.position = actor.transform.position;
+
+        actor.actorHpManager.TakeDamage(PiercingDamage, DamageState.AttackPiercingDamage, actorManager.actorNetManager);
+        AddAbrasion(AttackExpend);
     }
     public void Hack()
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
             skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, SlashingRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
@@ -186,17 +186,21 @@ public class ItemLocalObj_Spear : ItemLocalObj
                 {
                     if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        if (actor == actorManager) { continue; }
-                        else
-                        {
-                            actor.AllClient_Listen_TakeDamage(SlashingDamage, DamageState.AttackSlashingDamage, actorManager.actorNetManager);
-                            temp = AttackExpend;
-                        }
+                        if (actor != actorManager) { HackActor(actor); }
                     }
                 }
             }
-            AddAbrasion(temp);
+           
         }
+    }
+    private void HackActor(ActorManager actor)
+    {
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+        effect.GetComponent<Effect_Impact>().PlaySlash(actor.transform.position - actorManager.transform.position, true);
+        effect.transform.position = actor.transform.position;
+
+        actor.actorHpManager.TakeDamage(SlashingDamage, DamageState.AttackSlashingDamage, actorManager.actorNetManager);
+        AddAbrasion(AttackExpend);
     }
     /// <summary>
     /// ÀÛ¼ÆËðºÄ
@@ -213,7 +217,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
             {
                 ItemData _oldItem = itemData;
                 ItemData _newItem = itemData;
-                if (_newItem.Item_Durability - offset <= 0)
+                if (_newItem.D - offset <= 0)
                 {
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
                     {
@@ -222,7 +226,7 @@ public class ItemLocalObj_Spear : ItemLocalObj
                 }
                 else
                 {
-                    _newItem.Item_Durability -= (sbyte)offset;
+                    _newItem.D -= (sbyte)offset;
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
                     {
                         oldItem = _oldItem,

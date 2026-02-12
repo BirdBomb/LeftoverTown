@@ -1,17 +1,27 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
+using System.Reflection;
 
 public class BuildingObj_Wall : BuildingObj_Manmade
 {
-    public Sprite[] sprite;
-    public Sprite[] spriteList_0;
-    public Sprite[] spriteList_1;
-    public SpriteRenderer spriteRenderer;
-    public override void All_Draw()
+    public Sprite[] bodyList_0;
+    public Sprite[] bodyList_1;
+    public Sprite[] topList_0;
+    public SpriteRenderer sprite_Body;
+    public SpriteRenderer sprite_Top;
+    private Material material;
+    public override void Start()
     {
-        spriteRenderer.sprite = sprite[GetInde(MapManager.Instance.CheckBuilding_EightSide(buildingTile.tileID, buildingTile.tilePos))];
-        base.All_Draw();
+        material = new Material(sprite_Body.sharedMaterial);
+        sprite_Body.material = material;
+    }
+    public override void Init(int id)
+    {
+        DrawShadow();
+        base.Init(id);
     }
     private int GetInde(Around aroundState)
     {
@@ -342,4 +352,77 @@ public class BuildingObj_Wall : BuildingObj_Manmade
         }
         return val;
     }
+    public override int Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    {
+        if (damageState == DamageState.AttackStructureDamage)
+        {
+            return base.Local_TakeDamage(val, damageState, from);
+        }
+        else
+        {
+            Local_IneffectiveDamage(damageState, from);
+            return 0;
+        }
+    }
+    #region//事件
+    public override void All_OnDraw()
+    {
+        int index = GetInde(MapManager.Instance.CheckBuilding_EightSide(buildingTile.tileID, buildingTile.tilePos));
+
+        if (new System.Random().Next(0, 2) == 0)
+        {
+            sprite_Body.sprite = bodyList_0[index];
+            sprite_Top.sprite = topList_0[index];
+        }
+        else
+        {
+            sprite_Body.sprite = bodyList_1[index];
+            sprite_Top.sprite = topList_0[index];
+        }
+        base.All_OnDraw();
+    }
+    public override void All_OnDelete()
+    {
+        RemoveShadow();
+        base.All_OnDelete();
+    }
+    #endregion
+    #region//特效
+    public override void All_OnHpDown(int offset)
+    {
+        if (offset < 0)
+        {
+            All_Flash();
+        }
+        All_Shake();
+    }
+    private void All_Shake()
+    {
+        transform.DOKill();
+        transform.localScale = Vector3.one;
+        transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
+    }
+    private Sequence sequence;
+    private void All_Flash()
+    {
+        float light = 1;
+        if (sequence != null) sequence.Kill();
+        sequence = DOTween.Sequence();
+        sequence.Insert(0,
+            DOTween.To(() => light, x => light = x, 0, 0.2f).SetEase(Ease.InOutSine));
+        sequence.OnUpdate(() =>
+        { material.SetFloat("_White", light); });
+    }
+    #endregion
+    #region//阴影
+    public PolygonCollider2D polyCollider;
+    private void DrawShadow()
+    {
+        ShadowManager.Instance.AddCollider((Vector2Int)buildingTile.tilePos, polyCollider);
+    }
+    private void RemoveShadow()
+    {
+        ShadowManager.Instance.RemoveCollider((Vector2Int)buildingTile.tilePos);
+    }
+    #endregion
 }

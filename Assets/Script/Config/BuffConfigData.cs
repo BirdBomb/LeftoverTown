@@ -10,22 +10,36 @@ public class BuffConfigData : MonoBehaviour
     }
     public readonly static List<BuffConfig> buffConfigs = new List<BuffConfig>()
     {
+        /*基础Buff*/
+        new BuffConfig(){ Buff_ID = 100 },/*血量*/
+        new BuffConfig(){ Buff_ID = 101 },/*饥饿*/
+        new BuffConfig(){ Buff_ID = 102 },/*精神*/
         /*正面Buff*/
-        /*吃饱喝足(恢复精神)*/new BuffConfig(){ Buff_ID = 1000, Buff_Icon = true },
-        /*精神焕发(高速度)*/new BuffConfig(){ Buff_ID = 1001, Buff_Icon = true },
+        new BuffConfig(){ Buff_ID = 1001 },/*睡眠*/
 
         /*负面Buff*/
-        /*精神不佳(低速度)*/new BuffConfig(){ Buff_ID = 2000, Buff_Icon = true },
-        /*精神萎靡(概率原地睡眠)*/new BuffConfig(){ Buff_ID = 2001, Buff_Icon = true },
-        /*轻度饥饿(降低精神)*/new BuffConfig(){ Buff_ID = 2010, Buff_Icon = true },
-        /*极度饥饿(降低生命值)*/new BuffConfig(){ Buff_ID = 2011, Buff_Icon = true },
-        /*流血(降低生命值)*/new BuffConfig(){ Buff_ID = 2020, Buff_Icon = true },
-        /*中毒(低速度)*/new BuffConfig(){ Buff_ID = 2021, Buff_Icon = true },
-        /*天黑了*/new BuffConfig(){ Buff_ID = 2030, Buff_Icon = true },
+        new BuffConfig(){ Buff_ID = 2000 },/*精神不佳(低速度)*/
+        new BuffConfig(){ Buff_ID = 2001 },/*精神萎靡(概率原地睡眠)*/
+        new BuffConfig(){ Buff_ID = 2010 },/*轻度饥饿*/
+        new BuffConfig(){ Buff_ID = 2011 },/*极度饥饿*/
+        new BuffConfig(){ Buff_ID = 2020 },/*流血(降低生命值)*/
+        new BuffConfig(){ Buff_ID = 2021 },/*中毒(低速度)*/
+        new BuffConfig(){ Buff_ID = 2030 },/*天黑了*/
+
+        /*天赋*/
+        new BuffConfig(){ Buff_ID = 10000 }/*消化1*/,
+        new BuffConfig(){ Buff_ID = 10001 }/*消化2*/,
+        new BuffConfig(){ Buff_ID = 10002 }/*消化3*/,
+        new BuffConfig(){ Buff_ID = 10010 }/*睡眠1*/,
+        new BuffConfig(){ Buff_ID = 10011 }/*睡眠2*/,
+        new BuffConfig(){ Buff_ID = 10012 }/*睡眠3*/,
+        new BuffConfig(){ Buff_ID = 10020 }/*鼓点1*/,
+        new BuffConfig(){ Buff_ID = 10021 }/*鼓点2*/,
+        new BuffConfig(){ Buff_ID = 10022 }/*鼓点3*/,
+        new BuffConfig(){ Buff_ID = 10023 }/*鼓点4*/,
     };
 }
 public struct BuffConfig
 {
     public short Buff_ID;
-    public bool Buff_Icon;
 }

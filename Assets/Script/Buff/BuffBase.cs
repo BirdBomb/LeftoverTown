@@ -5,43 +5,69 @@ using UnityEngine;
 
 public class BuffBase 
 {
-    public virtual void Init(BuffData buffData)
+    public BuffData data;
+    public virtual void SetData(BuffData buffData)
     {
-
+        data = buffData;
+    }
+    public virtual void GetData(out BuffData buffData)
+    {
+        buffData = data;
     }
     #region//游戏内监听
     /// <summary>
-    /// 触发节点:游戏开始
+    /// 触发节点:初始化
     /// </summary>
-    public virtual void Listen_GameStart()
+    public virtual void Listen_Local_Init(ActorManager actor)
     {
 
     }
     /// <summary>
     /// 触发节点:添加
     /// </summary>
-    public virtual void Listen_AddOnActor(ActorManager actor)
+    public virtual void Listen_Local_AddOnActor(ActorManager actor)
     {
 
     }
     /// <summary>
     /// 触发节点:移除
     /// </summary>
-    public virtual void Listen_SubFromActor(ActorManager actor)
+    public virtual void Listen_Local_SubFromActor(ActorManager actor)
     {
 
     }
     /// <summary>
-    /// 触发节点:我自己移动
+    /// 触发节点:血量更新
     /// </summary>
-    public virtual void Listen_MyselfMove(ActorManager actor)
+    public virtual void Listen_Local_UpdateHp(ActorManager actor)
+    {
+
+    }
+    /// <summary>
+    /// 触发节点:饥饿更新
+    /// </summary>
+    public virtual void Listen_Local_UpdateHungry(ActorManager actor)
+    {
+
+    }
+    /// <summary>
+    /// 触发节点:精神更新
+    /// </summary>
+    public virtual void Listen_Local_UpdateSan(ActorManager actor)
     {
 
     }
     /// <summary>
     /// 触发节点:秒更新
     /// </summary>
-    public virtual void Listen_UpdateSecond(ActorManager actor)
+    public virtual void Listen_Local_UpdateSecond(ActorManager actor)
+    {
+
+    }
+    /// <summary>
+    /// 触发节点:我自己移动
+    /// </summary>
+    public virtual void Listen_MyselfMove(ActorManager actor, Vector3Int pos)
     {
 
     }
@@ -71,9 +97,17 @@ public struct BuffData
 {
     public short BuffID;
     public short BuffVal;
+    public Vector3Int BuffPos;
     public BuffData(short id)
     {
         BuffID = id;
         BuffVal = 0;
+        BuffPos = Vector3Int.zero;
+    }
+    public BuffData(short id,short val,Vector3Int pos)
+    {
+        BuffID = id;
+        BuffVal = val;
+        BuffPos = pos;
     }
 }

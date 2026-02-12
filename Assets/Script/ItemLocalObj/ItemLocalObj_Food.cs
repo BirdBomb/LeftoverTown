@@ -18,7 +18,7 @@ public class ItemLocalObj_Food : ItemLocalObj
         transform.localPosition = Vector3.zero;
         transform.localScale = Vector3.one;
 
-        spriteRenderer_Food.sprite = spriteAtlas_Item.GetSprite("Item_" + itemData.Item_ID.ToString());
+        spriteRenderer_Food.sprite = spriteAtlas_Item.GetSprite("Item_" + itemData.I.ToString());
         base.HoldingStart(owner, body);
     }
     public void PlayParticle()

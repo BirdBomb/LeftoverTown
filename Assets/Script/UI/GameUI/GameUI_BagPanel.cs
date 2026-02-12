@@ -7,7 +7,6 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
-using DG.Tweening;
 using System;
 
 public class GameUI_BagPanel : MonoBehaviour
@@ -36,21 +35,21 @@ public class GameUI_BagPanel : MonoBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_PutItemInBag>().Subscribe(_ =>
         {
-            if (_.item.Item_ID > 0)
+            if (_.item.I > 0)
             {
                 AddInBagInfo putInBagInfo = new AddInBagInfo();
-                putInBagInfo.id = _.item.Item_ID;
-                putInBagInfo.count = _.item.Item_Count;
+                putInBagInfo.id = _.item.I;
+                putInBagInfo.count = _.item.C;
                 AddInfo(putInBagInfo);
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_PutItemOutBag>().Subscribe(_ =>
         {
-            if (_.item.Item_ID > 0)
+            if (_.item.I > 0)
             {
                 AddInBagInfo putInBagInfo = new AddInBagInfo();
-                putInBagInfo.id = _.item.Item_ID;
-                putInBagInfo.count = -_.item.Item_Count;
+                putInBagInfo.id = _.item.I;
+                putInBagInfo.count = -_.item.C;
                 AddInfo(putInBagInfo);
             }
         }).AddTo(this);
@@ -146,9 +145,9 @@ public class GameUI_BagPanel : MonoBehaviour
     }
     private void BatchSort()
     {
-        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         itemDatas = GameToolManager.Instance.SortItemList(itemDatas);
-        GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Set(itemDatas);
+        WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Set(itemDatas);
     }
     #endregion
     #region//ДђПЊвўВи
@@ -239,7 +238,9 @@ public class GameUI_BagPanel : MonoBehaviour
         panel.DOKill();
         panel.localPosition = new Vector3(float_PutInBagInfoPanelPosX, 0, 0);
         panel.DOLocalMoveX(0, float_DurTime).SetEase(Ease.OutBack);
-        string itemName = LocalizationManager.Instance.GetLocalization("Item_String", info.id + "_Name");
+
+        string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + info.id).Split('_');
+        string itemName = parts.Length > 0 ? parts[0] : "Error";
         itemName = ItemConfigData.Colour(itemName, ItemConfigData.GetItemConfig(info.id).Item_Rarity);
         string itemCount = info.count.ToString();
         panel.Find("Name").GetComponent<TextMeshProUGUI>().text = itemName;

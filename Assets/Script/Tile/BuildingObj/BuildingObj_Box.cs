@@ -27,7 +27,7 @@ public class BuildingObj_Box : BuildingObj_Manmade
     public void ReadInfo(string info)
     {
         itemDatas_List.Clear();
-        string[] strings = info.Split("/*I*/");
+        string[] strings = info.Split("/");
         for (int i = 0; i < strings.Length; i++)
         {
             if (strings[i] != "")
@@ -52,30 +52,31 @@ public class BuildingObj_Box : BuildingObj_Manmade
             }
             else
             {
-                builder.Append("/*I*/" + JsonUtility.ToJson(itemDatas_List[i]));
+                builder.Append("/" + JsonUtility.ToJson(itemDatas_List[i]));
             }
         }
+        Debug.Log(builder.ToString());
         Local_ChangeInfo(builder.ToString());
     }
     #endregion
     #region//ÍßÆ¬½»»¥
-    public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
+    public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseUI(tileUI_Bind == null);
         }
-        base.All_ActorInputKeycode(actor, code);
+        base.Local_ActorInputKeycode(actor, code);
     }
-    public override void All_PlayerHighlight(bool on)
+    public override void Local_PlayerHighlight(bool on)
     {
         OpenOrCloseHighlightUI(on);
-        base.All_PlayerHighlight(on);
+        base.Local_PlayerHighlight(on);
     }
-    public override void All_PlayerFaraway()
+    public override void Local_PlayerFaraway()
     {
         OpenOrCloseUI(false);
-        base.All_PlayerFaraway();
+        base.Local_PlayerFaraway();
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {

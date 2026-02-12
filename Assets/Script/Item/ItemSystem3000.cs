@@ -17,6 +17,14 @@ public class ItemSystem3000
 public class Item_3000 : ItemBase_Food
 {
     private int config_Food = 5;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
         owner.hungryManager.AddFood(config_Food);
@@ -29,6 +37,14 @@ public class Item_3000 : ItemBase_Food
 public class Item_3001 : ItemBase_Food
 {
     private int config_Food = 5;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
         owner.hungryManager.AddFood(config_Food);
@@ -41,6 +57,14 @@ public class Item_3001 : ItemBase_Food
 public class Item_3002 : ItemBase_Food
 {
     private int config_Food = 5;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
         owner.hungryManager.AddFood(config_Food);
@@ -53,6 +77,14 @@ public class Item_3002 : ItemBase_Food
 public class Item_3003 : ItemBase_Food
 {
     private int config_Food = 8;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
         owner.hungryManager.AddFood(config_Food);
@@ -65,6 +97,14 @@ public class Item_3003 : ItemBase_Food
 public class Item_3004 : ItemBase_Food
 {
     private int config_Food = 2;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
         owner.hungryManager.AddFood(config_Food);
@@ -80,6 +120,14 @@ public class Item_3004 : ItemBase_Food
 public class Item_3100 : ItemBase_Food
 {
     private int config_Food = 2;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
         owner.hungryManager.AddFood(config_Food);
@@ -92,6 +140,14 @@ public class Item_3100 : ItemBase_Food
 public class Item_3101 : ItemBase_Food
 {
     private int config_Food = 2;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
         owner.hungryManager.AddFood(config_Food);
@@ -104,6 +160,14 @@ public class Item_3101 : ItemBase_Food
 public class Item_3102 : ItemBase_Food
 {
     private int config_Food = 2;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
         owner.hungryManager.AddFood(config_Food);
@@ -116,6 +180,14 @@ public class Item_3102 : ItemBase_Food
 public class Item_3103 : ItemBase_Food
 {
     private int config_Food = 1;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
         owner.hungryManager.AddFood(config_Food);
@@ -127,10 +199,40 @@ public class Item_3103 : ItemBase_Food
 /// </summary>
 public class Item_3104 : ItemBase_Food
 {
-    private int config_Food = 1;
+    private int config_Food = 0;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
-        owner.hungryManager.AddFood(config_Food);
+        owner.hungryManager.SubFood(-config_Food);
+        owner.sanManager.SubSan(-10);
+        base.Eat();
+    }
+}
+/// <summary>
+/// º¶µ∞
+/// </summary>
+public class Item_3105 : ItemBase_Food
+{
+    private int config_Food = 0;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
+    public override void Eat()
+    {
+        owner.hungryManager.SubFood(-config_Food);
+        owner.sanManager.SubSan(-10);
         base.Eat();
     }
 }
@@ -140,6 +242,14 @@ public class Item_3104 : ItemBase_Food
 public class Item_3110 : ItemBase_Food
 {
     private int config_Food = 5;
+    public override bool Check()
+    {
+        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
+        {
+            return false;
+        }
+        return base.Check();
+    }
     public override void Eat()
     {
         owner.hungryManager.AddFood(config_Food);
@@ -155,11 +265,5 @@ public class Item_3110 : ItemBase_Food
 public class Item_3200 : ItemBase_Materials
 {
     
-}
-/// <summary>
-/// ∏Ø¿√ ≥ŒÔ
-/// </summary>
-public class Item_3999 : ItemBase
-{
 }
 #endregion

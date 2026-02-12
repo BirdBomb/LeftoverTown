@@ -10,7 +10,8 @@ public class RefiningConfigData
     }
     public readonly static List<RefiningConfig> refiningConfigs = new List<RefiningConfig>()
     {
-        new RefiningConfig(){RefiningBeforeID = 1013,RefiningAfterID = 1110,RefiningSecond = 10},
+        new RefiningConfig(){RefiningBeforeID = 1014,RefiningAfterID = 1114,RefiningSecond = 10},
+        new RefiningConfig(){RefiningBeforeID = 1015,RefiningAfterID = 1115,RefiningSecond = 10},
         new RefiningConfig(){RefiningBeforeID = 3000,RefiningAfterID = 4006,RefiningSecond = 5},
         new RefiningConfig(){RefiningBeforeID = 3002,RefiningAfterID = 4007,RefiningSecond = 5},
         new RefiningConfig(){RefiningBeforeID = 3003,RefiningAfterID = 4008,RefiningSecond = 5},

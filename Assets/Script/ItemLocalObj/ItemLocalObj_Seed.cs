@@ -85,7 +85,7 @@ public class ItemLocalObj_Seed : ItemLocalObj
                 {
                     if (tile.tileID == 2002)
                     {
-                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingArea()
+                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_CreateBuildingArea()
                         {
                             buildingID = plantID,
                             buildingPos = pos,
@@ -101,11 +101,11 @@ public class ItemLocalObj_Seed : ItemLocalObj
     }
     private void Expend(short val)
     {
-        if (itemData.Item_Count > val)
+        if (itemData.C > val)
         {
             ItemData _oldItem = itemData;
             ItemData _newItem = itemData;
-            _newItem.Item_Count = (short)(_newItem.Item_Count - val);
+            _newItem.C = (short)(_newItem.C - val);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
             {
                 oldItem = _oldItem,

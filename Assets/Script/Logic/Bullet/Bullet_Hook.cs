@@ -112,7 +112,7 @@ public class Bullet_Hook : BulletBase
                         if (!actorManagers_Ignore.Contains(actor))
                         {
                             actorManagers_Ignore.Add(actor);
-                            GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_Blood");
+                            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Blood");
                             effect.GetComponent<EffectBase>().SetEffect(-vectoe3_MoveDir);
                             effect.transform.position = actor.transform.position;
                             Attack(actor);
@@ -134,20 +134,24 @@ public class Bullet_Hook : BulletBase
     {
         if (actorAuthority_Owner.isLocal)
         {
-            actor.AllClient_Listen_TakeForce(-vectoe3_MoveDir, (short)float_BulletForce);
+            actor.actionManager.Client_TakeForce(-vectoe3_MoveDir, (short)float_BulletForce);
             if (float_BulletAttackDemage > 0)
             {
-                actor.AllClient_Listen_TakeDamage(float_BulletAttackDemage, DamageState.AttackSlashingDamage, actorManager_Owner.actorNetManager);
+                GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+                effect.GetComponent<Effect_Impact>().PlayPiercing(vectoe3_MoveDir);
+                effect.transform.position = actor.transform.position;
+
+                actor.actorHpManager.TakeDamage(float_BulletAttackDemage, DamageState.AttackSlashingDamage, actorManager_Owner.actorNetManager);
             }
             if (float_BulletMagicDemage > 0)
             {
-                actor.AllClient_Listen_TakeDamage(float_BulletMagicDemage, DamageState.MagicDamage, actorManager_Owner.actorNetManager);
+                actor.actorHpManager.TakeDamage(float_BulletMagicDemage, DamageState.MagicDamage, actorManager_Owner.actorNetManager);
             }
         }
     }
     private void Boom(Vector2 pos)
     {
-        GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_BulletBoom");
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_BulletBoom");
         effect.transform.localScale = new Vector3(1 - (2 * new System.Random().Next(0, 2)), 1, 1);
         effect.transform.position = pos;
     }

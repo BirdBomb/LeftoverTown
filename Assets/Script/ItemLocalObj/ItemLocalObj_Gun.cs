@@ -157,10 +157,10 @@ public class ItemLocalObj_Gun : ItemLocalObj
         if (actorManager.actorAuthority.isPlayer)
         {
             ItemData itemData = actorManager.actorNetManager.Net_ItemConsumables;
-            if (bulletList.Contains(itemData.Item_ID) && itemData.Item_Count > 0)
+            if (bulletList.Contains(itemData.I) && itemData.C > 0)
             {
                 UseBullet(1);
-                bulletID = itemData.Item_ID;
+                bulletID = itemData.I;
                 return true;
             }
             else
@@ -184,8 +184,8 @@ public class ItemLocalObj_Gun : ItemLocalObj
         {
             ItemData _oldItemConsumables = actorManager.actorNetManager.Net_ItemConsumables;
             ItemData _newItemConsumables = _oldItemConsumables;
-            _newItemConsumables.Item_Count--;
-            if (_newItemConsumables.Item_Count <= 0)
+            _newItemConsumables.C--;
+            if (_newItemConsumables.C <= 0)
             {
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemConsumables_Sub()
                 {
@@ -221,7 +221,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
     /// <returns></returns>
     public virtual Vector3 GetRandomDir(float offset)
     {
-        UnityEngine.Random.InitState(itemData.Item_Durability);
+        UnityEngine.Random.InitState(itemData.D);
         //获得随机偏转角
         float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, UnityEngine.Random.Range(0f, 1f));
         // 将角度转换为Quaternion
@@ -257,7 +257,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
     {
         ItemData _oldItemHand = itemData;
         ItemData _newItemHand = itemData;
-        _newItemHand.Item_Durability--;
+        _newItemHand.D--;
         UpdateDataByLocal(_newItemHand);
         actorManager.actorNetManager.Net_ItemHand = _newItemHand;
     }
@@ -324,13 +324,13 @@ public class ItemLocalObj_Gun : ItemLocalObj
     /// </summary>
     public virtual void MuzzleFire()
     {
-        GameObject muzzleFire101 = PoolManager.Instance.GetObject("Effect/Effect_MuzzleFire");
+        GameObject muzzleFire101 = PoolManager.Instance.GetEffectObj("Effect/Effect_MuzzleFire");
         muzzleFire101.transform.SetParent(transform_Muzzle);
         muzzleFire101.transform.localScale = new Vector3(1, 1 - (2 * new System.Random().Next(0, 2)), 1);
         muzzleFire101.transform.localPosition = new Vector3(new System.Random().Next(-1, 1) * 0.1f, new System.Random().Next(-1, 1) * 0.1f, 1);
         muzzleFire101.transform.localRotation = Quaternion.identity;
 
-        GameObject muzzleSmoke = PoolManager.Instance.GetObject("Effect/Effect_MuzzleSmoke");
+        GameObject muzzleSmoke = PoolManager.Instance.GetEffectObj("Effect/Effect_MuzzleSmoke");
         muzzleSmoke.transform.localScale = Vector3.one;
         muzzleSmoke.transform.position = transform_Muzzle.position;
         muzzleSmoke.transform.rotation = Quaternion.identity;

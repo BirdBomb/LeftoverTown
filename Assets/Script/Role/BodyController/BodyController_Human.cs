@@ -24,6 +24,10 @@ public class BodyController_Human : BodyController_Base
     public Transform transform_RightHand;
     [SerializeField, Header("左手节点")]
     public Transform transform_LeftHand;
+    public ParticleSystem particleSystem_Dust_Left;
+    public ParticleSystem particleSystem_Dust_Right;
+    public ParticleSystem particleSystem_Dust_Small;
+    private bool bool_StepLeft = false;
     [Header("身体")]
     public SpriteRenderer spriteRenderer_Body;
     private Material material_Body;
@@ -79,7 +83,7 @@ public class BodyController_Human : BodyController_Base
         {
             if (x.Equals("Step"))
             {
-                AudioManager.Instance.Play3DEffect(4000,transform.position);
+                PlayStep();
             }
         });
         material_Body = new Material(spriteRenderer_Body.sharedMaterial);
@@ -145,7 +149,23 @@ public class BodyController_Human : BodyController_Base
         }
         base.SetAnimatorFunc(bodyPart, func);
     }
-
+    
+    public override void PlayStep()
+    {
+        
+        if (bool_StepLeft)
+        {
+            if (particleSystem_Dust_Left) particleSystem_Dust_Left.Play();
+            bool_StepLeft = false;
+        }
+        else
+        {
+            if (particleSystem_Dust_Right) particleSystem_Dust_Right.Play();
+            bool_StepLeft = true;
+        }
+        if (particleSystem_Dust_Small) particleSystem_Dust_Small.Play();
+        base.PlayStep();
+    }
     public override void TurnRight()
     {
         transform_Body.localScale = new Vector3(1, 1, 1);
@@ -182,7 +202,7 @@ public class BodyController_Human : BodyController_Base
     }
     public override void Dead()
     {
-        Effect_DeadBody deadBody = PoolManager.Instance.GetObject("Effect/Effect_DeadBody").GetComponent<Effect_DeadBody>();
+        Effect_DeadBody deadBody = PoolManager.Instance.GetEffectObj("Effect/Effect_DeadBody").GetComponent<Effect_DeadBody>();
         deadBody.SetBodyForce(GetComponentInParent<NetworkRigidbody2D>(), faceRight, turnRight);
         deadBody.SetBodyFace(spriteRenderer_Hair.sprite,spriteRenderer_Hair.color);
         deadBody.transform.position = transform.position;

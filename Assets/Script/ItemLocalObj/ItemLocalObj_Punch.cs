@@ -106,17 +106,14 @@ public class ItemLocalObj_Punch : ItemLocalObj
                     {
                         if (colliders[i].TryGetComponent(out BuildingObj building))
                         {
-                            building.Local_TakeDamage(config_AttackDamage, DamageState.AttackReapDamage, actorManager.actorNetManager);
-                            building.Local_TakeDamage(config_AttackDamage, DamageState.AttackSlashingDamage, actorManager.actorNetManager);
-                            building.Local_TakeDamage(config_AttackDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
+                            PunchBuilding(building);
                         }
                     }
                     else if (colliders[i].tag.Equals("Actor") && colliders[i].isTrigger)
                     {
                         if (colliders[i].transform.TryGetComponent(out ActorManager actor))
                         {
-                            if (actor == actorManager) { continue; }
-                            actor.AllClient_Listen_TakeDamage(config_AttackDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
+                            if (actor != actorManager) { PunchActor(actor); }
                         }
                     }
                 }
@@ -124,5 +121,26 @@ public class ItemLocalObj_Punch : ItemLocalObj
             }
         }
         return false;
+    }
+    private void PunchActor(ActorManager actor)
+    {
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+        effect.GetComponent<Effect_Impact>().PlayBludgeoning(actor.transform.position - actorManager.transform.position, true);
+        effect.transform.position = actor.transform.position;
+
+        actor.actorHpManager.TakeDamage(config_AttackDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
+    }
+    private void PunchBuilding(BuildingObj building)
+    {
+        int damage = 0;
+        damage += building.Local_TakeDamage(config_AttackDamage, DamageState.AttackReapDamage, actorManager.actorNetManager);
+        damage += building.Local_TakeDamage(config_AttackDamage, DamageState.AttackSlashingDamage, actorManager.actorNetManager);
+        damage += building.Local_TakeDamage(config_AttackDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
+        if (damage > 0)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlayBludgeoning(building.transform.position - actorManager.transform.position);
+            effect.transform.position = building.transform.position;
+        }
     }
 }

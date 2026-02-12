@@ -122,10 +122,11 @@ public class ItemLocalObj_Bow : ItemLocalObj
     {
         if (actorManager.actorAuthority.isPlayer)
         {
-            if (actorManager.actorNetManager.Net_ItemConsumables.Item_Count > 0)
+            if (actorManager.actorNetManager.Net_ItemConsumables.C > 0)
             {
-                Sprite sprite = spriteAtlas_Item.GetSprite("Item_" + actorManager.actorNetManager.Net_ItemConsumables.Item_ID);
+                Sprite sprite = spriteAtlas_Item.GetSprite("Item_" + actorManager.actorNetManager.Net_ItemConsumables.I);
                 spriteRenderer_Arrow.DOKill();
+                spriteRenderer_Arrow.transform.localScale = Vector3.one;
                 spriteRenderer_Arrow.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.1f);
                 spriteRenderer_Arrow.sprite = sprite;
             }
@@ -136,8 +137,9 @@ public class ItemLocalObj_Bow : ItemLocalObj
         }
         else
         {
-            Sprite sprite = spriteAtlas_Item.GetSprite("Item_" + 9001);
+            Sprite sprite = spriteAtlas_Item.GetSprite("Item_" + 9000);
             spriteRenderer_Arrow.DOKill();
+            spriteRenderer_Arrow.transform.localScale = Vector3.one;
             spriteRenderer_Arrow.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.1f);
             spriteRenderer_Arrow.sprite = sprite;
         }
@@ -236,10 +238,10 @@ public class ItemLocalObj_Bow : ItemLocalObj
         if (actorManager.actorAuthority.isPlayer)
         {
             ItemData itemData = actorManager.actorNetManager.Net_ItemConsumables;
-            if (bulletList.Contains(itemData.Item_ID) && itemData.Item_Count > 0)
+            if (bulletList.Contains(itemData.I) && itemData.C > 0)
             {
                 UseBullet(1);
-                bulletID = itemData.Item_ID;
+                bulletID = itemData.I;
                 return true;
             }
             else
@@ -263,8 +265,8 @@ public class ItemLocalObj_Bow : ItemLocalObj
         {
             ItemData _oldItemConsumables = actorManager.actorNetManager.Net_ItemConsumables;
             ItemData _newItemConsumables = _oldItemConsumables;
-            _newItemConsumables.Item_Count--;
-            if (_newItemConsumables.Item_Count <= 0)
+            _newItemConsumables.C--;
+            if (_newItemConsumables.C <= 0)
             {
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemConsumables_Sub()
                 {
@@ -294,7 +296,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
     }
     private Vector3 GetRandomDir(float offset)
     {
-        UnityEngine.Random.InitState(itemData.Item_Info);
+        UnityEngine.Random.InitState(itemData.V);
         //获得随机偏转角
         float randomAngle = Mathf.Lerp(-offset * 0.5f, offset * 0.5f, UnityEngine.Random.Range(0f, 1f));
         // 将角度转换为Quaternion
@@ -322,7 +324,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
     {
         ItemData _oldItemHand = itemData;
         ItemData _newItemHand = itemData;
-        _newItemHand.Item_Durability--;
+        _newItemHand.D--;
         UpdateDataByLocal(_newItemHand);
         actorManager.actorNetManager.Net_ItemHand = _newItemHand;
     }

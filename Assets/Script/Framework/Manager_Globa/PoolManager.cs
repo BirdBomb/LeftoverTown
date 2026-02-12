@@ -33,6 +33,12 @@ public class PoolManager : SingleTon<PoolManager>, ISingleTon
         var pool = GetPool(name);
         return pool.Get();
     }
+    // 从对象池中获取特效
+    public GameObject GetEffectObj(string name)
+    {
+        var pool = GetPool(name);
+        return pool.Get();
+    }
     // 将对象返回到对象池中
     public void ReleaseObject(string name, GameObject obj)
     {

@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -10,30 +11,93 @@ using static Fusion.Allocator;
 
 public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
 {
-    [Header("预览位置")]
-    public Transform transform_Preview;
-    [Header("预览图片")]
-    public SpriteRenderer spriteRenderer_Preview;
-    [Header("标识位置")]
-    public Transform transform_Singal;
-    [Header("标识图片")]
-    public SpriteRenderer spriteRenderer_Singal;
+    public enum BuildState
+    {
+        Sleep,
+        /// <summary>
+        /// 强制建造建筑
+        /// </summary>
+        ForceBuildBuilding,
+        /// <summary>
+        /// 强制建造地板
+        /// </summary>
+        ForceBuildFloor,
+        /// <summary>
+        /// 试图建造建筑
+        /// </summary>
+        TryBuildBuilding,
+        /// <summary>
+        /// 试图建造地板
+        /// </summary>
+        TryBuildFloor,
+    }
+    public void Init()
+    {
+        MessageBroker.Default.Receive<GameEvent.GameEvent_AllClient_SomeoneMove>().Subscribe(_ =>
+        {
+            if (_.moveActor.actorAuthority.isLocal && _.moveActor.actorAuthority.isPlayer)
+            {
+                Local_SetPlayerPos(_.movePos);
+                if (bool_InPreview)
+                {
+                    bool_GetEmpty = Local_CheckPostion(vector3Int_CurPreviewPos);
+                    Local_UpdatePreviewColor(bool_GetEmpty && bool_GetAllRaw);
+                    Local_UpdateBuildRangePos(); 
+                }
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(_ =>
+        {
+            if (bool_InPreview)
+            {
+                bool_GetAllRaw = Local_CheckRaw();
+                Local_UpdatePreviewColor(bool_GetEmpty && bool_GetAllRaw);
+            }
+        }).AddTo(this);
+    }
+    public void Update()
+    {
+        if (bool_InPreview)
+        {
+            Local_UpdatePreviewPos();
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !EventSystem.current.IsPointerOverGameObject())
+            {
+                Local_TryBuild();
+            }
+            if (Input.GetKeyDown(KeyCode.Mouse1))
+            {
+                Local_ClosePreview();
+            }
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.TryBuildBuilding)
+                {
+                    int_GroupIndex += 1;
+                    int_GroupIndex = Mathf.Abs(int_GroupIndex);
+                    Local_UpdatePreviewSprite();
+                }
+            }
+        }
+
+    }
+    /*建筑预览*/
+    #region
     [Header("建筑预览图集")]
     public SpriteAtlas spriteAtlas_BuildingPreview;
     [Header("地面预览图集")]
     public SpriteAtlas spriteAtlas_GroundPreview;
-    /// <summary>
-    /// 正在预览
-    /// </summary>
-    private bool bool_InPreview = false;
-    /// <summary>
-    /// 正在标识位置
-    /// </summary>
-    private bool bool_InSingal = false;
-    /// <summary>
-    /// 当前预览位置
-    /// </summary>
-    private Vector3 vector3_CurPreviewPos;
+    [Header("预览图片")]
+    public SpriteRenderer spriteRenderer_Preview;
+    [Header("预览位置")]
+    public Transform transform_Preview;
+    [Header("建筑禁止建造图片")]
+    public List<SpriteRenderer> spriteRenderer_BuildBlocks = new List<SpriteRenderer>();
+    [Header("建筑范围图片")]
+    public SpriteRenderer spriteRenderer_BuildRange;
+    [Header("建筑范围位置")]
+    public Transform transform_BuildRange;
+    [Header("预览Tab")]
+    public SpriteRenderer spriteRenderer_Tab;
     /// <summary>
     /// 上次预览坐标
     /// </summary>
@@ -42,96 +106,44 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// 当前预览坐标
     /// </summary>
     private Vector3Int vector3Int_CurPreviewPos;
-    [Header("预览UI"), SerializeField]
-    private Transform tran_PreviewUI;
-    [Header("预览右击UI"), SerializeField]
-    private Transform tran_Preview_RightClickUI;
-    [Header("预览左击UI"), SerializeField]
-    private Transform tran_Preview_LeftClickUI;
-    [Header("预览中击UI"), SerializeField]
-    private Transform tran_Preview_MiddleClickUI;
-    public enum BuildState
-    {
-        Sleep,
-        ForceBuildBuilding,
-        ForceBuildFloor,
-        TryBuildBuilding,
-        TryBuildFloor,
-    }
 
-    public void Init()
-    {
-        MessageBroker.Default.Receive<GameEvent.GameEvent_AllClient_SomeoneMove>().Subscribe(_ =>
-        {
-            if (_.moveActor.actorAuthority.isLocal && _.moveActor.actorAuthority.isPlayer)
-            {
-                Local_UpdateSingalPos(_.movePos);
-            }
-        }).AddTo(this);
-    }
-    public void Update()
-    {
-        if (bool_InPreview)
-        {
-            UpdatePos();
-            if (Input.GetKeyDown(KeyCode.Mouse0) && !EventSystem.current.IsPointerOverGameObject())
-            {
-                Build();
-            }
-            if (Input.GetKeyDown(KeyCode.Mouse1))
-            {
-                Close();
-            }
-            if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.TryBuildBuilding)
-            {
-                if (Input.GetKeyDown(KeyCode.Tab))
-                {
-                    int_GroupIndex += 1;
-                    int_GroupIndex = Mathf.Abs(int_GroupIndex);
-                    UpdateSprite();
-                }
-                //if (Input.GetAxis("Mouse ScrollWheel") > 0)
-                //{
-                //    int_GroupIndex += 1;
-                //    int_GroupIndex = Mathf.Abs(int_GroupIndex);
-                //    UpdateSprite();
-                //}
-                //if (Input.GetAxis("Mouse ScrollWheel") < 0)
-                //{
-                //    int_GroupIndex -= 1;
-                //    int_GroupIndex = Mathf.Abs(int_GroupIndex);
-                //    UpdateSprite();
-                //}
-            }
-        }
-
-    }
-    /*建筑预览*/
-    #region
     private BuildingConfig buildingConfig_Target;
     private GroundConfig groundConfig_Target;
     private BuildState buildState_Target = BuildState.Sleep;
     private bool bool_GetAllRaw = false;
+    private bool bool_GetEmpty = false;
     private int int_GroupIndex = 0;
-    public void Init(BuildingConfig buildingConfig, BuildState buildState)
+    /// <summary>
+    /// 正在预览
+    /// </summary>
+    private bool bool_InPreview = false;
+
+    public void Local_Init(BuildingConfig buildingConfig, BuildState buildState)
     {
         buildingConfig_Target = buildingConfig;
-        buildState_Target = buildState;
         int_GroupIndex = 0;
-        Open();
-        CheckRow();
-        UpdateSprite();
+        Local_OpenPreview(buildState);
     }
-    public void Init(GroundConfig groundConfig, BuildState buildState)
+    public void Local_Init(GroundConfig groundConfig, BuildState buildState)
     {
         groundConfig_Target = groundConfig;
-        buildState_Target = buildState;
         int_GroupIndex = 0;
-        Open();
-        CheckRow();
-        UpdateSprite();
+        Local_OpenPreview(buildState);
     }
-    private void UpdateSprite()
+    private void Local_UpdateTab()
+    {
+        if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.TryBuildBuilding)
+        {
+            if (buildingConfig_Target.Building_Group != null && buildingConfig_Target.Building_Group.Count > 0)
+
+            {
+                spriteRenderer_Tab.gameObject.SetActive(true);
+                return;
+            }
+        };
+        spriteRenderer_Tab.gameObject.SetActive(false);
+    }
+    private void Local_UpdatePreviewSprite()
     {
         if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.TryBuildBuilding)
         {
@@ -150,34 +162,71 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
             spriteRenderer_Preview.sprite = spriteAtlas_GroundPreview.GetSprite(groundConfig_Target.Ground_ID.ToString());
         }
     }
-    private void UpdatePos()
+    /// <summary>
+    /// 更改预览位置
+    /// </summary>
+    private void Local_UpdatePreviewPos()
     {
-        Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        vector3_CurPreviewPos = pos;
+        Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         vector3Int_CurPreviewPos = MapManager.Instance.tilemap_Building.WorldToCell(pos);
         if (vector3Int_LastPreviewPos != vector3Int_CurPreviewPos)
         {
             vector3Int_LastPreviewPos = vector3Int_CurPreviewPos;
             transform_Preview.position = vector3Int_LastPreviewPos;
-            if (bool_GetAllRaw)
-            {
-                UpdateColor(!CheckPostion(pos));
-            }
-            else { UpdateColor(true); }
+            bool_GetEmpty = Local_CheckPostion(vector3Int_CurPreviewPos);
+            Local_UpdatePreviewColor(bool_GetEmpty && bool_GetAllRaw);
         }
     }
-    private void UpdateColor(bool red)
+    /// <summary>
+    /// 更改建筑范围位置
+    /// </summary>
+    private void Local_UpdateBuildRangePos()
     {
-        if (red)
+        transform_BuildRange.position = vector3Int_PlayerPos;
+        spriteRenderer_BuildRange.transform.DOKill();
+        spriteRenderer_BuildRange.transform.localScale = Vector3.one;
+        spriteRenderer_BuildRange.transform.DOPunchScale(new Vector3(0.02f, 0.02f, 1), 0.5f);
+        Local_DrawBuildRange();
+    }
+    /// <summary>
+    /// 绘制建筑范围
+    /// </summary>
+    private void Local_DrawBuildRange()
+    {
+        int index = 0;
+        for(int i = -2; i <= 2; i++)
         {
-            spriteRenderer_Preview.color = new Color(1, 0, 0, 0.5f);
+            for (int j = -2; j <= 2; j++)
+            {
+                if (Local_CheckPostion(vector3Int_PlayerPos + new Vector3Int(j, i)))
+                {
+                    spriteRenderer_BuildBlocks[index].gameObject.SetActive(false);
+                }
+                else
+                {
+                    spriteRenderer_BuildBlocks[index].gameObject.SetActive(true);
+                }
+                index++;
+            }
         }
-        else
+    }
+    private void Local_LoopBuildRange()
+    {
+        spriteRenderer_BuildRange.color = new Color(1, 1, 1, 0.5f);
+        spriteRenderer_BuildRange.DOFade(0.2f, 2).SetLoops(-1, LoopType.Yoyo);
+    }
+    private void Local_UpdatePreviewColor(bool white)
+    {
+        if (white)
         {
             spriteRenderer_Preview.color = new Color(1, 1, 1, 0.5f);
         }
+        else
+        {
+            spriteRenderer_Preview.color = new Color(1, 0, 0, 0.5f);
+        }
     }
-    public void Build()
+    public void Local_TryBuild()
     {
         if (bool_InPreview)
         {
@@ -185,74 +234,58 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
             switch (buildState_Target)
             {
                 case BuildState.ForceBuildBuilding:
-                    PlayBuild(true);
+                    Local_PlayBuild(true);
+                    BuildingConfig target0 = buildingConfig_Target;
                     if (buildingConfig_Target.Building_Group != null && buildingConfig_Target.Building_Group.Count > 0)
                     {
                         int index = int_GroupIndex % buildingConfig_Target.Building_Group.Count;
-                        BuildingConfig config = BuildingConfigData.GetBuildingConfig(buildingConfig_Target.Building_Group[index]);
-                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingArea()
-                        {
-                            buildingID = config.Building_ID,
-                            buildingPos = vector3Int_CurPreviewPos,
-                            areaSize = config.Building_Size,
-                        });
+                        target0 = BuildingConfigData.GetBuildingConfig(buildingConfig_Target.Building_Group[index]);
                     }
-                    else
+                    MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_CreateBuildingArea()
                     {
-                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingArea()
-                        {
-                            buildingID = buildingConfig_Target.Building_ID,
-                            buildingPos = vector3Int_CurPreviewPos,
-                            areaSize = buildingConfig_Target.Building_Size,
-                        });
-                    }
+                        buildingID = target0.Building_ID,
+                        buildingPos = vector3Int_CurPreviewPos,
+                        areaSize = target0.Building_Size,
+                    });
                     break;
                 case BuildState.ForceBuildFloor:
-                    PlayBuild(true);
-                    MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeGround()
+                    Local_PlayBuild(true);
+                    MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_CreateGround()
                     {
                         groundID = groundConfig_Target.Ground_ID,
                         groundPos = vector3Int_CurPreviewPos,
                     });
                     break;
                 case BuildState.TryBuildBuilding:
-
-                    if (CheckPostion(vector3_CurPreviewPos) && CheckRaw(buildingConfig_Target.Building_Raw))
+                    if (bool_GetEmpty && bool_GetAllRaw)
                     {
-                        PlayBuild(true);
-                        ExpenRaw(buildingConfig_Target.Building_Raw);
+                        Local_PlayBuild(true);
+                        Local_ExpenRaw(buildingConfig_Target.Building_Raw);
+                        BuildingConfig target_1 = buildingConfig_Target;
                         if (buildingConfig_Target.Building_Group != null && buildingConfig_Target.Building_Group.Count > 0)
                         {
                             int index = int_GroupIndex % buildingConfig_Target.Building_Group.Count;
-                            BuildingConfig config = BuildingConfigData.GetBuildingConfig(buildingConfig_Target.Building_Group[index]);
-                            MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingArea()
-                            {
-                                buildingID = config.Building_ID,
-                                buildingPos = vector3Int_CurPreviewPos,
-                                areaSize = config.Building_Size,
-                            });
+                            target_1 = BuildingConfigData.GetBuildingConfig(buildingConfig_Target.Building_Group[index]);
                         }
-                        else
+                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_CreateBuildingArea()
                         {
-                            MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingArea()
-                            {
-                                buildingID = buildingConfig_Target.Building_ID,
-                                buildingPos = vector3Int_CurPreviewPos,
-                                areaSize = buildingConfig_Target.Building_Size,
-                            });
-                        }
+                            buildingID = target_1.Building_ID,
+                            buildingPos = vector3Int_CurPreviewPos,
+                            areaSize = target_1.Building_Size,
+                        });
+
                     }
                     else
                     {
-                        PlayBuild(false);
+                        Local_PlayBuild(false);
                     }
                     break;
                 case BuildState.TryBuildFloor:
-                    if (CheckPostion(vector3_CurPreviewPos) && CheckRaw(groundConfig_Target.Ground_Raw))
+                    if (bool_GetEmpty && bool_GetAllRaw)
                     {
-                        PlayBuild(true);
-                        ExpenRaw(groundConfig_Target.Ground_Raw);
-                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeGround()
+                        Local_PlayBuild(true);
+                        Local_ExpenRaw(groundConfig_Target.Ground_Raw);
+                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_CreateGround()
                         {
                             groundID = groundConfig_Target.Ground_ID,
                             groundPos = vector3Int_CurPreviewPos,
@@ -260,24 +293,34 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
                     }
                     else
                     {
-                        PlayBuild(false);
+                        Local_PlayBuild(false);
                     }
-
                     break;
             }
         }
     }
-    public void Open()
+    public void Local_OpenPreview(BuildState buildState)
     {
         bool_InPreview = true;
         spriteRenderer_Preview.gameObject.SetActive(true);
+        spriteRenderer_BuildRange.gameObject.SetActive(true);
         CursorManager.Instance.AddCursor(CursorManager.CursorType.Build);
+
+        buildState_Target = buildState;
+
+        Local_UpdateBuildRangePos();
+        Local_UpdateTab();
+        bool_GetAllRaw = Local_CheckRaw();
+        bool_GetEmpty = Local_CheckPostion(vector3Int_CurPreviewPos);
+        Local_UpdatePreviewColor(bool_GetEmpty && bool_GetAllRaw);
+        Local_UpdatePreviewSprite();
     }
-    public void Close()
+    public void Local_ClosePreview()
     {
         bool_InPreview = false;
         buildState_Target = BuildState.Sleep;
         spriteRenderer_Preview.gameObject.SetActive(false);
+        spriteRenderer_BuildRange.gameObject.SetActive(false);
         CursorManager.Instance.SubCursor(CursorManager.CursorType.Build);
     }
 
@@ -285,40 +328,48 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// 检查位置
     /// </summary>
     /// <param name="pos"></param>
-    /// <returns></returns>
-    private bool CheckPostion(Vector3 pos)
+    /// <returns>是否可以建造</returns>
+    private bool Local_CheckPostion(Vector3Int pos)
     {
         bool temp = false;
-        if (buildState_Target == BuildState.ForceBuildFloor || buildState_Target == BuildState.ForceBuildBuilding)
+        if (bool_InPreview)
         {
-            temp = true;
-        }
-        else
-        {
-            if (buildState_Target == BuildState.TryBuildBuilding)
+            if (buildState_Target == BuildState.Sleep) return temp;
+            else if (buildState_Target == BuildState.ForceBuildFloor || buildState_Target == BuildState.ForceBuildBuilding)
             {
-                if (buildingConfig_Target.Building_Group != null && buildingConfig_Target.Building_Group.Count > 0)
-                {
-                    int index = int_GroupIndex % buildingConfig_Target.Building_Group.Count;
-                    BuildingConfig config = BuildingConfigData.GetBuildingConfig(buildingConfig_Target.Building_Group[index]);
-                    if (MapManager.Instance.CheckBuildingEmpty(pos, config.Building_Size))
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    if (MapManager.Instance.CheckBuildingEmpty(pos, buildingConfig_Target.Building_Size))
-                    {
-                        return true;
-                    }
-                }
+                temp = true;
             }
-            if (buildState_Target == BuildState.TryBuildFloor)
+            else
             {
-                if (MapManager.Instance.CheckBuildingEmpty(pos, AreaSize._1X1))
+                if (Vector3.Distance(vector3Int_PlayerPos, pos) > 2.5)
                 {
-                    return true;
+                    return false;
+                }
+                if (buildState_Target == BuildState.TryBuildBuilding)
+                {
+                    if (buildingConfig_Target.Building_Group != null && buildingConfig_Target.Building_Group.Count > 0)
+                    {
+                        int index = int_GroupIndex % buildingConfig_Target.Building_Group.Count;
+                        BuildingConfig config = BuildingConfigData.GetBuildingConfig(buildingConfig_Target.Building_Group[index]);
+                        if (MapManager.Instance.CheckGround(pos, config.Building_Size) && MapManager.Instance.CheckBuildingEmpty(pos, config.Building_Size))
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        if (MapManager.Instance.CheckGround(pos, buildingConfig_Target.Building_Size) && MapManager.Instance.CheckBuildingEmpty(pos, buildingConfig_Target.Building_Size))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                if (buildState_Target == BuildState.TryBuildFloor)
+                {
+                    if (MapManager.Instance.CheckBuildingEmpty(pos, AreaSize._1X1))
+                    {
+                        return true;
+                    }
                 }
             }
         }
@@ -328,22 +379,23 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// 检查材料
     /// </summary>
     /// <returns></returns>
-    private void CheckRow()
+    private bool Local_CheckRaw()
     {
         if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.ForceBuildFloor)
         {
-            bool_GetAllRaw = true;
+            return  true;
         }
         else
         {
             if (buildState_Target == BuildState.TryBuildBuilding)
             {
-                bool_GetAllRaw = CheckRaw(buildingConfig_Target.Building_Raw);
+                return Local_CheckRaw(buildingConfig_Target.Building_Raw);
             }
             if (buildState_Target == BuildState.TryBuildFloor)
             {
-                bool_GetAllRaw = CheckRaw(groundConfig_Target.Ground_Raw);
+                return Local_CheckRaw(groundConfig_Target.Ground_Raw);
             }
+            return false;
         }
     }
     /// <summary>
@@ -352,18 +404,18 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// <param name="raws"></param>
     /// <param name="level"></param>
     /// <returns></returns>
-    private bool CheckRaw(List<ItemRaw> raws)
+    private bool Local_CheckRaw(List<ItemRaw> raws)
     {
         bool temp = true;
-        List<ItemData> data = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        List<ItemData> data = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < raws.Count; i++)
         {
             int itemCount = 0;
             for (int j = 0; j < data.Count; j++)
             {
-                if (data[j].Item_ID == raws[i].ID)
+                if (data[j].I == raws[i].ID)
                 {
-                    itemCount += data[j].Item_Count;
+                    itemCount += data[j].C;
                 }
             }
             if (itemCount < raws[i].Count)
@@ -377,7 +429,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// 消耗材料
     /// </summary>
     /// <param name="raws"></param>
-    private void ExpenRaw(List<ItemRaw> raws)
+    private void Local_ExpenRaw(List<ItemRaw> raws)
     {
         for (int i = 0; i < raws.Count; i++)
         {
@@ -389,7 +441,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         }
 
     }
-    private void PlayBuild(bool succes)
+    private void Local_PlayBuild(bool succes)
     {
         if (succes)
         {
@@ -407,14 +459,34 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         }
     }
     #endregion
-    /*地图高亮*/
+    /*地图标记*/
     #region
+    [Header("标记图片")]
+    public SpriteRenderer spriteRenderer_Singal;
+    [Header("标记位置")]
+    public Transform transform_Singal;
     public Vector3Int vector3Int_SingalOffset;
-    public Vector3Int vector3Int_SingalPos;
-    private void Local_UpdateSingalPos(Vector3Int pos)
+    public Vector3Int vector3Int_PlayerPos;
+    /// <summary>
+    /// 正在标识位置
+    /// </summary>
+    private bool bool_InSingal = false;
+
+    /// <summary>
+    /// 设置玩家位置
+    /// </summary>
+    /// <param name="pos"></param>
+    private void Local_SetPlayerPos(Vector3Int pos)
     {
-        vector3Int_SingalPos = pos;
-        transform_Singal.position = MapManager.Instance.tilemap_Building.CellToWorld(vector3Int_SingalPos + vector3Int_SingalOffset) + new Vector3(0.5f, 0.5f, 0);
+        vector3Int_PlayerPos = pos;
+    }
+    /// <summary>
+    /// 更新标记位置
+    /// </summary>
+    /// <param name="pos"></param>
+    private void Local_UpdateSingalPos()
+    {
+        transform_Singal.position = MapManager.Instance.tilemap_Building.CellToWorld(vector3Int_PlayerPos + vector3Int_SingalOffset) + new Vector3(0.5f, 0.5f, 0);
         transform_Singal.DOKill();
         transform_Singal.localScale = Vector3.one;
         transform_Singal.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.2f);
@@ -422,13 +494,20 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         spriteRenderer_Singal.color = new Color(1, 1, 1, 0.8f);
         spriteRenderer_Singal.DOFade(0f, 1);
     }
+    /// <summary>
+    /// 显示标记位置
+    /// </summary>
+    /// <param name="offset"></param>
     public void Local_ShowSingal(Vector3Int offset)
     {
         vector3Int_SingalOffset = offset;
-        Local_UpdateSingalPos(vector3Int_SingalPos);
+        Local_UpdateSingalPos();
         bool_InSingal = true;
         spriteRenderer_Singal.gameObject.SetActive(true);
     }
+    /// <summary>
+    /// 隐藏标记位置
+    /// </summary>
     public void Local_HideSingal()
     {
         bool_InSingal = false;

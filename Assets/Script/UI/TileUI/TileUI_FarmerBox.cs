@@ -61,7 +61,7 @@ public class TileUI_FarmerBox : TileUI
         {
             if (i < buildingObj_Bind.itemDatas_List.Count)
             {
-                if (buildingObj_Bind.itemDatas_List[i].Item_ID != 0)
+                if (buildingObj_Bind.itemDatas_List[i].I != 0)
                 {
                     gridCells_List[i].UpdateData(buildingObj_Bind.itemDatas_List[i]);
                 }
@@ -79,7 +79,7 @@ public class TileUI_FarmerBox : TileUI
     public void PutIn(ItemData addData, ItemPath path)
     {
         GameToolManager.Instance.PutInItemList(buildingObj_Bind.itemDatas_List, addData, path.itemIndex, gridCells_List.Count, out ItemData resData);
-        if (resData.Item_ID > 0 && resData.Item_Count != 0)
+        if (resData.I > 0 && resData.C != 0)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
@@ -99,13 +99,13 @@ public class TileUI_FarmerBox : TileUI
     }
     private void BatchPutIn()
     {
-        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < itemDatas.Count; i++)
         {
             ItemData itemData = itemDatas[i];
-            ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.Item_ID);
+            ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.I);
             int indexInBag = i;
-            int indexInBox = buildingObj_Bind.itemDatas_List.FindIndex((x) => { return x.Item_ID == itemData.Item_ID; });
+            int indexInBox = buildingObj_Bind.itemDatas_List.FindIndex((x) => { return x.I == itemData.I; });
             if (indexInBox >= 0 && itemConfig.Item_Size == ItemSize.Gro)
             {
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
@@ -114,7 +114,7 @@ public class TileUI_FarmerBox : TileUI
                     itemData = new ItemData()
                 });
                 GameToolManager.Instance.PutInItemList(buildingObj_Bind.itemDatas_List, itemData, indexInBox, buildingObj_Bind.itemDatas_List.Count, out ItemData itemData_Res);
-                if (itemData_Res.Item_ID > 0 && itemData_Res.Item_Count != 0)
+                if (itemData_Res.I > 0 && itemData_Res.C != 0)
                 {
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                     {
@@ -129,13 +129,13 @@ public class TileUI_FarmerBox : TileUI
     private void BatchPutOut()
     {
         CalculateFine();
-        List<ItemData> itemDatas = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < buildingObj_Bind.itemDatas_List.Count; i++)
         {
             ItemData itemData = buildingObj_Bind.itemDatas_List[i];
-            ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.Item_ID);
+            ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.I);
             int indexInBox = i;
-            int indexInBag = itemDatas.FindIndex((x) => { return x.Item_ID == itemData.Item_ID; });
+            int indexInBag = itemDatas.FindIndex((x) => { return x.I == itemData.I; });
             if (indexInBag >= 0 && itemConfig.Item_Size == ItemSize.Gro)
             {
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
@@ -165,8 +165,9 @@ public class TileUI_FarmerBox : TileUI
     }
     private void CalculateFine(ItemData itemData)
     {
-        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.Item_ID);
-        GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.Commit((short)(itemConfig.Item_Value * itemData.Item_Count));
+        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.I);
+        WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.RPC_LocalInput_Commit
+            ((short)CommitState.Steal, (short)(itemConfig.Item_Value * itemData.C));
     }
     private void CalculateFine()
     {
@@ -174,13 +175,14 @@ public class TileUI_FarmerBox : TileUI
         for (int i = 0; i < buildingObj_Bind.itemDatas_List.Count; i++)
         {
             ItemData itemData = buildingObj_Bind.itemDatas_List[i];
-            ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.Item_ID);
+            ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.I);
 
-            fine += itemConfig.Item_Value * itemData.Item_Count;
+            fine += itemConfig.Item_Value * itemData.C;
         }
         if (fine > 0)
         {
-            GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.Commit((short)fine);
+            WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.
+                RPC_LocalInput_Commit((short)CommitState.Steal, (short)fine);
         }
     }
 }

@@ -49,7 +49,7 @@ public class ItemBase
     public virtual void UpdateDataFromNet(ItemData data)
     {
         itemData = data;
-        itemConfig = ItemConfigData.GetItemConfig(data.Item_ID);
+        itemConfig = ItemConfigData.GetItemConfig(data.I);
         CalculateQuality();
     }
     /// <summary>
@@ -59,7 +59,7 @@ public class ItemBase
     public virtual void UpdateDataFromLocal(ItemData data)
     {
         itemData = data;
-        itemConfig = ItemConfigData.GetItemConfig(data.Item_ID);
+        itemConfig = ItemConfigData.GetItemConfig(data.I);
         CalculateQuality();
     }
     /// <summary>
@@ -68,7 +68,7 @@ public class ItemBase
     /// <returns></returns>
     public virtual void CalculateQuality()
     {
-        UnityEngine.Random.InitState(itemData.Item_Info);
+        UnityEngine.Random.InitState(itemData.V);
         int seed = UnityEngine.Random.Range(0, 10000);
         if (seed < 7000)
         {
@@ -106,12 +106,14 @@ public class ItemBase
     /// </summary>
     public virtual void GridCell_Draw(UI_GridCell gridCell)
     {
-        string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
+        string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+        string stringName = parts.Length > 0 ? parts[0] : "Error";
+        string stringDesc = GridCell_UpdateDesc(parts.Length > 1 ? parts[1] : "Error");
+
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         string stringInfo = stringName + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.Item_Count.ToString());
+        gridCell.DrawCell("Item_" + itemData.I.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.C.ToString());
         gridCell.SetCell(stringInfo);
     }
     /// <summary>
@@ -195,8 +197,8 @@ public class ItemBase
     /// <param name="data"></param>
     public virtual void NetObj_Draw(ItemNetObj itemNetObj, ItemData data)
     {
-        itemNetObj.spriteRenderer_Icon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.Item_ID);
-        itemNetObj.textMesh_Count.text = data.Item_Count.ToString();
+        itemNetObj.spriteRenderer_Icon.sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + data.I);
+        itemNetObj.textMesh_Count.text = data.C.ToString();
     }
     /// <summary>
     /// 播放掉落动画
@@ -283,7 +285,7 @@ public class ItemBase
     {
         this.owner = owner;
         body.transform_ItemInRightHand.GetComponent<SpriteRenderer>().sprite
-            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID);
+            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.I);
     }
     /// <summary>
     /// 结束持握
@@ -318,7 +320,7 @@ public class ItemBase
     {
         this.owner = owner;
         body.transform_ItemOnHead.GetComponent<SpriteRenderer>().sprite
-           = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID);
+           = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.I);
     }
     /// <summary>
     /// 结束穿戴
@@ -340,7 +342,7 @@ public class ItemBase
     {
         this.owner = owner;
         body.transform_ItemOnBody.GetComponent<SpriteRenderer>().sprite
-           = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.Item_ID);
+           = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + itemData.I);
     }
     /// <summary>
     /// 结束穿戴
@@ -372,15 +374,15 @@ public class ItemBase
     {
         itemData_Combine = itemData_CombineA;
         itemData_Res = itemData_CombineB;
-        if(itemData_CombineA.Item_Count + itemData_CombineB.Item_Count <= maxCombineCount)
+        if(itemData_CombineA.C + itemData_CombineB.C <= maxCombineCount)
         {
-            itemData_Combine.Item_Count += itemData_CombineB.Item_Count;
-            itemData_Res.Item_Count = 0;
+            itemData_Combine.C += itemData_CombineB.C;
+            itemData_Res.C = 0;
         }
         else
         {
-            itemData_Combine.Item_Count = maxCombineCount;
-            itemData_Res.Item_Count = ((short)(itemData_CombineA.Item_Count + itemData_CombineB.Item_Count - maxCombineCount));
+            itemData_Combine.C = maxCombineCount;
+            itemData_Res.C = ((short)(itemData_CombineA.C + itemData_CombineB.C - maxCombineCount));
         }
     }
     /// <summary>
@@ -412,9 +414,10 @@ public class ItemBase_Food : ItemBase
     public override void StaticAction_InitData(short id, out ItemData initData)
     {
         initData = new ItemData(id);
-        initData.Item_Info = 100;
-        initData.Item_Durability = 100;
-        initData.Item_SignTime = (short)(MapManager.Instance.mapNetManager.Day * 10 + MapManager.Instance.mapNetManager.Hour);
+        initData.V = 100;
+        initData.D = 100;
+        WorldManager.Instance.GetTime(out int day, out int hour, out _);
+        initData.S = (short)(day * 10 + hour);
     }
     public override void UpdateDataFromNet(ItemData itemData)
     {
@@ -432,25 +435,26 @@ public class ItemBase_Food : ItemBase
     public virtual void CalculateDurability(float ratBase)
     {
         /*当前时间*/
-        int nowTime = MapManager.Instance.mapNetManager.Day * 10 + MapManager.Instance.mapNetManager.Hour;
+        WorldManager.Instance.GetTime(out int day, out int hour, out _);
+        int nowTime = day * 10 + hour;
         /*记录时间*/
-        int lastTime = itemData.Item_SignTime;
+        int lastTime = itemData.S;
         /*腐败速率*/
-        float rotSpeed = itemData.Item_Info * 0.01f;
+        float rotSpeed = itemData.V * 0.01f;
         int offset = (int)((nowTime - lastTime) * rotSpeed * ratBase);
         if (offset <= -1)
         {
             /*腐烂大于1*/
-            if (itemData.Item_Durability + offset >= 0)
+            if (itemData.D + offset >= 0)
             {
-                itemData.Item_Durability += (sbyte)offset;
-                if(itemData.Item_Durability <= 0) itemData.Item_Durability = 0;
-                itemData.Item_SignTime = (short)nowTime;
+                itemData.D += (sbyte)offset;
+                if(itemData.D <= 0) itemData.D = 0;
+                itemData.S = (short)nowTime;
             }
             else
             {
-                itemData.Item_Durability = 0;
-                itemData.Item_SignTime = (short)nowTime;
+                itemData.D = 0;
+                itemData.S = (short)nowTime;
             }
 
         }
@@ -464,33 +468,35 @@ public class ItemBase_Food : ItemBase
         newItem = mainItem;
         resItem = mainItem;
 
-        int wa_Dp = mainItem.Item_SignTime * mainItem.Item_Count + addItem.Item_SignTime * addItem.Item_Count;
-        int wa_Dv = mainItem.Item_Durability * mainItem.Item_Count + addItem.Item_Durability * addItem.Item_Count;
+        int wa_Dp = mainItem.S * mainItem.C + addItem.S * addItem.C;
+        int wa_Dv = mainItem.D * mainItem.C + addItem.D * addItem.C;
 
-        newItem.Item_SignTime = (short)((float)wa_Dp / (float)(addItem.Item_Count + mainItem.Item_Count));
-        newItem.Item_Durability = (sbyte)((float)wa_Dv / (float)(addItem.Item_Count + mainItem.Item_Count));
-        resItem.Item_SignTime = (short)((float)wa_Dp / (float)(addItem.Item_Count + mainItem.Item_Count));
-        resItem.Item_Durability = (sbyte)((float)wa_Dv / (float)(addItem.Item_Count + mainItem.Item_Count));
+        newItem.S = (short)((float)wa_Dp / (float)(addItem.C + mainItem.C));
+        newItem.D = (sbyte)((float)wa_Dv / (float)(addItem.C + mainItem.C));
+        resItem.S = (short)((float)wa_Dp / (float)(addItem.C + mainItem.C));
+        resItem.D = (sbyte)((float)wa_Dv / (float)(addItem.C + mainItem.C));
 
-        if (mainItem.Item_Count + addItem.Item_Count <= maxCap)
+        if (mainItem.C + addItem.C <= maxCap)
         {
-            newItem.Item_Count += addItem.Item_Count;
-            resItem.Item_Count = 0;
+            newItem.C += addItem.C;
+            resItem.C = 0;
         }
         else
         {
-            newItem.Item_Count = maxCap;
-            resItem.Item_Count = ((short)(mainItem.Item_Count + addItem.Item_Count - maxCap));
+            newItem.C = maxCap;
+            resItem.C = ((short)(mainItem.C + addItem.C - maxCap));
         }
     }
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
+        string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+        string stringName = parts.Length > 0 ? parts[0] : "Error";
+        string stringDesc = GridCell_UpdateDesc(parts.Length > 1 ? parts[1] : "Error");
+
         string stringRotten = LocalizationManager.Instance.GetLocalization("Item_String","Rotten");
-        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
         string stringInfo;
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
-        if(itemData.Item_Durability <= 0)
+        if(itemData.D <= 0)
         {
             stringInfo = stringName + "("+ stringRotten + ")" + "\n" + stringDesc;
         }
@@ -498,10 +504,10 @@ public class ItemBase_Food : ItemBase
         {
             stringInfo = stringName + "\n" + stringDesc;
         }
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.Item_Count.ToString());
+        gridCell.DrawCell("Item_" + itemData.I.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.C.ToString());
         gridCell.SetCell(stringInfo);
-        gridCell.SetSliderVal(itemData.Item_Durability / 100f);
-        if (itemData.Item_Info == 0)
+        gridCell.SetSliderVal(itemData.D / 100f);
+        if (itemData.V == 0)
         {
             gridCell.FreezeCell(true);
             gridCell.SetSliderColor(new Color(0.5f, 1, 0, 1));
@@ -509,7 +515,7 @@ public class ItemBase_Food : ItemBase
         else
         {
             gridCell.FreezeCell(false);
-            gridCell.SetSliderColor(new Color(Mathf.Lerp(1, 0, itemData.Item_Durability / 100f), Mathf.Lerp(0f, 1, itemData.Item_Durability / 100f), 0, 1));
+            gridCell.SetSliderColor(new Color(Mathf.Lerp(1, 0, itemData.D / 100f), Mathf.Lerp(0f, 1, itemData.D / 100f), 0, 1));
         }
     }
     #region//持有
@@ -524,9 +530,9 @@ public class ItemBase_Food : ItemBase
     public override bool OnHand_UpdateLeftPress(float pressTimer, bool state, bool input, bool player)
     {
         itemLocalObj_Food.PressLeftMouse(pressTimer, owner.actorAuthority);
-        if (inputData.leftPressTimer == 0)
+        if (inputData.leftPressTimer == 0 && owner)
         {
-            if (owner)
+            if (Check())
             {
                 owner.bodyController.SetAnimatorTrigger(BodyPart.Hand, "Eat");
                 owner.bodyController.SetAnimatorTrigger(BodyPart.Head, "Eat");
@@ -557,6 +563,10 @@ public class ItemBase_Food : ItemBase
                     }
                 });
             }
+            else
+            {
+                owner.actionManager.AllClient_SendText("吃不下了", (int)Emoji.Yell);
+            }
         }
         inputData.leftPressTimer = pressTimer;
         return base.OnHand_UpdateLeftPress(pressTimer, state, input, player);
@@ -567,25 +577,43 @@ public class ItemBase_Food : ItemBase
         inputData.leftPressTimer = 0;
         base.OnHand_ReleaseLeftPress(state, input, player);
     }
+    /// <summary>
+    /// 是否可食用
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool Check()
+    {
+        return true;
+    }
+    /// <summary>
+    /// 食用
+    /// </summary>
     public virtual void Eat()
     {
-        if (itemData.Item_Durability <= 0)
+        if (itemData.D <= 0)
         {
             Posion();
         }
         Expend(1);
     }
+    /// <summary>
+    /// 中毒
+    /// </summary>
     public virtual void Posion()
     {
 
     }
+    /// <summary>
+    /// 消耗
+    /// </summary>
+    /// <param name="val"></param>
     public virtual void Expend(int val)
     {
-        if (itemData.Item_Count > val)
+        if (itemData.C > val)
         {
             ItemData _oldItem = itemData;
             ItemData _newItem = itemData;
-            _newItem.Item_Count = (short)(_newItem.Item_Count - val);
+            _newItem.C = (short)(_newItem.C - val);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
             {
                 oldItem = _oldItem,
@@ -672,11 +700,11 @@ public class ItemBase_Potion : ItemBase
     }
     public virtual void Expend(int val)
     {
-        if (itemData.Item_Count > val)
+        if (itemData.C > val)
         {
             ItemData _oldItem = itemData;
             ItemData _newItem = itemData;
-            _newItem.Item_Count = (short)(_newItem.Item_Count - val);
+            _newItem.C = (short)(_newItem.C - val);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
             {
                 oldItem = _oldItem,
@@ -702,20 +730,21 @@ public class ItemBase_Weapon : ItemBase
     public override void StaticAction_InitData(short id,out ItemData initData)
     {
         initData = new ItemData(id);
-        initData.Item_Info = (short)new System.Random().Next(0, short.MaxValue);
-        initData.Item_Durability = (sbyte)new System.Random().Next(80, 101);
+        initData.V = (short)new System.Random().Next(0, short.MaxValue);
+        initData.D = (sbyte)new System.Random().Next(80, 101);
     }
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
+        string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+        string stringName = parts.Length > 0 ? parts[0] : "Error";
+        string stringDesc = GridCell_UpdateDesc(parts.Length > 1 ? parts[1] : "Error");
         string stringQuality = LocalizationManager.Instance.GetLocalization("Item_String", "_ItemQuality_" + (int)itemQuality);
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         stringQuality = ItemConfigData.Colour(stringQuality, itemQuality);
 
         string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.Item_Durability.ToString() + "%");
+        gridCell.DrawCell("Item_" + itemData.I.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.D.ToString() + "%");
         gridCell.SetCell(stringInfo);
     }
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
@@ -741,20 +770,21 @@ public class ItemBase_Tool : ItemBase
     public override void StaticAction_InitData(short id, out ItemData initData)
     {
         initData = new ItemData(id);
-        initData.Item_Info = (short)new System.Random().Next(0, short.MaxValue);
-        initData.Item_Durability = (sbyte)new System.Random().Next(80, 101);
+        initData.V = (short)new System.Random().Next(0, short.MaxValue);
+        initData.D = (sbyte)new System.Random().Next(80, 101);
     }
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
+        string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+        string stringName = parts.Length > 0 ? parts[0] : "Error";
+        string stringDesc = GridCell_UpdateDesc(parts.Length > 1 ? parts[1] : "Error");
         string stringQuality = LocalizationManager.Instance.GetLocalization("Item_String", "_ItemQuality_" + (int)itemQuality);
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         stringQuality = ItemConfigData.Colour(stringQuality, itemQuality);
 
         string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.Item_Durability.ToString() + "%");
+        gridCell.DrawCell("Item_" + itemData.I.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.D.ToString() + "%");
         gridCell.SetCell(stringInfo);
     }
     public override void OnHand_Start(ActorManager owner, BodyController_Human body)
@@ -780,20 +810,21 @@ public class ItemBase_Gun : ItemBase
     public override void StaticAction_InitData(short id, out ItemData initData)
     {
         initData = new ItemData(id);
-        initData.Item_Info = (short)new System.Random().Next(short.MinValue, short.MaxValue);
-        initData.Item_Durability = (sbyte)new System.Random().Next(sbyte.MinValue, sbyte.MaxValue);
+        initData.V = (short)new System.Random().Next(short.MinValue, short.MaxValue);
+        initData.D = (sbyte)new System.Random().Next(sbyte.MinValue, sbyte.MaxValue);
     }
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
+        string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+        string stringName = parts.Length > 0 ? parts[0] : "Error";
+        string stringDesc = GridCell_UpdateDesc(parts.Length > 1 ? parts[1] : "Error");
         string stringQuality = LocalizationManager.Instance.GetLocalization("Item_String", "_ItemQuality_" + (int)itemQuality);
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         stringQuality = ItemConfigData.Colour(stringQuality, itemQuality);
 
         string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity,"");
+        gridCell.DrawCell("Item_" + itemData.I.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity,"");
         gridCell.SetCell(stringInfo);
     }
     public override void GridCell_RightClick(UI_GridCell gridCell, ItemData itemData)
@@ -843,6 +874,19 @@ public class ItemBase_Hat : ItemBase
     }
 }
 /// <summary>
+/// 物品_饰品
+/// </summary>
+public class Itembase_Accessory : ItemBase
+{
+    public override void InBag_Use()
+    {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemAccessory_Switch()
+        {
+            index = itemPath.itemIndex
+        });
+    }
+}
+/// <summary>
 /// 物品_耗材
 /// </summary>
 public class ItemBase_Consumables : ItemBase
@@ -858,16 +902,31 @@ public class ItemBase_Consumables : ItemBase
 [Serializable]
 public struct ItemData : INetworkStruct, IEquatable<ItemData>
 {
-    public short Item_ID;
-    public short Item_Count;
-    public short Item_Info;
-    public sbyte Item_Durability;
-    public short Item_SignTime;
+    /// <summary>
+    /// id
+    /// </summary>
+    public short I;
+    /// <summary>
+    /// count
+    /// </summary>
+    public short C;
+    /// <summary>
+    /// value
+    /// </summary>
+    public short V;
+    /// <summary>
+    /// durability
+    /// </summary>
+    public sbyte D;
+    /// <summary>
+    /// SignTime
+    /// </summary>
+    public short S;
     public bool Equals(ItemData other)
     {
-        if (Item_ID == other.Item_ID && 
-            Item_Info == other.Item_Info && 
-            Item_Count == other.Item_Count)
+        if (I == other.I && 
+            V == other.V && 
+            C == other.C)
         {
             return true;
         }
@@ -878,18 +937,18 @@ public struct ItemData : INetworkStruct, IEquatable<ItemData>
     }
     public ItemData(short id)
     {
-        Item_ID = id;
-        if (Item_ID == 0)
+        I = id;
+        if (I == 0)
         {
-            Item_Count = 0;
+            C = 0;
         }
         else
         {
-            Item_Count = 1;
+            C = 1;
         }
-        Item_Info = 0;
-        Item_Durability = 0;
-        Item_SignTime = 0;
+        V = 0;
+        D = 0;
+        S = 0;
     }
 }
 /// <summary>

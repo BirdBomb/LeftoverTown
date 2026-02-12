@@ -26,6 +26,18 @@ public class ActorSanManager
             SubSan(-1);
         }
     }
+    public float GetSanRatio()
+    {
+        if (actorManager.actorNetManager.Local_SanMax > 0)
+        {
+            return (float)actorManager.actorNetManager.Net_SanCur / (float)actorManager.actorNetManager.Local_SanMax;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
     public int SubSan(int val)
     {
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)

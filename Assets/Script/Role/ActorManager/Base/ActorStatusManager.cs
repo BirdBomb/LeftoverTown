@@ -11,44 +11,17 @@ public class ActorStatusManager
         this.actorManager = actorManager;
     }
     /// <summary>
-    /// 通用方法(审视某人)
+    /// 设置身份
     /// </summary>
-    /// <param name="who"></param>
-    /// <param name="handItemID"></param>
-    /// <param name="headItemID"></param>
-    /// <param name="bodyItemID"></param>
-    public void Tool_CheckOutSomeone(ActorManager who, out short handItemID, out short headItemID, out short bodyItemID, out int fine)
+    public void SetStaus(StatusType status)
     {
-        handItemID = who.actorNetManager.Net_ItemHand.Item_ID;
-        headItemID = who.actorNetManager.Net_ItemHead.Item_ID;
-        bodyItemID = who.actorNetManager.Net_ItemBody.Item_ID;
-        fine = who.actorNetManager.Local_Fine;
+        statusType = status;
     }
     /// <summary>
-    /// 通用方法(检查身份)
+    /// 获取身份
     /// </summary>
-    /// <param name="clothes"></param>
-    /// <param name="hat"></param>
-    /// <param name="fine"></param>
-    /// <param name="id"></param>
-    public void Tool_CheckStatus(short clothes, short hat, short fine, out StatusType status)
+    public StatusType GetStaus()
     {
-        if (hat == 0 && clothes == 0)
-        {
-            status = statusType;
-        }
-        else
-        {
-            StatusConfig statusConfig = StatusConfigData.statusConfigs.Find((x) => { return x.Status_Hat == hat || x.Status_Clothes == clothes; });
-            if (statusConfig.Status_ID == 0)
-            {
-                status = statusType;
-            }
-            else
-            {
-                status = statusConfig.Status_Type;
-            }
-        }
+        return statusType;
     }
-
 }

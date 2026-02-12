@@ -5,25 +5,20 @@ using UnityEngine;
 
 public class BuildingObj_Door : BuildingObj_Manmade
 {
-    [SerializeField]
-    private GameObject obj_Door;
-    [SerializeField]
-    private SpriteRenderer spriteRenderer;
-    [SerializeField]
-    private Sprite sprite_Door_H_Close;
-    [SerializeField]
-    private Sprite sprite_Door_H_Open;
-    [SerializeField]
-    private Sprite sprite_Door_V_Close;
-    [SerializeField]
-    private Sprite sprite_Door_V_Open;
+    public BoxCollider2D boxCollider; 
+    public GameObject obj_Door;
+    public SpriteRenderer spriteRenderer;
+    public Sprite sprite_Door_H_Close;
+    public Sprite sprite_Door_H_Open;
+    public Sprite sprite_Door_V_Close;
+    public Sprite sprite_Door_V_Open;
     private DoorDir doorDir;
     private DoorState doorState = DoorState.Close;
-    public override void All_Draw()
+    public override void All_OnDraw()
     {
         ChangeDoorDir();
         ChangeDoorState(doorState);
-        base.All_Draw();
+        base.All_OnDraw();
     }
     private void ChangeDoorDir()
     {
@@ -59,10 +54,12 @@ public class BuildingObj_Door : BuildingObj_Manmade
             if (doorState == DoorState.Open)
             {
                 spriteRenderer.sprite = sprite_Door_V_Open;
+                boxCollider.enabled = false;
             }
             else
             {
                 spriteRenderer.sprite = sprite_Door_V_Close;
+                boxCollider.enabled = true;
             }
         }
         if (doorDir == DoorDir.H)
@@ -70,10 +67,12 @@ public class BuildingObj_Door : BuildingObj_Manmade
             if (doorState == DoorState.Open)
             {
                 spriteRenderer.sprite = sprite_Door_H_Open;
+                boxCollider.enabled = false;
             }
             else
             {
                 spriteRenderer.sprite = sprite_Door_H_Close;
+                boxCollider.enabled = true;
             }
         }
     }

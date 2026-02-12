@@ -23,7 +23,10 @@ public class ActorManager : MonoBehaviour
     public ActorAuthority actorAuthority;
     [HideInInspector]
     public PlayerRef actorPlayerRef;
-
+    /// <summary>
+    /// 血量
+    /// </summary>
+    public ActorHpManager actorHpManager = new ActorHpManager(); 
     /// <summary>
     /// 饥饿
     /// </summary>
@@ -89,6 +92,7 @@ public class ActorManager : MonoBehaviour
         else { Debug.Log("未找到身体控制器"); }
 
         rigidbody2.gravityScale = 0;
+        actorHpManager.Bind(this);
         hungryManager.Bind(this);
         sanManager.Bind(this);
         buffManager.Bind(this);
@@ -127,25 +131,29 @@ public class ActorManager : MonoBehaviour
     {
         actorNetManager.State_SendInfoToAll();
     }
-    public void State_SetHeadAndBody(ItemData headItem, ItemData bodyItem)
+    public void State_InitHeadAndBody(ItemData headItem, ItemData bodyItem)
     {
         actorNetManager.Net_ItemHead = headItem;
         actorNetManager.Net_ItemBody = bodyItem;
     }
-    public void State_SetFace(string name,short eyeID,short hairID,Color32 hairColor)
+    public void State_InitFace(string name,short eyeID,short hairID,Color32 hairColor)
     {
         actorNetManager.Local_Name = name;
         actorNetManager.Local_EyeID = eyeID;
         actorNetManager.Local_HairID = hairID;
         actorNetManager.Local_HairColor = hairColor;
     }
-    public void State_SetAbilityData(short Hp, short armor, short resistance, short speed)
+    public void State_InitAbilityData(short Hp, short armor, short resistance, short speed)
     {
         actorNetManager.Net_HpCur = Hp;
         actorNetManager.Local_HpMax = Hp;
         actorNetManager.Net_Armor = armor;
         actorNetManager.Net_Resistance = resistance;
         actorNetManager.Net_SpeedCommon = speed;
+    }
+    public void State_InitFine(short fine)
+    {
+        actorNetManager.Local_Fine = fine;
     }
     #endregion
     /*绑定玩家*/
@@ -170,6 +178,7 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     public virtual void AllClient_AddListener()
     {
+
     }
     /// <summary>
     /// 监听某物进入视野范围(服务器)
@@ -185,7 +194,7 @@ public class ActorManager : MonoBehaviour
     /// <param name="obj"></param>
     public virtual void AllClient_Listen_ItemInView(ItemNetObj obj)
     {
-
+        brainManager.allClient_ItemNetObj_Nearby.Add(obj);
     }
     /// <summary>
     /// 监听某物离开视野范围(服务器)
@@ -193,7 +202,7 @@ public class ActorManager : MonoBehaviour
     /// <param name="obj"></param>
     public virtual void State_Listen_ItemOutView(ItemNetObj obj)
     {
-
+        
     }
     /// <summary>
     /// 监听某物离开视野范围(客户端)
@@ -201,7 +210,7 @@ public class ActorManager : MonoBehaviour
     /// <param name="obj"></param>
     public virtual void AllClient_Listen_ItemOutView(ItemNetObj obj)
     {
-
+        brainManager.allClient_ItemNetObj_Nearby.Remove(obj);
     }
     /// <summary>
     /// 监听某人进入视野范围(客户端)
@@ -215,7 +224,7 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     public virtual void State_Listen_RoleInView(ActorManager actor)
     {
-
+        brainManager.actorManagers_Nearby.Add(actor);
     }
     /// <summary>
     /// 监听某人离开视野范围(客户端)
@@ -229,7 +238,7 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     public virtual void State_Listen_RoleOutView(ActorManager actor)
     {
-
+        brainManager.actorManagers_Nearby.Remove(actor);
     }
     /// <summary>
     /// 监听时间改变(客户端)
@@ -309,15 +318,16 @@ public class ActorManager : MonoBehaviour
     /// </summary>
     /// <param name="who"></param>
     /// <param name="actorAction"></param>
-    public virtual void AllClient_Listen_RoleCommit(ActorManager who, short val)
+    public virtual void AllClient_Listen_RoleCommit(ActorManager who, CommitState commit, short val)
     {
+
     }
     /// <summary>
     /// 监听某人犯法(主机)
     /// </summary>
     /// <param name="who"></param>
     /// <param name="val"></param>
-    public virtual void State_Listen_RoleCommit(ActorManager who, short val)
+    public virtual void State_Listen_RoleCommit(ActorManager who, CommitState commit, short val)
     {
 
     }
@@ -370,11 +380,18 @@ public class ActorManager : MonoBehaviour
         }
     }
     /// <summary>
-    ///  监听生命值改变(主机)
+    /// 监听生命值改变(主机)
     /// </summary>
     /// <param name="parameter"></param>
     /// <param name="id"></param>
     public virtual void State_Listen_MyselfHpChange(int parameter, HpChangeReason reason, Fusion.NetworkId id)
+    {
+
+    }
+    /// <summary>
+    /// 监听自己死亡(主机)
+    /// </summary>
+    public virtual void State_Listen_MyselfDead(int parameter, HpChangeReason reason, Fusion.NetworkId id)
     {
 
     }
@@ -384,7 +401,7 @@ public class ActorManager : MonoBehaviour
     /// <param name="attacking"></param>
     public virtual void AllClient_Listen_ChangeAttackState(bool attacking)
     {
-        brainManager.bool_AttackState = attacking;
+        brainManager.allClient_AttackState = attacking;
     }
     /// <summary>
     /// 监听攻击状态变化(主机)
@@ -412,31 +429,21 @@ public class ActorManager : MonoBehaviour
 
     }
     /// <summary>
-    /// 监听受伤(客户端)
+    /// 监听威胁目标变化(客户端)
     /// </summary>
-    /// <param name="val">数值</param>
-    /// <param name="damageState">类型</param>
-    /// <param name="from">来源</param>
-    public virtual void AllClient_Listen_TakeDamage(int val, DamageState damageState,ActorNetManager from)
+    /// <param name="id"></param>
+    public virtual void AllClient_Listen_ChangeThreatenedTarget(NetworkId id)
     {
-        actionManager.TakeDamage(val, damageState, from);
+        brainManager.allClient_actorManager_ThreatenedTarget = (id == new NetworkId()) ? null : actorNetManager.Runner.FindObject(id).GetComponent<ActorManager>();
+        brainManager.allClient_actorManager_ThreatenedTargetID = id;
     }
     /// <summary>
-    /// 监听受力(客户端)
+    /// 监听攻击目标变化(主机)
     /// </summary>
-    /// <param name="dir"></param>
-    /// <param name="force"></param>
+    /// <param name="id"></param>
+    public virtual void State_Listen_ChangeThreatenedTarget(NetworkId id)
+    {
 
-    public virtual void AllClient_Listen_TakeForce(Vector2 dir, short force)
-    {
-        actionManager.TakeForce(dir, force);
-    }
-    /// <summary>
-    /// 监听治疗(客户端)
-    /// </summary>
-    public virtual void AllClient_Listen_Heal(int val)
-    {
-        actionManager.Client_HealHP(val);
     }
     /// <summary>
     /// 监听NPC行为(客户端)
@@ -529,7 +536,7 @@ public class ActorManager : MonoBehaviour
     public virtual void AllClient_ShowText(string val,Color32 color)
     {
         Vector2 offset = 0.025f * new Vector2(new System.Random().Next(-10, 10), new System.Random().Next(-5, 5));
-        Effect_NumUI damageUI = PoolManager.Instance.GetObject("Effect/Effect_NumUI").GetComponent<Effect_NumUI>();
+        Effect_NumUI damageUI = PoolManager.Instance.GetEffectObj("Effect/Effect_NumUI").GetComponent<Effect_NumUI>();
         damageUI.transform.position = (Vector2)transform.position + Vector2.up;
         damageUI.PlayShow(val, color, offset);
     }
@@ -652,4 +659,22 @@ public enum DamageState
     /// 真实伤害
     /// </summary>
     RealDamage,
+}
+/// <summary>
+/// 刑法
+/// </summary>
+public enum CommitState
+{
+    /// <summary>
+    /// 偷窃罪
+    /// </summary>
+    Steal,
+    /// <summary>
+    /// 攻击罪
+    /// </summary>
+    Attacking,
+    /// <summary>
+    /// 谋杀罪
+    /// </summary>
+    Murder,
 }

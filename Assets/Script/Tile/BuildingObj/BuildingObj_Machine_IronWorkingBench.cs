@@ -12,23 +12,23 @@ public class BuildingObj_Machine_IronWorkingBench : BuildingObj_Manmade
     private GameObject prefab_UI;
     private TileUI tileUI_Bind = null;
     #region//ÍßÆ¬½»»¥
-    public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
+    public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseUI(tileUI_Bind == null);
         }
-        base.All_ActorInputKeycode(actor, code);
+        base.Local_ActorInputKeycode(actor, code);
     }
-    public override void All_PlayerHighlight(bool on)
+    public override void Local_PlayerHighlight(bool on)
     {
         OpenOrCloseHighlightUI(on);
-        base.All_PlayerHighlight(on);
+        base.Local_PlayerHighlight(on);
     }
-    public override void All_PlayerFaraway()
+    public override void Local_PlayerFaraway()
     {
         OpenOrCloseUI(false);
-        base.All_PlayerFaraway();
+        base.Local_PlayerFaraway();
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {

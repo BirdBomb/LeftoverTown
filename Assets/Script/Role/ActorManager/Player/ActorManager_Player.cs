@@ -124,36 +124,33 @@ public class ActorManager_Player : ActorManager
     {
         if (actorAuthority.isLocal)
         {
-            brainManager.ItemNetObj_Nearby.Add(obj);
+            brainManager.allClient_ItemNetObj_Nearby.Add(obj);
         }
-        base.State_Listen_ItemInView(obj);
     }
     public override void AllClient_Listen_ItemOutView(ItemNetObj obj)
     {
         if (actorAuthority.isLocal)
         {
-            brainManager.ItemNetObj_Nearby.Remove(obj);
+            brainManager.allClient_ItemNetObj_Nearby.Remove(obj);
         }
-        base.AllClient_Listen_ItemOutView(obj);
     }
     public override void State_Listen_ItemOutView(ItemNetObj obj)
     {
-        if (obj.Object && obj.owner == actorNetManager.Object.Id)
+        if (obj.Object && obj.Client_Owner == actorNetManager.Object.Id)
         {
-            StartCoroutine(obj.State_RemoveOwner());
+            obj.State_RsetOwner();
         }
-        base.State_Listen_ItemOutView(obj);
     }
     public void Local_UpdateClosestItem()
     {
-        for (int i = 0; i < brainManager.ItemNetObj_Nearby.Count; i++)
+        for (int i = 0; i < brainManager.allClient_ItemNetObj_Nearby.Count; i++)
         {
-            if (brainManager.ItemNetObj_Nearby[i].owner != actorNetManager.Object.Id)
+            if (brainManager.allClient_ItemNetObj_Nearby[i].Client_Owner != actorNetManager.Object.Id)
             {
                 if (actorNetManager.Local_BagItemCount < actorNetManager.Local_BagCapacity)
                 {
-                    ItemNetObj itemNetObj = brainManager.ItemNetObj_Nearby[i];
-                    brainManager.ItemNetObj_Nearby.RemoveAt(i);
+                    ItemNetObj itemNetObj = brainManager.allClient_ItemNetObj_Nearby[i];
+                    brainManager.allClient_ItemNetObj_Nearby.RemoveAt(i);
                     actorNetManager.RPC_LocalInput_PickItemAuto(itemNetObj.Object.Id);
                     break;
                 }

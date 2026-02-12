@@ -11,6 +11,7 @@ public static class UIEvent
     public class UIEvent_UpdateItemInBag
     {
         public int bagCapacity;
+        public int itemCount;
         public List<ItemData> itemDatas = new List<ItemData>();
     }
     /// <summary>
@@ -76,12 +77,6 @@ public static class UIEvent
     public class UIEvent_UpdateStatus
     {
         public StatusType statusType;
-    }
-    public class UIEvent_UpdateExpData
-    {
-        public short Level;
-        public short Exp_Cur;
-        public short Exp_Max;
     }
     /// <summary>
     /// UI-更新个人属性HP
@@ -150,19 +145,45 @@ public static class UIEvent
         public int Fine;
     }
     /// <summary>
+    /// UI-更新可建造
+    /// </summary>
+    public class UIEvent_UpdateCreateCount
+    {
+        public int Count;
+    }
+    /// <summary>
+    /// UI-更新经验值
+    /// </summary>
+    public class UIEvent_UpdateExpData
+    {
+        public int Level;
+        public int Exp_Cur;
+        public int Exp_Capacity;
+    }
+    /// <summary>
+    /// UI-更新技能
+    /// </summary>
+    public class UIEvent_UpdateSkill
+    {
+        public List<short> Skills = new List<short>();
+        public int Point;
+    }
+    /// <summary>
+    /// UI-更新任务
+    /// </summary>
+    public class UIEvent_UpdateQuest
+    {
+        public List<int> Quests = new List<int>();
+        public short Level;
+    }
+    /// <summary>
     /// UI-更新延迟
     /// </summary>
     public class UIEvent_UpdatePing
     {
         public double ping;
     }
-    /// <summary>
-    /// 添加buff
-    /// </summary>
-    public class UIEvent_AddBuff
-    {
-        public BuffData buffData;
-    }
+    #region//Buff
     /// <summary>
     /// 移除buff
     /// </summary>
@@ -171,19 +192,22 @@ public static class UIEvent
         public short buffID;
     }
     /// <summary>
-    /// 更新Buff列表
+    /// 修改Buff
     /// </summary>
-    public class UIEvent_UpdateBuffList
+    public class UIEvent_AddBuff
     {
-        public List<BuffData> buffList;
+        public BuffData buffID;
+        public string image;
+        public string desc;
     }
     /// <summary>
-    /// 更新Buff
+    /// 清空Buff
     /// </summary>
-    public class UIEvent_UpdateBuff
+    public class UIEvent_ClearBuff
     {
-        public List<BuffConfig> buffConfigs;
+        
     }
+    #endregion
     /// <summary>
     /// 显示信息文字
     /// </summary>

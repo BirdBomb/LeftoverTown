@@ -3,7 +3,9 @@ using Fusion;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Remoting.Lifetime;
+using System.Threading.Tasks;
 using UniRx;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -12,66 +14,48 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 using UnityEngine.UIElements;
-
+/// <summary>
+/// 地图管理器(只用于生成与绘制地图)
+/// </summary>
 public class MapManager : SingleTon<MapManager>,ISingleTon
 {
-    [Header("地面map")]
-    public Tilemap tilemap_Ground;
-    [Header("地面Grid")]
-    public Grid grid_Ground;
-    [Header("建筑map")]
-    public Tilemap tilemap_Building;
-    [Header("建筑grid")]
-    public Grid grid_Building;
-    [Header("建筑pool")]
-    public Transform transform_BuildingPool;
-    [Header("寻路")]
-    public NavManager navManager;
-    [Header("网络组件")]
-    public MapNetManager mapNetManager;
-
-    [HideInInspector]
-    public int mapSeed;
+    [Header("小地图")]
+    public GameUI_MiniMap mapCreate_Mining;
+    private Dictionary<int, GroundTile> GroundTilePool = new Dictionary<int, GroundTile>();
+    private Dictionary<int, BuildingTile> BuildingTilePool = new Dictionary<int, BuildingTile>();
+    public void Init()
+    {
+    }
+    #region//玩家中心
     /// <summary>
     /// 所有玩家的位置
     /// </summary>
-    private Dictionary<PlayerRef,Vector3Int> playerCenterDic = new Dictionary<PlayerRef,Vector3Int>();
-    /// <summary>
-    /// 所有生物
-    /// </summary>
-    private List<ActorManager> actorManagers = new List<ActorManager>();
+    private Dictionary<PlayerRef, Vector3Int> playerCenterDic = new Dictionary<PlayerRef, Vector3Int>();
     /// <summary>
     /// 所有玩家
     /// </summary>
     private List<PlayerRef> playerRefs = new List<PlayerRef>();
     /// <summary>
-    /// 已经加载的建筑区域
-    /// </summary>
-    private List<Vector3Int> areaList_Building = new List<Vector3Int>();
-    /// <summary>
-    /// 已经加载的地块区域
-    /// </summary>
-    private List<Vector3Int> areaList_Ground = new List<Vector3Int>();
-    private Dictionary<int, GroundTile> GroundTilePool = new Dictionary<int, GroundTile>();
-    private Dictionary<int, BuildingTile> BuildingTilePool = new Dictionary<int, BuildingTile>();
-    /// <summary>
-    /// 最大视野距离
+    /// 最大绘制距离
     /// </summary>
     private const float config_MaxView = 200f;
-    public void Init()
+
+    /// <summary>
+    /// 修改地图里的玩家中心
+    /// </summary>
+    public async void ChangePlayerCenterInMap(Vector3Int center, short size)
     {
+        WorldManager.Instance.gameNetManager.Local_SendMapCenter((Vector2Int)center, size);
+        await RequestAroundAreaInMap(center, size, 4);
     }
-    /*调整玩家中心*/
-    #region
     /// <summary>
     /// 更新地图里的玩家中心
     /// </summary>
     public void UpdatePlayerCenterInMap(PlayerRef player, Vector3Int center, int width, int height, int seed)
     {
-        mapSeed = seed;
         if (playerCenterDic.ContainsKey(player)) 
         { 
-            ChangePlayerCenter(player, center); 
+            UpdatePlayerCenter(player, center); 
         }
         else
         {
@@ -95,7 +79,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     /// </summary>
     /// <param name="player"></param>
     /// <param name="center"></param>
-    private void ChangePlayerCenter(PlayerRef player, Vector3Int center)
+    private void UpdatePlayerCenter(PlayerRef player, Vector3Int center)
     {
         playerCenterDic[player] = center;
     }
@@ -106,7 +90,6 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     /// <param name="center"></param>
     private void CheckPlayerCenter(int width, int height)
     {
-        Debug.Log("-----------------------" + width + "/" + height);
         List<Vector3Int> cullingList = new List<Vector3Int>();
         /*遍历所有已经绘制的区域并记录不靠近任何玩家的区域*/
         for (int i = 0; i < areaList_Ground.Count; i++)
@@ -138,8 +121,56 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         }
     }
     #endregion
-    /*去除一个区域*/
-    #region
+    #region//区域
+    /// <summary>
+    /// 已经加载的建筑区域
+    /// </summary>
+    private List<Vector3Int> areaList_Building = new List<Vector3Int>();
+    /// <summary>
+    /// 已经加载的地块区域
+    /// </summary>
+    private List<Vector3Int> areaList_Ground = new List<Vector3Int>();
+
+    /// <summary>
+    /// 请求一个区域
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="size"></param>
+    /// <param name="distance"></param>
+    /// <returns></returns>
+    public async Task RequestAroundAreaInMap(Vector3Int center, short size, int distance)
+    {
+        //Debug.Log($"请求服务器地图信息/位置坐标{center}尺寸{size}");
+        //Debug.Log("遍历周围临近大型地块");
+        Vector3Int tempPos = new Vector3Int();
+        var posList = new HashSet<Vector3Int>();
+        for (int layer = 0; layer < distance; layer++)
+        {
+            for (int x = -layer; x <= layer; x++)
+            {
+                for (int y = -layer; y <= layer; y++)
+                {
+                    tempPos = center + new Vector3Int(x * size, y * size);
+                    if (!posList.Contains(tempPos))
+                    {
+                        posList.Add(tempPos);
+                    }
+                }
+            }
+        }
+        foreach (Vector3Int pos in posList)
+        {
+            if (!areaList_Ground.Contains(pos))
+            {
+                WorldManager.Instance.gameNetManager.Local_RequestMapData(pos, size);
+                await Task.Delay(1);
+            }
+            else
+            {
+                //Debug.Log($"地块已被加载:位置坐标{posList[i]}尺寸{size}");
+            }
+        }
+    }
     /// <summary>
     /// 去除一个绘制好的区域
     /// </summary>
@@ -160,12 +191,8 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
             }
         }
     }
-
-    #endregion
-    /*增加一个区域*/
-    #region
     /// <summary>
-    /// 尝试增加一个未绘制的区域
+    /// 尝试增加一个未绘制的建筑区域
     /// </summary>
     /// <param name="center"></param>
     /// <returns>可以绘制</returns>
@@ -179,7 +206,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         return false;
     }
     /// <summary>
-    /// 尝试增加一个未绘制的区域
+    /// 尝试增加一个未绘制的地板区域
     /// </summary>
     /// <param name="center"></param>
     /// <returns>可以绘制</returns>
@@ -194,6 +221,11 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     }
     #endregion
     #region//地面
+    [Header("地面map")]
+    public Tilemap tilemap_Ground;
+    [Header("地面Grid")]
+    public Grid grid_Ground;
+
     /// <summary>
     /// 生成地面
     /// </summary>
@@ -205,7 +237,10 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         tilemap_Ground.SetTile(pos, groundTile);
         groundTile.BindObj(GetGroundObj(pos));
 
-        GameUI_MiniMap.Instance.ChangeGroundInMap(id, pos);
+        if (mapCreate_Mining)
+        {
+            mapCreate_Mining.ChangeGroundInMap(id, pos);
+        }
     }
     /// <summary>
     /// 删除地面
@@ -309,12 +344,36 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
     }
     #endregion
     #region//建筑
+    [Header("建筑map")]
+    public Tilemap tilemap_Building;
+    [Header("建筑grid")]
+    public Grid grid_Building;
+
     /// <summary>
     /// 生成建筑
     /// </summary>
     /// <param name="tilePos"></param>
     /// <param name="tileName"></param>
     public void CreateBuilding(int id, Vector3Int tilePos, out BuildingTile buildingTile)
+    {
+        if (tilemap_Building.HasTile(tilePos)) DeleteBuilding(tilePos);
+        if (id > 0)
+        {
+            buildingTile = ScriptableObject.CreateInstance<BuildingTile>();
+            buildingTile.InitData(GetBuildingConfig(id), tilePos, id);
+            tilemap_Building.SetTile(tilePos, buildingTile);
+            UpdateGroundDrag(tilePos, buildingTile.config_Pass, buildingTile.config_Drag);
+            buildingTile.BindObj(GetBuildingObj(tilePos)).All_OnCreate();
+        }
+        else
+        {
+            buildingTile = null;
+        }
+    }
+    /// <summary>
+    /// 初始化建筑
+    /// </summary>
+    public void InitBuilding(int id, Vector3Int tilePos, out BuildingTile buildingTile)
     {
         if (tilemap_Building.HasTile(tilePos)) DeleteBuilding(tilePos);
         if (id > 0)
@@ -330,6 +389,12 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
             buildingTile = null;
         }
     }
+    /// <summary>
+    /// 更新地面阻力
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="pass"></param>
+    /// <param name="drag"></param>
     private void UpdateGroundDrag(Vector3Int pos,bool pass,int drag)
     {
         if (GetGround(pos, out GroundTile groundTile))
@@ -347,6 +412,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         BuildingTile buildingTile = tilemap_Building.GetTile<BuildingTile>(tilePos);
         if (buildingTile)
         {
+            buildingTile.OnDelete();
             Destroy(tilemap_Building.GetInstantiatedObject(tilePos));
             Destroy(buildingTile);
             DeleteBuildingPlaceHolding(tilePos, BuildingConfigData.GetBuildingConfig(buildingTile.tileID).Building_Size);
@@ -405,7 +471,7 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
 
                 if (GetBuilding(new Vector3Int(posX, posY, 0), out BuildingTile buildingTile))
                 {
-                    buildingTile.tileObj.All_Draw();
+                    buildingTile.tileObj.All_OnDraw();
                 }
             }
         }
@@ -426,11 +492,6 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         {
             return false;
         }
-    }
-    public bool GetBuilding(Vector3 tilePos, out BuildingTile buildingTile)
-    {
-        Vector3Int vector3Int = grid_Building.WorldToCell(tilePos);
-        return GetBuilding(vector3Int, out buildingTile);
     }
     /// <summary>
     /// 获得建筑实例
@@ -478,7 +539,25 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         around.DR = (GetBuilding(pos + Vector3Int.down + Vector3Int.right, out building) && building.tileID == id) ? true : false;
         return around;
     }
-    
+    /// <summary>
+    /// 检查周围
+    /// </summary>
+    /// <returns></returns>
+    public Around CheckBuilding_EightSide(int min, int max, Vector3Int pos)
+    {
+        Around around = new Around();
+        BuildingTile building;
+        around.C = (GetBuilding(pos, out building) && building.tileID >= min && building.tileID < max) ? true : false;
+        around.U = (GetBuilding(pos + Vector3Int.up, out building) && building.tileID >= min && building.tileID < max) ? true : false;
+        around.D = (GetBuilding(pos + Vector3Int.down, out building) && building.tileID >= min && building.tileID < max) ? true : false;
+        around.L = (GetBuilding(pos + Vector3Int.left, out building) && building.tileID >= min && building.tileID < max) ? true : false;
+        around.R = (GetBuilding(pos + Vector3Int.right, out building) && building.tileID >= min && building.tileID < max) ? true : false;
+        around.UR = (GetBuilding(pos + Vector3Int.up + Vector3Int.right, out building) && building.tileID >= min && building.tileID < max) ? true : false;
+        around.UL = (GetBuilding(pos + Vector3Int.up + Vector3Int.left, out building) && building.tileID >= min && building.tileID < max) ? true : false;
+        around.DL = (GetBuilding(pos + Vector3Int.down + Vector3Int.left, out building) && building.tileID >= min && building.tileID < max) ? true : false;
+        around.DR = (GetBuilding(pos + Vector3Int.down + Vector3Int.right, out building) && building.tileID >= min && building.tileID < max) ? true : false;
+        return around;
+    }
     public Around CheckBuilding_FourSide(int id, Vector3Int pos)
     {
         Around around = new Around();
@@ -515,46 +594,73 @@ public class MapManager : SingleTon<MapManager>,ISingleTon
         around.R = (GetBuilding(pos + Vector3Int.right, out building) && func(building.tileID)) ? true : false;
         return around;
     }
+    public bool CheckGround(Vector3Int pos, AreaSize size)
+    {
+        bool result = true;
+        if (!GetGround(pos, out GroundTile groundTile) || groundTile.tileID >= 9000) result = false;
+        switch (size)
+        {
+            case AreaSize._1X1:
+                break;
+            case AreaSize._1X2:
+                if (!GetGround(pos + Vector3Int.up, out GroundTile groundTile_0) || groundTile_0.tileID >= 9000) result = false;
+                break;
+            case AreaSize._2X1:
+                if (!GetGround(pos + Vector3Int.right, out GroundTile groundTile_1) || groundTile_1.tileID >= 9000) result = false;
+                break;
+            case AreaSize._2X2:
+                if (!GetGround(pos + Vector3Int.up, out GroundTile groundTile_2) || groundTile_2.tileID >= 9000) result = false;
+                if (!GetGround(pos + Vector3Int.right, out GroundTile groundTile_3) || groundTile_3.tileID >= 9000) result = false;
+                if (!GetGround(pos + Vector3Int.right + Vector3Int.up, out GroundTile groundTile_4) || groundTile_4.tileID >= 9000) result = false;
+                break;
+            case AreaSize._3X3:
+                if (!GetGround(pos + Vector3Int.up, out GroundTile groundTile_5) || groundTile_5.tileID >= 9000) result = false;
+                if (!GetGround(pos + Vector3Int.right, out GroundTile groundTile_6) || groundTile_6.tileID >= 9000) result = false;
+                if (!GetGround(pos + Vector3Int.right + Vector3Int.up, out GroundTile groundTile_7) || groundTile_7.tileID >= 9000) result = false;
+                if (!GetGround(pos + Vector3Int.up + Vector3Int.up, out GroundTile groundTile_8) || groundTile_8.tileID >= 9000) result = false;
+                if (!GetGround(pos + Vector3Int.right + Vector3Int.right, out GroundTile groundTile_9) || groundTile_9.tileID >= 9000) result = false;
+                if (!GetGround(pos + 2 * Vector3Int.up + Vector3Int.right, out GroundTile groundTile_10) || groundTile_10.tileID >= 9000) result = false;
+                if (!GetGround(pos + 2 * Vector3Int.right + Vector3Int.up, out GroundTile groundTile_11) || groundTile_11.tileID >= 9000) result = false;
+                if (!GetGround(pos + 2 * Vector3Int.right + 2 * Vector3Int.up, out GroundTile groundTile_12) || groundTile_12.tileID >= 9000) result = false;
+                break;
+        }
+        return result;
 
+    }
     /// <summary>
     /// 检查是否有建筑空位
     /// </summary>
     /// <param name="pos"></param>
     /// <param name="size"></param>
     /// <returns></returns>
-    public bool CheckBuildingEmpty(Vector3 pos, AreaSize size)
+    public bool CheckBuildingEmpty(Vector3Int pos, AreaSize size)
     {
         bool result = true;
-        Vector3Int vector3Int = grid_Building.WorldToCell(pos);
+        if (tilemap_Building.GetTile(pos)) result = false;
         switch (size)
         {
             case AreaSize._1X1:
-                if (tilemap_Building.GetTile(vector3Int)) result = false;
                 break;
             case AreaSize._1X2:
-                if (tilemap_Building.GetTile(vector3Int)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + Vector3Int.right)) result = false;
+                if (tilemap_Building.GetTile(pos + Vector3Int.up)) result = false;
                 break;
             case AreaSize._2X1:
-                if (tilemap_Building.GetTile(vector3Int)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + Vector3Int.up)) result = false;
+                if (tilemap_Building.GetTile(pos + Vector3Int.right)) result = false;
                 break;
             case AreaSize._2X2:
-                if (tilemap_Building.GetTile(vector3Int)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + Vector3Int.up)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + Vector3Int.right)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + Vector3Int.right + Vector3Int.up)) result = false;
+                if (tilemap_Building.GetTile(pos + Vector3Int.up)) result = false;
+                if (tilemap_Building.GetTile(pos + Vector3Int.right)) result = false;
+                if (tilemap_Building.GetTile(pos + Vector3Int.right + Vector3Int.up)) result = false;
                 break;
             case AreaSize._3X3:
-                if (tilemap_Building.GetTile(vector3Int)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + Vector3Int.up)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + Vector3Int.right)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + Vector3Int.right + Vector3Int.up)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + Vector3Int.up + Vector3Int.up)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + Vector3Int.right + Vector3Int.right)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + 2 * Vector3Int.up + Vector3Int.right)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + 2 * Vector3Int.right + Vector3Int.up)) result = false;
-                if (tilemap_Building.GetTile(vector3Int + 2 * Vector3Int.right + 2 * Vector3Int.up)) result = false;
+                if (tilemap_Building.GetTile(pos + Vector3Int.up)) result = false;
+                if (tilemap_Building.GetTile(pos + Vector3Int.right)) result = false;
+                if (tilemap_Building.GetTile(pos + Vector3Int.right + Vector3Int.up)) result = false;
+                if (tilemap_Building.GetTile(pos + Vector3Int.up + Vector3Int.up)) result = false;
+                if (tilemap_Building.GetTile(pos + Vector3Int.right + Vector3Int.right)) result = false;
+                if (tilemap_Building.GetTile(pos + 2 * Vector3Int.up + Vector3Int.right)) result = false;
+                if (tilemap_Building.GetTile(pos + 2 * Vector3Int.right + Vector3Int.up)) result = false;
+                if (tilemap_Building.GetTile(pos + 2 * Vector3Int.right + 2 * Vector3Int.up)) result = false;
                 break;
         }
         return result;

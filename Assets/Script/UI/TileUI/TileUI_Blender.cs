@@ -52,14 +52,14 @@ public class TileUI_Blender : TileUI
     #region/取出放入
     public void FromPutIn(ItemData addData, ItemPath path)
     {
-        BlenderConfig blenderConfig = BlenderConfigData.GetBlenderConfig(addData.Item_ID);
+        BlenderConfig blenderConfig = BlenderConfigData.GetBlenderConfig(addData.I);
         if (blenderConfig.blender_FromID != 0)
         {
-            if (buildingObj_Bind.itemData_From.Item_ID == 0)
+            if (buildingObj_Bind.itemData_From.I == 0)
             {
                 buildingObj_Bind.itemData_From = addData;
             }
-            else if (addData.Item_ID == buildingObj_Bind.itemData_From.Item_ID)
+            else if (addData.I == buildingObj_Bind.itemData_From.I)
             {
                 buildingObj_Bind.itemData_From = GameToolManager.Instance.CombineItem(buildingObj_Bind.itemData_From, addData, out ItemData res);
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()

@@ -48,7 +48,7 @@ public class ActorItemManager
         {
             return;
         }
-        if (data.Item_ID >= 0)
+        if (data.I >= 0)
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
@@ -57,7 +57,7 @@ public class ActorItemManager
                     itemData = data
                 });
             }
-            if (lastItemID_OnHand != data.Item_ID)
+            if (lastItemID_OnHand != data.I)
             {
                 /*异类物体*/
                 ResetItemInHand();
@@ -81,11 +81,11 @@ public class ActorItemManager
         {
             ResetItemInHand();
         }
-        lastItemID_OnHand = data.Item_ID;
+        lastItemID_OnHand = data.I;
     }
     private void CreateItemInHand(ItemData data)
     {
-        Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+        Type type = Type.GetType("Item_" + data.I.ToString());
         itemBase_OnHand = (ItemBase)Activator.CreateInstance(type);
         itemBase_OnHand.UpdateDataFromNet(data);
         itemBase_OnHand.OnHand_Start(actorManager, bodyController);
@@ -128,7 +128,7 @@ public class ActorItemManager
         {
             return;
         }
-        if (data.Item_ID >= 0)
+        if (data.I >= 0)
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
@@ -137,7 +137,7 @@ public class ActorItemManager
                     itemData = data
                 });
             }
-            if (lastItemID_OnHead != data.Item_ID)
+            if (lastItemID_OnHead != data.I)
             {
                 /*异类物体*/
                 ResetItemOnHead();
@@ -160,11 +160,11 @@ public class ActorItemManager
         {
             ResetItemOnHead();
         }
-        lastItemID_OnHead = data.Item_ID;
+        lastItemID_OnHead = data.I;
     }
     public void CreateItemOnHead(ItemData data)
     {
-        Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+        Type type = Type.GetType("Item_" + data.I.ToString());
         itemBase_OnHead = (ItemBase)Activator.CreateInstance(type);
         itemBase_OnHead.UpdateDataFromNet(data);
         itemBase_OnHead.OnHead_Start(actorManager, bodyController);
@@ -191,7 +191,7 @@ public class ActorItemManager
         {
             return;
         }
-        if (data.Item_ID >= 0)
+        if (data.I >= 0)
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
@@ -200,7 +200,7 @@ public class ActorItemManager
                     itemData = data
                 });
             }
-            if (lastItemID_OnBody != data.Item_ID)
+            if (lastItemID_OnBody != data.I)
             {
                 ResetItemOnBody();
                 CreateItemOnBody(data);
@@ -221,11 +221,11 @@ public class ActorItemManager
         {
             ResetItemOnBody();
         }
-        lastItemID_OnBody = data.Item_ID;
+        lastItemID_OnBody = data.I;
     }
     public void CreateItemOnBody(ItemData data)
     {
-        Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+        Type type = Type.GetType("Item_" + data.I.ToString());
         itemBase_OnBody = (ItemBase)Activator.CreateInstance(type);
         itemBase_OnBody.UpdateDataFromNet(data);
         itemBase_OnBody.OnBody_Start(actorManager, bodyController);
@@ -252,7 +252,7 @@ public class ActorItemManager
         {
             return;
         }
-        if (data.Item_ID >= 0)
+        if (data.I >= 0)
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
@@ -272,7 +272,7 @@ public class ActorItemManager
         {
             return;
         }
-        if (data.Item_ID >= 0)
+        if (data.I >= 0)
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
             {
@@ -289,7 +289,7 @@ public class ActorItemManager
     {
         Type type = Type.GetType("Item_" + id.ToString());
         ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(id, out ItemData initData);
-        initData.Item_Count = count;
+        initData.C = count;
         return initData;
     }
     #endregion

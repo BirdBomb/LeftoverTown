@@ -108,7 +108,7 @@ public class ItemLocalObj_Sickle : ItemLocalObj
                         if (actor == actorManager) { continue; }
                         else
                         {
-                            actor.AllClient_Listen_TakeDamage(AttackDamage, DamageState.AttackReapDamage, actorManager.actorNetManager);
+                            actor.actorHpManager.TakeDamage(AttackDamage, DamageState.AttackReapDamage, actorManager.actorNetManager);
                             temp = AttackAbrasion;
                         }
                     }
@@ -132,7 +132,7 @@ public class ItemLocalObj_Sickle : ItemLocalObj
             {
                 ItemData _oldItem = itemData;
                 ItemData _newItem = itemData;
-                if (_newItem.Item_Durability - offset <= 0)
+                if (_newItem.D - offset <= 0)
                 {
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
                     {
@@ -141,7 +141,7 @@ public class ItemLocalObj_Sickle : ItemLocalObj
                 }
                 else
                 {
-                    _newItem.Item_Durability -= (sbyte)offset;
+                    _newItem.D -= (sbyte)offset;
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
                     {
                         oldItem = _oldItem,

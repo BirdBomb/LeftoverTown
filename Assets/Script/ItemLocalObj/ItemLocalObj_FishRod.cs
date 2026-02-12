@@ -376,7 +376,7 @@ public class ItemLocalObj_FishRod : ItemLocalObj
     {
         ItemData _oldItem = itemData;
         ItemData _newItem = _oldItem;
-        _newItem.Item_Durability--;
+        _newItem.D--;
         UpdateDataByLocal(_newItem);
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
@@ -477,7 +477,7 @@ public class ItemLocalObj_FishRod : ItemLocalObj
             if (temp_FishPower > 10) temp_FishPower = 10;
             temp_BaseFishTime = Mathf.Lerp(10, 1, temp_FishPower / 10f);
         }
-        UnityEngine.Random.InitState(itemData.Item_Info);
+        UnityEngine.Random.InitState(itemData.V);
         float fishTime = UnityEngine.Random.Range(temp_BaseFishTime, temp_BaseFishTime + 2);
         return fishTime;
     }
@@ -495,7 +495,7 @@ public class ItemLocalObj_FishRod : ItemLocalObj
         {
             weight += fishConfigs[i].ItemWeight;
         }
-        UnityEngine.Random.InitState(itemData.Item_Info + itemData.Item_Durability);
+        UnityEngine.Random.InitState(itemData.V + itemData.D);
         val = UnityEngine.Random.Range(0, weight);
         for (int i = 0; i < fishConfigs.Count; i++)
         {

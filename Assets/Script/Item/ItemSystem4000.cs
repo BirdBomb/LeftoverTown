@@ -185,14 +185,24 @@ public class Item_4105 : ItemBase_Food
 #endregion
 #region//药剂
 /// <summary>
-/// 鸟果汁
+/// 干净的水
 /// </summary>
 public class Item_4200 : ItemBase_Potion
+{
+    public override void Eat()
+    {
+        base.Eat();
+    }
+}
+/// <summary>
+/// 鸟果汁
+/// </summary>
+public class Item_4201 : ItemBase_Potion
 {
     private int config_Food = 20;
     public override void Eat()
     {
-        owner.actionManager.Client_HealHP(15);
+        owner.actorHpManager.HealHp(15);
         owner.hungryManager.AddFood(config_Food);
         base.Eat();
     }

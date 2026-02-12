@@ -24,17 +24,16 @@ public class BuildingObj_Home_Zombie : BuildingObj_Manmade
     private void CreateZombie()
     {
         int random = new System.Random().Next(0, 100);
-        if (random < 50)
+        if (random < 100)
         {
             MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
             {
-                name = "Actor/Zombie_Common",
+                name = "Actor/Zombie_Spray",
                 pos = transform.position,
                 callBack = ((actor) =>
                 {
                     zombie = actor.GetComponent<ActorManager>();
-                    zombie.brainManager.SetHome(buildingTile.tilePos);
-                    zombie.brainManager.SetTime(GlobalTime.Evening);
+                    zombie.brainManager.State_SetHomePos(buildingTile.tilePos);
                 })
             });
         }
@@ -47,8 +46,7 @@ public class BuildingObj_Home_Zombie : BuildingObj_Manmade
                 callBack = ((actor) =>
                 {
                     zombie = actor.GetComponent<ActorManager>();
-                    zombie.brainManager.SetHome(buildingTile.tilePos);
-                    zombie.brainManager.SetTime(GlobalTime.Evening);
+                    zombie.brainManager.State_SetHomePos(buildingTile.tilePos);
                 })
             });
         }
@@ -61,8 +59,7 @@ public class BuildingObj_Home_Zombie : BuildingObj_Manmade
                 callBack = ((actor) =>
                 {
                     zombie = actor.GetComponent<ActorManager>();
-                    zombie.brainManager.SetHome(buildingTile.tilePos);
-                    zombie.brainManager.SetTime(GlobalTime.Evening);
+                    zombie.brainManager.State_SetHomePos(buildingTile.tilePos);
                 })
             });
         }

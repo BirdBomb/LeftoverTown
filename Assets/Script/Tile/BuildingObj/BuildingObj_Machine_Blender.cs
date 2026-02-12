@@ -60,28 +60,28 @@ public class BuildingObj_Machine_Blender : BuildingObj_Manmade
     #region//ÖÆÔì
     public void Local_Blender()
     {
-        if (itemData_From.Item_Count > 0 && itemData_From.Item_ID > 0)
+        if (itemData_From.C > 0 && itemData_From.I > 0)
         {
-            BlenderConfig blenderConfig = BlenderConfigData.GetBlenderConfig(itemData_From.Item_ID);
+            BlenderConfig blenderConfig = BlenderConfigData.GetBlenderConfig(itemData_From.I);
             int toID = blenderConfig.blender_ToID;
             int toCount = blenderConfig.blender_ToCount;
-            if (itemData_To.Item_ID == 0 || itemData_To.Item_ID == toID)
+            if (itemData_To.I == 0 || itemData_To.I == toID)
             {
                 ItemData itemData_Expend = itemData_From;
-                itemData_Expend.Item_Count = 1;
+                itemData_Expend.C = 1;
                 itemData_From = GameToolManager.Instance.SplitItem(itemData_From, itemData_Expend);
 
                 Type type = Type.GetType("Item_" + toID.ToString());
                 ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData((short)toID, out ItemData initData);
-                initData.Item_Count = (short)toCount;
-                if (itemData_To.Item_ID == 0)
+                initData.C = (short)toCount;
+                if (itemData_To.I == 0)
                 {
                     itemData_To = initData;
                 }
-                else if (itemData_To.Item_ID == toID)
+                else if (itemData_To.I == toID)
                 {
                     itemData_To = GameToolManager.Instance.CombineItem(itemData_To, initData, out ItemData itemData_Res);
-                    if (itemData_Res.Item_Count > 0 && itemData_Res.Item_ID > 0)
+                    if (itemData_Res.C > 0 && itemData_Res.I > 0)
                     {
                         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                         {
@@ -97,23 +97,23 @@ public class BuildingObj_Machine_Blender : BuildingObj_Manmade
     }
     #endregion
     #region//ÍßÆ¬½»»¥
-    public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
+    public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseUI(tileUI_Bind == null);
         }
-        base.All_ActorInputKeycode(actor, code);
+        base.Local_ActorInputKeycode(actor, code);
     }
-    public override void All_PlayerHighlight(bool on)
+    public override void Local_PlayerHighlight(bool on)
     {
         OpenOrCloseHighlightUI(on);
-        base.All_PlayerHighlight(on);
+        base.Local_PlayerHighlight(on);
     }
-    public override void All_PlayerFaraway()
+    public override void Local_PlayerFaraway()
     {
         OpenOrCloseUI(false);
-        base.All_PlayerFaraway();
+        base.Local_PlayerFaraway();
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {

@@ -93,13 +93,13 @@ public class ItemLocalObj_ScatterGun : ItemLocalObj_Gun
     }
     public override void MuzzleFire()
     {
-        GameObject muzzleFire101 = PoolManager.Instance.GetObject("Effect/Effect_MuzzleFire");
+        GameObject muzzleFire101 = PoolManager.Instance.GetEffectObj("Effect/Effect_MuzzleFire");
         muzzleFire101.transform.SetParent(transform_Muzzle);
         muzzleFire101.transform.localScale = new Vector3(1, 1 - (2 * new System.Random().Next(0, 2)), 1);
         muzzleFire101.transform.localPosition = new Vector3(new System.Random().Next(-1, 1) * 0.1f, new System.Random().Next(-1, 1) * 0.1f, 1);
         muzzleFire101.transform.localRotation = Quaternion.identity;
 
-        GameObject muzzleSmoke = PoolManager.Instance.GetObject("Effect/Effect_MuzzleSmoke");
+        GameObject muzzleSmoke = PoolManager.Instance.GetEffectObj("Effect/Effect_MuzzleSmoke");
         muzzleSmoke.transform.localScale = Vector3.one;
         muzzleSmoke.transform.position = transform_Muzzle.position;
         muzzleSmoke.transform.rotation = Quaternion.identity;

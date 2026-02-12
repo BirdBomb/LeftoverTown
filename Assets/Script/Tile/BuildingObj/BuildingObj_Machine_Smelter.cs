@@ -67,7 +67,7 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
         else
         {
             /*没有剩余燃烧时间*/
-            if (itemData_Fuel.Item_ID != 0 && itemData_Fuel.Item_Count > 0)
+            if (itemData_Fuel.I != 0 && itemData_Fuel.C > 0)
             {
                 /*有剩余燃料*/
                 int count = (gameTime_CurTimeSign - gameTime_NextFuelSign) / config_Fuel.FuelSecond + 1;
@@ -90,14 +90,14 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
                 }
             }
         }
-        if (itemData_RefiningBefore.Item_ID != 0 && itemData_RefiningBefore.Item_Count != 0)
+        if (itemData_RefiningBefore.I != 0 && itemData_RefiningBefore.C != 0)
         {
             /*有原料*/
             if (fuelOffer > 0)
             {
                 /*火炉在燃烧*/
                 int RefiningAfter = config_Refining.RefiningAfterID;
-                if (itemData_RefiningAfter.Item_ID == RefiningAfter || itemData_RefiningAfter.Item_ID == 0)
+                if (itemData_RefiningAfter.I == RefiningAfter || itemData_RefiningAfter.I == 0)
                 {
                     /*合成通顺*/
                     if (fuelOffer + gameTime_LastTimeSign > gameTime_NextRefiningSign)
@@ -136,7 +136,7 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
         {
             tileUI_Bind.DrawBar();
         }
-        if (uploadInfo && MapManager.Instance.mapNetManager.Object.HasStateAuthority)
+        if (uploadInfo && WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
         {
             WriteInfo();
         }
@@ -150,10 +150,10 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
     private int ExpendFuel(int expendCount)
     {
         int fuelTime;
-        if (expendCount > itemData_Fuel.Item_Count)
+        if (expendCount > itemData_Fuel.C)
         {
             /*原料不足*/
-            expendCount = itemData_Fuel.Item_Count;
+            expendCount = itemData_Fuel.C;
             fuelTime = expendCount * config_Fuel.FuelSecond + (gameTime_NextFuelSign - gameTime_LastTimeSign);
         }
         else
@@ -163,7 +163,7 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
         }
 
         ItemData itemData_Expend = itemData_Fuel;
-        itemData_Expend.Item_Count = (short)expendCount;
+        itemData_Expend.C = (short)expendCount;
         itemData_Fuel = GameToolManager.Instance.SplitItem(itemData_Fuel, itemData_Expend);
         gameTime_NextFuelSign += config_Fuel.FuelSecond * expendCount;
 
@@ -177,10 +177,10 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
     private int ExpendRefining(int fuel, int expendCount)
     {
         int fuelResTime;
-        if (expendCount > itemData_RefiningBefore.Item_Count)
+        if (expendCount > itemData_RefiningBefore.C)
         {
             /*原料不足*/
-            expendCount = itemData_RefiningBefore.Item_Count;
+            expendCount = itemData_RefiningBefore.C;
             fuelResTime = (gameTime_LastTimeSign + fuel) - (gameTime_NextRefiningSign + config_Refining.RefiningSecond * expendCount);
             gameTime_NextRefiningSign = int.MaxValue;
         }
@@ -191,7 +191,7 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
             fuelResTime = 0;
         }
         ItemData itemData_Expend = itemData_RefiningBefore;
-        itemData_Expend.Item_Count = (short)expendCount;
+        itemData_Expend.C = (short)expendCount;
         itemData_RefiningBefore = GameToolManager.Instance.SplitItem(itemData_RefiningBefore, itemData_Expend);
         CreateRefining(config_Refining.RefiningAfterID, expendCount);
         return fuelResTime;
@@ -205,9 +205,9 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
     {
         Type type = Type.GetType("Item_" + id.ToString());
         ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData((short)id, out ItemData initData);
-        initData.Item_Count = (short)count;
+        initData.C = (short)count;
         itemData_RefiningAfter = GameToolManager.Instance.CombineItem(itemData_RefiningAfter, initData, out ItemData itemData_Res);
-        if (MapManager.Instance.mapNetManager.Object.HasStateAuthority && itemData_Res.Item_ID != 0 && itemData_Res.Item_Count > 0)
+        if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority && itemData_Res.I != 0 && itemData_Res.C > 0)
         {
             State_CreateLootItem(new List<ItemData>() { itemData_Res });
         }
@@ -228,7 +228,7 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
             if (i == 0 && strings[i] != "")
             {
                 itemData_RefiningBefore = JsonUtility.FromJson<ItemData>(strings[i]);
-                config_Refining = RefiningConfigData.GetRefiningConfig(itemData_RefiningBefore.Item_ID);
+                config_Refining = RefiningConfigData.GetRefiningConfig(itemData_RefiningBefore.I);
             }
             else if (i == 1 && strings[i] != "")
             {
@@ -237,7 +237,7 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
             else if (i == 2 && strings[i] != "")
             {
                 itemData_Fuel = JsonUtility.FromJson<ItemData>(strings[i]);
-                config_Fuel = FuelConfigData.GetFuelConfig(itemData_Fuel.Item_ID);
+                config_Fuel = FuelConfigData.GetFuelConfig(itemData_Fuel.I);
             }
             else if (i == 3 && strings[i] != "")
             {
@@ -292,23 +292,23 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
     }
     #endregion
     #region//瓦片交互
-    public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
+    public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseUI(tileUI_Bind == null);
         }
-        base.All_ActorInputKeycode(actor, code);
+        base.Local_ActorInputKeycode(actor, code);
     }
-    public override void All_PlayerHighlight(bool on)
+    public override void Local_PlayerHighlight(bool on)
     {
         OpenOrCloseHighlightUI(on);
-        base.All_PlayerHighlight(on);
+        base.Local_PlayerHighlight(on);
     }
-    public override void All_PlayerFaraway()
+    public override void Local_PlayerFaraway()
     {
         OpenOrCloseUI(false);
-        base.All_PlayerFaraway();
+        base.Local_PlayerFaraway();
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {

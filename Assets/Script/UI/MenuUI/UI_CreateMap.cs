@@ -37,7 +37,7 @@ public class UI_CreateMap : MonoBehaviour
     private MapTileInfoData buildingInfoData = new MapTileInfoData();
     private MapTileTypeData buildingTypeData = new MapTileTypeData();
     private MapTileTypeData floorTypeData = new MapTileTypeData();
-    private MapCreater mapCreater_Bind = new MapCreater();
+    private MapCreate mapCreater_Bind = new MapCreate();
     private string mapSeed = "";
     private string mapName;
     private string bind_MapInfoPath;
@@ -55,7 +55,7 @@ public class UI_CreateMap : MonoBehaviour
         bind_BuildingInfoPath = "MapData/MapBuildingInfo" + index;
         bind_BuildingTypePath = "MapData/MapBuildingType" + index;
         bind_FloorTypePath = "MapData/MapFloorType" + index;
-
+        btn_Create.interactable = true;
         transform_Panel.gameObject.SetActive(true);
         transform_Panel.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
         action_Create = actionCreate;
@@ -106,7 +106,7 @@ public class UI_CreateMap : MonoBehaviour
     public async void Create()
     {
         Debug.Log("开始生成");
-        btn_Create.enabled = true;
+        btn_Create.interactable = false;
         await SetMapData();
         Debug.Log("结束生成");
         FileManager.Instance.WriteFile(bind_MapInfoPath, JsonConvert.SerializeObject(mapInfoData));
@@ -130,10 +130,10 @@ public class UI_CreateMap : MonoBehaviour
                 config.map_Size = 500;
                 break;
             case 1:/*中地图*/
-                config.map_Size = 400;
+                config.map_Size = 750;
                 break;
             case 2:/*大地图*/
-                config.map_Size = 500;
+                config.map_Size = 1000;
                 break;
         }
 

@@ -238,8 +238,36 @@ public class PlayerEvent
     }
 
     #endregion
+    #region//玩家技能
+    /// <summary>
+    /// 本地玩家:升级
+    /// </summary>
+    public class PlayerEvent_Local_LevelUp
+    {
+        public short count;
+    }
+    /// <summary>
+    /// 本地玩家:升级获得经验
+    /// </summary>
+    public class PlayerEvent_Local_AddExp
+    {
+        public short exp;
+    }
+    /// <summary>
+    /// 本地玩家:升级技能
+    /// </summary>
+    public class PlayerEvent_Local_AddSkill
+    {
+        public short id;
+    }
+    /// <summary>
+    /// 本地玩家:清空技能
+    /// </summary>
+    public class PlayerEvent_Local_ClearSkill
+    {
 
-
+    }
+    #endregion
 
     /// <summary>
     /// 本地玩家:掉落一个物体
@@ -280,11 +308,4 @@ public class PlayerEvent
         public string text;
     }
 
-    /// <summary>
-    /// 本地玩家:绑定技能
-    /// </summary>
-    public class PlayerEvent_Local_BindSkill
-    {
-        public List<short> skillIDs = new List<short>();
-    }
 }

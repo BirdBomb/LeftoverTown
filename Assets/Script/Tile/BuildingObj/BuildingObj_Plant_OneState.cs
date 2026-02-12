@@ -20,20 +20,21 @@ public class BuildingObj_Plant_OneState : BuildingObj
         spriteRenderer.material = material;
         base.Start();
     }
-    public override void Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    public override int Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
     {
         if (damageState == DamageState.AttackReapDamage)
         {
-            base.Local_TakeDamage(val, damageState, from);
+            return base.Local_TakeDamage(val, damageState, from);
         }
         else
         {
             Local_IneffectiveDamage(damageState, from);
+            return 0;
         }
 
     }
     #region//·½·¨
-    public override void All_PlayHpDown(int offset)
+    public override void All_OnHpDown(int offset)
     {
         if (offset < 0)
         {
@@ -83,10 +84,10 @@ public class BuildingObj_Plant_OneState : BuildingObj
         sequence_ExtraScale.OnUpdate(() =>
         { material.SetFloat("_ExtraScale", force_ExtraScale); });
     }
-    public override void All_PlayBroken()
+    public override void All_OnBroken()
     {
         AudioManager.Instance.Play3DEffect(3000, transform.position);
-        base.All_PlayBroken();
+        base.All_OnBroken();
     }
     public override void All_Broken()
     {

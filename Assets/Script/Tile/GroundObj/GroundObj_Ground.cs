@@ -11,6 +11,7 @@ public class GroundObj_Ground : GroundObj
         spriteRenderer.sprite = sprite[GetInde(MapManager.Instance.CheckGround(groundTile.tileID, groundTile.tilePos))];
         base.Draw();
     }
+   
     private int GetInde(Around aroundState)
     {
         int val = -1;
@@ -339,5 +340,10 @@ public class GroundObj_Ground : GroundObj
             }
         }
         return val;
+    }
+    public override void All_ActorStandOn(ActorManager actor)
+    {
+        actor.bodyController.SetStep(40010);
+        base.All_ActorStandOn(actor);
     }
 }

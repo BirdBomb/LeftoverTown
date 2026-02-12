@@ -23,7 +23,7 @@ public class ActorInputManager
         }
         if (keyCode == KeyCode.Space)
         {
-            actorManager.actionManager.PickUp(0.5f);
+            actorManager.actionManager.State_PickUp(0.5f);
         }
     }
     public void InputAlpha(int val)
@@ -63,15 +63,15 @@ public class ActorInputManager
     public void InputMove(float deltaTime, Vector2 dir)
     {
         dir = dir.normalized;
-        float speed = actorManager.actorNetManager.Net_SpeedCommon * 0.1f;
+        float speed = actorManager.actionManager.Client_GetSpeed();
         Vector2 velocity = new Vector2(dir.x * speed, dir.y * speed);
         Vector3 newPos = actorManager.transform.position + new UnityEngine.Vector3(velocity.x * deltaTime, velocity.y * deltaTime, 0);
-        actorManager.actorNetManager.State_UpdateNetworkRigidbody(newPos, velocity.magnitude);
+        actorManager.actorNetManager.State_UpdateNetworkRigidbody(newPos, velocity.magnitude, deltaTime);
     }
     public void SimulationMove(float deltaTime, Vector2 dir)
     {
         dir = dir.normalized;
-        float speed = actorManager.actorNetManager.Net_SpeedCommon * 0.1f;
+        float speed = actorManager.actionManager.Client_GetSpeed();
         actorManager.playerSimulation.SetSimulation(dir, speed);
     }
     public void Local_AddInputKeycodeAction(Action<ActorManager, KeyCode> action)
@@ -102,6 +102,12 @@ public class ActorInputManager
     private float float_MouseRightPressTimer;
     private float float_MouseLeftPressTimer;
     private Vector3 vector3_MouseLocation;
+    /// <summary>
+    /// 操作输入
+    /// </summary>
+    /// <param name="dt"></param>
+    /// <param name="inputType"></param>
+    /// <returns>有效输入操作</returns>
     public bool Simulate_InputMousePress(float dt, MouseInputType inputType)
     {
         if (inputType == MouseInputType.PressRightThenPressLeft)

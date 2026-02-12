@@ -165,14 +165,22 @@ public class LiquidManager : SingleTon<LiquidManager>, ISingleTon
             material_Editor.SetTexture("_BlendTex", null);
         }
     }
-
+    bool wave = false;
     private void UpdateMouse()
     {
         if (!isMouseIn)
             return;
         if (Input.GetMouseButton(0))
         {
+            
+        }
+        if (wave)
+        {
             AddWave(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        }
+        else
+        {
+            wave = !wave;
         }
     }
     #endregion

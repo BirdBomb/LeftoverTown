@@ -46,6 +46,7 @@ public class UI_RoomJoin : MonoBehaviour
     {
         transform_Panel.gameObject.SetActive(true);
         transform_Panel.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        NetManager.Instance.JoinSessionLobby();
         Refresh();
     }
     public void HidePanel()
@@ -54,7 +55,7 @@ public class UI_RoomJoin : MonoBehaviour
     }
     public void Refresh()
     {
-        Debug.Log("更新大厅列表" + sessionInfos.Count);
+        Debug.Log("更新大厅列表UI" + sessionInfos.Count);
         ClearLobby();
         DrawLobby();
     }

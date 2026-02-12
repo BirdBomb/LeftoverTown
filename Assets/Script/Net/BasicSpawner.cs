@@ -18,7 +18,6 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
     private float local_rightPressTimer;
     private void Start()
     {
-        //NetworkRunner.CloudConnectionLost += OnCloudConnectionLost;
     }
     private void Update()
     {
@@ -38,29 +37,6 @@ public class BasicSpawner : MonoBehaviour,INetworkRunnerCallbacks
         {
             local_rightPressTimer = 0;
         }
-    }
-    private void OnCloudConnectionLost(NetworkRunner runner, ShutdownReason reason, bool reconnecting)
-    {
-        Debug.Log($"云端连接失败: {reason} (原因: {reconnecting})");
-
-        if (!reconnecting)
-        {
-            Debug.Log("不再重新连接云端");
-            // Handle scenarios where reconnection is not possible
-            // e.g., notify the user, attempt manual reconnection, etc.
-        }
-        else
-        {
-            // Wait for automatic reconnection
-            Debug.Log("尝试重新连接云端");
-            StartCoroutine(WaitForReconnection(runner));
-        }
-    }
-
-    private IEnumerator WaitForReconnection(NetworkRunner runner)
-    {
-        yield return new WaitUntil(() => runner.SessionInfo.IsValid);
-        Debug.Log("Reconnected to the Cloud!");
     }
     public void OnConnectedToServer(NetworkRunner runner)
     {

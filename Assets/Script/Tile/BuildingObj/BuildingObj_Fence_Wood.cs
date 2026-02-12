@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingObj_Fence_Wood : BuildingObj
+public class BuildingObj_Fence_Wood : BuildingObj_Manmade
 {
     [SerializeField]
     private SpriteRenderer spriteRenderer;
@@ -13,13 +13,13 @@ public class BuildingObj_Fence_Wood : BuildingObj
     private GameObject obj_LinkLeft;
     [SerializeField]
     private GameObject obj_LinkDown;
-    public override void All_Draw()
+    public override void All_OnDraw()
     {
         Around around = MapManager.Instance.CheckBuilding_FourSide(buildingTile.tileID,buildingTile.tilePos);
         obj_LinkRight.SetActive(around.R);
         obj_LinkLeft.SetActive(around.L);
         obj_LinkDown.SetActive(around.D);
-        base.All_Draw();
+        base.All_OnDraw();
     }
 
 }

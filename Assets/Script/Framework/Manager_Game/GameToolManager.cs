@@ -21,14 +21,14 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
     /// <returns>合并结果</returns>
     public ItemData CombineItem(ItemData itemData_CombineA, ItemData itemData_CombineB, out ItemData itemData_Res)
     {
-        if (itemData_CombineA.Item_ID > 0)
+        if (itemData_CombineA.I > 0)
         {
-            ItemConfig config = ItemConfigData.GetItemConfig(itemData_CombineA.Item_ID);
+            ItemConfig config = ItemConfigData.GetItemConfig(itemData_CombineA.I);
             if (config.Item_Size == ItemSize.Gro)
             {
-                if (itemData_CombineA.Item_ID == itemData_CombineB.Item_ID)
+                if (itemData_CombineA.I == itemData_CombineB.I)
                 {
-                    Type type = Type.GetType("Item_" + itemData_CombineA.Item_ID.ToString());
+                    Type type = Type.GetType("Item_" + itemData_CombineA.I.ToString());
                     ((ItemBase)Activator.CreateInstance(type)).StaticAction_Combine(itemData_CombineA, itemData_CombineB, config.Item_Max, out ItemData newData, out itemData_CombineB);
                     itemData_CombineA = newData;
                 }
@@ -50,15 +50,15 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
     /// <returns>拆分结果</returns>
     public ItemData SplitItem(ItemData itemData_SplitBase, ItemData itemData_Split)
     {
-        ItemConfig config = ItemConfigData.GetItemConfig(itemData_SplitBase.Item_ID);
+        ItemConfig config = ItemConfigData.GetItemConfig(itemData_SplitBase.I);
         if (config.Item_Size == ItemSize.Gro)
         {
             /*可以拆分*/
-            if (itemData_SplitBase.Item_ID == itemData_Split.Item_ID)
+            if (itemData_SplitBase.I == itemData_Split.I)
             {
-                itemData_SplitBase.Item_Count -= itemData_Split.Item_Count;
+                itemData_SplitBase.C -= itemData_Split.C;
             }
-            if (itemData_SplitBase.Item_Count <= 0)
+            if (itemData_SplitBase.C <= 0)
             {
                 itemData_SplitBase = new ItemData(0);
             }
@@ -83,18 +83,18 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
             if (itemDatas_List[i].Equals(itemData_Sub))
             {
                 ItemData itemData = itemDatas_List[i];
-                short temp = itemData.Item_Count;
-                if (temp >= itemData_Sub.Item_Count)
+                short temp = itemData.C;
+                if (temp >= itemData_Sub.C)
                 {
-                    itemData.Item_Count -= itemData_Sub.Item_Count;
-                    itemData_Sub.Item_Count = 0;
+                    itemData.C -= itemData_Sub.C;
+                    itemData_Sub.C = 0;
                 }
                 else
                 {
-                    itemData.Item_Count = 0;
-                    itemData_Sub.Item_Count -= temp;
+                    itemData.C = 0;
+                    itemData_Sub.C -= temp;
                 }
-                if (itemData.Item_Count <= 0)
+                if (itemData.C <= 0)
                 {
                     ItemData empty = new ItemData();
                     itemDatas_List[i] = empty;
@@ -150,32 +150,32 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
         }
         if (itemDatas_List.Count > index)
         {
-            if (itemDatas_List[index].Item_ID == 0)
+            if (itemDatas_List[index].I == 0)
             {
                 itemDatas_List[index] = itemData_Add;
             }
             else
             {
-                ItemConfig config = ItemConfigData.GetItemConfig(itemData_Add.Item_ID);
-                if (config.Item_Size == ItemSize.Gro && itemDatas_List[index].Item_ID == itemData_Add.Item_ID)
+                ItemConfig config = ItemConfigData.GetItemConfig(itemData_Add.I);
+                if (config.Item_Size == ItemSize.Gro && itemDatas_List[index].I == itemData_Add.I)
                 {
                     itemDatas_List[index] = CombineItem(itemDatas_List[index], itemData_Add, out itemData_Add);
                 }
-                if (itemData_Add.Item_ID > 0 && itemData_Add.Item_Count > 0)
+                if (itemData_Add.I > 0 && itemData_Add.C > 0)
                 {
                     for (int i = 0; i < itemDatas_List.Count; i++)
                     {
-                        if (itemData_Add.Item_ID <= 0 || itemData_Add.Item_Count <= 0)
+                        if (itemData_Add.I <= 0 || itemData_Add.C <= 0)
                         {
                             break;
                         }
-                        if (itemDatas_List[i].Item_ID == itemData_Add.Item_ID && config.Item_Size == ItemSize.Gro)
+                        if (itemDatas_List[i].I == itemData_Add.I && config.Item_Size == ItemSize.Gro)
                         {
                             ItemData itemData_A = itemDatas_List[i];
                             ItemData itemData_B = itemData_Add;
                             itemDatas_List[i] = CombineItem(itemData_A, itemData_B, out itemData_Add);
                         }
-                        if (itemDatas_List[i].Item_ID == 0)
+                        if (itemDatas_List[i].I == 0)
                         {
                             itemDatas_List[i] = itemData_Add;
                             itemData_Add = new ItemData();
@@ -207,23 +207,23 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
 
         for (int i = 0; i < itemDatas_List.Count; i++)
         {
-            if (itemDatas_List[i].Item_ID != 0)
+            if (itemDatas_List[i].I != 0)
             {
                 ItemData itemData = itemDatas_List[i];
-                ItemConfig config = ItemConfigData.GetItemConfig(itemData.Item_ID);
+                ItemConfig config = ItemConfigData.GetItemConfig(itemData.I);
                 for (int j = 0; j < itemDatas_New.Count; j++)
                 {
-                    if (itemData.Item_ID <= 0 || itemData.Item_Count <= 0)
+                    if (itemData.I <= 0 || itemData.C <= 0)
                     {
                         break;
                     }
-                    if (itemDatas_New[j].Item_ID == itemData.Item_ID && config.Item_Size == ItemSize.Gro)
+                    if (itemDatas_New[j].I == itemData.I && config.Item_Size == ItemSize.Gro)
                     {
                         ItemData itemData_A = itemDatas_New[j];
                         ItemData itemData_B = itemData;
                         itemDatas_New[j] = CombineItem(itemData_A, itemData_B, out itemData);
                     }
-                    if (itemDatas_New[j].Item_ID == 0)
+                    if (itemDatas_New[j].I == 0)
                     {
                         itemDatas_New[j] = itemData;
                         itemData = new ItemData();
@@ -245,19 +245,19 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
     {
         for (int i = 0; i < itemDatas_List.Count; i++)
         {
-            if (itemDatas_List[i].Item_ID == id && count > 0)
+            if (itemDatas_List[i].I == id && count > 0)
             {
                 ItemData itemData_New = itemDatas_List[i];
-                if (itemData_New.Item_Count <= count)
+                if (itemData_New.C <= count)
                 {
-                    count -= itemData_New.Item_Count;
-                    itemData_New.Item_Count = 0;
+                    count -= itemData_New.C;
+                    itemData_New.C = 0;
                     itemDatas_List[i] = itemData_New;
                     itemDatas_List.Remove(itemData_New);
                 }
                 else
                 {
-                    itemData_New.Item_Count -= (short)count;
+                    itemData_New.C -= (short)count;
                     count = 0;
                     itemDatas_List[i] = itemData_New;
                 }

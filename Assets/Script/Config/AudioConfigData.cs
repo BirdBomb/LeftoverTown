@@ -37,6 +37,37 @@ public class AudioConfigData
 
         new AudioConfig(){ Audio_ID = 4000,Audio_Name = "HumanAudio_Step",Audio_MaxDistance = 10},
 
+        new AudioConfig(){ Audio_ID = 40010,Audio_Name = "HumanAudio_StepOnGround0",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40011,Audio_Name = "HumanAudio_StepOnGround1",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40012,Audio_Name = "HumanAudio_StepOnGround2",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40013,Audio_Name = "HumanAudio_StepOnGround3",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40014,Audio_Name = "HumanAudio_StepOnGround4",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40015,Audio_Name = "HumanAudio_StepOnGround5",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40016,Audio_Name = "HumanAudio_StepOnGround6",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40017,Audio_Name = "HumanAudio_StepOnGround7",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40018,Audio_Name = "HumanAudio_StepOnGround8",Audio_MaxDistance = 10},
+
+        new AudioConfig(){ Audio_ID = 40020,Audio_Name = "HumanAudio_StepOnGrass0",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40021,Audio_Name = "HumanAudio_StepOnGrass1",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40022,Audio_Name = "HumanAudio_StepOnGrass2",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40023,Audio_Name = "HumanAudio_StepOnGrass3",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40024,Audio_Name = "HumanAudio_StepOnGrass4",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40025,Audio_Name = "HumanAudio_StepOnGrass5",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40026,Audio_Name = "HumanAudio_StepOnGrass6",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40027,Audio_Name = "HumanAudio_StepOnGrass7",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40028,Audio_Name = "HumanAudio_StepOnGrass8",Audio_MaxDistance = 10},
+
+        new AudioConfig(){ Audio_ID = 40030,Audio_Name = "HumanAudio_StepOnStone0",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40031,Audio_Name = "HumanAudio_StepOnStone1",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40032,Audio_Name = "HumanAudio_StepOnStone2",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40033,Audio_Name = "HumanAudio_StepOnStone3",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40034,Audio_Name = "HumanAudio_StepOnStone4",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40035,Audio_Name = "HumanAudio_StepOnStone5",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40036,Audio_Name = "HumanAudio_StepOnStone6",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40037,Audio_Name = "HumanAudio_StepOnStone7",Audio_MaxDistance = 10},
+        new AudioConfig(){ Audio_ID = 40038,Audio_Name = "HumanAudio_StepOnStone8",Audio_MaxDistance = 10},
+
+
         new AudioConfig(){ Audio_ID = 9000,Audio_Name = "BGM_LeftoverLand",Audio_MaxDistance = 200},
 };
 }
@@ -44,7 +75,7 @@ public class AudioConfigData
 public struct AudioConfig
 {
     [SerializeField]/*±àºÅ*/
-    public short Audio_ID;
+    public int Audio_ID;
     [SerializeField]/*Ãû×Ö*/
     public string Audio_Name;
     [SerializeField]/*×î´ó¾àÀë*/

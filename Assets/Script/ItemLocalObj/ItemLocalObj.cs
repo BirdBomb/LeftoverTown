@@ -34,20 +34,20 @@ public class ItemLocalObj : MonoBehaviour
     /// </summary>
     /// <param name="time"></param>
     /// <param name="actorAuthority"></param>
-    /// <returns>最大值</returns>
+    /// <returns>达到最大值</returns>
     public virtual bool PressLeftMouse(float time, ActorAuthority actorAuthority)
     {
-        return false;
+        return true;
     }
     /// <summary>
     /// 按压右键
     /// </summary>
     /// <param name="time"></param>
     /// <param name="actorAuthority"></param>
-    /// <returns></returns>
+    /// <returns>达到最大值</returns>
     public virtual bool PressRightMouse(float time, ActorAuthority actorAuthority)
     {
-        return false;
+        return true;
     }
     /// <summary>
     /// 释放左键

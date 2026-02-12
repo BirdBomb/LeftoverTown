@@ -45,9 +45,44 @@ public class GroundTile : TileBase
         tilePos = vector3Int;
         tileID = id;
     }
-    public void BindObj(GameObject gameObject)
+    public GroundObj BindObj(GameObject gameObject)
     {
         gameObject.GetComponent<GroundObj>().Bind(this, out tileObj);
+        return tileObj;
+    }
+    /// <summary>
+    /// ¿¿½üÍßÆ¬
+    /// </summary>
+    public virtual bool NearbyTileByActor(ActorManager who)
+    {
+        if (tileObj)
+        {
+            return tileObj.All_ActorNearby(who);
+        }
+        return false;
+    }
+    /// <summary>
+    /// Õ¾ÔÚÍßÆ¬ÉÏ
+    /// </summary>
+    /// <param name="who"></param>
+    public virtual void StandOnTileByActor(ActorManager who)
+    {
+        if (tileObj)
+        {
+            tileObj.All_ActorStandOn(who);
+        }
+    }
+    /// <summary>
+    /// Ô¶ÀëÍßÆ¬
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool FarawayTileByActor(ActorManager who)
+    {
+        if (tileObj)
+        {
+            return tileObj.All_ActorFaraway(who);
+        }
+        return false;
     }
 
     #region//Â·¾¶ÐÅÏ¢

@@ -29,7 +29,8 @@ public class BuildingObj_Home_Hunter : BuildingObj_Manmade
             callBack = ((actor) =>
             {
                 actor_Bind = actor.GetComponent<ActorManager>();
-                actor_Bind.brainManager.SetWork(buildingTile.tilePos);
+                actor_Bind.brainManager.State_SetHomePos(buildingTile.tilePos);
+                actor_Bind.brainManager.State_SetActivityPos(buildingTile.tilePos);
             })
         });
     }

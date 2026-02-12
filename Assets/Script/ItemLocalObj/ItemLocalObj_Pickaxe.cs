@@ -8,6 +8,8 @@ using UnityEngine;
 /// </summary>
 public class ItemLocalObj_Pickaxe : ItemLocalObj
 {
+    [Header("¸ä×Ó×²»÷µã")]
+    public Transform transform_PickaxeHit;
     [SerializeField]
     private Animator animator;
     [SerializeField]
@@ -89,7 +91,6 @@ public class ItemLocalObj_Pickaxe : ItemLocalObj
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
             skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, AttackRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
@@ -98,25 +99,39 @@ public class ItemLocalObj_Pickaxe : ItemLocalObj
                 {
                     if (colliders[i].TryGetComponent(out BuildingObj building))
                     {
-                        building.Local_TakeDamage(BludgeoningDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
-                        temp = AttackAbrasion;
+                        HackBuilding(building);
                     }
                 }
                 else if (colliders[i].tag.Equals("Actor"))
                 {
                     if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        if (actor == actorManager) { continue; }
-                        else
-                        {
-                            actor.AllClient_Listen_TakeDamage(BludgeoningDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
-                            temp = AttackAbrasion;
-                        }
+                        if (actor != actorManager) { HackActor(actor); }
                     }
                 }
             }
-            AddAbrasion(temp);
         }
+    }
+    private void HackActor(ActorManager actor)
+    {
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+        effect.GetComponent<Effect_Impact>().PlayBludgeoning(actor.transform.position - actorManager.transform.position, true);
+        effect.transform.position = actor.transform.position;
+
+        actor.actorHpManager.TakeDamage(BludgeoningDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
+        AddAbrasion(AttackAbrasion);
+    }
+    private void HackBuilding(BuildingObj building)
+    {
+        int damage = 0;
+        damage += building.Local_TakeDamage(BludgeoningDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
+        if (damage > 0)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlayBludgeoning(building.transform.position - actorManager.transform.position, true);
+            effect.transform.position = building.transform.position;
+        }
+        AddAbrasion(AttackAbrasion);
     }
     /// <summary>
     /// ÀÛ¼ÆËðºÄ
@@ -133,7 +148,7 @@ public class ItemLocalObj_Pickaxe : ItemLocalObj
             {
                 ItemData _oldItem = itemData;
                 ItemData _newItem = itemData;
-                if (_newItem.Item_Durability - offset <= 0)
+                if (_newItem.D - offset <= 0)
                 {
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
                     {
@@ -142,7 +157,7 @@ public class ItemLocalObj_Pickaxe : ItemLocalObj
                 }
                 else
                 {
-                    _newItem.Item_Durability -= (sbyte)offset;
+                    _newItem.D -= (sbyte)offset;
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
                     {
                         oldItem = _oldItem,

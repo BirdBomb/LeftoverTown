@@ -55,10 +55,10 @@ public class TileUI_Home_ZombieHook : TileUI
     } 
     public void PutIn(ItemData addData, ItemPath path)
     {
-        if (addData.Item_ID == buildingObj_Bind.itemData_ID && buildingObj_Bind.gameTime_CurTimeSign >= buildingObj_Bind.gameTime_UseableTime)
+        if (addData.I == buildingObj_Bind.itemData_ID && buildingObj_Bind.gameTime_CurTimeSign >= buildingObj_Bind.gameTime_UseableTime)
         {
             ItemData putIn = addData;
-            putIn.Item_Count = 1;
+            putIn.C = 1;
             ItemData resData = GameToolManager.Instance.SplitItem(addData, putIn);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {

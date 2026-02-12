@@ -88,7 +88,7 @@ public class ItemLocalObj_Torch : ItemLocalObj
         {
             ItemData _oldItem = itemData;
             ItemData _newItem = itemData;
-            if (_newItem.Item_Durability + val <= 0)
+            if (_newItem.D + val <= 0)
             {
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
                 {
@@ -97,7 +97,7 @@ public class ItemLocalObj_Torch : ItemLocalObj
             }
             else
             {
-                _newItem.Item_Durability += val;
+                _newItem.D += val;
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
                 {
                     oldItem = _oldItem,

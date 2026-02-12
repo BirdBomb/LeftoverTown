@@ -27,7 +27,6 @@ public class PlayerCoreLocal : MonoBehaviour
             if (bool_Local)
             {
                 actorManager_Bind.actorNetManager.Local_ItemBag_Add(_.index, _.itemData,_.itemFrom);
-                Debug.Log(_.itemData.Item_ID);
                 Local_SaveActorData();
             }
         }).AddTo(this);
@@ -257,7 +256,38 @@ public class PlayerCoreLocal : MonoBehaviour
         #endregion
         #region//Buff
         #endregion
-
+        #region//Level
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_AddExp>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.Local_ExpUp(_.exp);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_LevelUp>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.Local_LevelUp(_.count);
+            }
+        }).AddTo(this);
+        #endregion
+        #region//Skill
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_AddSkill>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.Local_AddSkill(_.id);
+            }
+        }).AddTo(this);
+        MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_ClearSkill>().Subscribe(_ =>
+        {
+            if (bool_Local)
+            {
+                actorManager_Bind.actorNetManager.Local_ClearSkill();
+            }
+        }).AddTo(this);
+        #endregion
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_TryDropItem>().Subscribe(_ =>
         {
             if (bool_Local)
@@ -285,14 +315,14 @@ public class PlayerCoreLocal : MonoBehaviour
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_SendEmoji((int)_.emoji);
+                actorManager_Bind.actionManager.AllClient_SendEmoji((short)_.emoji, 10);
             }
         }).AddTo(this);
         MessageBroker.Default.Receive<PlayerEvent.PlayerEvent_Local_SendText>().Subscribe(_ =>
         {
             if (bool_Local)
             {
-                actorManager_Bind.actorNetManager.RPC_LocalInput_SendText(_.text,(int)Emoji.Yell);
+                actorManager_Bind.actionManager.AllClient_SendText(_.text,(int)Emoji.Yell);
             }
         }).AddTo(this);
     }
@@ -343,6 +373,10 @@ public class PlayerCoreLocal : MonoBehaviour
     #region//角色信息
     [HideInInspector]
     public PlayerData playerData_Local;
+    
+    /// <summary>
+    /// 设置角色信息
+    /// </summary>
     public void Local_SetActorData()
     {
         GameDataManager.Instance.LoadPlayer(out playerData_Local);
@@ -360,9 +394,10 @@ public class PlayerCoreLocal : MonoBehaviour
                     actorManager_Bind.actorNetManager.Local_ItemBag_Change(i, new ItemData());
                 }
             }
-            actorManager_Bind.actorNetManager.Local_SetLevel(playerData_Local.Level_Cur);
-            actorManager_Bind.actorNetManager.Local_SetExp(playerData_Local.Exp_Cur);
-            actorManager_Bind.actorNetManager.Local_SetBuffList(playerData_Local.BuffList);
+            actorManager_Bind.actorNetManager.Local_SetLevelAndExp(playerData_Local.Level_Cur, playerData_Local.Exp_Cur);
+            actorManager_Bind.actorNetManager.Local_SetQuestList(playerData_Local.Quest_List, playerData_Local.Quest_Level);
+            actorManager_Bind.actorNetManager.Local_SetSkillList(playerData_Local.Skills_List);
+            actorManager_Bind.actorNetManager.Local_SetBuffList(playerData_Local.Buff_List);
             //Debug.Log("--初始化玩家手部");
             actorManager_Bind.actorNetManager.RPC_LocalInput_ItemHand_Add(playerData_Local.HandItem);
             //Debug.Log("--初始化玩家头部");
@@ -394,8 +429,6 @@ public class PlayerCoreLocal : MonoBehaviour
         playerData_Local.BodyItem = actorManager_Bind.actorNetManager.Net_ItemBody;
         playerData_Local.BagItems = actorManager_Bind.actorNetManager.Local_ItemBag_Get();
 
-        playerData_Local.Level_Cur = actorManager_Bind.actorNetManager.Local_GetLevel();
-        playerData_Local.Exp_Cur = actorManager_Bind.actorNetManager.Local_GetExp();
         playerData_Local.Hp_Cur = actorManager_Bind.actorNetManager.Net_HpCur;
         playerData_Local.Hp_Max = actorManager_Bind.actorNetManager.Local_HpMax;
         playerData_Local.Food_Cur = actorManager_Bind.actorNetManager.Net_FoodCur;
@@ -407,11 +440,16 @@ public class PlayerCoreLocal : MonoBehaviour
         playerData_Local.Coin_Cur = actorManager_Bind.actorNetManager.Local_Coin;
         playerData_Local.Fine_Cur = actorManager_Bind.actorNetManager.Local_Fine;
 
+        playerData_Local.Level_Cur = actorManager_Bind.actorNetManager.Local_GetLevel();
+        playerData_Local.Exp_Cur = actorManager_Bind.actorNetManager.Local_GetExp();
+        playerData_Local.Skills_List = actorManager_Bind.actorNetManager.Local_GetSkillList();
+        playerData_Local.Quest_List = actorManager_Bind.actorNetManager.Local_GetQuestList();
+        playerData_Local.Quest_Level = actorManager_Bind.actorNetManager.Local_GetQuestLevel();
+
         playerData_Local.Hair_ID = actorManager_Bind.actorNetManager.Local_HairID;
         playerData_Local.Hair_Color = actorManager_Bind.actorNetManager.Local_HairColor;
         playerData_Local.Eye_ID = actorManager_Bind.actorNetManager.Local_EyeID;
-        playerData_Local.BuffList = actorManager_Bind.actorNetManager.Local_GetBuffList();
-
+        playerData_Local.Buff_List = actorManager_Bind.actorNetManager.Local_GetBuffList();
         GameDataManager.Instance.SavePlayer(playerData_Local);
     }
     /// <summary>
@@ -423,7 +461,7 @@ public class PlayerCoreLocal : MonoBehaviour
         playerData_Local.Food_Cur = (short)(playerData_Local.Food_Max / 2);
         playerData_Local.San_Cur = (short)(playerData_Local.San_Max / 2);
         playerData_Local.Fine_Cur = 0;
-        playerData_Local.BuffList.Clear();
+        playerData_Local.Buff_List.Clear();
 
         GameDataManager.Instance.SavePlayer(playerData_Local);
     }
@@ -502,6 +540,7 @@ public class PlayerCoreLocal : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F)) actorManager_Bind.inputManager.InputKeycode(KeyCode.F);
         if (Input.GetKeyDown(KeyCode.R)) actorManager_Bind.inputManager.InputKeycode(KeyCode.R);
+        if (Input.GetKeyDown(KeyCode.L)) actorManager_Bind.inputManager.InputKeycode(KeyCode.L);
         if (Input.GetKeyDown(KeyCode.Space)) actorManager_Bind.inputManager.InputKeycode(KeyCode.Space);
     }
 
@@ -524,7 +563,7 @@ public class PlayerCoreLocal : MonoBehaviour
     /// </summary>
     private float distance_Nearset;
     private Vector3Int vector3Int_mapCenter = new Vector3Int(-99999, -99999);
-    private const float config_MapView = 12;
+    private const float config_MapView = 10;
     /// <summary>
     /// 更新地图绘制
     /// </summary>
@@ -533,13 +572,9 @@ public class PlayerCoreLocal : MonoBehaviour
         GameUI_MiniMap.Instance.ChangePlayerPos((Vector2Int)pos);
         if (Mathf.Abs(pos.x - vector3Int_mapCenter.x) > config_MapView || Mathf.Abs(pos.y - vector3Int_mapCenter.y) > config_MapView)
         {
-            Debug.Log($"超出地图绘制范围,绘制新区域。当前位置({pos})地图锚点({vector3Int_mapCenter})");
+            //Debug.Log($"超出地图绘制范围,绘制新区域。当前位置({pos})地图锚点({vector3Int_mapCenter})");
             vector3Int_mapCenter = new Vector3Int((int)(Math.Round(pos.x / config_MapView) * config_MapView), (int)(Math.Round(pos.y / config_MapView) * config_MapView), 0);
-            MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_RequestMapData()
-            {
-                playerPos = vector3Int_mapCenter,
-                mapSize = (int)config_MapView
-            });
+            MapManager.Instance.ChangePlayerCenterInMap(vector3Int_mapCenter,(int)config_MapView);
         }
     }
     /// <summary>
@@ -605,14 +640,13 @@ public class PlayerCoreLocal : MonoBehaviour
             if (buildingTiles_HighLight != null)
             {
                 buildingTiles_HighLight.HighlightTileByPlayer(false);
-                actorManager_Bind.inputManager.Local_RemoveInputKeycodeAction(buildingTiles_HighLight.ActorInputKeycode);
+                actorManager_Bind.inputManager.Local_RemoveInputKeycodeAction(buildingTiles_HighLight.Local_ActorInputKeycode);
             }
-
             buildingTiles_HighLight = tile;
             if (buildingTiles_HighLight != null)
             {
                 buildingTiles_HighLight.HighlightTileByPlayer(true);
-                actorManager_Bind.inputManager.Local_AddInputKeycodeAction(buildingTiles_HighLight.ActorInputKeycode);
+                actorManager_Bind.inputManager.Local_AddInputKeycodeAction(buildingTiles_HighLight.Local_ActorInputKeycode);
             }
         }
     }

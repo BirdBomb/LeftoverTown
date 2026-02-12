@@ -14,7 +14,7 @@ public class BuildingObj_Counter : BuildingObj_Manmade
     private Sprite sprite_R;
     [SerializeField]
     private Sprite sprite_S;
-    public override void All_Draw()
+    public override void All_OnDraw()
     {
         Around around = MapManager.Instance.CheckBuilding_FourSide(buildingTile.tileID, buildingTile.tilePos);
         if (around.R && around.L)
@@ -33,7 +33,7 @@ public class BuildingObj_Counter : BuildingObj_Manmade
         {
             spriteRenderer.sprite = sprite_S;
         }
-        base.All_Draw();
+        base.All_OnDraw();
     }
 
 }

@@ -111,13 +111,13 @@ public class ItemLocalObj_Hoe : ItemLocalObj
                 {
                     if(tile.tileID == 1000 || tile.tileID == 1001)
                     {
-                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeGround()
+                        MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_CreateGround()
                         {
                             groundID = 2002,
                             groundPos = pos,
                         });
                         AudioManager.Instance.Play3DEffect(2006, transform.position);
-                        GameObject effect = PoolManager.Instance.GetObject("Effect/Effect_BombSmoke");
+                        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_SmokeBomb");
                         effect.transform.position = MapManager.Instance.grid_Ground.CellToWorld(pos) + new Vector3(0.5f, 0.5f, 0);
                         AddAbrasion(HoeAbrasion);
                         return;
@@ -142,7 +142,7 @@ public class ItemLocalObj_Hoe : ItemLocalObj
             {
                 ItemData _oldItem = itemData;
                 ItemData _newItem = itemData;
-                if (_newItem.Item_Durability - offset <= 0)
+                if (_newItem.D - offset <= 0)
                 {
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
                     {
@@ -151,7 +151,7 @@ public class ItemLocalObj_Hoe : ItemLocalObj
                 }
                 else
                 {
-                    _newItem.Item_Durability -= (sbyte)offset;
+                    _newItem.D -= (sbyte)offset;
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
                     {
                         oldItem = _oldItem,

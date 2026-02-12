@@ -26,26 +26,24 @@ public class ItemConfigData
         /*原木*/new ItemConfig(){ Item_ID = 1000,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 4,Item_Rarity = ItemRarity.Gray },
         /*树枝*/new ItemConfig(){ Item_ID = 1001,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
         /*干草*/new ItemConfig(){ Item_ID = 1002,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
+        /*花瓣*/new ItemConfig(){ Item_ID = 1003,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
         /*石头*/new ItemConfig(){ Item_ID = 1010,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
         /*煤炭*/new ItemConfig(){ Item_ID = 1011,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
-        /*金矿*/new ItemConfig(){ Item_ID = 1012,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 150,Item_Rarity = ItemRarity.Gold },
-        /*铁矿*/new ItemConfig(){ Item_ID = 1013,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
-        /*水晶*/new ItemConfig(){ Item_ID = 1014,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 152,Item_Rarity = ItemRarity.Blue },
-        /*玉矿*/new ItemConfig(){ Item_ID = 1015,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 154,Item_Rarity = ItemRarity.Blue },
-        /*硝矿*/new ItemConfig(){ Item_ID = 1016,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 15,Item_Rarity = ItemRarity.Gray },
-        /*红晶*/new ItemConfig(){ Item_ID = 1017,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 152,Item_Rarity = ItemRarity.Blue },
-        /*白晶*/new ItemConfig(){ Item_ID = 1018,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 170,Item_Rarity = ItemRarity.Blue },
+        /*硝石*/new ItemConfig(){ Item_ID = 1012,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 150,Item_Rarity = ItemRarity.Gray },
+        /*铜矿*/new ItemConfig(){ Item_ID = 1013,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 12,Item_Rarity = ItemRarity.Green },
+        /*铁矿*/new ItemConfig(){ Item_ID = 1014,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 152,Item_Rarity = ItemRarity.Green },
+        /*金矿*/new ItemConfig(){ Item_ID = 1015,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 154,Item_Rarity = ItemRarity.Gold },
+        /*骨头*/new ItemConfig(){ Item_ID = 1021,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
+        /*毛皮*/new ItemConfig(){ Item_ID = 1022,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//1100-1199二级材料
         /*木材*/new ItemConfig(){ Item_ID = 1100,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 2,Item_Rarity = ItemRarity.Gray },
         /*草纸*/new ItemConfig(){ Item_ID = 1101,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 4,Item_Rarity = ItemRarity.Gray },
-        /*铁锭*/new ItemConfig(){ Item_ID = 1110,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 20,Item_Rarity = ItemRarity.Gray },
-        /*金锭*/new ItemConfig(){ Item_ID = 1111,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 170,Item_Rarity = ItemRarity.Gold },
-        /*能源石*/new ItemConfig(){ Item_ID = 1112,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 180,Item_Rarity = ItemRarity.Purple },
-        /*绿宝石*/new ItemConfig(){ Item_ID = 1113,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 182,Item_Rarity = ItemRarity.Purple },
-        /*硝石碎*/new ItemConfig(){ Item_ID = 1114,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
-        /*红宝石*/new ItemConfig(){ Item_ID = 1115,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 186,Item_Rarity = ItemRarity.Purple },
-        /*蛋白石*/new ItemConfig(){ Item_ID = 1116,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 195,Item_Rarity = ItemRarity.Purple },
+        /*煤粉*/new ItemConfig(){ Item_ID = 1111,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 20,Item_Rarity = ItemRarity.Green },
+        /*硝粉*/new ItemConfig(){ Item_ID = 1112,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 20,Item_Rarity = ItemRarity.Green },
+        /*铜锭*/new ItemConfig(){ Item_ID = 1113,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 20,Item_Rarity = ItemRarity.Blue },
+        /*铁锭*/new ItemConfig(){ Item_ID = 1114,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 20,Item_Rarity = ItemRarity.Blue },
+        /*金锭*/new ItemConfig(){ Item_ID = 1115,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 170,Item_Rarity = ItemRarity.Gold },
         #endregion
         #region//1200-1299三级材料
         /*机械元件*/new ItemConfig(){ Item_ID = 1200,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Mat,Item_Value = 24,Item_Rarity = ItemRarity.Gray },
@@ -103,6 +101,7 @@ public class ItemConfigData
         /*禽腿肉*/new ItemConfig(){ Item_ID = 3102,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 18,Item_Rarity = ItemRarity.Gray },
         /*内脏肉*/new ItemConfig(){ Item_ID = 3103,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 6,Item_Rarity = ItemRarity.Gray },
         /*污染肉*/new ItemConfig(){ Item_ID = 3104,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
+        /*鸡蛋*/new ItemConfig(){ Item_ID = 3105,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 5,Item_Rarity = ItemRarity.Gray },
         /*鲫鱼*/new ItemConfig(){ Item_ID = 3110,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 12,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//3200-3299其他
@@ -130,33 +129,18 @@ public class ItemConfigData
         /*水煮鱼*/new ItemConfig(){ Item_ID = 4105,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Dishes,Item_Value = 36,Item_Rarity = ItemRarity.Gray },
         #endregion
         #region//药剂
-        /*鸟果汁*/new ItemConfig(){ Item_ID = 4200,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 16,Item_Rarity = ItemRarity.Gray },
+        /*干净的水*/new ItemConfig(){ Item_ID = 4200,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 16,Item_Rarity = ItemRarity.Gray },
+        /*鸟果汁*/new ItemConfig(){ Item_ID = 4201,Item_Size = ItemSize.Gro,Item_Max = 9,Item_Type = ItemType.Food,Item_Value = 16,Item_Rarity = ItemRarity.Gray },
         #endregion
         #endregion
         #region//5000-5999衣物
-        #region//5000-5099帽子
-        /*巡逻帽*/new ItemConfig(){ Item_ID = 5000,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 34,Item_Rarity = ItemRarity.Gray},
-        /*草帽*/new ItemConfig(){ Item_ID = 5001,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
-        /*防护盔*/new ItemConfig(){ Item_ID = 5002,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 166,Item_Rarity = ItemRarity.Gray},
-        /*矿工帽*/new ItemConfig(){ Item_ID = 5003,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 40,Item_Rarity = ItemRarity.Gray},
-        /*面罩*/new ItemConfig(){ Item_ID = 5004,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 5,Item_Rarity = ItemRarity.Gray},
-        /*铁盔*/new ItemConfig(){ Item_ID = 5005,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 120,Item_Rarity = ItemRarity.Gray},
-        /*熊皮帽*/new ItemConfig(){ Item_ID = 5006,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 88,Item_Rarity = ItemRarity.Gray},
-        /*木盔*/new ItemConfig(){ Item_ID = 5007,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 33,Item_Rarity = ItemRarity.Gray},
-        /*厨师帽*/new ItemConfig(){ Item_ID = 5008,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
-        /*华丽帽子*/new ItemConfig(){ Item_ID = 5009,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Hat,Item_Value = 89,Item_Rarity = ItemRarity.Gray},
+        #region//5000-5499帽子 5000-5099物理战斗用 5100-5199魔法战斗用 5200-5299特殊用途 5300-5399装饰
         #endregion
-        #region//5100-5199衣服
-        /*巡逻衣*/new ItemConfig(){ Item_ID = 5100,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 40,Item_Rarity = ItemRarity.Gray},
-        /*灰布衣*/new ItemConfig(){ Item_ID = 5101,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
-        /*褐布衣*/new ItemConfig(){ Item_ID = 5102,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
-        /*防护衣*/new ItemConfig(){ Item_ID = 5103,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 150,Item_Rarity = ItemRarity.Gray},
-        /*铁甲*/new ItemConfig(){ Item_ID = 5104,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 132,Item_Rarity = ItemRarity.Gray},
-        /*木甲*/new ItemConfig(){ Item_ID = 5105,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 40,Item_Rarity = ItemRarity.Gray},
-        /*格子衫*/new ItemConfig(){ Item_ID = 5106,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
-        /*白布衣*/new ItemConfig(){ Item_ID = 5107,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 12,Item_Rarity = ItemRarity.Gray},
-        /*西装*/new ItemConfig(){ Item_ID = 5108,Item_Size = ItemSize.Sin,Item_Max = 1,Item_Type = ItemType.Clothes,Item_Value = 244,Item_Rarity = ItemRarity.Gray},
+        #region//5400-5799衣服 5400-5499物理战斗用 5500-5599魔法战斗用 5600-5699特殊用途 5700-5799装饰
         #endregion
+        #region//5800-5999饰品
+        #endregion
+
         #endregion
         #region//6000-6999消耗品
         /*生命水晶*/new ItemConfig(){ Item_ID = 6000,Item_Size = ItemSize.Gro,Item_Max = 99,Item_Type = ItemType.Food,Item_Value = 500,Item_Rarity = ItemRarity.Gray },
@@ -356,8 +340,8 @@ public enum ItemQuality
 public struct ItemRaw
 {
     public short ID;
-    public short Count;
-    public ItemRaw(short id, short count)
+    public int Count;
+    public ItemRaw(short id, int count)
     {
         ID = id;
         Count = count;

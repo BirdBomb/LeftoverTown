@@ -21,4 +21,27 @@ public class GroundObj : MonoBehaviour
     {
 
     }
+    /// <summary>
+    /// 角色靠近
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool All_ActorNearby(ActorManager actor)
+    {
+        return false;
+    }
+    /// <summary>
+    /// 角色站在
+    /// </summary>
+    public virtual void All_ActorStandOn(ActorManager actor)
+    {
+
+    }
+    /// <summary>
+    /// 角色远离
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool All_ActorFaraway(ActorManager actor)
+    {
+        return false;
+    }
 }

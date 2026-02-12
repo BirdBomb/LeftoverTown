@@ -786,7 +786,7 @@ public class Item_2030 : ItemBase
     public override void StaticAction_InitData(short id, out ItemData data)
     {
         base.StaticAction_InitData(id, out data);
-        data.Item_Info = (short)new System.Random().Next(short.MinValue, short.MaxValue);
+        data.V = (short)new System.Random().Next(short.MinValue, short.MaxValue);
     }
 
     #endregion
@@ -881,15 +881,16 @@ public class Item_2030 : ItemBase
     #region//ÐÞ¸ÄUI
     public override void GridCell_Draw(UI_GridCell gridCell)
     {
-        string stringName = LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Name");
-        string stringDesc = GridCell_UpdateDesc(LocalizationManager.Instance.GetLocalization("Item_String", itemConfig.Item_ID + "_Desc"));
+        string[] parts = LocalizationManager.Instance.GetLocalization("Item_String", "Item_" + itemConfig.Item_ID).Split('_');
+        string stringName = parts.Length > 0 ? parts[0] : "Error";
+        string stringDesc = GridCell_UpdateDesc(parts.Length > 1 ? parts[1] : "Error");
         string stringQuality = LocalizationManager.Instance.GetLocalization("Item_String", "_ItemQuality_" + (int)itemQuality);
         stringName = ItemConfigData.Colour(stringName, itemConfig.Item_Rarity);
         stringQuality = ItemConfigData.Colour(stringQuality, itemQuality);
 
         string stringInfo = stringName + "(" + stringQuality + ")" + "\n" + stringDesc;
 
-        gridCell.DrawCell("Item_" + itemData.Item_ID.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.Item_Count.ToString());
+        gridCell.DrawCell("Item_" + itemData.I.ToString(), "ItemBG_" + (int)itemConfig.Item_Rarity, itemData.C.ToString());
         gridCell.SetCell(stringInfo);
     }
     #endregion

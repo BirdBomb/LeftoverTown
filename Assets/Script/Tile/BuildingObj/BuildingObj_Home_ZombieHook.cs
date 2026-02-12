@@ -27,7 +27,8 @@ public class BuildingObj_Home_ZombieHook : BuildingObj_Manmade
         {
             All_UpdateTime(_.hour + _.day * 10);
         }).AddTo(this);
-        All_UpdateTime(MapManager.Instance.mapNetManager.Day * 10 + MapManager.Instance.mapNetManager.Hour);
+        WorldManager.Instance.GetTime(out int day, out int hour, out _);
+        All_UpdateTime(day * 10 + hour);
         base.Start();
     }
     #region//信息更新与上传
@@ -55,23 +56,23 @@ public class BuildingObj_Home_ZombieHook : BuildingObj_Manmade
     }
     #endregion
     #region//瓦皮交互
-    public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
+    public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseUI(tileUI_Bind == null);
         }
-        base.All_ActorInputKeycode(actor, code);
+        base.Local_ActorInputKeycode(actor, code);
     }
-    public override void All_PlayerHighlight(bool on)
+    public override void Local_PlayerHighlight(bool on)
     {
         OpenOrCloseHighlightUI(on);
-        base.All_PlayerHighlight(on);
+        base.Local_PlayerHighlight(on);
     }
-    public override void All_PlayerFaraway()
+    public override void Local_PlayerFaraway()
     {
         OpenOrCloseUI(false);
-        base.All_PlayerFaraway();
+        base.Local_PlayerFaraway();
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {

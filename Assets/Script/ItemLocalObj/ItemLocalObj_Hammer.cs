@@ -92,7 +92,6 @@ public class ItemLocalObj_Hammer : ItemLocalObj
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
             skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, AttackRange, out Collider2D[] colliders);
             for (int i = 0; i < colliders.Length; i++)
@@ -101,26 +100,41 @@ public class ItemLocalObj_Hammer : ItemLocalObj
                 {
                     if (colliders[i].TryGetComponent(out BuildingObj building))
                     {
-                        building.Local_TakeDamage(1, DamageState.AttackStructureDamage, actorManager.actorNetManager);
-                        temp = AttackAbrasion;
+                        BludgeoningBuilding(building);
                     }
                 }
                 else if (colliders[i].tag.Equals("Actor"))
                 {
                     if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        if (actor == actorManager) { continue; }
-                        else
-                        {
-                            actor.AllClient_Listen_TakeDamage(BludgeoningDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
-                            temp = AttackAbrasion;
-                        }
+                        if (actor != actorManager) { BludgeoningActor(actor); }
                     }
                 }
             }
-            AddAbrasion(temp);
         }
     }
+    private void BludgeoningActor(ActorManager actor)
+    {
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+        effect.GetComponent<Effect_Impact>().PlayBludgeoning(actor.transform.position - actorManager.transform.position);
+        effect.transform.position = actor.transform.position;
+
+        actor.actorHpManager.TakeDamage(BludgeoningDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
+        AddAbrasion(AttackAbrasion);
+    }
+    private void BludgeoningBuilding(BuildingObj building)
+    {
+        int damage = 0;
+        damage += building.Local_TakeDamage(1, DamageState.AttackStructureDamage, actorManager.actorNetManager);
+        if (damage > 0)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlayBludgeoning(building.transform.position - actorManager.transform.position, true);
+            effect.transform.position = building.transform.position;
+        }
+        AddAbrasion(AttackAbrasion);
+    }
+
     /// <summary>
     /// ÀÛ¼ÆËðºÄ
     /// </summary>
@@ -136,7 +150,7 @@ public class ItemLocalObj_Hammer : ItemLocalObj
             {
                 ItemData _oldItem = itemData;
                 ItemData _newItem = itemData;
-                if (_newItem.Item_Durability - offset <= 0)
+                if (_newItem.D - offset <= 0)
                 {
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Sub()
                     {
@@ -145,7 +159,7 @@ public class ItemLocalObj_Hammer : ItemLocalObj
                 }
                 else
                 {
-                    _newItem.Item_Durability -= (sbyte)offset;
+                    _newItem.D -= (sbyte)offset;
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemHand_Change()
                     {
                         oldItem = _oldItem,

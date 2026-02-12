@@ -20,6 +20,11 @@ public class NetEvent
     {
         
     }
+    public class NetEvent_JoinSessionLobby
+    {
+       
+    }
+
     public class NetEvent_SessionListUpdated
     {
         public List<SessionInfo> SessionList = new List<SessionInfo>();

@@ -5,9 +5,32 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using static GameEvent;
-
+/// <summary>
+/// 向导
+/// </summary>
 public class ActorManager_NPC_Guide : ActorManager_NPC
 {
+    #region//检查
+    public override bool State_CheckNearbyActor()
+    {
+        if (brainManager.globalTime_Now != GlobalTime.Evening) { return true; }
+        for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
+        {
+            if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], State_CalculateView()))
+            {
+                if (brainManager.actorManagers_Nearby[i].statusManager.statusType != StatusType.Animal_Common &&
+                    brainManager.actorManagers_Nearby[i].statusManager.statusType != StatusType.Monster_Common)
+                {
+                    State_InAttack(brainManager.actorManagers_Nearby[i]);
+                    return true;
+                }
+            }
+        }
+        //base.State_CheckNearbyActor
+        return false;
+    }
+    #endregion
+
     #region//交互
     private TileUI_Dictionary tileUI_Dictionary;
     private bool bool_Dictionay;
@@ -137,11 +160,9 @@ public class ActorManager_NPC_Guide : ActorManager_NPC
         bool_Dictionay = false;
         if (actor != null && actor.actorNetManager.Object != null)
         {
-            Debug.Log("aawwwwwwwwww");
             UIManager.Instance.HideTileUI(tileUI_Dictionary);
         }
     }
 
     #endregion
-
 }

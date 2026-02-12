@@ -17,6 +17,7 @@ public class ActorHungryManager
     {
         this.actorManager = actorManager;
     }
+
     public void Listen_UpdateSecond()
     {
         timer_Hungry += 1;
@@ -26,27 +27,21 @@ public class ActorHungryManager
             SubFood(-1);
         }
     }
+    public float GetFoodRatio()
+    {
+        if (actorManager.actorNetManager.Local_FoodMax > 0)
+        {
+            return (float)actorManager.actorNetManager.Net_FoodCur / (float)actorManager.actorNetManager.Local_FoodMax;
+        }
+        else
+        {
+            return 0;
+        }
+    }
     public int SubFood(int val)
     {
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            int Net_FoodNew = actorManager.actorNetManager.Net_FoodCur + val;
-            if (Net_FoodNew <= 0)
-            {
-                if (!actorManager.buffManager.Local_CheckBuff(2011))
-                {
-                    BuffData buffData = new BuffData(2011);
-                    actorManager.actorNetManager.Local_AddBuff(buffData);
-                }
-            }
-            else if (Net_FoodNew < 30) 
-            {
-                if (!actorManager.buffManager.Local_CheckBuff(2010))
-                {
-                    BuffData buffData = new BuffData(2010);
-                    actorManager.actorNetManager.Local_AddBuff(buffData);
-                }
-            }
             actorManager.actorNetManager.RPC_LocalInput_FoodChange((short)val);
         }
         return actorManager.actorNetManager.Net_FoodCur;

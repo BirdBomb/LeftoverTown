@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 public class ItemSystem6000 
@@ -14,7 +15,14 @@ public class Item_6000 : ItemBase_Food
     private int config_MaxHp = 5;
     public override void Eat()
     {
-        owner.actionManager.Client_IncreaseHP(config_MaxHp);
+        owner.actorHpManager.IncreaseHP(config_MaxHp);
+        if (owner.actorAuthority.isLocal)
+        {
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_AddExp()
+            {
+                exp = 22
+            });
+        }
         base.Eat();
     }
 }

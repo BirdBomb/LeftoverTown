@@ -37,7 +37,7 @@ public class MapEvent : MonoBehaviour
     /// <summary>
     /// 改变一个区域里的建筑
     /// </summary>
-    public class MapEvent_Local_ChangeBuildingArea
+    public class MapEvent_Local_CreateBuildingArea
     {
         public Vector3Int buildingPos;
         public AreaSize areaSize;
@@ -46,7 +46,7 @@ public class MapEvent : MonoBehaviour
     /// <summary>
     /// 改变一个区域里的建筑
     /// </summary>
-    public class MapEvent_State_ChangeBuildingArea
+    public class MapEvent_State_CreateBuildingArea
     {
         public Vector3Int buildingPos;
         public AreaSize areaSize;
@@ -55,7 +55,7 @@ public class MapEvent : MonoBehaviour
     /// <summary>
     /// 改变一个地面
     /// </summary>
-    public class MapEvent_Local_ChangeGround
+    public class MapEvent_Local_CreateGround
     {
         public Vector3Int groundPos;
         public short groundID;

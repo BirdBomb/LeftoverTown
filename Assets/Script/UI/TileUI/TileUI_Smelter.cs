@@ -98,15 +98,15 @@ public class TileUI_Smelter : TileUI
     #region//¡∂÷∆
     private void RefiningBeforePutIn(ItemData addData, ItemPath path)
     {
-        RefiningConfig refiningConfig = RefiningConfigData.GetRefiningConfig(addData.Item_ID);
+        RefiningConfig refiningConfig = RefiningConfigData.GetRefiningConfig(addData.I);
         if (refiningConfig.RefiningBeforeID != 0)
         {
-            if (buildingObj_Bind.itemData_RefiningBefore.Item_ID == 0)
+            if (buildingObj_Bind.itemData_RefiningBefore.I == 0)
             {
                 buildingObj_Bind.itemData_RefiningBefore = addData;
                 buildingObj_Bind.gameTime_NextRefiningSign = refiningConfig.RefiningSecond + buildingObj_Bind.gameTime_LastTimeSign;
             }
-            else if (addData.Item_ID == buildingObj_Bind.itemData_RefiningBefore.Item_ID)
+            else if (addData.I == buildingObj_Bind.itemData_RefiningBefore.I)
             {
                 buildingObj_Bind.itemData_RefiningBefore = GameToolManager.Instance.CombineItem(buildingObj_Bind.itemData_RefiningBefore, addData, out ItemData res);
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
@@ -158,15 +158,15 @@ public class TileUI_Smelter : TileUI
     #region//»º¡œ
     private void FuelPutIn(ItemData addData, ItemPath path)
     {
-        FuelConfig fuelConfig = FuelConfigData.GetFuelConfig(addData.Item_ID);
+        FuelConfig fuelConfig = FuelConfigData.GetFuelConfig(addData.I);
         if (fuelConfig.FuelID != 0)
         {
-            if (buildingObj_Bind.itemData_Fuel.Item_ID == 0)
+            if (buildingObj_Bind.itemData_Fuel.I == 0)
             {
                 buildingObj_Bind.itemData_Fuel = addData;
                 buildingObj_Bind.gameTime_NextFuelSign = buildingObj_Bind.gameTime_LastTimeSign;
             }
-            else if (addData.Item_ID == buildingObj_Bind.itemData_Fuel.Item_ID)
+            else if (addData.I == buildingObj_Bind.itemData_Fuel.I)
             {
                 buildingObj_Bind.itemData_Fuel = GameToolManager.Instance.CombineItem(buildingObj_Bind.itemData_Fuel, addData, out ItemData res);
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()

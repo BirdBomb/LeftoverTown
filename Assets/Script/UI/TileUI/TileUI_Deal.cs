@@ -58,8 +58,8 @@ public class TileUI_Deal : TileUI
     }
     public ItemData GoodsPutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        int price = (int)(ItemConfigData.GetItemConfig(itemData_Out.Item_ID).Item_Value * itemData_Out.Item_Count);
-        if (GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.PayCoin(price))
+        int price = (int)(ItemConfigData.GetItemConfig(itemData_Out.I).Item_Value * itemData_Out.C);
+        if (WorldManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.PayCoin(price))
         {
             if (actorManager_Bind)
             {
@@ -67,7 +67,7 @@ public class TileUI_Deal : TileUI
             }
             itemDatas_Goods = GameToolManager.Instance.PutOutItemList(itemDatas_Goods, itemData_Out);
             ItemData itemData_New = itemData_From;
-            itemData_New.Item_Count = (short)(itemData_From.Item_Count - itemData_Out.Item_Count);
+            itemData_New.C = (short)(itemData_From.C - itemData_Out.C);
         }
         else
         {
@@ -82,10 +82,10 @@ public class TileUI_Deal : TileUI
         {
             if (i < itemDatas_Goods.Count)
             {
-                if (itemDatas_Goods[i].Item_ID != 0)
+                if (itemDatas_Goods[i].I != 0)
                 {
                     gridCells_Goods[i].UpdateData(itemDatas_Goods[i]);
-                    int temp = ItemConfigData.GetItemConfig(itemDatas_Goods[i].Item_ID).Item_Value * itemDatas_Goods[i].Item_Count;
+                    int temp = ItemConfigData.GetItemConfig(itemDatas_Goods[i].I).Item_Value * itemDatas_Goods[i].C;
                     texts_Goods[i].text = temp.ToString();
                     if (temp > int_MyCoins)
                     {
@@ -129,7 +129,7 @@ public class TileUI_Deal : TileUI
     {
         if (actorManager_Bind != null)
         {
-            float commonPrice = (ItemConfigData.GetItemConfig(itemData.Item_ID).Item_Value * itemData.Item_Count);
+            float commonPrice = (ItemConfigData.GetItemConfig(itemData.I).Item_Value * itemData.C);
             int_Price = actorManager_Bind.Local_Offer(itemData);
             text_Price.text = int_Price.ToString();
             itemData_Sell = itemData;
@@ -175,16 +175,16 @@ public class TileUI_Deal : TileUI
     }
     public void Sell()
     {
-        if (itemData_Sell.Item_ID != 0)
+        if (itemData_Sell.I != 0)
         {
             if (int_Price > actorManager_Bind.actorNetManager.Local_Coin)
             {
-                GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.EarnCoin(actorManager_Bind.actorNetManager.Local_Coin);
+                WorldManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.EarnCoin(actorManager_Bind.actorNetManager.Local_Coin);
                 actorManager_Bind.actionManager.PayCoin(actorManager_Bind.actorNetManager.Local_Coin);
             }
             else
             {
-                GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.EarnCoin(int_Price);
+                WorldManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.EarnCoin(int_Price);
                 actorManager_Bind.actionManager.PayCoin(int_Price);
             }
             localizeStringEvent_SellDesc.StringReference.SetReference("Role_String", "DealDone");
@@ -194,7 +194,7 @@ public class TileUI_Deal : TileUI
     }
     private void DrawSellCell()
     {
-        if (itemData_Sell.Item_ID > 0)
+        if (itemData_Sell.I > 0)
         {
             gridCell_Sell.UpdateData(itemData_Sell);
             btn_Sell.gameObject.SetActive(true);
@@ -210,7 +210,7 @@ public class TileUI_Deal : TileUI
     private void UpdateCoin()
     {
         int_YourCoins = actorManager_Bind.actorNetManager.Local_Coin;
-        int_MyCoins = GameLocalManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_Coin;
+        int_MyCoins = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_Coin;
         textMeshProUGUI_YourCoins.text = "对方:" + int_YourCoins.ToString();
         textMeshProUGUI_MyCoins.text = "我方:" + int_MyCoins.ToString();
     }

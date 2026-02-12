@@ -60,12 +60,12 @@ public class TileUI_SunPiece : TileUI
     public void CheckCell()
     {
         btn_Sure.gameObject.SetActive(false);
-        Debug.Log(buildingObj_Bind.info_ItemData.Item_ID);
+        Debug.Log(buildingObj_Bind.info_ItemData.I);
         Debug.Log(buildingObj_Bind.info_Level);
         switch (buildingObj_Bind.info_Level)
         {
             case 0:
-                if (buildingObj_Bind.info_ItemData.Item_ID == 1000)
+                if (buildingObj_Bind.info_ItemData.I == 1000)
                 {
                     btn_Sure.gameObject.SetActive(true);
                 }
@@ -81,7 +81,7 @@ public class TileUI_SunPiece : TileUI
         switch (buildingObj_Bind.info_Level)
         {
             case 0:
-                if (buildingObj_Bind.info_ItemData.Item_ID == 1000)
+                if (buildingObj_Bind.info_ItemData.I == 1000)
                 {
                     buildingObj_Bind.info_ItemData = buildingObj_Bind.Local_GetItemData(2010, 1);
                     buildingObj_Bind.info_Level = 1;
@@ -97,7 +97,7 @@ public class TileUI_SunPiece : TileUI
     public void PutIn(ItemData addData, ItemPath path)
     {
         buildingObj_Bind.info_ItemData = GameToolManager.Instance.CombineItem(buildingObj_Bind.info_ItemData, addData, out ItemData resData);
-        if (resData.Item_ID > 0 && resData.Item_Count != 0)
+        if (resData.I > 0 && resData.C != 0)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {

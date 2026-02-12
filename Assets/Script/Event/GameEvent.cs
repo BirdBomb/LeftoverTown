@@ -136,6 +136,7 @@ public class GameEvent
     public class GameEvent_AllClient_SomeoneCommit
     {
         public ActorManager actor;
+        public CommitState commit;
         public short fine;
     }
     public enum ActorAction

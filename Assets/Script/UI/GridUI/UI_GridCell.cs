@@ -84,7 +84,7 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// </summary>
     public virtual ItemBase UpdateData(ItemData data)
     {
-        if (_bindItemBase == null || _bindItemBase.itemData.Item_ID != data.Item_ID)
+        if (_bindItemBase == null || _bindItemBase.itemData.I != data.I)
         {
             CreateItemBase(data, itemPath_Bind);
             UpdateItemBase(data);
@@ -102,7 +102,7 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     private void CreateItemBase(ItemData data,ItemPath path)
     {
         ResetCell();
-        Type type = Type.GetType("Item_" + data.Item_ID.ToString());
+        Type type = Type.GetType("Item_" + data.I.ToString());
         if (type != null)
         {
             _bindItemBase = (ItemBase)Activator.CreateInstance(type);
@@ -319,15 +319,15 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
             itemData_Out = itemData_From;
             if (Input.GetKey(KeyCode.LeftControl))
             {
-                itemData_Out.Item_Count = (short)(Mathf.CeilToInt(itemData_From.Item_Count * 0.5f));
+                itemData_Out.C = (short)(Mathf.CeilToInt(itemData_From.C * 0.5f));
             }
             else if (Input.GetKey(KeyCode.LeftShift))
             {
-                itemData_Out.Item_Count = 1;
+                itemData_Out.C = 1;
             }
             else
             {
-                itemData_Out.Item_Count = itemData_From.Item_Count;
+                itemData_Out.C = itemData_From.C;
             }
         }
         MessageBroker.Default.Publish(new UIEvent.UIEvent_StartHoldingItem()

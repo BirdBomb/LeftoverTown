@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-public class BuildingObj_BoxFreeze : BuildingObj
+public class BuildingObj_BoxFreeze : BuildingObj_Manmade
 {
     public GameObject obj_SingalUI;
     public GameObject obj_SingalAwakeUI;
@@ -58,23 +58,23 @@ public class BuildingObj_BoxFreeze : BuildingObj
     }
     #endregion
     #region//ÍßÆ¬½»»¥
-    public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
+    public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseUI(tileUI_Bind == null);
         }
-        base.All_ActorInputKeycode(actor, code);
+        base.Local_ActorInputKeycode(actor, code);
     }
-    public override void All_PlayerHighlight(bool on)
+    public override void Local_PlayerHighlight(bool on)
     {
         OpenOrCloseHighlightUI(on);
-        base.All_PlayerHighlight(on);
+        base.Local_PlayerHighlight(on);
     }
-    public override void All_PlayerFaraway()
+    public override void Local_PlayerFaraway()
     {
         OpenOrCloseUI(false);
-        base.All_PlayerFaraway();
+        base.Local_PlayerFaraway();
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {

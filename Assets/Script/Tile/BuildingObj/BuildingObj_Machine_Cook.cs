@@ -6,7 +6,7 @@ using System.Text;
 using UniRx;
 using UnityEngine;
 
-public class BuildingObj_Machine_Cook : BuildingObj
+public class BuildingObj_Machine_Cook : BuildingObj_Manmade
 {
     public GameObject obj_SingalFUI;
     public GameObject obj_SingalAwakeUI;
@@ -46,9 +46,9 @@ public class BuildingObj_Machine_Cook : BuildingObj
         {
             if (gameTime_CookFinishTime < gameTime_CurTimeSign)
             {
-                if (MapManager.Instance.mapNetManager.Object.HasStateAuthority)
+                if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
                 {
-                    if (itemData_Food.Item_ID == 0)
+                    if (itemData_Food.I == 0)
                     {
                         Cook();
                     }
@@ -79,7 +79,7 @@ public class BuildingObj_Machine_Cook : BuildingObj
     public override void All_UpdateInfo(string info)
     {
         ReadInfo(info);
-        if (itemData_Raw0.Item_ID != 0 && itemData_Raw1.Item_ID != 0 && itemData_Raw2.Item_ID != 0)
+        if (itemData_Raw0.I != 0 && itemData_Raw1.I != 0 && itemData_Raw2.I != 0)
         {
             getAllRaw = true;
         }
@@ -144,9 +144,9 @@ public class BuildingObj_Machine_Cook : BuildingObj
     private void Cook()
     {
         rawList.Clear();
-        rawList.Add(itemData_Raw0.Item_ID);
-        rawList.Add(itemData_Raw1.Item_ID);
-        rawList.Add(itemData_Raw2.Item_ID);
+        rawList.Add(itemData_Raw0.I);
+        rawList.Add(itemData_Raw1.I);
+        rawList.Add(itemData_Raw2.I);
 
         int foodID = 4100;
         for (int i = 0; i < CookConfigData.cookConfigs.Count; i++)
@@ -228,23 +228,23 @@ public class BuildingObj_Machine_Cook : BuildingObj
 
     #endregion
     #region//ÍßÆ¬½»»¥
-    public override void All_ActorInputKeycode(ActorManager actor, KeyCode code)
+    public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
         if (code == KeyCode.F)
         {
             OpenOrCloseUI(tileUI_Bind == null);
         }
-        base.All_ActorInputKeycode(actor, code);
+        base.Local_ActorInputKeycode(actor, code);
     }
-    public override void All_PlayerHighlight(bool on)
+    public override void Local_PlayerHighlight(bool on)
     {
         OpenOrCloseHighlightUI(on);
-        base.All_PlayerHighlight(on);
+        base.Local_PlayerHighlight(on);
     }
-    public override void All_PlayerFaraway()
+    public override void Local_PlayerFaraway()
     {
         OpenOrCloseUI(false);
-        base.All_PlayerFaraway();
+        base.Local_PlayerFaraway();
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {

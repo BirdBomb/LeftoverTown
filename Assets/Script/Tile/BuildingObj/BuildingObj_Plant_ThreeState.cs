@@ -50,7 +50,8 @@ public class BuildingObj_Plant_ThreeState : BuildingObj
         {
             All_UpdateTime(_.hour + _.day * 10);
         }).AddTo(this);
-        All_UpdateTime(MapManager.Instance.mapNetManager.Day * 10 + MapManager.Instance.mapNetManager.Hour);
+        WorldManager.Instance.GetTime(out int day, out int hour, out _);
+        All_UpdateTime(day * 10 + hour);
         material = new Material(spriteRenderer.sharedMaterial);
         spriteRenderer.material = material;
         base.Start();
@@ -71,15 +72,16 @@ public class BuildingObj_Plant_ThreeState : BuildingObj
             Local_SetHp(newHp);
         }
     }
-    public override void Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    public override int Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
     {
         if (damageState == DamageState.AttackReapDamage)
         {
-            base.Local_TakeDamage(val, damageState, from);
+            return base.Local_TakeDamage(val, damageState, from);
         }
         else
         {
             Local_IneffectiveDamage(damageState, from);
+            return 0;
         }
     }
     #region//生长
@@ -165,7 +167,7 @@ public class BuildingObj_Plant_ThreeState : BuildingObj
     }
     #endregion
     #region//方法
-    public override void All_PlayHpDown(int offset)
+    public override void All_OnHpDown(int offset)
     {
         if (offset < 0)
         {
@@ -216,10 +218,10 @@ public class BuildingObj_Plant_ThreeState : BuildingObj
         { material.SetFloat("_ExtraScale", force_ExtraScale); });
     }
 
-    public override void All_PlayBroken()
+    public override void All_OnBroken()
     {
         AudioManager.Instance.Play3DEffect(3000, transform.position);
-        base.All_PlayBroken();
+        base.All_OnBroken();
     }
     public override void All_UpdateInfo(string info)
     {
@@ -231,7 +233,7 @@ public class BuildingObj_Plant_ThreeState : BuildingObj
     {
         if (state_Now == State.State0)
         {
-            if (MapManager.Instance.mapNetManager.Object.HasStateAuthority)
+            if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
             {
                 State_CreateLootItem(State_GetLootItem(baseLootInfos_State0, null));
             }
@@ -239,7 +241,7 @@ public class BuildingObj_Plant_ThreeState : BuildingObj
         }
         else if (state_Now == State.State1)
         {
-            if (MapManager.Instance.mapNetManager.Object.HasStateAuthority)
+            if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
             {
                 State_CreateLootItem(State_GetLootItem(baseLootInfos_State0, null));
             }
@@ -247,7 +249,7 @@ public class BuildingObj_Plant_ThreeState : BuildingObj
         }
         else if (state_Now == State.State2)
         {
-            if (MapManager.Instance.mapNetManager.Object.HasStateAuthority)
+            if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
             {
                 State_CreateLootItem(State_GetLootItem(baseLootInfos_State2, extraLootInfos_State2));
             }

@@ -36,17 +36,30 @@ public class PlayerData
     /// 当前等级
     /// </summary>
     [SerializeField]
-    public short Level_Cur;
+    public int Level_Cur;
     /// <summary>
     /// 当前经验
     /// </summary>
     [SerializeField]
-    public short Exp_Cur;
+    public int Exp_Cur;
     /// <summary>
-    /// 当前天赋
+    /// 当前技能
     /// </summary>
     [SerializeField]
-    public List<short> TalentList = new List<short>();
+    public List<short> Skills_List = new List<short>();
+    /// <summary>
+    /// 当前已经阅读书籍
+    /// </summary>
+    [SerializeField]
+    public List<short> Books_List = new List<short>();
+    /// <summary>
+    /// 当前已经完成任务
+    /// </summary>
+    public List<int> Quest_List = new List<int>();
+    /// <summary>
+    /// 当前任务等级
+    /// </summary>
+    public short Quest_Level;
     /// <summary>
     /// 当前生命值
     /// </summary>
@@ -110,7 +123,7 @@ public class PlayerData
     /// <summary>
     /// BUFF
     /// </summary>
-    public List<BuffData> BuffList = new List<BuffData>();
+    public List<BuffData> Buff_List = new List<BuffData>();
     /// <summary>
     /// 背包物体
     /// </summary>

@@ -40,19 +40,26 @@ public class BuildingTile : TileBase
         config_Drag = buildingTile.config_Drag;
         config_InstancedGameObject = buildingTile.config_InstancedGameObject;
     }
-    public void BindObj(GameObject gameObject)
+    public BuildingObj BindObj(GameObject gameObject)
     {
         gameObject.GetComponent<BuildingObj>().Bind(this, out tileObj);
+        return tileObj;
     }
-
-    /// <summary>
-    /// »½ÐÑÍßÆ¬
-    /// </summary>
-    public virtual void ActorInputKeycode(ActorManager actor, KeyCode code)
+    public void OnDelete()
     {
         if (tileObj)
         {
-            tileObj.All_ActorInputKeycode(actor, code);
+            tileObj.All_OnDelete();
+        }
+    }
+    /// <summary>
+    /// »½ÐÑÍßÆ¬
+    /// </summary>
+    public virtual void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
+    {
+        if (tileObj)
+        {
+            tileObj.Local_ActorInputKeycode(actor, code);
         }
     }
     /// <summary>
@@ -97,7 +104,7 @@ public class BuildingTile : TileBase
     {
         if (tileObj)
         {
-            tileObj.All_PlayerNearby();
+            tileObj.Local_PlayerNearby();
         }
     }
     /// <summary>
@@ -107,7 +114,7 @@ public class BuildingTile : TileBase
     {
         if (tileObj)
         {
-            tileObj.All_PlayerFaraway();
+            tileObj.Local_PlayerFaraway();
         }
     }
     /// <summary>
@@ -117,7 +124,7 @@ public class BuildingTile : TileBase
     {
         if (tileObj)
         {
-            tileObj.All_PlayerHighlight(on);
+            tileObj.Local_PlayerHighlight(on);
         }
     }
     /// <summary>

@@ -10,7 +10,6 @@ public class ActorActionManager
     private BodyController_Base bodyController;
     private LayerMask layerMask_ItemObj;
     private LayerMask layerMask_Wall;
-    public Action<int, ActorNetManager> action_TakeDamage;
     public void Bind(ActorManager actorManager)
     {
         this.actorManager = actorManager;
@@ -18,11 +17,12 @@ public class ActorActionManager
         layerMask_ItemObj = LayerMask.GetMask("ItemObj");
         layerMask_Wall = LayerMask.GetMask("TileObj_Wall");
     }
+    #region//物体相关
     /// <summary>
     /// 捡起
     /// </summary>
     /// <param name="radiu"></param>
-    public void PickUp(float radiu)
+    public void State_PickUp(float radiu)
     {
         var items = Physics2D.OverlapCircleAll(actorManager.transform.position, radiu, layerMask_ItemObj);
         foreach (Collider2D item in items)
@@ -79,7 +79,7 @@ public class ActorActionManager
     /// 快速穿戴
     /// </summary>
     /// <param name="index"></param>
-    public void ItemBody_Switch(int index) 
+    public void ItemBody_Switch(int index)
     {
         List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
         index = index % items.Count;
@@ -149,8 +149,8 @@ public class ActorActionManager
         {
             index = index,
             itemData = new ItemData(),
-        }) ;
-        if(dropItem.Item_ID != 0)
+        });
+        if (dropItem.I != 0)
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryDropItem()
             {
@@ -158,6 +158,9 @@ public class ActorActionManager
             });
         }
     }
+
+    #endregion
+    #region//身体相关
     public void FaceTo(Vector2 dir)
     {
         bodyController.faceDir = dir.normalized;
@@ -198,6 +201,8 @@ public class ActorActionManager
         }
         return false;
     }
+    #endregion
+    #region//死亡相关
     public void Dead()
     {
         if (actorManager.actorState != ActorState.Dead)
@@ -249,7 +254,7 @@ public class ActorActionManager
 
             float x = Mathf.Cos(angleRad) * 0.5f;
             float y = Mathf.Sin(angleRad) * 0.5f;
-            Debug.Log(dropItem[i].Item_ID + "/" + dropItem[i].Item_Count);
+            Debug.Log(dropItem[i].I + "/" + dropItem[i].C);
             Vector3 position = new Vector3(x, y, 0);
             MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnItem()
             {
@@ -259,90 +264,32 @@ public class ActorActionManager
             });
         }
     }
-    public void Client_HealHP(int val)
-    {
-        if (actorManager.actorState != ActorState.Dead)
-        {
-            actorManager.actorNetManager.RPC_AllClient_HpChange(val, (int)HpChangeReason.Healing, new NetworkId());
-        }
-    }
-    public void Client_IncreaseHP(int val)  
-    {
-        if (actorManager.actorState != ActorState.Dead)
-        {
-            actorManager.actorNetManager.RPC_AllClient_MaxHpChange((short)val, new NetworkId());
-        }
-    }
+    #endregion
+    #region//速度相关
     /// <summary>
-    /// 伤害
+    /// 地块速度影响参数
     /// </summary>
-    /// <param name="val"></param>
-    /// <param name="damageState"></param>
-    /// <param name="from"></param>
-    public void TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    private float client_SpeedOffset_Floor;
+    public float Client_GetSpeed()
     {
-        if (actorManager.actorState != ActorState.Dead)
+        float temp = actorManager.actorNetManager.Net_SpeedCommon * 0.1f;
+        if (actorManager.actorAuthority.isPlayer)
         {
-            NetworkId networkId = new NetworkId();
-            if (from) { networkId = from.Object.Id; }
-            if (damageState == DamageState.AttackPiercingDamage)
-            {
-                val -= actorManager.actorNetManager.Net_Armor;
-                if (val > 0)
-                {
-                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
-                }
-                else
-                {
-                    actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.AttackDamage, networkId);
-                }
-            }
-            else if (damageState == DamageState.AttackSlashingDamage)
-            {
-                val -= actorManager.actorNetManager.Net_Armor;
-                if (val > 0)
-                {
-                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
-                }
-                else
-                {
-                    actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.AttackDamage, networkId);
-                }
-            }
-            else if (damageState == DamageState.AttackBludgeoningDamage)
-            {
-                val -= actorManager.actorNetManager.Net_Armor;
-                if (val > 0)
-                {
-                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
-                }
-                else
-                {
-                    actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.AttackDamage, networkId);
-                }
-            }
-            else if (damageState == DamageState.MagicDamage)
-            {
-                val -= actorManager.actorNetManager.Net_Resistance;
-                if (val > 0)
-                {
-                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.MagicDamage, networkId);
-                }
-                else
-                {
-                    actorManager.actorNetManager.RPC_AllClient_HpChange(0, (int)HpChangeReason.MagicDamage, networkId);
-                }
-            }
-            bodyController.Flash();
-            bodyController.Shake();
+            float sanRatio = actorManager.sanManager.GetSanRatio();
+            float sanOffset = (sanRatio < 0.3f) ? Mathf.Lerp(0.5f, 1.0f, sanRatio / 0.3f) : 1f;
+            temp = temp * sanOffset;
         }
+        return temp;
     }
+
+    #endregion
+    #region//其他相关
     /// <summary>
     /// 受力
     /// </summary>
     /// <param name="dir"></param>
     /// <param name="force"></param>
-    public void TakeForce(Vector2 dir, short force)
+    public void Client_TakeForce(Vector2 dir, short force)
     {
         actorManager.actorNetManager.RPC_AllClient_AddForce(dir, force);
     }
@@ -363,17 +310,35 @@ public class ActorActionManager
         actorManager.actorNetManager.RPC_Local_EarnCoin(coin);
         return actorManager.actorNetManager.Local_Coin;
     }
-    public void Commit(short fine)
+    /// <summary>
+    /// 犯罪
+    /// </summary>
+    /// <param name="fine"></param>
+    public void AllClient_Commit(CommitState commit, short fine)
     {
         MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_SomeoneCommit
         {
             actor = actorManager,
+            commit = commit,
             fine = fine
         });
     }
-    public void SetFine(short val)
+    /// <summary>
+    /// 悬赏
+    /// </summary>
+    /// <param name="val"></param>
+    public void AllClient_SetFine(CommitState commit, short val)
     {
-        if (actorManager.actorNetManager.Local_Fine < val && actorManager.actorAuthority.isLocal)
+        switch (commit)
+        {
+            case CommitState.Steal:
+                break;
+            case CommitState.Attacking:
+                break;
+            case CommitState.Murder:
+                break;
+        }
+        if (actorManager.actorNetManager.Local_Fine < val)
         {
             actorManager.actorNetManager.RPC_Local_ChangeFine(val);
         }
@@ -385,43 +350,16 @@ public class ActorActionManager
             actorManager.actorNetManager.RPC_Local_ChangeFine(0);
         }
     }
-    public void SendEmoji(int emojiID)
+    public void AllClient_SendEmoji(short emojiID,short distance)
     {
-        MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_SomeoneSendEmoji
-        {
-            actor = actorManager,
-            emoji = (Emoji)emojiID,
-            distance = 10
-        });
-        actorManager.actorUI.SendEmoji((Emoji)emojiID);
+       actorManager.actorNetManager.RPC_LocalInput_SendEmoji(emojiID, distance);
     }
-    public void SendText(string text,int id)
+    public void AllClient_SendText(string text,int id)
     {
-        MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_SomeoneSendEmoji
-        {
-            actor = actorManager,
-            emoji = (Emoji)id,
-            distance = 10
-        });
-        actorManager.actorUI.SendText(text);
+       actorManager.actorNetManager.RPC_LocalInput_SendText(text,id);
     }
+    #endregion
     #region//Play
-    public void PlayMove(float speed)
-    {
-        bodyController.float_Speed = speed;
-        bodyController.SetAnimatorFloat(BodyPart.Body, "Speed", speed);
-        bodyController.SetAnimatorBool(BodyPart.Body, "Walk", true);
-        bodyController.SetAnimatorFloat(BodyPart.Hand, "Speed", speed);
-        bodyController.SetAnimatorBool(BodyPart.Hand, "Walk", true);
-    }
-    public void PlayStop()
-    {
-        bodyController.float_Speed = 0;
-        bodyController.SetAnimatorFloat(BodyPart.Body, "Speed", 1);
-        bodyController.SetAnimatorBool(BodyPart.Body, "Walk", false);
-        bodyController.SetAnimatorFloat(BodyPart.Hand, "Speed", 1);
-        bodyController.SetAnimatorBool(BodyPart.Hand, "Walk", false);
-    }
     public void PlayDead(float speed, Func<string,bool> func)
     {
         bodyController.SetAnimatorTrigger(BodyPart.Body, "Dead");

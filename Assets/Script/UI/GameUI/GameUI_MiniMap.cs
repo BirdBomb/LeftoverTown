@@ -28,6 +28,8 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
     private Vector2 pivot_Texture2D;
     [Header("缩放条")]
     public Scrollbar scrollbar_Scaling;
+    public Button btn_ZoomIn;
+    public Button btn_ZoomOut;
     private int int_MinMapHeight = 32;
     private int int_MaxMapHeight = 96;
     private int int_MapHeight = 32;
@@ -45,7 +47,9 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
     }
     private void Bind()
     {
-        scrollbar_Scaling.onValueChanged.AddListener(ChangeScaling);
+        //scrollbar_Scaling.onValueChanged.AddListener(ChangeScaling);
+        btn_ZoomIn.onClick.AddListener(ZoomIn);
+        btn_ZoomOut.onClick.AddListener(ZoomOut);
     }
     /// <summary>
     /// 更改地图地板像素
@@ -72,6 +76,28 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
     private void ChangeScaling(float val)
     {
         int_MapHeight = (int)Mathf.Lerp(int_MinMapHeight, int_MaxMapHeight, val);
+        UpdateRect(vector2_MapCenter, int_MapHeight);
+    }
+    /// <summary>
+    /// 放大
+    /// </summary>
+    private void ZoomIn()
+    {
+        if (int_MapHeight > int_MinMapHeight)
+        {
+            int_MapHeight -= 10;
+        }
+        UpdateRect(vector2_MapCenter, int_MapHeight);
+    }
+    /// <summary>
+    /// 缩小
+    /// </summary>
+    private void ZoomOut()
+    {
+        if (int_MapHeight < int_MaxMapHeight)
+        {
+            int_MapHeight += 10;
+        }
         UpdateRect(vector2_MapCenter, int_MapHeight);
     }
     /// <summary>
