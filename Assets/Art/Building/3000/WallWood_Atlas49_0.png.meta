@@ -110,12 +110,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: WallWood_Atlas49_0
+      name: WallWood_Atlas49_0_0
       rect:
         serializedVersion: 2
         x: 0
         y: 192
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -124,19 +124,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dd6182769173b754284f8a8a3f577f48
-      internalID: -433791031
+      spriteID: 9c9e5949557766d47a400cb6e9c09979
+      internalID: 246429189
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_1
+      name: WallWood_Atlas49_0_1
       rect:
         serializedVersion: 2
-        x: 16
+        x: 18
         y: 192
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -145,19 +145,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 786f3085a95787647840416608ab95d9
-      internalID: -503429950
+      spriteID: d9a121d3e6e82c34c928b46f55aff6a9
+      internalID: -948568290
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_2
+      name: WallWood_Atlas49_0_2
       rect:
         serializedVersion: 2
-        x: 32
+        x: 36
         y: 192
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -166,19 +166,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d3b0a0fb50a74f3458e480a4901d25fe
-      internalID: -1813799460
+      spriteID: c65edc9a3a7410c418f3791b2ccd5839
+      internalID: 1955338984
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_3
+      name: WallWood_Atlas49_0_3
       rect:
         serializedVersion: 2
-        x: 48
+        x: 54
         y: 192
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -187,19 +187,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 422abab8ba93e2f4a83fd37f92a4df91
-      internalID: 2093024396
+      spriteID: 73dc5f7e74eed78458ee6bdaf8528116
+      internalID: 714090314
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_4
+      name: WallWood_Atlas49_0_4
       rect:
         serializedVersion: 2
-        x: 64
+        x: 72
         y: 192
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -208,19 +208,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 399b0a5d0c6061b4396af37f062e6a03
-      internalID: 1874834840
+      spriteID: 1103a7dd2e41c6443b99b6f682a9c982
+      internalID: 1106840488
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_5
+      name: WallWood_Atlas49_0_5
       rect:
         serializedVersion: 2
-        x: 80
+        x: 90
         y: 192
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -229,19 +229,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 22b7f4630cddeaf4ca898d0a0eed3687
-      internalID: -1483973914
+      spriteID: 9785b89d588722c4e882f2a7b513512d
+      internalID: -1993540083
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_6
+      name: WallWood_Atlas49_0_6
       rect:
         serializedVersion: 2
-        x: 96
+        x: 108
         y: 192
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -250,19 +250,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4a20914e9de52b34b9749cb4ecc9b36c
-      internalID: 5352516
+      spriteID: 1e9762c5043961445ab55ad8a65e50d8
+      internalID: 2051658646
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_7
+      name: WallWood_Atlas49_0_7
       rect:
         serializedVersion: 2
         x: 0
         y: 160
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -271,19 +271,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5d9aa3630a39c2a469b5cef28fe8cd82
-      internalID: 34392663
+      spriteID: daaab98f982b8974cafe56965afef0fd
+      internalID: 325072601
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_8
+      name: WallWood_Atlas49_0_8
       rect:
         serializedVersion: 2
-        x: 16
+        x: 18
         y: 160
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -292,19 +292,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b48ded31a5fb7a04bb2eb1acceb5b989
-      internalID: -423515698
+      spriteID: 9bcc4c95a8d74aa4baf8a307cc6d9aef
+      internalID: -548213724
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_9
+      name: WallWood_Atlas49_0_9
       rect:
         serializedVersion: 2
-        x: 32
+        x: 36
         y: 160
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -313,19 +313,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3e71b010492ef40458ce5b7741147db9
-      internalID: -1411238434
+      spriteID: 595c13078a8a7db47b514da28725cce4
+      internalID: 2056592466
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_10
+      name: WallWood_Atlas49_0_10
       rect:
         serializedVersion: 2
-        x: 48
+        x: 54
         y: 160
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -334,19 +334,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 74838a6773e0ec44eabc6b228f2c7388
-      internalID: 928554898
+      spriteID: 440eb7a0d1f0a674c92e30f8789272dc
+      internalID: 1996010162
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_11
+      name: WallWood_Atlas49_0_11
       rect:
         serializedVersion: 2
-        x: 64
+        x: 72
         y: 160
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -355,19 +355,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 83296ef792a289240bbb5cc2e82fc743
-      internalID: 1186456231
+      spriteID: 5b9a0ff32ee7f7b42ac633e961ae14a6
+      internalID: -1751198329
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_12
+      name: WallWood_Atlas49_0_12
       rect:
         serializedVersion: 2
-        x: 80
+        x: 90
         y: 160
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -376,19 +376,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f99f09110a21eda4e81a3997ce3d1847
-      internalID: -650519127
+      spriteID: 357cf0ea0e3ec454894d5aae8283fcd4
+      internalID: -76100481
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_13
+      name: WallWood_Atlas49_0_13
       rect:
         serializedVersion: 2
-        x: 96
+        x: 108
         y: 160
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -397,19 +397,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ea506b08756f64d4f980cd29537efa2c
-      internalID: 1060867423
+      spriteID: e8350975b84ee3847ac9f361be3943c3
+      internalID: 1157165389
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_14
+      name: WallWood_Atlas49_0_14
       rect:
         serializedVersion: 2
         x: 0
         y: 128
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -418,19 +418,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 015afa40ebcd39b47a21a116a5674196
-      internalID: -1650170201
+      spriteID: 7fac994bcfa4a594aa2d267fe60d49ab
+      internalID: -447023677
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_15
+      name: WallWood_Atlas49_0_15
       rect:
         serializedVersion: 2
-        x: 16
+        x: 18
         y: 128
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -439,19 +439,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2c648d6a04ed10f45af45e608953ef1c
-      internalID: 1253512211
+      spriteID: 02a997639c17da54d9315ae168c9284e
+      internalID: -455147986
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_16
+      name: WallWood_Atlas49_0_16
       rect:
         serializedVersion: 2
-        x: 32
+        x: 36
         y: 128
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -460,19 +460,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f75fbd238a94e964e90c0aaf49720b45
-      internalID: -326751591
+      spriteID: 691b3c1532f060041940e91ef5fd7a88
+      internalID: -850843977
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_17
+      name: WallWood_Atlas49_0_17
       rect:
         serializedVersion: 2
-        x: 48
+        x: 54
         y: 128
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -481,19 +481,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8730e6e1ed539b54b9ffd5878cd757b6
-      internalID: -1329155367
+      spriteID: 70f5b08643d37594facacb6c5e1caa3a
+      internalID: -56477319
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_18
+      name: WallWood_Atlas49_0_18
       rect:
         serializedVersion: 2
-        x: 64
+        x: 72
         y: 128
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -502,19 +502,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f306b86af5fc5bf40a5ade7fd2d1ba81
-      internalID: -1419787903
+      spriteID: ec0829f7fae2cc54386e7f63d2fed576
+      internalID: 483080035
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_19
+      name: WallWood_Atlas49_0_19
       rect:
         serializedVersion: 2
-        x: 80
+        x: 90
         y: 128
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -523,19 +523,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8b23466f7d9801f4bbef1faf3d45f2a4
-      internalID: 409663435
+      spriteID: 626233620837f604d82e12f5d5c55bf3
+      internalID: -106396542
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_20
+      name: WallWood_Atlas49_0_20
       rect:
         serializedVersion: 2
-        x: 96
+        x: 108
         y: 128
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -544,19 +544,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6a75873ed1fdf9a49b7398322ff9c97c
-      internalID: 923125988
+      spriteID: e720a1185d0576f4c9cd87608a19631b
+      internalID: 1252498087
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_21
+      name: WallWood_Atlas49_0_21
       rect:
         serializedVersion: 2
         x: 0
         y: 96
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -565,19 +565,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b85d7ee36bcd45a4c9abcdef4b659176
-      internalID: -1950644591
+      spriteID: 476726329a990d14c9ce419d5c4ccb33
+      internalID: 430224948
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_22
+      name: WallWood_Atlas49_0_22
       rect:
         serializedVersion: 2
-        x: 16
+        x: 18
         y: 96
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -586,19 +586,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 66ba09df8e423f14696d0a0f7701b6a1
-      internalID: 841327055
+      spriteID: c8f7eafe162d37942a5db362ae59b737
+      internalID: -1320895147
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_23
+      name: WallWood_Atlas49_0_23
       rect:
         serializedVersion: 2
-        x: 32
+        x: 36
         y: 96
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -607,19 +607,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ff2b0458c4f98944195e68fcfb47947d
-      internalID: 858191365
+      spriteID: c89e458eb9e3f0b44b91ef2d68b66e13
+      internalID: 923836709
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_24
+      name: WallWood_Atlas49_0_24
       rect:
         serializedVersion: 2
-        x: 48
+        x: 54
         y: 96
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -628,19 +628,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 83e00ef29d196584c8326e3d2f803829
-      internalID: 779619967
+      spriteID: a6d29f35337e3214d869986935f28384
+      internalID: 1313620611
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_25
+      name: WallWood_Atlas49_0_25
       rect:
         serializedVersion: 2
-        x: 64
+        x: 72
         y: 96
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -649,19 +649,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7c3bfff91c4413941a07290777cc4813
-      internalID: -1422870176
+      spriteID: 86a303e088c24a34cb6677a298f1becc
+      internalID: 1114222021
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_26
+      name: WallWood_Atlas49_0_26
       rect:
         serializedVersion: 2
-        x: 80
+        x: 90
         y: 96
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -670,19 +670,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8041a5daeba13214cb3615de94321622
-      internalID: -337883469
+      spriteID: cb1b74ea26375af4eaca3a7826af9fdb
+      internalID: -787305670
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_27
+      name: WallWood_Atlas49_0_27
       rect:
         serializedVersion: 2
-        x: 96
+        x: 108
         y: 96
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -691,19 +691,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 500e395598c6ce3418d2d8fb833f70ce
-      internalID: 242550189
+      spriteID: 26302647738a27446846c8fa8d8c17bc
+      internalID: -1746987013
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_28
+      name: WallWood_Atlas49_0_28
       rect:
         serializedVersion: 2
         x: 0
         y: 64
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -712,19 +712,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 376f5ddb3b2830148800851a752d2cf3
-      internalID: -856045509
+      spriteID: 89d57450957eda74d816f604d286dc42
+      internalID: -285235507
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_29
+      name: WallWood_Atlas49_0_29
       rect:
         serializedVersion: 2
-        x: 16
+        x: 18
         y: 64
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -733,19 +733,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8088d3a51533abc469dda24fa9bfe96f
-      internalID: -1751567027
+      spriteID: ddd47debe947ce44aabce1c2725602d7
+      internalID: -466919110
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_30
+      name: WallWood_Atlas49_0_30
       rect:
         serializedVersion: 2
-        x: 32
+        x: 36
         y: 64
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -754,19 +754,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0db0424101e446e439a5ba4c622a213e
-      internalID: -1641355695
+      spriteID: 74fa715fa373bfe45855935f85b01279
+      internalID: 715203536
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_31
+      name: WallWood_Atlas49_0_31
       rect:
         serializedVersion: 2
-        x: 48
+        x: 54
         y: 64
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -775,19 +775,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c737f495437988042b65474d7315a691
-      internalID: 654824085
+      spriteID: 4dbc6a6ac31798c42846c7d1d8547b1e
+      internalID: -1564725281
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_32
+      name: WallWood_Atlas49_0_32
       rect:
         serializedVersion: 2
-        x: 64
+        x: 72
         y: 64
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -796,19 +796,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 64be24dd9ab5d47478b563e249066c46
-      internalID: -685203112
+      spriteID: c3aba12ab0fdc694ab5bce41b675eaa6
+      internalID: 1339616774
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_33
+      name: WallWood_Atlas49_0_33
       rect:
         serializedVersion: 2
-        x: 80
+        x: 90
         y: 64
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -817,19 +817,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ec0a666114e402a47be1d42c8d6161ea
-      internalID: 661804052
+      spriteID: a5e2ebb405ade0144adb372041acfd6f
+      internalID: -1876087950
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_34
+      name: WallWood_Atlas49_0_34
       rect:
         serializedVersion: 2
-        x: 96
+        x: 108
         y: 64
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -838,19 +838,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a2f7e99aec9c71140be5e01759cb07e7
-      internalID: -1734635191
+      spriteID: 121d3b20ca1c2dd46bfb069eeafd02e3
+      internalID: -297292719
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_35
+      name: WallWood_Atlas49_0_35
       rect:
         serializedVersion: 2
         x: 0
         y: 32
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -859,19 +859,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 00e76a931688ff844b2667b5c371e950
-      internalID: -8138311
+      spriteID: c5f715d605f1fe3418f9b75394898f03
+      internalID: 592016928
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_36
+      name: WallWood_Atlas49_0_36
       rect:
         serializedVersion: 2
-        x: 16
+        x: 18
         y: 32
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -880,19 +880,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8b90388cbc4423a4a804029d93a039d1
-      internalID: 1699169504
+      spriteID: 03599ac7a11dd064180dc1f3aca4b113
+      internalID: -295693107
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_37
+      name: WallWood_Atlas49_0_37
       rect:
         serializedVersion: 2
-        x: 32
+        x: 36
         y: 32
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -901,19 +901,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f0959af052ebcb04aa014da3042de257
-      internalID: 1928996596
+      spriteID: 994cb88f09980fb458f41e71b8ce45c8
+      internalID: 907603279
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_38
+      name: WallWood_Atlas49_0_38
       rect:
         serializedVersion: 2
-        x: 48
+        x: 54
         y: 32
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -922,19 +922,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4403328e871f59b47a6a7f75be25973f
-      internalID: -602032748
+      spriteID: fcc252f78859282499fb3e7cae184b3a
+      internalID: 1638941684
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_39
+      name: WallWood_Atlas49_0_39
       rect:
         serializedVersion: 2
-        x: 64
+        x: 72
         y: 32
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -943,19 +943,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dee378bbc2626ee4898cd87ed7c002e1
-      internalID: -1261204008
+      spriteID: 2d0c19535f9d2fd45bf19fddeba312d1
+      internalID: 905887248
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_40
+      name: WallWood_Atlas49_0_40
       rect:
         serializedVersion: 2
-        x: 80
+        x: 90
         y: 32
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -964,19 +964,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 92a5103f111d183439d768b1e22139d8
-      internalID: 250260309
+      spriteID: 65e5d15bb55336249955e2b5108f273e
+      internalID: -1605724039
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_41
+      name: WallWood_Atlas49_0_41
       rect:
         serializedVersion: 2
-        x: 96
+        x: 108
         y: 32
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -985,19 +985,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a72d6cdfc3e34ae4b9172b116fdc873b
-      internalID: -59311809
+      spriteID: 7504586d0c89c104996b85fe1781e8bc
+      internalID: 1488904655
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_42
+      name: WallWood_Atlas49_0_42
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -1006,19 +1006,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2d02b01c3ae5ee94da40d063aca8235c
-      internalID: -1094288718
+      spriteID: 7eb74e20145d99645961470f7f365d81
+      internalID: -1764875764
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_43
+      name: WallWood_Atlas49_0_43
       rect:
         serializedVersion: 2
-        x: 16
+        x: 18
         y: 0
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -1027,19 +1027,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a6fb9c5353d1a5c45afe006907d1a975
-      internalID: -1856311674
+      spriteID: 01e262ae0e6557941964d3d9291a954f
+      internalID: 241684863
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_44
+      name: WallWood_Atlas49_0_44
       rect:
         serializedVersion: 2
-        x: 32
+        x: 36
         y: 0
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -1048,19 +1048,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ff08b9d9661a5e64c84ab9cdee6851de
-      internalID: -2084185065
+      spriteID: e164d09d8c65d3643974b181b3dc3afc
+      internalID: -396994406
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_45
+      name: WallWood_Atlas49_0_45
       rect:
         serializedVersion: 2
-        x: 48
+        x: 54
         y: 0
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -1069,19 +1069,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: eefb5819286db344c8b118c4c9cf691a
-      internalID: 1703726324
+      spriteID: ca690da4dd6002243a1a297b62f8f0b0
+      internalID: 759408464
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_46
+      name: WallWood_Atlas49_0_46
       rect:
         serializedVersion: 2
-        x: 64
+        x: 72
         y: 0
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -1090,19 +1090,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bf6ebed2f1b89c2409e0905f074fd957
-      internalID: -1647554304
+      spriteID: 361bba09c60996541bc6bf2de7aae7ff
+      internalID: -1942283208
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_47
+      name: WallWood_Atlas49_0_47
       rect:
         serializedVersion: 2
-        x: 80
+        x: 90
         y: 0
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -1111,19 +1111,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fa8e4f2753fd7ea419adcc4155c0e36f
-      internalID: 1675591766
+      spriteID: ac09c43723f37ca41b7da8ddac1e92ab
+      internalID: -1505891257
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WallWood_Atlas49_48
+      name: WallWood_Atlas49_0_48
       rect:
         serializedVersion: 2
-        x: 96
+        x: 108
         y: 0
-        width: 16
+        width: 18
         height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.25}
@@ -1132,8 +1132,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 13622728923534845b0b84dd86f719b0
-      internalID: 2021228117
+      spriteID: f37933954c46d474f8e5b3648889e857
+      internalID: 885380284
       vertices: []
       indices: 
       edges: []
@@ -1149,55 +1149,55 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      WallWood_Atlas49_0: -433791031
-      WallWood_Atlas49_1: -503429950
-      WallWood_Atlas49_10: 928554898
-      WallWood_Atlas49_11: 1186456231
-      WallWood_Atlas49_12: -650519127
-      WallWood_Atlas49_13: 1060867423
-      WallWood_Atlas49_14: -1650170201
-      WallWood_Atlas49_15: 1253512211
-      WallWood_Atlas49_16: -326751591
-      WallWood_Atlas49_17: -1329155367
-      WallWood_Atlas49_18: -1419787903
-      WallWood_Atlas49_19: 409663435
-      WallWood_Atlas49_2: -1813799460
-      WallWood_Atlas49_20: 923125988
-      WallWood_Atlas49_21: -1950644591
-      WallWood_Atlas49_22: 841327055
-      WallWood_Atlas49_23: 858191365
-      WallWood_Atlas49_24: 779619967
-      WallWood_Atlas49_25: -1422870176
-      WallWood_Atlas49_26: -337883469
-      WallWood_Atlas49_27: 242550189
-      WallWood_Atlas49_28: -856045509
-      WallWood_Atlas49_29: -1751567027
-      WallWood_Atlas49_3: 2093024396
-      WallWood_Atlas49_30: -1641355695
-      WallWood_Atlas49_31: 654824085
-      WallWood_Atlas49_32: -685203112
-      WallWood_Atlas49_33: 661804052
-      WallWood_Atlas49_34: -1734635191
-      WallWood_Atlas49_35: -8138311
-      WallWood_Atlas49_36: 1699169504
-      WallWood_Atlas49_37: 1928996596
-      WallWood_Atlas49_38: -602032748
-      WallWood_Atlas49_39: -1261204008
-      WallWood_Atlas49_4: 1874834840
-      WallWood_Atlas49_40: 250260309
-      WallWood_Atlas49_41: -59311809
-      WallWood_Atlas49_42: -1094288718
-      WallWood_Atlas49_43: -1856311674
-      WallWood_Atlas49_44: -2084185065
-      WallWood_Atlas49_45: 1703726324
-      WallWood_Atlas49_46: -1647554304
-      WallWood_Atlas49_47: 1675591766
-      WallWood_Atlas49_48: 2021228117
-      WallWood_Atlas49_5: -1483973914
-      WallWood_Atlas49_6: 5352516
-      WallWood_Atlas49_7: 34392663
-      WallWood_Atlas49_8: -423515698
-      WallWood_Atlas49_9: -1411238434
+      WallWood_Atlas49_0_0: 246429189
+      WallWood_Atlas49_0_1: -948568290
+      WallWood_Atlas49_0_10: 1996010162
+      WallWood_Atlas49_0_11: -1751198329
+      WallWood_Atlas49_0_12: -76100481
+      WallWood_Atlas49_0_13: 1157165389
+      WallWood_Atlas49_0_14: -447023677
+      WallWood_Atlas49_0_15: -455147986
+      WallWood_Atlas49_0_16: -850843977
+      WallWood_Atlas49_0_17: -56477319
+      WallWood_Atlas49_0_18: 483080035
+      WallWood_Atlas49_0_19: -106396542
+      WallWood_Atlas49_0_2: 1955338984
+      WallWood_Atlas49_0_20: 1252498087
+      WallWood_Atlas49_0_21: 430224948
+      WallWood_Atlas49_0_22: -1320895147
+      WallWood_Atlas49_0_23: 923836709
+      WallWood_Atlas49_0_24: 1313620611
+      WallWood_Atlas49_0_25: 1114222021
+      WallWood_Atlas49_0_26: -787305670
+      WallWood_Atlas49_0_27: -1746987013
+      WallWood_Atlas49_0_28: -285235507
+      WallWood_Atlas49_0_29: -466919110
+      WallWood_Atlas49_0_3: 714090314
+      WallWood_Atlas49_0_30: 715203536
+      WallWood_Atlas49_0_31: -1564725281
+      WallWood_Atlas49_0_32: 1339616774
+      WallWood_Atlas49_0_33: -1876087950
+      WallWood_Atlas49_0_34: -297292719
+      WallWood_Atlas49_0_35: 592016928
+      WallWood_Atlas49_0_36: -295693107
+      WallWood_Atlas49_0_37: 907603279
+      WallWood_Atlas49_0_38: 1638941684
+      WallWood_Atlas49_0_39: 905887248
+      WallWood_Atlas49_0_4: 1106840488
+      WallWood_Atlas49_0_40: -1605724039
+      WallWood_Atlas49_0_41: 1488904655
+      WallWood_Atlas49_0_42: -1764875764
+      WallWood_Atlas49_0_43: 241684863
+      WallWood_Atlas49_0_44: -396994406
+      WallWood_Atlas49_0_45: 759408464
+      WallWood_Atlas49_0_46: -1942283208
+      WallWood_Atlas49_0_47: -1505891257
+      WallWood_Atlas49_0_48: 885380284
+      WallWood_Atlas49_0_5: -1993540083
+      WallWood_Atlas49_0_6: 2051658646
+      WallWood_Atlas49_0_7: 325072601
+      WallWood_Atlas49_0_8: -548213724
+      WallWood_Atlas49_0_9: 2056592466
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
