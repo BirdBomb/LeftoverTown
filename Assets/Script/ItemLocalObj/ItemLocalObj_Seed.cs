@@ -30,12 +30,7 @@ public class ItemLocalObj_Seed : ItemLocalObj
     public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
         actorManager = owner;
-
-        transform.SetParent(body.transform_ItemInRightHand);
-        body.gameObjects_ItemInHand.Add(gameObject);
-        transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.identity;
-        transform.localScale = Vector3.one;
+        body.AddItemOnRightHand(gameObject, Vector3.zero, Quaternion.identity, Vector3.one);
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
             MapPreviewManager.Instance.Local_ShowSingal(Vector3Int.zero);
@@ -49,18 +44,7 @@ public class ItemLocalObj_Seed : ItemLocalObj
             float_NextSowTiming += config_SowCD + 0.1f;
             actorManager.bodyController.SetAnimatorTrigger(BodyPart.Hand, "Pick");
             actorManager.bodyController.SetAnimatorTrigger(BodyPart.Head, "Pick");
-            actorManager.bodyController.SetAnimatorFunc(BodyPart.Hand, (str) =>
-            {
-                if (str.Equals("Pick"))
-                {
-                    Sow();
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            });
+            actorManager.bodyController.SetAnimatorFunc(BodyPart.Hand, TryToSow);
         }
         inputData.leftPressTimer = time;
         return base.PressLeftMouse(time, actorAuthority);
@@ -73,6 +57,18 @@ public class ItemLocalObj_Seed : ItemLocalObj
             inputData.leftPressTimer = 0;
         }
         base.ReleaseLeftMouse();
+    }
+    public bool TryToSow(string str)
+    {
+        if (str.Equals("Pick"))
+        {
+            Sow();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     public void Sow()
     {
@@ -93,6 +89,10 @@ public class ItemLocalObj_Seed : ItemLocalObj
                         });
                         Expend(1);
                         return;
+                    }
+                    else
+                    {
+                        actorManager.actionManager.AllClient_SendText("我需要一个正确的地块", (int)Emoji.Yell, 1, false, 1);
                     }
                 }
             }

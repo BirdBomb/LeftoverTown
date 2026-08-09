@@ -12,16 +12,15 @@ using UnityEngine.UI;
 
 public class GameUI_Build : MonoBehaviour
 {
-    private bool bool_Awake = false;
+    public bool bool_Show = false;
     private List<BuildingConfig> buildingConfigs_TempList = new List<BuildingConfig>();
     private List<GroundConfig> groundConfigs_TempList = new List<GroundConfig>();
     public Transform tran_Panel;
-    public Transform tran_ShowBtn;
     public void Start()
     {
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateItemInBag>().Subscribe(async _ =>
         {
-            if (bool_Awake)
+            if (bool_Show)
             {
                 DrawBuildingList();
             }
@@ -60,18 +59,20 @@ public class GameUI_Build : MonoBehaviour
     }
     private void ShowPanel()
     {
-        bool_Awake = true;
-        tran_ShowBtn.gameObject.SetActive(false);
+        bool_Show = true;
         tran_Panel.gameObject.SetActive(true);
         tran_Panel.DOKill();
         tran_Panel.localScale = Vector3.one;
         tran_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.2f);
         DrawBuildingList();
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_Action()
+        {
+            action = PlayerAction.OpenBuilding
+        });
     }
-    private void HidePanel()
+    public void HidePanel()
     {
-        bool_Awake = false;
-        tran_ShowBtn.gameObject.SetActive(true);
+        bool_Show = false;
         tran_Panel.gameObject.SetActive(false);
         DrawBuildingRaw(new BuildingConfig(), 0);
         DrawBuildingRaw(new GroundConfig(), 0);
@@ -149,8 +150,9 @@ public class GameUI_Build : MonoBehaviour
     private int curAgeIndex = 0;
     private List<AgeGroup> buildingAges_Config = new List<AgeGroup>()
     {
-        AgeGroup.StoneAge,
-        AgeGroup.IronAge,
+        AgeGroup.Wood,
+        AgeGroup.Stone,
+        AgeGroup.Iron,
     };
     private AgeGroup CurAge
     {
@@ -161,7 +163,7 @@ public class GameUI_Build : MonoBehaviour
             UpdateBuildingList();
         }
     }
-    private AgeGroup curAge = AgeGroup.StoneAge;
+    private AgeGroup curAge = AgeGroup.Wood;
 
     /// <summary>
     /// 上一时代按钮点击
@@ -406,9 +408,9 @@ public class GameUI_Build : MonoBehaviour
     {
         bool temp = true;
         List<ItemData> itemDatas;
-        if (WorldManager.Instance.playerCoreLocal != null)
+        if (WorldActorManager.Instance.GetPlayer() != null)
         {
-            itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+            itemDatas = WorldActorManager.Instance.GetPlayer().actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         }
         else
         {
@@ -439,9 +441,9 @@ public class GameUI_Build : MonoBehaviour
     private void CheckAndDrawBuildingRaw(BuildingConfig config)
     {
         List<ItemData> itemDatas;
-        if (WorldManager.Instance.playerCoreLocal != null)
+        if (WorldActorManager.Instance.GetPlayer() != null)
         {
-            itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+            itemDatas = WorldActorManager.Instance.GetPlayer().actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         }
         else
         {
@@ -509,7 +511,7 @@ public class GameUI_Build : MonoBehaviour
     private bool CheckBuildingRaw(GroundConfig config)
     {
         bool temp = true;
-        List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        List<ItemData> itemDatas = WorldActorManager.Instance.GetPlayer().actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < config.Ground_Raw.Count; i++)
         {
             ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Ground_Raw[i].ID);
@@ -535,7 +537,7 @@ public class GameUI_Build : MonoBehaviour
     /// <returns></returns>
     private void CheckAndDrawBuildingRaw(GroundConfig config)
     {
-        List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        List<ItemData> itemDatas = WorldActorManager.Instance.GetPlayer().actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < config.Ground_Raw.Count; i++)
         {
             ItemConfig itemConfig = ItemConfigData.GetItemConfig(config.Ground_Raw[i].ID);

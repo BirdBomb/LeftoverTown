@@ -9,16 +9,15 @@ using UnityEngine.UI;
 
 public class TileUI_SunPiece : TileUI
 {
-    [SerializeField, Header("格子面板")]
-    private Transform transform_Panel;
-    [SerializeField, Header("格子列表")]
-    private UI_GridCell gridCell_Food;
-    [SerializeField, Header("信息")]
-    private LocalizeStringEvent localizeStringEvent_Info ; 
-    [SerializeField, Header("确定")]
-    private Button btn_Sure;
+    [Header("格子面板")]
+    public Transform transform_Panel;
+    [Header("格子列表")]
+    public UI_GridCell gridCell_Food;
+    public Text text_SunRange;
+    [Header("信息")]
+    public LocalizeStringEvent localizeStringEvent_Info ;
+    public List<GameObject> gameObjects_LightCube = new List<GameObject>();
     private BuildingObj_SunPiece buildingObj_Bind;
-
     private void Awake()
     {
         BindAllCell();
@@ -40,8 +39,6 @@ public class TileUI_SunPiece : TileUI
     {
         buildingObj_Bind = buildingObj;
         buildingObj_Bind.OpenOrCloseAwakeUI(true);
-        btn_Sure.onClick.AddListener(ClickSure);
-        DrawInfo();
         DrawCell();
         CheckCell();
     }
@@ -49,68 +46,53 @@ public class TileUI_SunPiece : TileUI
     {
         gridCell_Food.BindGrid(new ItemPath(ItemFrom.Default, 0), PutIn, PutOut, null, null);
     }
-    public void DrawInfo()
-    {
-        localizeStringEvent_Info.StringReference.SetReference("BuildingInfo_String", "SunPieceInfo_" + buildingObj_Bind.info_Level.ToString());
-    }
     public void DrawCell()
     {
-        gridCell_Food.UpdateData(buildingObj_Bind.info_ItemData);
+        gridCell_Food.UpdateData(buildingObj_Bind.buildingData_SunPiece.ReadItemData());
     }
     public void CheckCell()
     {
-        btn_Sure.gameObject.SetActive(false);
-        Debug.Log(buildingObj_Bind.info_ItemData.I);
-        Debug.Log(buildingObj_Bind.info_Level);
-        switch (buildingObj_Bind.info_Level)
-        {
-            case 0:
-                if (buildingObj_Bind.info_ItemData.I == 1000)
-                {
-                    btn_Sure.gameObject.SetActive(true);
-                }
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-        }
+        buildingObj_Bind.All_CheckSun(out short level, out short range);
+        text_SunRange.text = range.ToString();
+        localizeStringEvent_Info.StringReference.SetReference("BuildingInfo_String", $"SunPieceInfo_{level}");
+        CubeLightOn(level);
     }
-    public void ClickSure()
+    public void CubeLightOn(int count)
     {
-        switch (buildingObj_Bind.info_Level)
+        for(int i = 0; i < gameObjects_LightCube.Count; i++)
         {
-            case 0:
-                if (buildingObj_Bind.info_ItemData.I == 1000)
-                {
-                    buildingObj_Bind.info_ItemData = buildingObj_Bind.Local_GetItemData(2010, 1);
-                    buildingObj_Bind.info_Level = 1;
-                    buildingObj_Bind.WriteInfo();
-                }
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
+            gameObjects_LightCube[i].gameObject.SetActive((i < count));
         }
     }
     public void PutIn(ItemData addData, ItemPath path)
     {
-        buildingObj_Bind.info_ItemData = GameToolManager.Instance.CombineItem(buildingObj_Bind.info_ItemData, addData, out ItemData resData);
-        if (resData.I > 0 && resData.C != 0)
+        if (addData.I == 1016)
+        {
+            ItemData itemData = buildingObj_Bind.buildingData_SunPiece.ReadItemData();
+            itemData = GameToolManager.Instance.CombineItem(itemData, addData, out ItemData resData);
+            if (resData.I > 0 && resData.C != 0)
+            {
+                MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
+                {
+                    itemData = resData,
+                    itemFrom = ItemFrom.OutSide
+                });
+
+            }
+            buildingObj_Bind.buildingData_SunPiece.WriteItemData(itemData);
+            buildingObj_Bind.TryToPush();
+        }
+        else
         {
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
-                itemData = resData,
+                itemData = addData,
                 itemFrom = ItemFrom.OutSide
             });
         }
-        buildingObj_Bind.WriteInfo();
     }
     public ItemData PutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        buildingObj_Bind.info_ItemData = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.WriteInfo();
-        return itemData_Out;
+        return new ItemData();
     }
 }

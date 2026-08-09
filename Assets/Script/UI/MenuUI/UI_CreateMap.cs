@@ -28,6 +28,8 @@ public class UI_CreateMap : MonoBehaviour
     [SerializeField]
     private TMP_Dropdown dropdown_MapType;
     [SerializeField]
+    private TMP_Dropdown dropdown_MapMod;
+    [SerializeField]
     private Slider slider_Waiting;
     [SerializeField]
     private TextMeshProUGUI text_Waiting;
@@ -109,10 +111,12 @@ public class UI_CreateMap : MonoBehaviour
         btn_Create.interactable = false;
         await SetMapData();
         Debug.Log("结束生成");
-        FileManager.Instance.WriteFile(bind_MapInfoPath, JsonConvert.SerializeObject(mapInfoData));
-        FileManager.Instance.WriteFile(bind_BuildingInfoPath, JsonConvert.SerializeObject(buildingInfoData));
-        FileManager.Instance.WriteFile(bind_BuildingTypePath, JsonConvert.SerializeObject(buildingTypeData));
-        FileManager.Instance.WriteFile(bind_FloorTypePath, JsonConvert.SerializeObject(floorTypeData));
+
+        await FileManager.Instance.WriteBytes(bind_MapInfoPath, mapInfoData);
+        await FileManager.Instance.WriteBytes(bind_BuildingTypePath, buildingTypeData);
+        await FileManager.Instance.WriteBytes(bind_FloorTypePath, floorTypeData);
+        await FileManager.Instance.WriteBytes(bind_BuildingInfoPath, buildingInfoData);
+
         transform_Panel.gameObject.SetActive(false);
         if (action_Create != null)
         {
@@ -124,6 +128,7 @@ public class UI_CreateMap : MonoBehaviour
         MapConfig config = new MapConfig();
         if (mapSeed.Equals("")) { GetRandomSeed(); }
         config.map_Seed = ReadRandomSeed(mapSeed);
+        
         switch (dropdown_MapType.value)
         {
             case 0:/*小地图*/
@@ -134,6 +139,15 @@ public class UI_CreateMap : MonoBehaviour
                 break;
             case 2:/*大地图*/
                 config.map_Size = 1000;
+                break;
+        }
+        switch (dropdown_MapMod.value)
+        {
+            case 0:/*小地图*/
+                config.map_Type = MapType.Default;
+                break;
+            case 1:/*中地图*/
+                config.map_Type = MapType.Plane;
                 break;
         }
 

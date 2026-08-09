@@ -16,15 +16,11 @@ public class BuffConfigData : MonoBehaviour
         new BuffConfig(){ Buff_ID = 102 },/*精神*/
         /*正面Buff*/
         new BuffConfig(){ Buff_ID = 1001 },/*睡眠*/
+        new BuffConfig(){ Buff_ID = 1002 },/*坐下*/
 
         /*负面Buff*/
-        new BuffConfig(){ Buff_ID = 2000 },/*精神不佳(低速度)*/
-        new BuffConfig(){ Buff_ID = 2001 },/*精神萎靡(概率原地睡眠)*/
-        new BuffConfig(){ Buff_ID = 2010 },/*轻度饥饿*/
-        new BuffConfig(){ Buff_ID = 2011 },/*极度饥饿*/
-        new BuffConfig(){ Buff_ID = 2020 },/*流血(降低生命值)*/
-        new BuffConfig(){ Buff_ID = 2021 },/*中毒(低速度)*/
-        new BuffConfig(){ Buff_ID = 2030 },/*天黑了*/
+        new BuffConfig(){ Buff_ID = 2000 },/*侵袭*/
+        new BuffConfig(){ Buff_ID = 2001 },/*牵引*/
 
         /*天赋*/
         new BuffConfig(){ Buff_ID = 10000 }/*消化1*/,

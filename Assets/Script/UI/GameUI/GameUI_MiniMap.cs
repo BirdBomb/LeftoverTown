@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
@@ -12,17 +13,8 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
     /// 用于显示的image
     /// </summary>
     public Image image_MiniMap;
-    /// <summary>
-    /// 地图纹理
-    /// </summary>
     private Texture2D texture2D_Temp;
-    /// <summary>
-    /// 纹理原始宽度
-    /// </summary>
     private int int_Texture2D_Width;
-    /// <summary>
-    /// 纹理原始高度
-    /// </summary>
     private int int_Texture2D_Height;
     private Rect rect_Texture2D;
     private Vector2 pivot_Texture2D;
@@ -30,10 +22,15 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
     public Scrollbar scrollbar_Scaling;
     public Button btn_ZoomIn;
     public Button btn_ZoomOut;
+    public TextMeshProUGUI text_Postion;
     private int int_MinMapHeight = 32;
     private int int_MaxMapHeight = 96;
     private int int_MapHeight = 32;
-    private Vector2Int vector2_MapCenter = new Vector2Int(0, 0);    
+    private Vector2Int vector2_MapCenter = new Vector2Int(0, 0);
+
+    // 新增：用于跟踪已修改的像素，避免重复创建sprite
+    private bool isTextureDirty = false;
+    private Sprite currentSprite;
     public void Init()
     {
         Bind();
@@ -42,41 +39,25 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
         texture2D_Temp = new Texture2D(int_Texture2D_Width, int_Texture2D_Height, image_MiniMap.sprite.texture.format, false);
         texture2D_Temp.filterMode = FilterMode.Point;
         texture2D_Temp.wrapMode = TextureWrapMode.Repeat; // 关键设置：平铺时重复纹理
+
+        // 复制原始纹理像素
+        texture2D_Temp.Apply();
         pivot_Texture2D = new Vector2(0.5f, 0.5f);
-        //Debug.Log(texture2D_Temp.height+"/"+texture2D_Temp.width);
+
+        Color[] blackPixels = new Color[int_Texture2D_Width * int_Texture2D_Height];
+        for (int i = 0; i < blackPixels.Length; i++)
+        {
+            blackPixels[i] = Color.black;
+        }
+        texture2D_Temp.SetPixels(blackPixels);
+
+        // 初始化显示
+        UpdateRect(vector2_MapCenter, int_MapHeight);
     }
     private void Bind()
     {
-        //scrollbar_Scaling.onValueChanged.AddListener(ChangeScaling);
         btn_ZoomIn.onClick.AddListener(ZoomIn);
         btn_ZoomOut.onClick.AddListener(ZoomOut);
-    }
-    /// <summary>
-    /// 更改地图地板像素
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="pos"></param>
-    public void ChangeGroundInMap(int id, Vector3Int pos)
-    {
-        _ = DrawGroundOnTex(pos, id);
-    }
-    /// <summary>
-    /// 更改地图建筑像素
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="pos"></param>
-    public void ChangeBuildingInMap(int id, Vector3Int pos)
-    {
-
-    }
-    /// <summary>
-    /// 修改地图缩放
-    /// </summary>
-    /// <param name="pos"></param>
-    private void ChangeScaling(float val)
-    {
-        int_MapHeight = (int)Mathf.Lerp(int_MinMapHeight, int_MaxMapHeight, val);
-        UpdateRect(vector2_MapCenter, int_MapHeight);
     }
     /// <summary>
     /// 放大
@@ -85,9 +66,10 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
     {
         if (int_MapHeight > int_MinMapHeight)
         {
-            int_MapHeight -= 10;
+            int_MapHeight = Mathf.Max(int_MinMapHeight, int_MapHeight - 10);
         }
         UpdateRect(vector2_MapCenter, int_MapHeight);
+        DrawSprite();
     }
     /// <summary>
     /// 缩小
@@ -96,9 +78,10 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
     {
         if (int_MapHeight < int_MaxMapHeight)
         {
-            int_MapHeight += 10;
+            int_MapHeight = Mathf.Min(int_MaxMapHeight, int_MapHeight + 10);
         }
         UpdateRect(vector2_MapCenter, int_MapHeight);
+        DrawSprite();
     }
     /// <summary>
     /// 修改玩家位置
@@ -107,8 +90,9 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
     public void ChangePlayerPos(Vector2Int pos)
     {
         vector2_MapCenter = pos;
-        //_ = DrawPlayerOnTex((Vector3Int)vector2_MapCenter, Color.red);
+        text_Postion.text = $"{pos}";
         UpdateRect(vector2_MapCenter, int_MapHeight);
+        DrawSprite();
     }
     /// <summary>
     /// 更新绘制范围
@@ -117,31 +101,49 @@ public class GameUI_MiniMap : SingleTon<GameUI_MiniMap>, ISingleTon
     /// <param name="center">中心</param>
     private void UpdateRect(Vector2 center,int h)
     {
-        int width = int_MapHeight * int_Texture2D_Width / int_Texture2D_Height;
-        int height = int_MapHeight;
-        Vector2 pos = center + new Vector2(int_Texture2D_Width / 2, int_Texture2D_Height / 2) - new Vector2(width / 2, height / 2);
-        rect_Texture2D = new Rect(pos.x, pos.y, width, height);
-        if (Mathf.Abs(pos.x) + width < int_Texture2D_Width && Mathf.Abs(pos.y) + height < int_Texture2D_Height)
-        {
-            texture2D_Temp.Apply();
-            image_MiniMap.sprite = Sprite.Create(texture2D_Temp, rect_Texture2D, pivot_Texture2D);
-        }
-        else
-        {
-            Debug.Log("越界");
-        }
+        // 计算显示区域
+        int width = h * int_Texture2D_Width / int_Texture2D_Height;
+        int height = h;
+
+        // 计算中心偏移
+        float halfWidth = width / 2f;
+        float halfHeight = height / 2f;
+        float centerX = center.x + int_Texture2D_Width / 2f;
+        float centerY = center.y + int_Texture2D_Height / 2f;
+
+        // 计算矩形位置
+        float x = Mathf.Clamp(centerX - halfWidth, 0, int_Texture2D_Width - width);
+        float y = Mathf.Clamp(centerY - halfHeight, 0, int_Texture2D_Height - height);
+
+        rect_Texture2D = new Rect(x, y, width, height);
+        isTextureDirty = true;
     }
-    public async Task DrawGroundOnTex(Vector3Int pos, int id)
+    public void ChangeGroundOnTex(Vector3Int pos, int id)
     {
-        await Task.Delay(20);
-        pos = pos + new Vector3Int(int_Texture2D_Width / 2, int_Texture2D_Height / 2, 0);
+        // 坐标转换到纹理空间
+        Vector3Int texturePos = pos + new Vector3Int(int_Texture2D_Width / 2, int_Texture2D_Height / 2, 0);
+
+        // 边界检查
+        if (texturePos.x < 0 || texturePos.x >= int_Texture2D_Width ||
+            texturePos.y < 0 || texturePos.y >= int_Texture2D_Height)
+        {
+            Debug.LogWarning($"绘制位置越界: {texturePos}");
+            return;
+        }
+
         GroundConfig config = GroundConfigData.GetFloorConfig(id);
-        texture2D_Temp.SetPixel(pos.x, pos.y, (Color)config.Ground_Color);
+        texture2D_Temp.SetPixel(texturePos.x, texturePos.y, (Color)config.Ground_Color);
+        isTextureDirty = true;
     }
-    public async Task DrawPlayerOnTex(Vector3Int pos, Color color)
+    public void DrawSprite()
     {
-        await Task.Delay(20);
-        pos = pos + new Vector3Int(int_Texture2D_Width / 2, int_Texture2D_Height / 2, 0);
-        texture2D_Temp.SetPixel(pos.x, pos.y, color);
+        if (isTextureDirty)
+        {
+            isTextureDirty = false;
+            texture2D_Temp.Apply();
+            if (currentSprite != null) Destroy(currentSprite);
+            currentSprite = Sprite.Create(texture2D_Temp, rect_Texture2D, pivot_Texture2D);
+            image_MiniMap.sprite = currentSprite;
+        }
     }
 }

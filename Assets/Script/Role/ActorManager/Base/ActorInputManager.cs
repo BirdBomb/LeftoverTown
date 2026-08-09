@@ -8,12 +8,12 @@ using static UnityEngine.RuleTile.TilingRuleOutput;
 public class ActorInputManager
 {
     private ActorManager actorManager;
+    
     public void Bind(ActorManager actorManager)
     {
         this.actorManager = actorManager;
     }
     #region//玩家输入
-    private Action<ActorManager, float, Vector2> action_InputMove = null;
     private List<Action<ActorManager, KeyCode>> actions_InputKeycode = new List<Action<ActorManager, KeyCode>>();
     public void InputKeycode(KeyCode keyCode,bool on = true)
     {
@@ -26,12 +26,9 @@ public class ActorInputManager
             actorManager.actionManager.State_PickUp(0.5f);
         }
     }
-    public void InputAlpha(int val)
+    public void InputNumKeycode(int num)
     {
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_TryUseItemInBag()
-        {
-            index = val
-        });
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_TryUseItemInBag() { index = num });
     }
     public void InputMouse(float leftPressTime, float rightPressTime, bool hasStateAuthority, bool hasInputAuthority)
     {
@@ -55,48 +52,42 @@ public class ActorInputManager
     public void InputFace(Vector2 dir)
     {
         actorManager.actionManager.FaceTo(dir);
-        if (actorManager.itemManager.itemBase_OnHand != null)
+        actorManager.itemManager.itemBase_OnHand?.OnHand_UpdateMousePos(dir);
+    }
+    public Vector3 State_InputMove(float deltaTime, Vector2 dir)
+    {
+        if (actorManager.vehicleManager.vehicleState == VehicleState.AsRider)
         {
-            actorManager.itemManager.itemBase_OnHand.OnHand_UpdateMousePos(dir);
+            Vector3 pos = actorManager.vehicleManager.actorManager_Vehicle.inputManager.State_InputMove(deltaTime, dir);
+            actorManager.actorNetManager.State_UpdateNetworkRigidbody(pos + new Vector3(0, -0.0625f, 0), 0, deltaTime);
+            return pos;
+        }
+        else
+        {
+            return actorManager.actorNetManager.State_MoveNetworkRigidbody(dir, deltaTime);
         }
     }
-    public void InputMove(float deltaTime, Vector2 dir)
+    public Vector3 Local_InputMove(float deltaTime, Vector2 dir)
     {
-        dir = dir.normalized;
-        float speed = actorManager.actionManager.Client_GetSpeed();
-        Vector2 velocity = new Vector2(dir.x * speed, dir.y * speed);
-        Vector3 newPos = actorManager.transform.position + new UnityEngine.Vector3(velocity.x * deltaTime, velocity.y * deltaTime, 0);
-        actorManager.actorNetManager.State_UpdateNetworkRigidbody(newPos, velocity.magnitude, deltaTime);
-    }
-    public void SimulationMove(float deltaTime, Vector2 dir)
-    {
-        dir = dir.normalized;
-        float speed = actorManager.actionManager.Client_GetSpeed();
-        actorManager.playerSimulation.SetSimulation(dir, speed);
+        if (actorManager.vehicleManager.vehicleState == VehicleState.AsRider)
+        {
+            Vector3 pos = actorManager.vehicleManager.actorManager_Vehicle.inputManager.Local_InputMove(deltaTime, dir);
+            actorManager.actorNetManager.Local_UpdateSimulationRigidbody(pos + new Vector3(0, -0.0625f, 0), 0, deltaTime);
+            return pos;
+        }
+        else
+        {
+            return actorManager.actorNetManager.Local_MoveNetworkRigidbody(dir, deltaTime);
+        }
     }
     public void Local_AddInputKeycodeAction(Action<ActorManager, KeyCode> action)
     {
-        if (!actions_InputKeycode.Contains(action))
-        {
-            actions_InputKeycode.Add(action);
-        }
+        if (!actions_InputKeycode.Contains(action)) actions_InputKeycode.Add(action);
     }
     public void Local_RemoveInputKeycodeAction(Action<ActorManager, KeyCode> action)
     {
-        if (actions_InputKeycode.Contains(action))
-        {
-            actions_InputKeycode.Remove(action);
-        }
+        if (actions_InputKeycode.Contains(action)) actions_InputKeycode.Remove(action);
     }
-    public void AllClient_AddInputMove(Action<ActorManager, float, Vector2> action)
-    {
-        action_InputMove = action;
-    }
-    public void AllClient_RemoveInputMove(Action<ActorManager, float, Vector2> action)
-    {
-        action_InputMove = null;
-    }
-
     #endregion
     #region//AI输入
     private float float_MouseRightPressTimer;
@@ -134,6 +125,11 @@ public class ActorInputManager
         actorManager.actionManager.FaceTo(vector3_MouseLocation - actorManager.transform.position);
         actorManager.itemManager.itemBase_OnHand.OnHand_UpdateMousePos(vector3_MouseLocation - actorManager.transform.position);
     }
+    public void Simulate_SmoothlyResetMouseDir(Vector3 dir)
+    {
+        actorManager.actionManager.FaceTo(dir);
+        actorManager.itemManager.itemBase_OnHand.OnHand_UpdateMousePos(dir);
+    }
     /// <summary>
     /// 鼠标按键按下方法
     /// </summary>
@@ -144,6 +140,5 @@ public class ActorInputManager
         /// </summary>
         PressRightThenPressLeft
     }
-
     #endregion
 }

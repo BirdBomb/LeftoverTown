@@ -55,6 +55,10 @@ public struct StatusConfig
 public enum StatusType
 {
     /// <summary>
+    /// 默认s
+    /// </summary>
+    Default,
+    /// <summary>
     /// 人类普通人
     /// </summary>
     Human_Common,

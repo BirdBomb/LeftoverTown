@@ -8,17 +8,20 @@ using UnityEngine.Tilemaps;
 public class MapModCreate : MonoBehaviour
 {
 #if UNITY_EDITOR
+    public Transform trans_Center;
     public MapMod mapMod_Bind;
     public Tilemap tilemap_Floor;
     public Tilemap tilemap_Building;
 
     public void SetMapMod()
     {
+        mapMod_Bind = trans_Center.GetComponentInChildren<MapMod>();
+        tilemap_Floor = mapMod_Bind.transform.Find("Ground/Ground").GetComponent<Tilemap>();
+        tilemap_Building = mapMod_Bind.transform.Find("Building/Building").GetComponent<Tilemap>();
+
         mapMod_Bind.dic_mapFloorData.Clear();
         mapMod_Bind.dic_mapBuildingData.Clear();
 
-        tilemap_Floor = mapMod_Bind.transform.Find("Floor/Tilemap").GetComponent<Tilemap>();
-        tilemap_Building = mapMod_Bind.transform.Find("Building/Tilemap").GetComponent<Tilemap>();
         Debug.Log(tilemap_Floor.size.x + "/" + tilemap_Floor.size.y);
         Debug.Log(tilemap_Building.size.x + "/" + tilemap_Building.size.y);
         for (int x = -tilemap_Floor.size.x; x < tilemap_Floor.size.x; x++)

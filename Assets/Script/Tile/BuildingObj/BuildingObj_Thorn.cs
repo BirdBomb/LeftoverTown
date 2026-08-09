@@ -12,8 +12,6 @@ public class BuildingObj_Thorn : BuildingObj
     public short short_Damage;
     [Header("æ£º¨Õº∆¨")]
     public Sprite[] sprites_State0;
-    [Header("æ£º¨µÙ¬‰ŒÔ")]
-    public List<BaseLootInfo> baseLootInfos_State0 = new List<BaseLootInfo>();
     public override void Start()
     {
         material = new Material(spriteRenderer.sharedMaterial);
@@ -67,7 +65,10 @@ public class BuildingObj_Thorn : BuildingObj
     }
     public override void All_Broken()
     {
-        State_CreateLootItem(State_GetLootItem(baseLootInfos_State0, new List<ExtraLootInfo>()));
+        if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
+        {
+            State_CreateLootItem(Tool_GetFixedItemList(LootItemConfigData.GetLootFixedConfig(1202).Loot_List));
+        }
         base.All_Broken();
     }
     public override void All_ActorStandOn(ActorManager actor)
@@ -78,7 +79,7 @@ public class BuildingObj_Thorn : BuildingObj
             effect.GetComponent<Effect_Impact>().PlayPiercing(actor.transform.position - transform.position);
             effect.transform.position = actor.transform.position;
 
-            actor.actorHpManager.TakeDamage(short_Damage, DamageState.AttackPiercingDamage, null);
+            actor.actionManager.TakeDamage(short_Damage, DamageState.AttackPiercingDamage, null);
         }
         base.All_ActorStandOn(actor);
     }

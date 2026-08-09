@@ -5,18 +5,19 @@ using UnityEngine;
 
 public class BuildingObj_Machine_IronWorkingBench : BuildingObj_Manmade
 {
-    public GameObject obj_SingalFUI;
-    public GameObject obj_SingalAwakeUI;
-    public GameObject obj_HightlightUI;
-    [SerializeField]
-    private GameObject prefab_UI;
+    public GameObject prefab_UI;
+    protected GameObject obj_SingalUI_F;
+    protected GameObject obj_SingalUI_Awake;
+    protected GameObject obj_HighlightUI;
+
     private TileUI tileUI_Bind = null;
     #region//ÍßÆ¬½»»¥
     public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
-        if (code == KeyCode.F)
+        switch (code)
         {
-            OpenOrCloseUI(tileUI_Bind == null);
+            case KeyCode.F:
+                OpenOrCloseUI(tileUI_Bind == null); break;
         }
         base.Local_ActorInputKeycode(actor, code);
     }
@@ -32,50 +33,43 @@ public class BuildingObj_Machine_IronWorkingBench : BuildingObj_Manmade
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {
-        obj_SingalFUI.transform.DOKill();
         if (open)
         {
-            obj_SingalFUI.SetActive(true);
-            obj_SingalFUI.transform.localScale = Vector3.one;
-            obj_SingalFUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_SingalUI_F = obj_SingalUI_F ? obj_SingalUI_F : PoolManager.Instance.GetObject("UI/TileUI/SignalUI_F");
+            obj_SingalUI_F.transform.position = transform.position + All_GetTileGenter();
+            obj_SingalUI_F.transform.localScale = Vector3.one;
+            obj_SingalUI_F.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_HighlightUI = obj_HighlightUI ? obj_HighlightUI : PoolManager.Instance.GetObject("UI/TileUI/" + All_GetTileSize());
+            obj_HighlightUI.transform.position = transform.position;
+            obj_HighlightUI.transform.localScale = Vector3.one;
+            obj_HighlightUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
         }
         else
         {
-            obj_SingalFUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_SingalFUI.SetActive(false);
-            });
-        }
-        obj_HightlightUI.transform.DOKill();
-        if (open)
-        {
-            obj_HightlightUI.SetActive(true);
-            obj_HightlightUI.transform.localScale = Vector3.one;
-            obj_HightlightUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-        }
-        else
-        {
-            obj_HightlightUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_HightlightUI.SetActive(false);
-            });
+            PoolManager.Instance.ReleaseObject("UI/TileUI/SignalUI_F", obj_SingalUI_F);
+            obj_SingalUI_F = null;
+            PoolManager.Instance.ReleaseObject("UI/TileUI/" + All_GetTileSize(), obj_HighlightUI);
+            obj_HighlightUI = null;
         }
     }
     public override void OpenOrCloseAwakeUI(bool open)
     {
-        obj_SingalAwakeUI.transform.DOKill();
         if (open)
         {
-            obj_SingalAwakeUI.SetActive(true);
-            obj_SingalAwakeUI.transform.localScale = Vector3.one;
-            obj_SingalAwakeUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            if (obj_SingalUI_F)
+            {
+                PoolManager.Instance.ReleaseObject("UI/TileUI/SignalUI_F", obj_SingalUI_F);
+                obj_SingalUI_F = null;
+            }
+            obj_SingalUI_Awake = obj_SingalUI_Awake ? obj_SingalUI_Awake : PoolManager.Instance.GetObject("UI/TileUI/SignalUI_Awake");
+            obj_SingalUI_Awake.transform.position = transform.position + All_GetTileGenter();
+            obj_SingalUI_Awake.transform.localScale = Vector3.one;
+            obj_SingalUI_Awake.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
         }
         else
         {
-            obj_SingalAwakeUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_SingalAwakeUI.SetActive(false);
-            });
+            PoolManager.Instance.ReleaseObject("UI/TileUI/SignalUI_Awake", obj_SingalUI_Awake);
+            obj_SingalUI_Awake = null;
         }
     }
     public override void OpenOrCloseUI(bool open)

@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-
+/// <summary>
+/// ³¤Ã¬Àà
+/// </summary>
 public class ItemLocalObj_Spear : ItemLocalObj
 {
     [SerializeField]
@@ -57,15 +59,9 @@ public class ItemLocalObj_Spear : ItemLocalObj
     {
         actorManager = owner;
 
-        transform.SetParent(body.transform_ItemInRightHand);
-        body.gameObjects_ItemInHand.Add(gameObject);
-        transform.localRotation = Quaternion.identity;
-        transform.localPosition = Vector3.zero;
-        transform.localScale = Vector3.one;
-        spriteRenderer_LeftHand.color = body.transform_LeftHand.GetComponent<SpriteRenderer>().color;
-        spriteRenderer_RightHand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
-        body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
-        body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
+        body.AddItemOnRightHand(gameObject, Vector3.zero, Quaternion.identity, Vector3.one);
+        spriteRenderer_RightHand.color = body.ShowRightHand(false).color;
+        spriteRenderer_LeftHand.color = body.ShowLeftHand(false).color;
 
         base.HoldingStart(owner, body);
     }
@@ -153,26 +149,34 @@ public class ItemLocalObj_Spear : ItemLocalObj
         {
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
             skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, PiercingRange, out Collider2D[] colliders);
+            List<ActorManager> catchActors = new List<ActorManager>();
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].tag.Equals("Actor"))
                 {
                     if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        if (actor != actorManager) { StabActor(actor); }
+                        catchActors.Add(actor);
                     }
                 }
             }
+            int damageCount = StabActors(catchActors);
+            if (damageCount > 0) AddAbrasion(AttackExpend);
         }
     }
-    private void StabActor(ActorManager actor)
+    private int StabActors(List<ActorManager> actors)
     {
-        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
-        effect.GetComponent<Effect_Impact>().PlayPiercing(actor.transform.position - actorManager.transform.position, true);
-        effect.transform.position = actor.transform.position;
-
-        actor.actorHpManager.TakeDamage(PiercingDamage, DamageState.AttackPiercingDamage, actorManager.actorNetManager);
-        AddAbrasion(AttackExpend);
+        int temp = 0;
+        actorManager.actionManager.ApplyDamageToActors
+            (PiercingDamage, DamageState.AttackPiercingDamage, DamageTarget.WithoutMe, actors, out List<ApplyActorDamageCallBack> callBackList);
+        foreach (ApplyActorDamageCallBack callBack in callBackList)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlayPiercing(callBack.target.transform.position - actorManager.transform.position, true);
+            effect.transform.position = callBack.target.transform.position;
+            temp += callBack.realDamage;
+        }
+        return temp;
     }
     public void Hack()
     {
@@ -180,28 +184,36 @@ public class ItemLocalObj_Spear : ItemLocalObj
         {
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
             skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, SlashingRange, out Collider2D[] colliders);
+            List<ActorManager> catchActors = new List<ActorManager>();
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].tag.Equals("Actor"))
                 {
                     if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        if (actor != actorManager) { HackActor(actor); }
+                        catchActors.Add(actor);
                     }
                 }
             }
-           
+            int damageCount = HackActors(catchActors);
+            if (damageCount > 0) AddAbrasion(AttackExpend);
         }
     }
-    private void HackActor(ActorManager actor)
+    private int HackActors(List<ActorManager> actors)
     {
-        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
-        effect.GetComponent<Effect_Impact>().PlaySlash(actor.transform.position - actorManager.transform.position, true);
-        effect.transform.position = actor.transform.position;
-
-        actor.actorHpManager.TakeDamage(SlashingDamage, DamageState.AttackSlashingDamage, actorManager.actorNetManager);
-        AddAbrasion(AttackExpend);
+        int temp = 0;
+        actorManager.actionManager.ApplyDamageToActors
+            (SlashingDamage, DamageState.AttackSlashingDamage, DamageTarget.WithoutMe, actors, out List<ApplyActorDamageCallBack> callBackList);
+        foreach (ApplyActorDamageCallBack callBack in callBackList)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlaySlash(callBack.target.transform.position - actorManager.transform.position, true);
+            effect.transform.position = callBack.target.transform.position;
+            temp += callBack.realDamage;
+        }
+        return temp;
     }
+
     /// <summary>
     /// ÀÛ¼ÆËðºÄ
     /// </summary>

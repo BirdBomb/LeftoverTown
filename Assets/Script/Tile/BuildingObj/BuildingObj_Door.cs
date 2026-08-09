@@ -5,13 +5,25 @@ using UnityEngine;
 
 public class BuildingObj_Door : BuildingObj_Manmade
 {
-    public BoxCollider2D boxCollider; 
-    public GameObject obj_Door;
-    public SpriteRenderer spriteRenderer;
-    public Sprite sprite_Door_H_Close;
-    public Sprite sprite_Door_H_Open;
-    public Sprite sprite_Door_V_Close;
-    public Sprite sprite_Door_V_Open;
+    public Transform trans_Root;
+    public GameObject gameObject_Door_H_Close;
+    public GameObject gameObject_Door_H_Open;
+    public GameObject gameObject_Door_V_Close;
+    public GameObject gameObject_Door_V_Open;
+    [Header("“ı”∞∆Ù”√")]
+    public bool bool_Shadow = false;
+    public PolygonCollider2D polyCollider_H;
+    public PolygonCollider2D polyCollider_V;
+
+    public enum DoorDir
+    {
+        H, V
+    }
+    public enum DoorState
+    {
+        Open, Close
+    }
+
     private DoorDir doorDir;
     private DoorState doorState = DoorState.Close;
     public override void All_OnDraw()
@@ -22,7 +34,7 @@ public class BuildingObj_Door : BuildingObj_Manmade
     }
     private void ChangeDoorDir()
     {
-        Around around = MapManager.Instance.CheckBuilding_FourSide((id) => { return id > 0; }, buildingTile.tilePos);
+        Around around = MapManager.Instance.CheckAround_Building(buildingTile.tilePos, (int id) => { return id > 0; }, DirectionType.Four);
         if (around.U && around.D)
         {
             doorDir = DoorDir.V;
@@ -34,45 +46,55 @@ public class BuildingObj_Door : BuildingObj_Manmade
     }
     private void ChangeDoorState(DoorState state)
     {
+        gameObject_Door_V_Open.SetActive(false);
+        gameObject_Door_V_Close.SetActive(false);
+        gameObject_Door_H_Open.SetActive(false);
+        gameObject_Door_H_Close.SetActive(false);
         if (doorState != state)
         {
             doorState = state;
-            obj_Door.transform.DOKill();
-            obj_Door.transform.localScale = Vector3.one;
-            obj_Door.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            trans_Root.transform.DOKill();
+            trans_Root.transform.localScale = Vector3.one;
+            trans_Root.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
             if (doorState == DoorState.Open)
             {
                 AudioManager.Instance.Play3DEffect(3004, transform.position);
+                RemoveShadow();
             }
             else
             {
                 AudioManager.Instance.Play3DEffect(3005, transform.position);
+                DrawShadow();
             }
         }
         if (doorDir == DoorDir.V)
         {
             if (doorState == DoorState.Open)
             {
-                spriteRenderer.sprite = sprite_Door_V_Open;
-                boxCollider.enabled = false;
+                gameObject_Door_V_Open.SetActive(true);
+                polyCollider_V.enabled = false;
+                polyCollider_H.enabled = false;
             }
             else
             {
-                spriteRenderer.sprite = sprite_Door_V_Close;
-                boxCollider.enabled = true;
+                gameObject_Door_V_Close.SetActive(true);
+                polyCollider_V.enabled = true;
+                polyCollider_H.enabled = false;
             }
         }
         if (doorDir == DoorDir.H)
         {
             if (doorState == DoorState.Open)
             {
-                spriteRenderer.sprite = sprite_Door_H_Open;
-                boxCollider.enabled = false;
+                gameObject_Door_H_Open.SetActive(true);
+                polyCollider_H.enabled = false;
+                polyCollider_V.enabled = false;
             }
             else
             {
-                spriteRenderer.sprite = sprite_Door_H_Close;
-                boxCollider.enabled = true;
+                gameObject_Door_H_Close.SetActive(true);
+                polyCollider_H.enabled = true;
+                polyCollider_V.enabled = false;
             }
         }
     }
@@ -86,12 +108,18 @@ public class BuildingObj_Door : BuildingObj_Manmade
         ChangeDoorState(DoorState.Close);
         return true;
     }
-    public enum DoorDir
+    #region “ı”∞
+    public override void DrawShadow()
     {
-        H, V
+        if (!bool_Shadow) return;
+        if (doorDir == DoorDir.H) ShadowManager.Instance.AddPolygons((Vector2Int)buildingTile.tilePos, polyCollider_H);
+        if (doorDir == DoorDir.V) ShadowManager.Instance.AddPolygons((Vector2Int)buildingTile.tilePos, polyCollider_V);
     }
-    public enum DoorState
+    public override void RemoveShadow()
     {
-        Open, Close
+        if (!bool_Shadow) return;
+        ShadowManager.Instance.RemovePolygons((Vector2Int)buildingTile.tilePos);
     }
+    #endregion
+
 }

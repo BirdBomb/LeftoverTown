@@ -17,19 +17,12 @@ public class ItemLocalObj_ScatterGun : ItemLocalObj_Gun
     {
         actorManager = owner;
 
-        transform.SetParent(body.transform_ItemInRightHand);
-        body.gameObjects_ItemInHand.Add(gameObject);
-        transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.identity;
-        transform.localScale = Vector3.one;
+        body.AddItemOnRightHand(gameObject, Vector3.zero, Quaternion.identity, Vector3.one);
+        spriteRenderer_RightHand.color = body.ShowRightHand(false).color;
+        spriteRenderer_LeftHand.color = body.ShowLeftHand(false).color;
 
         temp_NextAimPoint = AimTime;
 
-        spriteRenderer_RightHand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
-        body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
-
-        spriteRenderer_LeftHand.color = body.transform_LeftHand.GetComponent<SpriteRenderer>().color;
-        body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingStart(owner, body);
     }
 

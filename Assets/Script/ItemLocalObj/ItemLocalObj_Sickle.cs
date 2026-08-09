@@ -44,14 +44,8 @@ public class ItemLocalObj_Sickle : ItemLocalObj
     {
         actorManager = owner;
 
-        transform.SetParent(body.transform_ItemInRightHand);
-        body.gameObjects_ItemInHand.Add(gameObject);
-        transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.identity;
-        transform.localScale = Vector3.one;
-
-        spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
-        body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
+        body.AddItemOnRightHand(gameObject, Vector3.zero, Quaternion.identity, Vector3.one);
+        spriteRenderer_Hand.color = body.ShowRightHand(false).color;
         base.HoldingStart(owner, body);
     }
     public override bool PressLeftMouse(float time, ActorAuthority actorAuthority)
@@ -88,35 +82,60 @@ public class ItemLocalObj_Sickle : ItemLocalObj
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            float temp = 0;
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
             skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, AttackDistance, AttackRange, out Collider2D[] colliders);
+            List<ActorManager> catchActors = new List<ActorManager>();
+            List<BuildingObj> catchBuildings = new List<BuildingObj>();
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].tag.Equals("TileObj"))
                 {
                     if (colliders[i].TryGetComponent(out BuildingObj building))
                     {
-                        building.Local_TakeDamage(AttackDamage, DamageState.AttackReapDamage, actorManager.actorNetManager);
-                        temp = AttackAbrasion;
+                        catchBuildings.Add(building);
                     }
                 }
                 else if (colliders[i].tag.Equals("Actor"))
                 {
                     if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        if (actor == actorManager) { continue; }
-                        else
-                        {
-                            actor.actorHpManager.TakeDamage(AttackDamage, DamageState.AttackReapDamage, actorManager.actorNetManager);
-                            temp = AttackAbrasion;
-                        }
+                        catchActors.Add(actor);
                     }
                 }
             }
-            AddAbrasion(temp);
+            int damageCount = ReapBuildings(catchBuildings) + ReapActors(catchActors);
+            if (damageCount > 0) AddAbrasion(AttackAbrasion);
         }
     }
+    private int ReapActors(List<ActorManager> actors)
+    {
+        int temp = 0;
+        actorManager.actionManager.ApplyDamageToActors
+            (AttackDamage, DamageState.AttackReapDamage, DamageTarget.WithoutMe, actors, out List<ApplyActorDamageCallBack> callBackList);
+        foreach (ApplyActorDamageCallBack callBack in callBackList)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlaySlash(callBack.target.transform.position - actorManager.transform.position, true);
+            effect.transform.position = callBack.target.transform.position;
+            temp += callBack.realDamage;
+        }
+        return temp;
+    }
+    private int ReapBuildings(List<BuildingObj> buildings)
+    {
+        int temp = 0;
+        actorManager.actionManager.ApplyDamageToBuilidngs
+            (AttackDamage, DamageState.AttackReapDamage, buildings, out List<ApplyBuildingDamageCallBack> callBackList);
+        foreach (ApplyBuildingDamageCallBack callBack in callBackList)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlaySlash(callBack.target.transform.position - actorManager.transform.position);
+            effect.transform.position = callBack.target.transform.position;
+            temp += callBack.realDamage;
+        }
+        return temp;
+    }
+
     /// <summary>
     /// ÀÛ¼ÆËðºÄ
     /// </summary>

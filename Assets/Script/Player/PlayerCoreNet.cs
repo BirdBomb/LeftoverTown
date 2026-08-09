@@ -31,38 +31,65 @@ public class PlayerCoreNet : NetworkBehaviour
 
         InvokeRepeating("UpdatePing", 2, 1);
     }
+    #region//玩家生命周期
     public override void Spawned()
     {
         playerCoreLocal.AllClinet_InitPlayer(Object.HasInputAuthority, Object.HasStateAuthority);
-        StartCoroutine(AllClient_Init()); 
-        if (Object.HasInputAuthority) { StartCoroutine(Local_Init()); }
-        if (Object.HasStateAuthority) { StartCoroutine(State_Init()); }
+        StartCoroutine(AllClient_Init());
         base.Spawned();
     }
-    #region//玩家初始化
+    public override void Despawned(NetworkRunner runner, bool hasState)
+    {
+        if (Object.HasStateAuthority) { State_DestroyActor(); }
+        base.Despawned(runner, hasState);
+    }
+
     private IEnumerator AllClient_Init()
     {
         yield return new WaitForSeconds(1);
-        OnBindActorChange();
-    }
-    private IEnumerator Local_Init()
-    {
-        yield return new WaitForSeconds(1);
-    }
-    private IEnumerator State_Init()
-    {
-        yield return new WaitForSeconds(1);
-        State_CreateActor();
+        OnBindActorChange_Public();
+        if (Object.HasStateAuthority) { State_CreateActor(); }
     }
     #endregion
-    #region//角色创建
-    [SerializeField, Header("玩家预制体")]
-    private NetworkPrefabRef networkPrefabRef_Actor;
+    #region//角色创建与销毁
+    [SerializeField, Header("玩家预制体_网络公用")]
+    private NetworkPrefabRef networkPrefabRef_Public;
     private void State_CreateActor()
     {
-        NetworkObject networkObject = Runner.Spawn(networkPrefabRef_Actor, new Vector3(0.5f, 0.5f, 0), Quaternion.identity);
-        Net_BindActorID = networkObject.Id;
+        Net_BindActorID_Public = Runner.Spawn(networkPrefabRef_Public, new Vector3(0.5f, 0.5f, 0), Quaternion.identity).Id;
     }
+    private void State_DestroyActor()
+    {
+        playerCoreLocal.actorManager_Bind_Net?.actionManager.Despawn(); 
+    }
+
+    [Networked, HideInInspector, OnChangedRender(nameof(OnBindActorChange_Public))]
+    public NetworkId Net_BindActorID_Public { get; set; } = new NetworkId();
+    private void OnBindActorChange_Public()
+    {
+        if (Net_BindActorID_Public != null)
+        {
+            NetworkObject networkObject = Runner.FindObject(Net_BindActorID_Public);
+            if (networkObject != null)
+            {
+                if (playerCoreLocal.bool_Local)
+                {
+                    MessageBroker.Default.Publish(new UIEvent.UIEvent_CloseReviveCountdown() { });
+                    WorldLightManager.Instance.ChangeSaturability(0);
+                }
+                playerCoreLocal.AllClinet_BindActor_Net(networkObject.GetComponent<ActorManager>());
+            }
+            else
+            {
+                Debug.Log("未找到Net_BindActorID:" + Net_BindActorID_Public);
+            }
+        }
+        else
+        {
+            Debug.Log("Net_BindActorID为空");
+        }
+    }
+
     #endregion
     #region//角色销毁
     public void State_KillActor()
@@ -115,46 +142,18 @@ public class PlayerCoreNet : NetworkBehaviour
     private IEnumerator Local_PlayReviveCountdown(float time)
     {
         MessageBroker.Default.Publish(new UIEvent.UIEvent_OpenReviveCountdown() { time = time });
-        WorldManager.Instance.ChangeSaturability(-100);
+        WorldLightManager.Instance.ChangeSaturability(-100);
         yield return new WaitForSeconds(0.5f);
-        if (WorldManager.Instance.FindPlayer(out ActorManager player))
+        if (WorldActorManager.Instance.FindPlayer(out ActorManager player))
         {
             CameraManager.Instance.FollowTarget(player.transform);
         }
         else
         {
-            if (WorldManager.Instance.FindActor(out ActorManager actor))
+            if (WorldActorManager.Instance.FindActor(out ActorManager actor))
             {
                 CameraManager.Instance.FollowTarget(actor.transform);
             }
-        }
-    }
-    #endregion
-    #region//角色绑定
-    [Networked, HideInInspector, OnChangedRender(nameof(OnBindActorChange))]
-    public NetworkId Net_BindActorID { get; set; } = new NetworkId();
-    private void OnBindActorChange()
-    {
-        if (Net_BindActorID != null)
-        {
-            NetworkObject networkObject = Runner.FindObject(Net_BindActorID);
-            if (networkObject != null)
-            {
-                if (playerCoreLocal.bool_Local)
-                {
-                    MessageBroker.Default.Publish(new UIEvent.UIEvent_CloseReviveCountdown() { });
-                    WorldManager.Instance.ChangeSaturability(0);
-                }
-                playerCoreLocal.AllClinet_BindActor(networkObject.GetComponent<ActorManager>());
-            }
-            else
-            {
-                Debug.Log("未找到Net_BindActorID:" + Net_BindActorID);
-            }
-        }
-        else
-        {
-            Debug.Log("Net_BindActorID为空");
         }
     }
     #endregion
@@ -165,7 +164,7 @@ public class PlayerCoreNet : NetworkBehaviour
     public float Net_MouseLeftPressTimer { get; set; }
     [Networked, HideInInspector]
     public Vector2 Net_MouseLocation { get; set; }
-    private Vector2 vector2_MoveDir;
+    private Vector2 vector2_InputMoveDir;
 
     public override void FixedUpdateNetwork()
     {
@@ -174,6 +173,13 @@ public class PlayerCoreNet : NetworkBehaviour
             AllClient_PlayerInput(Runner.DeltaTime);
         }
         base.FixedUpdateNetwork();
+    }
+    private void FixedUpdate()
+    {
+        if(playerCoreLocal.actorManager_Bind && playerCoreLocal.actorManager_Bind.actorNetManager.Object)
+        {
+            JustLocal_PlayerInput(Time.fixedDeltaTime * 0.5f);
+        }
     }
     public override void Render()
     {
@@ -192,52 +198,21 @@ public class PlayerCoreNet : NetworkBehaviour
         if (playerCoreLocal.actorManager_Bind.actorState == ActorState.Dead) return;
         if (GetInput(out NetworkInputData netPlayerData))
         {
-            if (Object.HasStateAuthority)
-            {
-                vector2_MoveDir = Vector2.zero;
-                if (netPlayerData.PressD)
-                {
-                    vector2_MoveDir += new Vector2(1, 0);
-                }
-                if (netPlayerData.PressA)
-                {
-                    vector2_MoveDir += new Vector2(-1, 0);
-                }
-                if (netPlayerData.PressW)
-                {
-                    vector2_MoveDir += new Vector2(0, 1);
-                }
-                if (netPlayerData.PressS)
-                {
-                    vector2_MoveDir += new Vector2(0, -1);
-                }
-                playerCoreLocal.actorManager_Bind.inputManager.InputMove(dt, vector2_MoveDir);
-            }
-            else if (Object.HasInputAuthority)
-            {
-                vector2_MoveDir = Vector2.zero;
-                if (netPlayerData.PressD)
-                {
-                    vector2_MoveDir += new Vector2(1, 0);
-                }
-                if (netPlayerData.PressA)
-                {
-                    vector2_MoveDir += new Vector2(-1, 0);
-                }
-                if (netPlayerData.PressW)
-                {
-                    vector2_MoveDir += new Vector2(0, 1);
-                }
-                if (netPlayerData.PressS)
-                {
-                    vector2_MoveDir += new Vector2(0, -1);
-                }
-                playerCoreLocal.actorManager_Bind.inputManager.SimulationMove(dt, vector2_MoveDir);
-            }
+            vector2_InputMoveDir = Vector2.zero;
+            if (netPlayerData.PressD) vector2_InputMoveDir += new Vector2(1, 0);
+            if (netPlayerData.PressA) vector2_InputMoveDir += new Vector2(-1, 0);
+            if (netPlayerData.PressW) vector2_InputMoveDir += new Vector2(0, 1);
+            if (netPlayerData.PressS) vector2_InputMoveDir += new Vector2(0, -1);
+
+            playerCoreLocal.actorManager_Bind.inputManager.State_InputMove(dt, vector2_InputMoveDir);
             Net_MouseRightPressTimer = netPlayerData.MouseRightPressTimer;
             Net_MouseLeftPressTimer = netPlayerData.MouseLeftPressTimer;
             Net_MouseLocation = netPlayerData.MouseLocation;
         }
+    }
+    private void JustLocal_PlayerInput(float dt)
+    {
+        playerCoreLocal.actorManager_Bind.inputManager.Local_InputMove(dt, vector2_InputMoveDir);
     }
     /// <summary>
     /// 玩家同步

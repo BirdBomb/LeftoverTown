@@ -11,7 +11,7 @@ using UnityEngine.UI;
 public class TileUI_Deal : TileUI
 {
     public Transform transform_Panel;
-    private ActorManager_NPC actorManager_Bind;
+    public ActorManager_NPC actorManager_Bind;
     private void Awake()
     {
        BindAllCell();
@@ -19,10 +19,11 @@ public class TileUI_Deal : TileUI
     private void BindAllCell()
     {
         gridCell_Sell.BindGrid(new ItemPath(ItemFrom.Default, 0), SellPutIn, SellPutOut, null, null);
-        for (int i = 0; i < gridCells_Goods.Count; i++)
+        for (int i = 0; i < list_GoodCells.Count; i++)
         {
             int index = i;
-            gridCells_Goods[i].BindGrid(new ItemPath(ItemFrom.Default, index), GoodsPutIn, GoodsPutOut, null, null);
+            list_GoodCells[i].BindGrid(new ItemPath(ItemFrom.Default, index), GoodsPutIn, GoodsPutOut, null, null);
+            list_GoodCells[i].BindUI(this);
         }
         btn_Sell.onClick.AddListener(Sell);
     }
@@ -33,21 +34,32 @@ public class TileUI_Deal : TileUI
         transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
 
         actorManager_Bind = npc;
-        itemDatas_Goods = npc.Local_GetGood();
+        list_GoodDatas = npc.Local_GetGood();
 
-        DrawGoodsCell();
+        DrawGoodCell();
         DrawSellCell();
     }
+
     #region//买
-    [Header("---购买---")]
-    [Header("所有购买格子")]
-    public List<UI_GridCell> gridCells_Goods = new List<UI_GridCell>();
-    [Header("所有购买价格")]
-    public List<Text> texts_Goods = new List<Text>();
-    [Header("我方剩余金币")]
-    public TextMeshProUGUI textMeshProUGUI_MyCoins;
-    private int int_MyCoins;
-    private List<ItemData> itemDatas_Goods = new List<ItemData>();
+    public List<ItemData> list_GoodDatas = new List<ItemData>();
+    public List<TileUI_Deal_GoodCell> list_GoodCells = new List<TileUI_Deal_GoodCell>();
+    public void DrawGoodCell()
+    {
+        for (int i = 0; i < list_GoodCells.Count; i++)
+        {
+            if (i < list_GoodDatas.Count)
+            {
+                list_GoodCells[i].Init(list_GoodDatas[i]);
+                list_GoodCells[i].gameObject.SetActive(true); ;
+            }
+            else
+            {
+                list_GoodCells[i].Clean();
+                list_GoodCells[i].gameObject.SetActive(false);
+            }
+        }
+
+    }
     public void GoodsPutIn(ItemData itemData, ItemPath path)
     {
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
@@ -58,80 +70,39 @@ public class TileUI_Deal : TileUI
     }
     public ItemData GoodsPutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        int price = (int)(ItemConfigData.GetItemConfig(itemData_Out.I).Item_Value * itemData_Out.C);
-        if (WorldManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.PayCoin(price))
-        {
-            if (actorManager_Bind)
-            {
-                actorManager_Bind.actionManager.EarnCoin(price);
-            }
-            itemDatas_Goods = GameToolManager.Instance.PutOutItemList(itemDatas_Goods, itemData_Out);
-            ItemData itemData_New = itemData_From;
-            itemData_New.C = (short)(itemData_From.C - itemData_Out.C);
-        }
-        else
-        {
-            itemData_Out = new ItemData();
-        }
-        DrawGoodsCell();
-        return itemData_Out;
-    }
-    private void DrawGoodsCell()
-    {
-        for (int i = 0; i < gridCells_Goods.Count; i++)
-        {
-            if (i < itemDatas_Goods.Count)
-            {
-                if (itemDatas_Goods[i].I != 0)
-                {
-                    gridCells_Goods[i].UpdateData(itemDatas_Goods[i]);
-                    int temp = ItemConfigData.GetItemConfig(itemDatas_Goods[i].I).Item_Value * itemDatas_Goods[i].C;
-                    texts_Goods[i].text = temp.ToString();
-                    if (temp > int_MyCoins)
-                    {
-                        texts_Goods[i].color = Color.red;
-                    }
-                    else
-                    {
-                        texts_Goods[i].color = Color.yellow;
-                    }
-                }
-                else
-                {
-                    gridCells_Goods[i].CleanItemBase();
-                    texts_Goods[i].text = "";
-                }
-            }
-            else
-            {
-                gridCells_Goods[i].CleanItemBase();
-                texts_Goods[i].text = "";
-            }
-        }
-        UpdateCoin();
+        return new ItemData();
     }
     #endregion
     #region//卖
-    [Header("---出售---")]
     [Header("出售格子")]
     public UI_GridCell gridCell_Sell;
     [Header("出售价格")]
     public Text text_Price;
+    public Text text_PriceBack;
     [Header("出售按钮")]
     public Button btn_Sell;
+    [Header("我方剩余金币")]
+    public Text text_MyCoins;
+    public Text text_MyCoinsBack;
     [Header("对方剩余金币")]
-    public TextMeshProUGUI textMeshProUGUI_YourCoins;
+    public Text text_YourCoins;
+    public Text text_YourCoinsBack;
     private int int_YourCoins;
+    private int int_MyCoins;
+
     public LocalizeStringEvent localizeStringEvent_SellDesc;
     private ItemData itemData_Sell;
-    private int int_Price;
+    private int? int_Price;
     public void SellPutIn(ItemData itemData, ItemPath path)
     {
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
+        {
+            itemData = itemData,
+            itemFrom = ItemFrom.OutSide
+        });
         if (actorManager_Bind != null)
         {
             float commonPrice = (ItemConfigData.GetItemConfig(itemData.I).Item_Value * itemData.C);
-            int_Price = actorManager_Bind.Local_Offer(itemData);
-            text_Price.text = int_Price.ToString();
             itemData_Sell = itemData;
             DrawSellCell();
 
@@ -158,42 +129,35 @@ public class TileUI_Deal : TileUI
         }
         else
         {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
-            {
-                itemData = itemData,
-                itemFrom = ItemFrom.OutSide
-            });
         }
     }
     public ItemData SellPutOut(ItemData itemData_From, ItemData itemData, ItemPath itemPath)
     {
-        int_Price = 0;
-        text_Price.text = "";
-        itemData_Sell = new ItemData();
         DrawSellCell();
-        return itemData;
+        return new ItemData();
     }
     public void Sell()
     {
-        if (itemData_Sell.I != 0)
+        List<ItemData> temp = WorldActorManager.Instance.GetPlayer().actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        if (itemData_Sell.I != 0 && temp.Contains(itemData_Sell))
         {
-            if (int_Price > actorManager_Bind.actorNetManager.Local_Coin)
-            {
-                WorldManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.EarnCoin(actorManager_Bind.actorNetManager.Local_Coin);
-                actorManager_Bind.actionManager.PayCoin(actorManager_Bind.actorNetManager.Local_Coin);
-            }
-            else
-            {
-                WorldManager.Instance.playerCoreLocal.actorManager_Bind.actionManager.EarnCoin(int_Price);
-                actorManager_Bind.actionManager.PayCoin(int_Price);
-            }
+            
+            int? coinCount = (int_Price > actorManager_Bind.actorNetManager.Local_Coin) ? actorManager_Bind.actorNetManager.Local_Coin : int_Price;
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_TryEarn() { coin = (int)coinCount });
+            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change() { index = temp.IndexOf(itemData_Sell),itemData = new ItemData()});
+            actorManager_Bind.actionManager.PayCoin((int)coinCount);
             localizeStringEvent_SellDesc.StringReference.SetReference("Role_String", "DealDone");
             itemData_Sell = new ItemData();
         }
         DrawSellCell();
+        DrawGoodCell();
     }
     private void DrawSellCell()
     {
+        int_Price = itemData_Sell.I > 0 ? actorManager_Bind.Local_Offer(itemData_Sell) : null;
+        text_Price.text = (int_Price != null) ? int_Price.ToString() : "";
+        text_PriceBack.text = (int_Price != null) ? int_Price.ToString() : "";
+
         if (itemData_Sell.I > 0)
         {
             gridCell_Sell.UpdateData(itemData_Sell);
@@ -206,12 +170,14 @@ public class TileUI_Deal : TileUI
         }
         UpdateCoin();
     }
-    #endregion
     private void UpdateCoin()
     {
         int_YourCoins = actorManager_Bind.actorNetManager.Local_Coin;
-        int_MyCoins = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_Coin;
-        textMeshProUGUI_YourCoins.text = "对方:" + int_YourCoins.ToString();
-        textMeshProUGUI_MyCoins.text = "我方:" + int_MyCoins.ToString();
+        int_MyCoins = WorldActorManager.Instance.GetPlayer().actorManager_Bind.actorNetManager.Local_Coin;
+        text_YourCoins.text = int_YourCoins.ToString();
+        text_YourCoinsBack.text = int_YourCoins.ToString();
+        text_MyCoins.text = int_MyCoins.ToString();
+        text_MyCoinsBack.text = int_MyCoins.ToString();
     }
+    #endregion
 }

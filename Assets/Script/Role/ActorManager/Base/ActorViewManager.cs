@@ -11,26 +11,34 @@ public class ActorViewManager : MonoBehaviour
     {
         if (collision.gameObject.tag.Equals("Item"))
         { 
-            actorManager.AllClient_Listen_ItemInView(collision.transform.parent.GetComponent<ItemNetObj>());
-            if (actorManager.actorAuthority.isState) actorManager.State_Listen_ItemInView(collision.transform.parent.GetComponent<ItemNetObj>());
+            actorManager.ForAll_Listen_ItemInView(collision.transform.parent.GetComponent<ItemNetObj>());
+            return;
         }
-        else
+        if (collision.gameObject.tag.Equals("Actor") && collision.TryGetComponent(out ActorManager actor))
         {
-            actorManager.AllClient_Listen_RoleInView(collision.GetComponent<ActorManager>());
-            if (actorManager.actorAuthority.isState) actorManager.State_Listen_RoleInView(collision.GetComponent<ActorManager>());
+            actorManager.AllClient_Listen_RoleInView(actor);
+            if (actorManager.actorAuthority.isState)
+            {
+                actorManager.State_Listen_RoleInView(actor);
+                return;
+            }
         }
     }
     public void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.gameObject.tag.Equals("Item"))
         {
-            actorManager.AllClient_Listen_ItemOutView(collision.transform.parent.GetComponent<ItemNetObj>());
-            if (actorManager.actorAuthority.isState) actorManager.State_Listen_ItemOutView(collision.transform.parent.GetComponent<ItemNetObj>());
+            actorManager.ForAll_Listen_ItemOutView(collision.transform.parent.GetComponent<ItemNetObj>());
+            return;
         }
-        else
+        if (collision.gameObject.tag.Equals("Actor") && collision.TryGetComponent(out ActorManager actor))
         {
-            actorManager.AllClient_Listen_RoleOutView(collision.GetComponent<ActorManager>());
-            if (actorManager.actorAuthority.isState) actorManager.State_Listen_RoleOutView(collision.GetComponent<ActorManager>());
+            actorManager.AllClient_Listen_RoleOutView(actor);
+            if (actorManager.actorAuthority.isState)
+            {
+                actorManager.State_Listen_RoleOutView(actor);
+                return;
+            }
         }
     }
 }

@@ -53,7 +53,8 @@ public class UI_ChooseMapPanel : MonoBehaviour
         {
             int index = i;
             string path = "PlayerData/Player" + index;
-            string data = FileManager.Instance.ReadFile(path);
+            PlayerData playerData = FileManager.Instance.ReadPlayerData(path);
+
             chooseMapBtns[index].gameObject.SetActive(true);
             chooseMapBtns[index].Init(index,
                (_) => { },

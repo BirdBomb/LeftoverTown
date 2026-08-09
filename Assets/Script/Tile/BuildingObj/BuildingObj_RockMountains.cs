@@ -5,371 +5,43 @@ using UnityEngine;
 
 public class BuildingObj_RockMountains : BuildingObj
 {
-    public Sprite[] spriteList_0;
-    public Sprite[] spriteList_1;
-    public SpriteRenderer spriteRenderer;
+
+    public List<BuildingSpriteList> bodyList;
+    public List<BuildingSpriteList> topList;
+
+    public SpriteRenderer sprite_Body;
+    public SpriteRenderer sprite_Top;
+
     private Material material;
-    public ParticleSystem bitsParticle;
-    [SerializeField, Header("常态基本掉落物")]
-    private List<BaseLootInfo> baseLootInfos = new List<BaseLootInfo>();
-    [SerializeField, Header("常态额外掉落物")]
-    private List<ExtraLootInfo> extraLootInfos = new List<ExtraLootInfo>();
+    private System.Random random = new System.Random();
     public override void Start()
     {
-        material = new Material(spriteRenderer.sharedMaterial);
-        spriteRenderer.material = material;
-    }
-    public override void Init(int id)
-    {
-        DrawShadow();
-        base.Init(id);
-    }
-    public void OnDisable()
-    {
-        RemoveShadow();
+        material = new Material(sprite_Top.sharedMaterial);
+        sprite_Top.material = material;
+        base.Start();
     }
     public override void All_OnDraw()
     {
-        int index = GetInde(MapManager.Instance.CheckBuilding_EightSide(1110, 1120, buildingTile.tilePos));
-        if (new System.Random().Next(0, 2) == 0)
-        {
-            spriteRenderer.sprite = spriteList_0[index];
-        }
-        else
-        {
-            spriteRenderer.sprite = spriteList_1[index];
-        }
+        int index = IndexCalculator.GetIndex
+            (MapManager.Instance.CheckAround_Building(buildingTile.tilePos, (int id) => { return id >= 1110 && id < 1120; }, DirectionType.Eight));
+
+        sprite_Body.sprite = bodyList[random.Next(0, bodyList.Count)].sprites[index];
+        sprite_Top.sprite = topList[random.Next(0, topList.Count)].sprites[index];
+
+
+
+        //if (new System.Random().Next(0, 2) == 0)
+        //{
+        //    sprite_Body.sprite = bodyList_0[index];
+        //    sprite_Top.sprite = topList_0[index];
+        //}
+        //else
+        //{
+        //    sprite_Body.sprite = bodyList_1[index];
+        //    sprite_Top.sprite = topList_0[index];
+        //}
 
         base.All_OnDraw();
-    }
-    private int GetInde(Around aroundState)
-    {
-        int val = -1;
-        if (aroundState.U)
-        {
-            if (aroundState.D)
-            {
-                if (aroundState.L)
-                {
-                    if (aroundState.R)
-                    {
-                        if (aroundState.UL)
-                        {
-                            if (aroundState.UR)
-                            {
-                                if (aroundState.DL)
-                                {
-                                    if (aroundState.DR)
-                                    {
-                                        val = 8;
-                                    }
-                                    else
-                                    {
-                                        val = 11;
-                                    }
-                                }
-                                else
-                                {
-                                    if (aroundState.DR)
-                                    {
-                                        val = 12;
-                                    }
-                                    else
-                                    {
-                                        val = 37;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (aroundState.DL)
-                                {
-                                    if (aroundState.DR)
-                                    {
-                                        val = 18;
-                                    }
-                                    else
-                                    {
-                                        val = 44;
-                                    }
-                                }
-                                else
-                                {
-                                    if (aroundState.DR)
-                                    {
-                                        val = 34;
-                                    }
-                                    else
-                                    {
-                                        val = 46;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (aroundState.UR)
-                            {
-                                if (aroundState.DL)
-                                {
-                                    if (aroundState.DR)
-                                    {
-                                        val = 19;
-                                    }
-                                    else
-                                    {
-                                        val = 27;
-                                    }
-                                }
-                                else
-                                {
-                                    if (aroundState.DR)
-                                    {
-                                        val = 38;
-                                    }
-                                    else
-                                    {
-                                        val = 39;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (aroundState.DL)
-                                {
-                                    if (aroundState.DR)
-                                    {
-                                        val = 45;
-                                    }
-                                    else
-                                    {
-                                        val = 47;
-                                    }
-                                }
-                                else
-                                {
-                                    if (aroundState.DR)
-                                    {
-                                        val = 40;
-                                    }
-                                    else
-                                    {
-                                        val = 20;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (aroundState.UL)
-                        {
-                            if (aroundState.DL)
-                            {
-                                val = 9;
-                            }
-                            else
-                            {
-                                val = 24;
-                            }
-                        }
-                        else
-                        {
-                            if (aroundState.DL)
-                            {
-                                val = 29;
-                            }
-                            else
-                            {
-                                val = 33;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (aroundState.R)
-                    {
-                        if (aroundState.UR)
-                        {
-                            if (aroundState.DR)
-                            {
-                                val = 7;
-                            }
-                            else
-                            {
-                                val = 21;
-                            }
-                        }
-                        else
-                        {
-                            if (aroundState.DR)
-                            {
-                                val = 30;
-                            }
-                            else
-                            {
-                                val = 25;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        val = 10;
-                    }
-                }
-            }
-            else
-            {
-                if (aroundState.L)
-                {
-                    if (aroundState.R)
-                    {
-                        if (aroundState.UL)
-                        {
-                            if (aroundState.UR)
-                            {
-                                val = 15;
-                            }
-                            else
-                            {
-                                val = 28;
-                            }
-                        }
-                        else
-                        {
-                            if (aroundState.UR)
-                            {
-                                val = 31;
-                            }
-                            else
-                            {
-                                val = 32;
-                            }
-                        }
-
-                    }
-                    else
-                    {
-                        if (aroundState.UL)
-                        {
-                            val = 16;
-                        }
-                        else
-                        {
-                            val = 43;
-                        }
-                    }
-                }
-                else
-                {
-                    if (aroundState.R)
-                    {
-                        if (aroundState.UR)
-                        {
-                            val = 14;
-                        }
-                        else
-                        {
-                            val = 42;
-                        }
-                    }
-                    else
-                    {
-                        val = 17;
-                    }
-                }
-            }
-        }
-        else
-        {
-            if (aroundState.D)
-            {
-                if (aroundState.L)
-                {
-                    if (aroundState.R)
-                    {
-                        if (aroundState.DL)
-                        {
-                            if (aroundState.DR)
-                            {
-                                val = 1;
-                            }
-                            else
-                            {
-                                val = 23;
-                            }
-                        }
-                        else
-                        {
-                            if (aroundState.DR)
-                            {
-                                val = 22;
-                            }
-                            else
-                            {
-                                val = 26;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (aroundState.DL)
-                        {
-                            val = 2;
-                        }
-                        else
-                        {
-                            val = 36;
-                        }
-                    }
-                }
-                else
-                {
-                    if (aroundState.R)
-                    {
-                        if (aroundState.DR)
-                        {
-                            val = 0;
-                        }
-                        else
-                        {
-                            val = 35;
-                        }
-                    }
-                    else
-                    {
-                        val = 3;
-                    }
-                }
-            }
-            else
-            {
-                if (aroundState.L)
-                {
-                    if (aroundState.R)
-                    {
-                        val = 5;
-                    }
-                    else
-                    {
-                        val = 6;
-                    }
-                }
-                else
-                {
-                    if (aroundState.R)
-                    {
-                        val = 4;
-                    }
-                    else
-                    {
-                        val = 13;
-                    }
-                }
-            }
-        }
-        return val;
     }
     public override int Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
     {
@@ -395,10 +67,11 @@ public class BuildingObj_RockMountains : BuildingObj
     }
     private void All_Shake()
     {
-        bitsParticle.Play();
         transform.DOKill();
         transform.localScale = Vector3.one;
         transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_RockSplash");
+        effect.transform.position = transform.position;
     }
     private Sequence sequence;
     private void All_Flash()
@@ -421,20 +94,24 @@ public class BuildingObj_RockMountains : BuildingObj
     {
         if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
         {
-            State_CreateLootItem(State_GetLootItem(baseLootInfos, extraLootInfos));
+            State_CreateLootItem(Tool_GetFixedItemList(LootItemConfigData.GetLootFixedConfig(buildingTile.tileID).Loot_List));
         }
         base.All_Broken();
     }
     #endregion
     #region//阴影
+    [Header("阴影启用")]
+    public bool bool_Shadow = false;
     public PolygonCollider2D polyCollider;
-    private void DrawShadow()
+    public override void DrawShadow()
     {
-        ShadowManager.Instance.AddCollider((Vector2Int)buildingTile.tilePos, polyCollider);
+        if (!bool_Shadow) return;
+        ShadowManager.Instance.AddPolygons((Vector2Int)buildingTile.tilePos, polyCollider);
     }
-    private void RemoveShadow()
+    public override void RemoveShadow()
     {
-        ShadowManager.Instance.RemoveCollider((Vector2Int)buildingTile.tilePos);
+        if (!bool_Shadow) return;
+        ShadowManager.Instance.RemovePolygons((Vector2Int)buildingTile.tilePos);
     }
     #endregion
 }

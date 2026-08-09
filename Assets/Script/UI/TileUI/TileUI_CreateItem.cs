@@ -152,7 +152,7 @@ public class TileUI_CreateItem : TileUI
                     ItemConfig itemConfig = ItemConfigData.GetItemConfig(createRawConfig_Temp.Create_RawList[i].ID);
                     Sprite icon = spriteAtlas_ItemIcon.GetSprite("Item_" + itemConfig.Item_ID.ToString());
                     Sprite bg = spriteAtlas_ItemBG.GetSprite("ItemBG_" + (int)itemConfig.Item_Rarity);
-                    List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+                    List<ItemData> itemDatas = WorldActorManager.Instance.GetPlayer().actorManager_Bind.actorNetManager.Local_ItemBag_Get();
                     int itemCount = 0;
                     for (int k = 0; k < itemDatas.Count; k++)
                     {
@@ -254,7 +254,7 @@ public class TileUI_CreateItem : TileUI
     {
         if (raws == null) { return false; }
         bool temp = true;
-        List<ItemData> itemDatas = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+        List<ItemData> itemDatas = WorldActorManager.Instance.GetPlayer().actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < raws.Count; i++)
         {
             ItemConfig itemConfig = ItemConfigData.GetItemConfig(raws[i].ID);

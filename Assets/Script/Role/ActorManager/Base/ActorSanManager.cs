@@ -23,7 +23,7 @@ public class ActorSanManager
         if (timer_San > int_ReSan)
         {
             timer_San = 0;
-            SubSan(-1);
+            SubSan(1);
         }
     }
     public float GetSanRatio()
@@ -42,7 +42,7 @@ public class ActorSanManager
     {
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            actorManager.actorNetManager.RPC_LocalInput_SanChange((short)val);
+            actorManager.actorNetManager.RPC_LocalInput_SanChange((short)-val);
         }
         return actorManager.actorNetManager.Net_SanCur;
     }
@@ -52,6 +52,7 @@ public class ActorSanManager
         {
             actorManager.actorNetManager.RPC_LocalInput_SanChange((short)val);
         }
+        actorManager.AllClient_ShowNumUI($"+{val}", new Color32(0, 255, 255, 255), Vector2.up, NumPlayType.Float);
         return actorManager.actorNetManager.Net_SanCur;
     }
 

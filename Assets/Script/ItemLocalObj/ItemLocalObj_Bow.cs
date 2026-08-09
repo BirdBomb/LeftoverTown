@@ -79,16 +79,9 @@ public class ItemLocalObj_Bow : ItemLocalObj
     {
         actorManager = owner;
 
-        transform.SetParent(body.transform_ItemInRightHand);
-        body.gameObjects_ItemInHand.Add(gameObject);
-        transform.localRotation = Quaternion.identity;
-        transform.localPosition = new Vector3(0.1f, 0, 0);
-        transform.localScale = Vector3.one;
-
-        transform_LeftHand.GetComponent<SpriteRenderer>().color = body.transform_LeftHand.GetComponent<SpriteRenderer>().color;
-        body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
-        transform_RightHand.GetComponent<SpriteRenderer>().color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
-        body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
+        body.AddItemOnRightHand(gameObject, new Vector3(0.1f, 0, 0), Quaternion.identity, Vector3.one);
+        transform_RightHand.GetComponent<SpriteRenderer>().color = body.ShowRightHand(false).color;
+        transform_LeftHand.GetComponent<SpriteRenderer>().color = body.ShowLeftHand(false).color;
 
         base.HoldingStart(owner, body);
     }
@@ -122,9 +115,9 @@ public class ItemLocalObj_Bow : ItemLocalObj
     {
         if (actorManager.actorAuthority.isPlayer)
         {
-            if (actorManager.actorNetManager.Net_ItemConsumables.C > 0)
+            if (actorManager.actorNetManager.Local_ItemConsumables.C > 0)
             {
-                Sprite sprite = spriteAtlas_Item.GetSprite("Item_" + actorManager.actorNetManager.Net_ItemConsumables.I);
+                Sprite sprite = spriteAtlas_Item.GetSprite("Item_" + actorManager.actorNetManager.Local_ItemConsumables.I);
                 spriteRenderer_Arrow.DOKill();
                 spriteRenderer_Arrow.transform.localScale = Vector3.one;
                 spriteRenderer_Arrow.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.1f);
@@ -237,7 +230,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
     {
         if (actorManager.actorAuthority.isPlayer)
         {
-            ItemData itemData = actorManager.actorNetManager.Net_ItemConsumables;
+            ItemData itemData = actorManager.actorNetManager.Local_ItemConsumables;
             if (bulletList.Contains(itemData.I) && itemData.C > 0)
             {
                 UseBullet(1);
@@ -263,7 +256,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
     {
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            ItemData _oldItemConsumables = actorManager.actorNetManager.Net_ItemConsumables;
+            ItemData _oldItemConsumables = actorManager.actorNetManager.Local_ItemConsumables;
             ItemData _newItemConsumables = _oldItemConsumables;
             _newItemConsumables.C--;
             if (_newItemConsumables.C <= 0)
@@ -326,7 +319,7 @@ public class ItemLocalObj_Bow : ItemLocalObj
         ItemData _newItemHand = itemData;
         _newItemHand.D--;
         UpdateDataByLocal(_newItemHand);
-        actorManager.actorNetManager.Net_ItemHand = _newItemHand;
+        actorManager.actorNetManager.Local_ItemHand_Change(_oldItemHand, _newItemHand);
     }
 
     /// <summary>

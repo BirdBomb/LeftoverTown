@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UniRx;
 using UnityEngine;
 
@@ -9,51 +10,94 @@ public class BuildingObj_RockBed : BuildingObj
 {
     private enum RockState
     {
-        Base, Open, Complete
+        Default, Base, Open, Complete
     }
     private enum RockType
     {
-        Rock,Coal,Niter,Copper,Iron,Gold
+        Rock, Coal, Niter, Copper, Iron, Gold
     }
-    public SpriteRenderer spriteRenderer;
-    public BoxCollider2D boxCollider;
-    private Material material;
-    [SerializeField]
-    private RockState rockState_Now;
-    [Header("残缺岩石贴图")]
-    public Sprite[] sprites_RockBase;
-    [Header("破碎岩石贴图")]
-    public Sprite[] sprites_RockOpen;
-    [Header("完整岩石贴图")]
-    public Sprite[] sprites_RockComplete;
-    [Header("岩石残缺持续时间(小时)")]
-    public int int_RockBaseTime = 1;
-    [Header("岩石破碎持续时间(小时)")]
-    public int int_RockOpenTime = 1;
-    [Header("岩石生命值")]
-    public int int_RockHp = 1;
-    private int gameTime_Sign = -9999;
-    private int gameTime_Now;
-    private int rockTypeMax;
-    private int rockType;
-    private int seed;
-    [Header("完整岩石掉落物")]
-    public List<BaseLootInfo> baseLootInfos_Complete = new List<BaseLootInfo>();
-    [Header("不同类别岩石掉落物")]
-    public List<BaseLootInfo> baseLootInfos_Open = new List<BaseLootInfo>();
-
-
     public override void Start()
     {
-        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
-        {
-            All_UpdateTime(_.hour + _.day * 10);
-        }).AddTo(this);
-        WorldManager.Instance.GetTime(out int day, out int hour, out _);
-        All_UpdateTime(day * 10 + hour);
-        material = new Material(spriteRenderer.sharedMaterial);
-        spriteRenderer.material = material;
+        InitializeMaterial();
+        SubscribeToEvents();
+        LoadInitialState();
         base.Start();
+    }
+
+    #region 序列化字段
+    [Header("碰撞器")]
+    public BoxCollider2D boxCollider;
+    [Header("Sprite渲染器")]
+    public SpriteRenderer spriteRenderer;
+    [Header("状态精灵")]
+    public Sprite[] sprites_RockBase;
+    public Sprite[] sprites_RockOpen;
+    public Sprite[] sprites_RockComplete;
+
+    [Header("岩石残缺持续时间(小时)")]
+    public int duration_RockBase = 1;
+    [Header("岩石破碎持续时间(小时)")]
+    public int duration_RockOpen = 1;
+    [Header("状态生命值")]
+    public int int_RockHp = 1;
+    #endregion
+    #region 私有字段
+    [SerializeField]
+    private RockState rockState_Now;
+    public BuildingData_RockBed buildingData_RockBed = new BuildingData_RockBed();
+    private Sequence sequence;
+    private Material material;
+    #endregion
+
+    #region 初始化
+    private void InitializeMaterial()
+    {
+        if (spriteRenderer != null)
+        {
+            material = new Material(spriteRenderer.sharedMaterial);
+            spriteRenderer.material = material;
+        }
+    }
+    public virtual void SubscribeToEvents()
+    {
+        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>()
+            .Subscribe(All_OnHourUpdated)
+            .AddTo(this);
+    }
+
+    public virtual void LoadInitialState()
+    {
+        All_UpdateState(); // 根据时间初始化状态
+    }
+
+    #endregion
+    #region 信息上传与同步
+    public override void All_OnRawDataUpdate()
+    {
+        buildingData_RockBed.Deserialize(local_ByteData);
+        All_UpdateState();
+        base.All_OnRawDataUpdate();
+    }
+    public void TryToPush()
+    {
+        All_PushData(buildingData_RockBed.Serialize());
+    }
+    #endregion
+    #region 基类方法
+    public override int Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    {
+        if (rockState_Now == RockState.Base)
+        {
+            if (damageState == DamageState.AttackStructureDamage) { return base.Local_TakeDamage(val, damageState, from); }
+            Local_IneffectiveDamage(damageState, from);
+            return 0;
+        }
+        else
+        {
+            if (damageState == DamageState.AttackBludgeoningDamage) return base.Local_TakeDamage(val, damageState, from);
+            Local_IneffectiveDamage(damageState, from);
+            return 0;
+        }
     }
     public override void All_UpdateHP(int newHp)
     {
@@ -71,118 +115,127 @@ public class BuildingObj_RockBed : BuildingObj
             Local_SetHp(newHp);
         }
     }
-    public override int Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    public override void All_Broken()
     {
-        if (damageState == DamageState.AttackBludgeoningDamage)
+        PlayBrokenEffect();
+        if (WorldManager.Instance?.gameNetManager?.Object?.HasStateAuthority == true)
         {
-            return base.Local_TakeDamage(val, damageState, from);
-        }
-        else
-        {
-            Local_IneffectiveDamage(damageState, from);
-            return 0;
+            LootRandomInfo[] lootRandomInfos = new LootRandomInfo[] { };
+            LootFixedInfo[] lootFixedInfos = new LootFixedInfo[] { };
+            WorldManager.Instance.GetTime_NowHour(out int signTime);
+            switch (rockState_Now)
+            {
+                case RockState.Complete:
+                    lootRandomInfos = LootItemConfigData.GetLootRandomConfig(buildingTile.tileID * 10).Loot_List;
+                    lootFixedInfos = LootItemConfigData.GetLootFixedConfig(buildingTile.tileID * 10).Loot_List;
+                    signTime -= duration_RockOpen;
+                    break;
+                case RockState.Open:
+                    lootRandomInfos = LootItemConfigData.GetLootRandomConfig(buildingTile.tileID * 10 + 1).Loot_List;
+                    lootFixedInfos = LootItemConfigData.GetLootFixedConfig(buildingTile.tileID * 10 + 1).Loot_List;
+                    break;
+            }
+            State_CreateLootItem(Tool_GetFixedItemList(lootFixedInfos));
+            State_CreateLootItem(Tool_GetRandomItemList(lootRandomInfos, 1));
+            buildingData_RockBed.WriteSignTime(signTime);
+            TryToPush();
         }
     }
-    #region//生长
-    /// <summary>
-    /// 更新时间
-    /// </summary>
-    /// <param name="hour"></param>
-    /// <param name="date"></param>
-    public void All_UpdateTime(int time)
-    {
-        gameTime_Now = time;
-        if (gameTime_Sign > gameTime_Now) { gameTime_Sign = gameTime_Now; }
-        All_CompareTime();
-    }
-    /// <summary>
-    /// 对比时间
-    /// </summary>
-    public void All_CompareTime()
-    {
-        if (rockState_Now == RockState.Base)
-        {
-            if (gameTime_Now - gameTime_Sign > int_RockBaseTime + int_RockOpenTime)
-            {
-                All_UpdateRockState(RockState.Complete);
-            }
-            else if (gameTime_Now - gameTime_Sign > int_RockBaseTime)
-            {
-                All_UpdateRockState(RockState.Open);
-            }
-        }
-        else if (rockState_Now == RockState.Open)
-        {
-            if (gameTime_Now - gameTime_Sign <= int_RockBaseTime)
-            {
-                All_UpdateRockState(RockState.Base);
-            }
-            else if (gameTime_Now - gameTime_Sign > int_RockBaseTime + int_RockOpenTime)
-            {
-                All_UpdateRockState(RockState.Complete);
-            }
-        }
-        else if (rockState_Now == RockState.Complete)
-        {
-            if (gameTime_Now - gameTime_Sign <= int_RockOpenTime)
-            {
-                All_UpdateRockState(RockState.Open);
-            }
-        }
-
-    }
-    /// <summary>
-    /// 更新状态
-    /// </summary>
-    /// <param name="type"></param>
-    private void All_UpdateRockState(RockState type)
-    {
-        if (rockState_Now != type)
-        {
-            transform.DOKill();
-            transform.localScale = Vector3.one;
-            transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.1f);
-            rockState_Now = type;
-        }
-        switch (type)
-        {
-            case RockState.Base:
-                Debug.Log("Base");
-                Local_SetHp(int.MaxValue);
-                spriteRenderer.sprite = sprites_RockBase[new System.Random().Next(0, sprites_RockBase.Length)];
-                break;
-            case RockState.Open:
-                Debug.Log("Open");
-                Local_SetHp(int_RockHp);
-                spriteRenderer.sprite = sprites_RockOpen[rockType];
-                break;
-            case RockState.Complete:
-                Debug.Log("Complete");
-                Local_SetHp(int_RockHp);
-                spriteRenderer.sprite = sprites_RockComplete[new System.Random().Next(0, sprites_RockComplete.Length)];
-                break;
-        }
-    }
-    #endregion
-    #region//方法
     public override void All_OnHpDown(int offset)
     {
         if (offset < 0)
         {
-            AudioManager.Instance.Play3DEffect(3000, transform.position);
-            All_Flash();
+            PlayHurtEffect();
         }
-        All_Shake();
     }
-    private void All_Shake()
+    #endregion
+    #region 生长计算
+    public void All_OnHourUpdated(GameEvent.GameEvent_All_UpdateHour eventData)
+    {
+        All_UpdateState();
+    }
+    public void All_UpdateState()
+    {
+        WorldManager.Instance.GetTime_NowHour(out int now);
+        int sign =  buildingData_RockBed.ReadSignTime();
+        int elapsedTime = now - sign;
+        RockState targetState = CalculateTargetState(elapsedTime);
+        if (targetState != rockState_Now)
+        {
+            TransitionToState(targetState);
+        }
+    }
+    /// <summary>
+    /// 计算目标状态
+    /// </summary>
+    private RockState CalculateTargetState(int elapsedTime)
+    {
+        if (elapsedTime < duration_RockBase)
+            return RockState.Base;
+        else if (elapsedTime < duration_RockBase + duration_RockOpen)
+            return RockState.Open;
+        else
+            return RockState.Complete;
+    }
+    /// <summary>
+    /// 状态转换
+    /// </summary>
+    private void TransitionToState(RockState newState)
+    {
+        rockState_Now = newState;
+        All_ApplyStateConfig();
+    }
+    #endregion
+    #region 状态切换
+    private void All_ApplyStateConfig()
+    {
+        switch (rockState_Now)
+        {
+            case RockState.Base:
+                All_ConfigureBaseState();
+                break;
+            case RockState.Open:
+                All_ConfigureOpenState();
+                break;
+            case RockState.Complete:
+                All_ConfigureCompleteState();
+                break;
+        }
+    }
+    public virtual void All_ConfigureBaseState()
+    {
+        Local_SetHp(int.MaxValue);
+        PlayStateChangeAnimation();
+        spriteRenderer.sprite = sprites_RockBase[new System.Random().Next(0, sprites_RockBase.Length)];
+    }
+    public virtual void All_ConfigureOpenState()
+    {
+        Local_SetHp(int_RockHp);
+        PlayStateChangeAnimation();
+        spriteRenderer.sprite = sprites_RockOpen[new System.Random().Next(0, sprites_RockOpen.Length)];
+    }
+    public virtual void All_ConfigureCompleteState()
+    {
+        Local_SetHp(int_RockHp);
+        PlayStateChangeAnimation();
+        spriteRenderer.sprite = sprites_RockComplete[new System.Random().Next(0, sprites_RockComplete.Length)];
+    }
+
+    #endregion
+    #region 特效
+    private void PlayStateChangeAnimation()
+    {
+        transform.DOKill();
+        transform.localScale = Vector3.one;
+        transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.1f);
+    }
+    private void PlayHurtEffect()
     {
         transform.DOKill();
         transform.localScale = Vector3.one;
         transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
-    }
-    private Sequence sequence;
-    private void All_Flash()
-    {
+
+        AudioManager.Instance.Play3DEffect(3002, transform.position);
         float light = 1;
         if (sequence != null) sequence.Kill();
         sequence = DOTween.Sequence();
@@ -191,48 +244,37 @@ public class BuildingObj_RockBed : BuildingObj
         sequence.OnUpdate(() =>
         { material.SetFloat("_White", light); });
     }
-    public override void All_OnBroken()
+    private void PlayBrokenEffect()
     {
         AudioManager.Instance.Play3DEffect(3003, transform.position);
-        base.All_OnBroken();
     }
-    public override void All_UpdateInfo(string info)
-    {
-        gameTime_Sign = int.Parse(info);
-        seed = HashCode.Combine(Mathf.RoundToInt(buildingTile.tileWorldPos.x * 1000),Mathf.RoundToInt(buildingTile.tileWorldPos.y * 1000),gameTime_Sign);
-        if(rockTypeMax==0) rockTypeMax = Enum.GetValues(typeof(RockType)).Length;
-        UnityEngine.Random.InitState(seed);
-        rockType = UnityEngine.Random.Range(0, rockTypeMax);
-        All_CompareTime();
-        base.All_UpdateInfo(info);
-    }
-    public override void All_Broken()
-    {
-        if (rockState_Now == RockState.Complete)
-        {
-            if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
-            {
-                Local_ChangeInfo((gameTime_Now).ToString());
-                State_CreateLootItem(State_GetLootItem(baseLootInfos_Complete, null));
-            }
-        }
-        else if (rockState_Now == RockState.Open)
-        {
-            if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
-            {
-                Local_ChangeInfo((gameTime_Now).ToString());
-                if (rockType < baseLootInfos_Open.Count)
-                {
-                    List<BaseLootInfo> temp = new List<BaseLootInfo>
-                    {
-                        baseLootInfos_Open[rockType]
-                    };
-                    State_CreateLootItem(State_GetLootItem(temp, null));
-                }
-            }
-        }
-    }
-
     #endregion
+}
+public class BuildingData_RockBed
+{
+    public int int_SignTime = - 9999;
+    public int ReadSignTime() { return int_SignTime; }
+    public void WriteSignTime(int val) { int_SignTime = val; }
+    public byte[] Serialize()
+    {
+        using (var ms = new MemoryStream())
+        using (var writer = new BinaryWriter(ms))
+        {
+            writer.Write(int_SignTime);
+            return ms.ToArray();
+        }
+    }
+    public void Deserialize(byte[] data)
+    {
+        if (data == null || data.Length == 0)
+        {
+            return;
+        }
+        using (var ms = new MemoryStream(data))
+        using (var reader = new BinaryReader(ms))
+        {
+            int_SignTime = reader.ReadInt32();
+        }
+    }
 
 }

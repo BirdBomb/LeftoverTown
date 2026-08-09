@@ -6,4 +6,6 @@ public class MapTileInfoData
 {
     [SerializeField]
     public Dictionary<int, string> tileDic = new Dictionary<int, string>();
+    [SerializeField]
+    public Dictionary<int, byte[]> mapData = new Dictionary<int, byte[]>();
 }

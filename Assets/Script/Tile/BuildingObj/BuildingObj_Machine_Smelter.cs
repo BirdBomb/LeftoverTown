@@ -2,301 +2,127 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UniRx;
 using UnityEngine;
+using WebSocketSharp;
 
-public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
+public class BuildingObj_Machine_Smelter : BuildingObj_Machine_ByFuel
 {
-    public GameObject obj_SingalFUI;
-    public GameObject obj_SingalAwakeUI;
-    public GameObject obj_HightlightUI;
-    [SerializeField]
-    private GameObject obj_Fire;
-    [SerializeField]
-    private GameObject prefab_UI;
+    public GameObject obj_Fire;
+    public GameObject prefab_UI;
     private TileUI_Smelter tileUI_Bind;
-    public ItemData itemData_RefiningBefore = new ItemData();
-    public ItemData itemData_RefiningAfter = new ItemData();
-    public ItemData itemData_Fuel = new ItemData();
-    public RefiningConfig config_Refining;
-    public FuelConfig config_Fuel;
-    /// <summary>
-    /// 下次完成燃烧时间
-    /// </summary>
-    public int gameTime_NextFuelSign = 0;
-    /// <summary>
-    /// 下次完成炼制时间
-    /// </summary>
-    public int gameTime_NextRefiningSign = 0;
-    /// <summary>
-    /// 记录时间
-    /// </summary>
-    public int gameTime_LastTimeSign;
-    /// <summary>
-    /// 当前时间
-    /// </summary>
-    public int gameTime_CurTimeSign;
-    public override void Start()
+    protected GameObject obj_SingalUI_F;
+    protected GameObject obj_SingalUI_Awake;
+    protected GameObject obj_HighlightUI;
+    public BuildingData_Machine_Smelter buildingData_Machine_Smelter = new BuildingData_Machine_Smelter();
+    #region 精炼计算
+    protected override void All_UpdateFuelState(bool on)
     {
-        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateSecond>().Subscribe(_ =>
-        {
-            gameTime_CurTimeSign = _.second + _.hour * 60 + _.day * 600;
-            UpdateTime();
-            gameTime_LastTimeSign = gameTime_CurTimeSign;
-        }).AddTo(this);
+        obj_Fire.SetActive(on); base.All_UpdateFuelState(on);
     }
-    #region//燃烧计算
-    /// <summary>
-    /// 提供的燃烧时间
-    /// </summary>
-    int fuelOffer = 0;
-    /// <summary>
-    /// 是否更改并上传信息
-    /// </summary>
-    bool uploadInfo = false;
-    private void UpdateTime()
+    public override void AllClinet_OnSecondUpdate(GameEvent.GameEvent_All_UpdateSecond eventData)
     {
-        uploadInfo = false;
-        if (gameTime_NextFuelSign > gameTime_CurTimeSign)
+        All_CheckRefining(eventData.gameTime, All_CheckFuel(eventData.gameTime, buildingData_Machine_Smelter));
+        buildingData_Machine_Smelter.WriteLastTimeSign(eventData.gameTime);
+        tileUI_Bind?.DrawEveryCell();
+        tileUI_Bind?.DrawBar();
+        base.AllClinet_OnSecondUpdate(eventData);
+    }
+    protected void All_CheckRefining(int curTimeSign, int energy)
+    {
+        bool pushData = false;
+        buildingData_Machine_Smelter.ReadLastTimeSign(out int lastTimeSign);
+        buildingData_Machine_Smelter.ReadItemRefiningBefore(out ItemData itemRefiningBefore);
+        buildingData_Machine_Smelter.ReadItemRefiningAfter(out ItemData itemRefiningAfter);
+        buildingData_Machine_Smelter.ReadRefiningCompeletSign(out int refiningCompeletSign);
+        RefiningConfig config = RefiningConfigData.GetRefiningConfig(itemRefiningBefore.I);
+        /*有原料*/
+        if (itemRefiningBefore.I != 0 && itemRefiningBefore.C != 0)
         {
-            /*还有剩余燃烧时间*/
-            fuelOffer = gameTime_CurTimeSign - gameTime_LastTimeSign;
-            Fire(true);
-        }
-        else
-        {
-            /*没有剩余燃烧时间*/
-            if (itemData_Fuel.I != 0 && itemData_Fuel.C > 0)
+            /*火炉在燃烧*/
+            if (energy > 0 )
             {
-                /*有剩余燃料*/
-                int count = (gameTime_CurTimeSign - gameTime_NextFuelSign) / config_Fuel.FuelSecond + 1;
-                fuelOffer = ExpendFuel(count);
-                uploadInfo = true;
-                Fire(true);
-            }
-            else
-            {
-                /*无剩余燃料*/
-                fuelOffer = gameTime_NextFuelSign - gameTime_LastTimeSign;
-                if (fuelOffer < 0) 
+                /*炼制完成*/
+                if(curTimeSign > refiningCompeletSign)
                 {
-                    Fire(false);
-                    fuelOffer = 0; 
-                }
-                else
-                {
-                    Fire(true);
-                }
-            }
-        }
-        if (itemData_RefiningBefore.I != 0 && itemData_RefiningBefore.C != 0)
-        {
-            /*有原料*/
-            if (fuelOffer > 0)
-            {
-                /*火炉在燃烧*/
-                int RefiningAfter = config_Refining.RefiningAfterID;
-                if (itemData_RefiningAfter.I == RefiningAfter || itemData_RefiningAfter.I == 0)
-                {
-                    /*合成通顺*/
-                    if (fuelOffer + gameTime_LastTimeSign > gameTime_NextRefiningSign)
+                    /*合成路径通顺*/
+                    if (itemRefiningAfter.I == 0)
                     {
-                        /*炼制完成*/
-                        int offset = fuelOffer + gameTime_LastTimeSign - gameTime_NextRefiningSign;
-                        int count = offset / config_Refining.RefiningSecond + 1;
-                        fuelOffer = ExpendRefining(fuelOffer, count);
-                        uploadInfo = true;
+                        refiningCompeletSign = All_Smelter(energy, itemRefiningBefore, Tool_CreateItemData(config.RefiningAfterID, 0), config.RefiningSecond, refiningCompeletSign);
+                        pushData = true;
                     }
+                    else if (itemRefiningAfter.I == config.RefiningAfterID)
+                    {
+                        refiningCompeletSign = All_Smelter(energy, itemRefiningBefore, itemRefiningAfter, config.RefiningSecond, refiningCompeletSign);
+                        pushData = true;
+                    }
+                    /*合成路径阻塞*/
                     else
                     {
-                        /*炼制未完成*/
+                        refiningCompeletSign += (curTimeSign - lastTimeSign);
                     }
                 }
+                /*炼制未完成*/
                 else
                 {
-                    /*合成阻塞*/
-                    gameTime_NextRefiningSign += (gameTime_CurTimeSign - gameTime_LastTimeSign);
+
                 }
             }
             else
             {
-                /*火炉不燃烧*/
-                gameTime_NextRefiningSign += (gameTime_CurTimeSign - gameTime_LastTimeSign);
+                refiningCompeletSign += (curTimeSign - lastTimeSign);
             }
         }
+        /*无原料*/
         else
         {
-            /*没有原料*/
-            gameTime_NextRefiningSign = int.MaxValue;
+            refiningCompeletSign = int.MaxValue;
         }
-        /*回收过剩燃烧时间*/
-        //gameTime_NextFuelSign += fuelOffer;
-        if (tileUI_Bind)
-        {
-            tileUI_Bind.DrawBar();
-        }
-        if (uploadInfo && WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
-        {
-            WriteInfo();
-        }
+        buildingData_Machine_Smelter.WriteRefiningCompeletSign(refiningCompeletSign);
+        buildingData_Machine_Smelter.WriteRefiningMax(config.RefiningSecond);
+        if (pushData) All_TryToPush();
     }
-    /// <summary>
-    /// 消耗燃料
-    /// </summary>
-    /// <param name="curTime"></param>
-    /// <param name="expendCount"></param>
-    /// <returns>提供的燃烧时间</returns>
-    private int ExpendFuel(int expendCount)
+    protected int All_Smelter(int energy, ItemData before, ItemData after, int expend,int refiningCompeletSign)
     {
-        int fuelTime;
-        if (expendCount > itemData_Fuel.C)
+        ItemData itemData_Expend = before;
+        itemData_Expend.C = 0;
+        ItemData itemData_Create = Tool_CreateItemData(after.I, 0);
+        itemData_Create.C = 0;
+        while (energy > 0 && itemData_Expend.C < before.C)
         {
-            /*原料不足*/
-            expendCount = itemData_Fuel.C;
-            fuelTime = expendCount * config_Fuel.FuelSecond + (gameTime_NextFuelSign - gameTime_LastTimeSign);
+            energy = Mathf.Max(0, energy - expend);
+            refiningCompeletSign += expend;
+            itemData_Expend.C += 1;
+            itemData_Create.C += 1;
         }
-        else
-        {
-            /*原料充足*/
-            fuelTime = gameTime_CurTimeSign - gameTime_LastTimeSign;
-        }
-
-        ItemData itemData_Expend = itemData_Fuel;
-        itemData_Expend.C = (short)expendCount;
-        itemData_Fuel = GameToolManager.Instance.SplitItem(itemData_Fuel, itemData_Expend);
-        gameTime_NextFuelSign += config_Fuel.FuelSecond * expendCount;
-
-        return fuelTime;
-    }
-    /// <summary>
-    /// 精炼消耗
-    /// </summary>
-    /// <param name="expendCount"></param>
-    /// <returns>剩余的燃烧时间</returns>
-    private int ExpendRefining(int fuel, int expendCount)
-    {
-        int fuelResTime;
-        if (expendCount > itemData_RefiningBefore.C)
-        {
-            /*原料不足*/
-            expendCount = itemData_RefiningBefore.C;
-            fuelResTime = (gameTime_LastTimeSign + fuel) - (gameTime_NextRefiningSign + config_Refining.RefiningSecond * expendCount);
-            gameTime_NextRefiningSign = int.MaxValue;
-        }
-        else
-        {
-            /*原料充足*/
-            gameTime_NextRefiningSign += config_Refining.RefiningSecond * expendCount;
-            fuelResTime = 0;
-        }
-        ItemData itemData_Expend = itemData_RefiningBefore;
-        itemData_Expend.C = (short)expendCount;
-        itemData_RefiningBefore = GameToolManager.Instance.SplitItem(itemData_RefiningBefore, itemData_Expend);
-        CreateRefining(config_Refining.RefiningAfterID, expendCount);
-        return fuelResTime;
-    }
-    /// <summary>
-    /// 精炼产出
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="count"></param>
-    private void CreateRefining(int id, int count)
-    {
-        Type type = Type.GetType("Item_" + id.ToString());
-        ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData((short)id, out ItemData initData);
-        initData.C = (short)count;
-        itemData_RefiningAfter = GameToolManager.Instance.CombineItem(itemData_RefiningAfter, initData, out ItemData itemData_Res);
-        if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority && itemData_Res.I != 0 && itemData_Res.C > 0)
-        {
-            State_CreateLootItem(new List<ItemData>() { itemData_Res });
-        }
-    }
-
-    #endregion
-    #region//信息更新与上传
-    public override void All_UpdateInfo(string info)
-    {
-        ReadInfo(info);
-        base.All_UpdateInfo(info);
-    }
-    public void ReadInfo(string info)
-    {
-        string[] strings = info.Split("/*I*/");
-        for (int i = 0; i < strings.Length; i++)
-        {
-            if (i == 0 && strings[i] != "")
-            {
-                itemData_RefiningBefore = JsonUtility.FromJson<ItemData>(strings[i]);
-                config_Refining = RefiningConfigData.GetRefiningConfig(itemData_RefiningBefore.I);
-            }
-            else if (i == 1 && strings[i] != "")
-            {
-                itemData_RefiningAfter = JsonUtility.FromJson<ItemData>(strings[i]);
-            }
-            else if (i == 2 && strings[i] != "")
-            {
-                itemData_Fuel = JsonUtility.FromJson<ItemData>(strings[i]);
-                config_Fuel = FuelConfigData.GetFuelConfig(itemData_Fuel.I);
-            }
-            else if (i == 3 && strings[i] != "")
-            {
-                gameTime_NextFuelSign = int.Parse(strings[i]);
-            }
-            else if (i == 4 && strings[i] != "")
-            {
-                gameTime_NextRefiningSign = int.Parse(strings[i]);
-            }
-            else if (i == 5 && strings[i] != "")
-            {
-                gameTime_LastTimeSign = int.Parse(strings[i]);
-            }
-        }
-        if (tileUI_Bind) 
-        { 
-            tileUI_Bind.DrawEveryCell(); 
-            tileUI_Bind.DrawBar(); 
-        }
-    }
-    public void WriteInfo()
-    {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 5; i++)
-        {
-            if (i == 0)
-            {
-                builder.Append(JsonUtility.ToJson(itemData_RefiningBefore));
-            }
-            else if (i == 1)
-            {
-                builder.Append("/*I*/" + JsonUtility.ToJson(itemData_RefiningAfter));
-            }
-            else if (i == 2)
-            {
-                builder.Append("/*I*/" + JsonUtility.ToJson(itemData_Fuel));
-            }
-            else if (i == 3)
-            {
-                builder.Append("/*I*/" + gameTime_NextFuelSign);
-            }
-            else if (i == 4)
-            {
-                builder.Append("/*I*/" + gameTime_NextRefiningSign);
-            }
-            else if (i == 5)
-            {
-                builder.Append("/*I*/" + gameTime_LastTimeSign);
-            }
-        }
-        Local_ChangeInfo(builder.ToString());
+        buildingData_Machine_Smelter.WriteItemRefiningBefore(GameToolManager.Instance.SplitItem(before, itemData_Expend));
+        buildingData_Machine_Smelter.WriteItemRefiningAfter(GameToolManager.Instance.CombineItem(after, itemData_Create, out _));
+        return refiningCompeletSign;
     }
     #endregion
-    #region//瓦片交互
+    #region 信息更新与上传
+    public override void All_OnRawDataUpdate()
+    {
+        buildingData_Machine_Smelter.Deserialize(local_ByteData);
+        tileUI_Bind?.DrawEveryCell();
+        tileUI_Bind?.DrawBar();
+        base.All_OnRawDataUpdate();
+    }
+    public override void All_TryToPush()
+    {
+        All_PushData(buildingData_Machine_Smelter.Serialize());
+        base.All_TryToPush();
+    }
+    #endregion
+    #region 瓦片交互
     public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
-        if (code == KeyCode.F)
+        switch (code)
         {
-            OpenOrCloseUI(tileUI_Bind == null);
+            case KeyCode.F:
+                OpenOrCloseUI(tileUI_Bind == null); break;
         }
         base.Local_ActorInputKeycode(actor, code);
     }
@@ -312,50 +138,43 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {
-        obj_SingalFUI.transform.DOKill();
         if (open)
         {
-            obj_SingalFUI.SetActive(true);
-            obj_SingalFUI.transform.localScale = Vector3.one;
-            obj_SingalFUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_SingalUI_F = obj_SingalUI_F ? obj_SingalUI_F : PoolManager.Instance.GetObject("UI/TileUI/SignalUI_F");
+            obj_SingalUI_F.transform.position = transform.position + All_GetTileGenter();
+            obj_SingalUI_F.transform.localScale = Vector3.one;
+            obj_SingalUI_F.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_HighlightUI = obj_HighlightUI ? obj_HighlightUI : PoolManager.Instance.GetObject("UI/TileUI/" + All_GetTileSize());
+            obj_HighlightUI.transform.position = transform.position;
+            obj_HighlightUI.transform.localScale = Vector3.one;
+            obj_HighlightUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
         }
         else
         {
-            obj_SingalFUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_SingalFUI.SetActive(false);
-            });
-        }
-        obj_HightlightUI.transform.DOKill();
-        if (open)
-        {
-            obj_HightlightUI.SetActive(true);
-            obj_HightlightUI.transform.localScale = Vector3.one;
-            obj_HightlightUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-        }
-        else
-        {
-            obj_HightlightUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_HightlightUI.SetActive(false);
-            });
+            PoolManager.Instance.ReleaseObject("UI/TileUI/SignalUI_F", obj_SingalUI_F);
+            obj_SingalUI_F = null;
+            PoolManager.Instance.ReleaseObject("UI/TileUI/" + All_GetTileSize(), obj_HighlightUI);
+            obj_HighlightUI = null;
         }
     }
     public override void OpenOrCloseAwakeUI(bool open)
     {
-        obj_SingalAwakeUI.transform.DOKill();
         if (open)
         {
-            obj_SingalAwakeUI.SetActive(true);
-            obj_SingalAwakeUI.transform.localScale = Vector3.one;
-            obj_SingalAwakeUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            if (obj_SingalUI_F)
+            {
+                PoolManager.Instance.ReleaseObject("UI/TileUI/SignalUI_F", obj_SingalUI_F);
+                obj_SingalUI_F = null;
+            }
+            obj_SingalUI_Awake = obj_SingalUI_Awake ? obj_SingalUI_Awake : PoolManager.Instance.GetObject("UI/TileUI/SignalUI_Awake");
+            obj_SingalUI_Awake.transform.position = transform.position + All_GetTileGenter();
+            obj_SingalUI_Awake.transform.localScale = Vector3.one;
+            obj_SingalUI_Awake.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
         }
         else
         {
-            obj_SingalAwakeUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_SingalAwakeUI.SetActive(false);
-            });
+            PoolManager.Instance.ReleaseObject("UI/TileUI/SignalUI_Awake", obj_SingalUI_Awake);
+            obj_SingalUI_Awake = null;
         }
     }
     public override void OpenOrCloseUI(bool open)
@@ -365,7 +184,8 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
             UIManager.Instance.ShowTileUI(prefab_UI, out TileUI tileUI);
             tileUI_Bind = tileUI.GetComponent<TileUI_Smelter>();
             tileUI_Bind.BindBuilding(this);
-            tileUI_Bind.DrawEveryCell();
+            tileUI_Bind?.DrawEveryCell();
+            tileUI_Bind?.DrawBar();
         }
         else
         {
@@ -380,11 +200,120 @@ public class BuildingObj_Machine_Smelter : BuildingObj_Manmade
     }
 
     #endregion
-    private void Fire(bool on)
+}
+public class BuildingData_Machine_Smelter : BuildingData_Machine_ByFuel
+{
+    public ItemData itemData_RefiningBefore;
+    public ItemData itemData_RefiningAfter;
+    public int gameTime_RefiningCompeletSign;
+    public int gameTime_RefiningMax;
+    public void WriteItemRefiningBefore(ItemData itemData)
     {
-        if (obj_Fire.activeSelf != on)
+        itemData_RefiningBefore = itemData;
+    }
+    public void ReadItemRefiningBefore(out ItemData itemData)
+    {
+        itemData = itemData_RefiningBefore;
+    }
+    public void WriteItemRefiningAfter(ItemData itemData)
+    {
+
+        itemData_RefiningAfter = itemData;
+    }
+    public void ReadItemRefiningAfter(out ItemData itemData)
+    {
+        itemData = itemData_RefiningAfter;
+    }
+    public void WriteRefiningCompeletSign(int gamtTime)
+    {
+        gameTime_RefiningCompeletSign = gamtTime;
+    }
+    public void ReadRefiningCompeletSign(out int gamtTime)
+    {
+        gamtTime = gameTime_RefiningCompeletSign;
+    }
+    public void WriteRefiningMax(int gamtTime)
+    {
+        gameTime_RefiningMax = gamtTime;
+    }
+    public void ReadRefiningMax(out int gamtTime)
+    {
+        gamtTime = gameTime_RefiningMax;
+    }
+    public override byte[] Serialize()
+    {
+        using (var ms = new MemoryStream())
+        using (var writer = new BinaryWriter(ms))
         {
-            obj_Fire.SetActive(on);
+            writer.Write(gameTime_LastTimeSign);
+            writer.Write(gameTime_FuelDepletedTimeSign);
+            writer.Write(gameTime_FuelMax);
+
+            writer.Write(itemData_Fuel.I);
+            writer.Write(itemData_Fuel.C);
+            writer.Write(itemData_Fuel.V);
+            writer.Write(itemData_Fuel.D);
+            writer.Write(itemData_Fuel.S);
+
+            writer.Write(gameTime_RefiningCompeletSign);
+            writer.Write(gameTime_RefiningMax);
+
+            writer.Write(itemData_RefiningBefore.I);
+            writer.Write(itemData_RefiningBefore.C);
+            writer.Write(itemData_RefiningBefore.V);
+            writer.Write(itemData_RefiningBefore.D);
+            writer.Write(itemData_RefiningBefore.S);
+
+            writer.Write(itemData_RefiningAfter.I);
+            writer.Write(itemData_RefiningAfter.C);
+            writer.Write(itemData_RefiningAfter.V);
+            writer.Write(itemData_RefiningAfter.D);
+            writer.Write(itemData_RefiningAfter.S);
+            return ms.ToArray();
+        }
+    }
+    public override void Deserialize(byte[] data)
+    {
+        if (data == null || data.Length == 0)
+        {
+            return;
+        }
+
+        using (var ms = new MemoryStream(data))
+        using (var reader = new BinaryReader(ms))
+        {
+            gameTime_LastTimeSign = reader.ReadInt32();
+            gameTime_FuelDepletedTimeSign = reader.ReadInt32();
+            gameTime_FuelMax = reader.ReadInt32();
+
+            itemData_Fuel = new ItemData
+            {
+                I = reader.ReadInt16(),
+                C = reader.ReadInt16(),
+                V = reader.ReadInt16(),
+                D = reader.ReadSByte(),
+                S = reader.ReadInt16()
+            };
+
+            gameTime_RefiningCompeletSign = reader.ReadInt32();
+            gameTime_RefiningMax = reader.ReadInt32();
+
+            itemData_RefiningBefore = new ItemData
+            {
+                I = reader.ReadInt16(),
+                C = reader.ReadInt16(),
+                V = reader.ReadInt16(),
+                D = reader.ReadSByte(),
+                S = reader.ReadInt16()
+            };
+            itemData_RefiningAfter = new ItemData
+            {
+                I = reader.ReadInt16(),
+                C = reader.ReadInt16(),
+                V = reader.ReadInt16(),
+                D = reader.ReadSByte(),
+                S = reader.ReadInt16()
+            };
         }
     }
 }

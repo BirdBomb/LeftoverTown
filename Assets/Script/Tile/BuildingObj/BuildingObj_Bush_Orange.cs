@@ -5,226 +5,176 @@ using DG.Tweening;
 using UniRx;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
-public class BuildingObj_Bush_Orange : BuildingObj
+public class BuildingObj_Bush_Orange : BuildingObj_Growth_TwoState
 {
-    private enum State
-    {
-        State0, State1
-    }
-    public SpriteRenderer spriteRenderer;
-    private State state_Now;
-    private Material material;
-    [Header("Sprite未成熟")]
-    public Sprite[] sprites_State0;
-    [Header("Sprite已成熟")]
-    public Sprite[] sprites_State1;
-
-    [Header("持续时间_未成熟")]
-    public int int_TimeState0 = 1;
-    [Header("生命值_未成熟")]
-    public int int_HpState0 = 1;
-    [Header("生命值_已成熟")]
-    public int int_HpState1 = 1;
-
-    private int gameTime_Sign = -100;
-    private int gameTime_Now;
-
-    [Header("基本掉落物_未成熟")]
-    public List<BaseLootInfo> baseLootInfos_State0 = new List<BaseLootInfo>();
-    [Header("基本掉落物_已成熟")]
-    public List<BaseLootInfo> baseLootInfos_State1 = new List<BaseLootInfo>();
-
     public override void Start()
     {
-        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
-        {
-            All_UpdateTime(_.hour + _.day * 10);
-            CreateChicken();
-        }).AddTo(this);
-        WorldManager.Instance.GetTime(out int day, out int hour, out _);
-        All_UpdateTime(day * 10 + hour);
-        material = new Material(spriteRenderer.sharedMaterial);
-        spriteRenderer.material = material;
+        InitializeMaterial();
         base.Start();
     }
-    public override int Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    public override void OnDisable()
     {
-        if (damageState == DamageState.AttackReapDamage)
-        {
-            return base.Local_TakeDamage(val, damageState, from);
-        }
-        else
-        {
-            Local_IneffectiveDamage(damageState, from);
-            return 0;
-        }
+        KillAllAnimations();
+        base.OnDisable();
     }
-    public override void All_UpdateHP(int newHp)
+    #region 序列化字段
+    [Header("Sprite渲染器")]
+    public SpriteRenderer spriteRenderer;
+    [Header("状态精灵")]
+    public Sprite[] sprites_Growing;
+    public Sprite[] sprites_Mature;
+    #endregion
+    #region 私有字段
+    private Material material;
+    private System.Random random = new System.Random();
+    // DOTween动画相关
+    private Sequence sequence_ExtraShake;
+    private Sequence sequence_ExtraScale;
+    private Sequence sequence_Light;
+    #endregion
+    #region 初始化
+    private void InitializeMaterial()
     {
-        if (newHp <= 0) { All_Broken(); }
-        else
+        if (spriteRenderer != null)
         {
-            if (newHp <= local_Hp)
-            {
-                All_HpDown(newHp - local_Hp);
-            }
-            else
-            {
-                All_HpUp(newHp - local_Hp);
-            }
-            Local_SetHp(newHp);
-        }
-    }
-    #region//生长
-    /// <summary>
-    /// 更新时间
-    /// </summary>
-    /// <param name="hour"></param>
-    /// <param name="date"></param>
-    public void All_UpdateTime(int time)
-    {
-        gameTime_Now = time;
-        All_CompareTime();
-    }
-    /// <summary>
-    /// 对比时间
-    /// </summary>
-    public void All_CompareTime()
-    {
-        if (state_Now == State.State0)
-        {
-            if (gameTime_Now - gameTime_Sign > int_TimeState0)
-            {
-                All_UpdateState(State.State1);
-            }
-        }
-        else if (state_Now == State.State1)
-        {
-            if (gameTime_Now - gameTime_Sign <= int_TimeState0)
-            {
-                All_UpdateState(State.State0);
-            }
-        }
-    }
-    /// <summary>
-    /// 更新状态
-    /// </summary>
-    /// <param name="type"></param>
-    private void All_UpdateState(State type)
-    {
-        if (state_Now != type)
-        {
-            transform.DOKill();
-            transform.localScale = Vector3.one;
-            transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.1f);
-            state_Now = type;
-        }
-        switch (type)
-        {
-            case State.State0:
-                Local_SetHp(int_HpState0);
-                AudioManager.Instance.Play3DEffect(3000, transform.position);
-                spriteRenderer.sprite = sprites_State0[new System.Random().Next(0, sprites_State0.Length)];
-                break;
-            case State.State1:
-                Local_SetHp(int_HpState1);
-                spriteRenderer.sprite = sprites_State1[new System.Random().Next(0, sprites_State1.Length)];
-                break;
+            material = new Material(spriteRenderer.sharedMaterial);
+            spriteRenderer.material = material;
         }
     }
     #endregion
-    #region//方法
+    #region 基类方法
+    public override void All_OnHourUpdated(GameEvent.GameEvent_All_UpdateHour eventData)
+    {
+        All_CreateChicken();
+        base.All_OnHourUpdated(eventData);
+    }
+    public override int Local_TakeDamage(int val, DamageState damageState, ActorNetManager from)
+    {
+        if (damageState == DamageState.AttackSlashingDamage)
+        {
+            return base.Local_TakeDamage(val, damageState, from);
+        }
+        Local_IneffectiveDamage(damageState, from);
+        return 0;
+    }
     public override void All_OnHpDown(int offset)
     {
         if (offset < 0)
         {
-            AudioManager.Instance.Play3DEffect(3000, transform.position);
-            All_Shake();
-            All_Flash();
+            PlayHurtEffects();
         }
-        All_Swing();
+        PlaySwingEffect();
     }
-    private void All_Shake()
+    #endregion
+    #region 状态切换
+    public override void All_ConfigureGrowingState()
+    {
+        Local_SetHp(int_GrowingHp);
+        PlayStateChangeAnimation();
+        All_SetRandomSprite(sprites_Growing);
+    }
+
+    public override void All_ConfigureMatureState()
+    {
+        Local_SetHp(int_MatureHp);
+        PlayStateChangeAnimation();
+        All_SetRandomSprite(sprites_Mature);
+    }
+    private void All_SetRandomSprite(Sprite[] sprites)
+    {
+        if (sprites != null && sprites.Length > 0 && spriteRenderer != null)
+        {
+            int index = random.Next(0, sprites.Length);
+            spriteRenderer.sprite = sprites[index];
+        }
+    }
+
+    #endregion
+    #region 视效
+    /// <summary>
+    /// 受击
+    /// </summary>
+    private void PlayHurtEffects()
+    {
+        AudioManager.Instance?.Play3DEffect(3000, transform.position);
+        transform.DOKill();
+        transform.localScale = Vector3.one;
+        transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f)
+            .SetEase(Ease.InOutBack);
+
+        float light = 1;
+        if (sequence_Light != null) sequence_Light.Kill();
+
+        sequence_Light = DOTween.Sequence();
+        sequence_Light.Append(DOTween.To(() => light, x => light = x, 0, 0.2f).SetEase(Ease.InOutSine));
+        sequence_Light.OnUpdate(() =>
+        {
+            material?.SetFloat("_White", light);
+        });
+
+    }
+    /// <summary>
+    /// 摇摆
+    /// </summary>
+    private void PlaySwingEffect()
+    {
+        const float duration = 2f;
+
+        // 清理旧动画
+        sequence_ExtraShake?.Kill();
+        sequence_ExtraScale?.Kill();
+
+        // 摇晃动画
+        float shakeForce = 0f;
+        sequence_ExtraShake = DOTween.Sequence();
+        sequence_ExtraShake.Append(
+            DOTween.To(() => shakeForce, x => shakeForce = x, 3 * Mathf.PI, duration)
+                .SetEase(Ease.OutCubic)
+        );
+        sequence_ExtraShake.OnUpdate(() =>
+        {
+            material?.SetFloat("_ExtraShake", shakeForce);
+        });
+
+        // 缩放动画
+        float scaleForce = 0;
+        sequence_ExtraScale = DOTween.Sequence();
+        sequence_ExtraScale.Append(
+            DOTween.To(() => scaleForce, x => scaleForce = x, 0.1f, duration / 2f)
+                .SetEase(Ease.OutCubic)
+                .SetLoops(2, LoopType.Yoyo)
+        );
+        sequence_ExtraScale.OnUpdate(() =>
+        {
+            material?.SetFloat("_ExtraScale", scaleForce);
+        });
+    }
+    /// <summary>
+    /// 切换
+    /// </summary>
+    private void PlayStateChangeAnimation()
     {
         transform.DOKill();
         transform.localScale = Vector3.one;
-        transform.DOPunchScale(new Vector3(0.2f, -0.1f, 0), 0.2f).SetEase(Ease.InOutBack);
+        transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.1f);
     }
-    private Sequence sequence_Light;
-    private void All_Flash()
-    {
-        float light = 1;
-        if (sequence_Light != null) sequence_Light.Kill();
-        sequence_Light = DOTween.Sequence();
-        sequence_Light.Insert(0,
-            DOTween.To(() => light, x => light = x, 0, 0.2f).SetEase(Ease.InOutSine));
-        sequence_Light.OnUpdate(() =>
-        { material.SetFloat("_White", light); });
-    }
-    private Sequence sequence_ExtraShake;
-    private Sequence sequence_ExtraScale;
-    private void All_Swing()
-    {
-        float duration = 2f;
 
-        /*额外的抖动*/
-        float force_ExtraShake = 0f;
-        if (sequence_ExtraShake != null) sequence_ExtraShake.Kill();
-        sequence_ExtraShake = DOTween.Sequence();
-        sequence_ExtraShake.Insert(0,
-            DOTween.To(() => force_ExtraShake, x => force_ExtraShake = x, 3 * Mathf.PI, duration).SetEase(Ease.OutCubic));
-        sequence_ExtraShake.OnUpdate(() =>
-        { material.SetFloat("_ExtraShake", force_ExtraShake); });
-        /*额外的幅度*/
-        float force_ExtraScale = 0;
-        if (sequence_ExtraScale != null) sequence_ExtraScale.Kill();
-        sequence_ExtraScale = DOTween.Sequence();
-        sequence_ExtraScale.Insert(0,
-            DOTween.To(() => force_ExtraScale, x => force_ExtraScale = x, 0.1f, duration / 2f).SetEase(Ease.OutCubic).SetLoops(2, LoopType.Yoyo));
-        sequence_ExtraScale.OnUpdate(() =>
-        { material.SetFloat("_ExtraScale", force_ExtraScale); });
-    }
-    public override void All_OnBroken()
+    #endregion
+    #region 工具方法
+    private void KillAllAnimations()
     {
-        AudioManager.Instance.Play3DEffect(3000, transform.position);
-        base.All_OnBroken();
-    }
-    public override void All_UpdateInfo(string info)
-    {
-        gameTime_Sign = int.Parse(info);
-        All_CompareTime();
-        base.All_UpdateInfo(info);
-    }
-    public override void All_Broken()
-    {
-        if (state_Now == State.State0)
-        {
-            if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
-            {
-                State_CreateLootItem(State_GetLootItem(baseLootInfos_State0, new List<ExtraLootInfo>()));
-            }
-            base.All_Broken();
-        }
-        else if (state_Now == State.State1)
-        {
-            if (WorldManager.Instance.gameNetManager.Object.HasStateAuthority)
-            {
-                Local_ChangeInfo((gameTime_Now).ToString());
-                State_CreateLootItem(State_GetLootItem(baseLootInfos_State1, new List<ExtraLootInfo>()));
-            }
-        }
-    }
-    public override void All_ActorStandOn(ActorManager actor)
-    {
-        All_Swing();
-        base.All_ActorStandOn(actor);
+        sequence_ExtraShake?.Kill();
+        sequence_ExtraScale?.Kill();
+        sequence_Light?.Kill();
+        transform.DOKill();
     }
     #endregion
     #region//生成动物
-    private ActorManager_Animal_Chicken chicken;
-    private void CreateChicken()
+    private ActorManager_Animal_Chicken bind_Chicken;
+    private const float prob_Chicken = 5;
+    private void All_CreateChicken()
     {
-        if (new System.Random().Next(0, 100) < 5 && chicken == null)
+        if (random.Next(0, 100) < prob_Chicken && bind_Chicken == null)
         {
             MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
             {
@@ -232,8 +182,8 @@ public class BuildingObj_Bush_Orange : BuildingObj
                 pos = transform.position,
                 callBack = ((actor) =>
                 {
-                    chicken = actor.GetComponent<ActorManager_Animal_Chicken>();
-                    chicken.brainManager.State_SetHomePos(buildingTile.tilePos);
+                    bind_Chicken = actor.GetComponent<ActorManager_Animal_Chicken>();
+                    bind_Chicken.brainManager.ForState_SetHomePos(buildingTile.tilePos);
                 })
             });
         }

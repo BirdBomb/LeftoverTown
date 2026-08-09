@@ -1,4 +1,5 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -6,84 +7,53 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-public class GameUI_SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class GameUI_SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,IPointerUpHandler
 {
-    public Button button;
-    public Image image;
-    public Image mark;
-    public Text text;
-    private bool bool_Pointing;
-    private string string_SkillStr;
-    public void Clean()
-    {
-        button.onClick.RemoveAllListeners();
-    }
-    public void Set(short id, int cost, SkillIconState skillIconState)
-    {
-        string[] parts = LocalizationManager.Instance.GetLocalization("Skill_String", "Skill_" + id).Split('/');
-        string name = parts.Length > 0 ? parts[0] : "Error";
-        string desc = parts.Length > 1 ? parts[1] : "Error";
-        string_SkillStr = name + ":" + desc;
+    [Header("æŠ€èƒ½ID")]
+    public short int_SkillID;
+    public Image image_Icon;
+    public Image image_Mark;
+    public Image image_Signal;
+    public Image image_full;
+    public Transform tran_Point;
+    public Text text_Cost; 
+    public ParticleSystem particle_Explodeâ€Œ;
+    private SkillIconState bind_IconState;
+    private bool bool_PointingOn;
+    private bool bool_Press = false;
+    private float float_Timer = 0;
 
-        
-        switch (skillIconState)
+    public void Update()
+    {
+        if (bool_Press)
         {
-            case SkillIconState.Awake:
-                mark.gameObject.SetActive(false);
-                text.text = cost.ToString();
-                text.color = new Color(0.7f, 0.7f, 0.7f);
-                image.color = new Color(0.7f, 0.7f, 0.7f);
-                break;
-            case SkillIconState.Enable:
-                mark.gameObject.SetActive(true);
-                text.text = cost.ToString();
-                text.color = Color.white;
-                image.color = Color.white;
-                button.onClick.AddListener(() =>
+            if (float_Timer < 1 && bind_IconState == SkillIconState.Enable)
+            {
+                float_Timer += Time.deltaTime;
+                image_full.transform.localScale = new Vector3(1, Mathf.Lerp(0, 1, float_Timer));
+                if (float_Timer >= 1)
                 {
+                    particle_Explodeâ€Œ.Clear();
+                    particle_Explodeâ€Œ.Play();
                     MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_AddSkill()
                     {
-                        id = id,
+                        id = int_SkillID,
                     });
-                });
-                break;
-            case SkillIconState.Disable:
-                mark.gameObject.SetActive(false);
-                text.text = cost.ToString();
-                text.color = new Color(0.3f, 0.3f, 0.3f);
-                image.color = new Color(0.3f, 0.3f, 0.3f);
-                break;
-            case SkillIconState.Lock:
-                mark.gameObject.SetActive(false);
-                text.text = cost.ToString();
-                text.color = Color.red;
-                image.color = Color.red;
-                break;
+                }
+            }
         }
-    }
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        bool_Pointing = true;
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_ShowInfoTextUI()
+        else
         {
-            anchor = eventData.position,
-            text = string_SkillStr
-        });
-        image.transform.DOKill();
-        image.transform.localScale = Vector3.one;
-        image.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-    }
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        bool_Pointing = false;
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
-        {
-
-        });
+            if (float_Timer > 0 && bind_IconState == SkillIconState.Enable)
+            {
+                float_Timer -= Time.deltaTime;
+                image_full.transform.localScale = new Vector3(1, Mathf.Lerp(0, 1, float_Timer));
+            }
+        }
     }
     private void OnDisable()
     {
-        if (bool_Pointing)
+        if (bool_PointingOn)
         {
             MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
             {
@@ -92,23 +62,90 @@ public class GameUI_SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExi
         }
     }
 
+    public void UpdateState(int cost, SkillIconState skillIconState)
+    {
+        bind_IconState = skillIconState;
+        text_Cost.text = cost.ToString();
+
+        image_Icon.transform.DOKill();
+        image_Icon.transform.rotation = Quaternion.identity;
+        image_full.transform.localScale = new Vector3(1, 0);
+        image_Signal.gameObject.SetActive(false);
+        image_Mark.gameObject.SetActive(false);
+
+        switch (skillIconState)
+        {
+            case SkillIconState.Awake:
+                image_Icon.color = Color.white;
+                text_Cost.color = Color.white;
+                break;
+            case SkillIconState.Enable:
+                image_Signal.gameObject.SetActive(true);
+                image_Icon.color = new Color(1f, 1f, 1f, 0.5f);
+                text_Cost.color = new Color(1f, 1f, 1f, 0.5f);
+                break;
+            case SkillIconState.Disable:
+                image_Icon.color = new Color(1f, 1f, 1f, 0.25f);
+                text_Cost.color = new Color(1f, 1f, 1f, 0.25f);
+                break;
+            case SkillIconState.Lock:
+                image_Icon.color = Color.red;
+                text_Cost.color = Color.red;
+                break;
+        }
+    }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        bool_PointingOn = true;
+
+        string[] parts = LocalizationManager.Instance.GetLocalization("Skill_String", "Skill_" + int_SkillID).Split('/');
+        string name = parts.Length > 0 ? parts[0] : "Error";
+        string desc = parts.Length > 1 ? parts[1] : "Error";
+
+        //image_Icon.transform.DOKill();
+        image_Mark.gameObject.SetActive(true);
+        image_Icon.transform.localScale = Vector3.one;
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_ShowInfoTextUI()
+        {
+            anchor = tran_Point.position,
+            text = name + ":\n" + desc,
+        });
+    }
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        bool_PointingOn = false;
+        image_Mark.gameObject.SetActive(false);
+        image_Icon.transform.localScale = Vector3.one;
+        MessageBroker.Default.Publish(new UIEvent.UIEvent_HidenfoTextUI()
+        {
+
+        });
+    }
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        bool_Press = true;
+    }
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        bool_Press = false;
+    }
 }
 public enum SkillIconState
 {
     /// <summary>
-    /// ÒÑ¼¤»î
+    /// å·²æ¿€æ´»
     /// </summary>
     Awake,
     /// <summary>
-    /// ¿É¼¤»î
+    /// å¯æ¿€æ´»
     /// </summary>
     Enable,
     /// <summary>
-    /// ²»¿É¼¤»î
+    /// ä¸å¯æ¿€æ´»
     /// </summary>
     Disable,
     /// <summary>
-    /// Ëø¶¨
+    /// é”å®š
     /// </summary>
     Lock,
 }

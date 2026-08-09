@@ -30,6 +30,7 @@ public class LiquidManager : SingleTon<LiquidManager>, ISingleTon
     private float timer;
     [Header("======扰动样式配置=======")]
     public Texture2D defaultMask;
+    public Texture2D mask_Large;
     public Vector2 defaultMaskSize = Vector2.one;
 
     /// <summary>
@@ -206,7 +207,7 @@ public class LiquidManager : SingleTon<LiquidManager>, ISingleTon
         Vector2 maskUVPos = relatePos / waveTxSize + Vector2.one * 0.5f;
 
         //mask相对缩放尺寸
-        Vector2 maskUVScale = defaultMaskSize / waveTxSize;
+        Vector2 maskUVScale = maskSize / waveTxSize;
 
         //混合Mask
         material_Blend.SetTexture("_MainTex", Hc);

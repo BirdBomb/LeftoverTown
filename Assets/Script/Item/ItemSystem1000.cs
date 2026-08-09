@@ -20,7 +20,7 @@ public class Item_0 : ItemBase
     /// <summary>
     /// 劈砍伤害
     /// </summary>
-    private readonly short AttackDamage_Base = 2;
+    private readonly short AttackDamage_Base = 20;
     /// <summary>
     /// 攻击速度
     /// </summary>
@@ -47,7 +47,6 @@ public class Item_0 : ItemBase
     {
 
     }
-
     public override void OnHand_UpdateMousePos(Vector3 mouse)
     {
         itemLocalObj_Punch.UpdateMousePos(mouse);
@@ -92,6 +91,12 @@ public class Item_1003 : ItemBase_Materials
 {
 }
 /// <summary>
+/// 竹蔗
+/// </summary>
+public class Item_1004 : ItemBase_Materials
+{
+}
+/// <summary>
 /// 石头
 /// </summary>
 public class Item_1010 : ItemBase_Materials
@@ -128,6 +133,12 @@ public class Item_1015 : ItemBase_Materials
 {
 }
 /// <summary>
+/// 碎片
+/// </summary>
+public class Item_1016 : ItemBase_Materials
+{
+}
+/// <summary>
 /// 骨头
 /// </summary>
 public class Item_1021 : ItemBase_Materials
@@ -137,6 +148,18 @@ public class Item_1021 : ItemBase_Materials
 /// 毛皮
 /// </summary>
 public class Item_1022 : ItemBase_Materials
+{
+}
+/// <summary>
+/// 富营养沉积物
+/// </summary>
+public class Item_1023 : ItemBase_Materials
+{
+}
+/// <summary>
+/// 太阳碎片
+/// </summary>
+public class Item_1030 : ItemBase_Materials
 {
 }
 #endregion

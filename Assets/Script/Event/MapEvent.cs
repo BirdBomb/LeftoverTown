@@ -32,7 +32,12 @@ public class MapEvent : MonoBehaviour
     public class MapEvent_Local_ChangeBuildingInfo
     {
         public Vector3Int pos;
-        public string info;
+        public byte[] data;
+    }
+    public class MapEvent_State_ChangeBuildingInfo
+    {
+        public Vector3Int pos;
+        public byte[] data;
     }
     /// <summary>
     /// 改变一个区域里的建筑
@@ -65,6 +70,6 @@ public class MapEvent : MonoBehaviour
     /// </summary>
     public class MapEvent_Local_ChangeSunLight
     {
-        public short distance;
+        public short range;
     }
 }

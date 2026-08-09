@@ -11,6 +11,7 @@ public class BlenderConfigData
 
     public readonly static List<BlenderConfig> blenderConfigs = new List<BlenderConfig>()
     {
+        new BlenderConfig(){ blender_FromID=1004, blender_ToID=3201,blender_ToCount = 4},
         new BlenderConfig(){ blender_FromID=1011, blender_ToID=1111,blender_ToCount = 4},
         new BlenderConfig(){ blender_FromID=1012, blender_ToID=1112,blender_ToCount = 4},
         new BlenderConfig(){ blender_FromID=6102, blender_ToID=3200,blender_ToCount = 1},

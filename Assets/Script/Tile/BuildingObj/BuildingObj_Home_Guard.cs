@@ -9,19 +9,12 @@ public class BuildingObj_Home_Guard : BuildingObj_Manmade
     private ActorManager actor_Bind;
     public override void Start()
     {
-        CreateActor();
-        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
-        {
-            All_UpdateHour(_.hour);
-        }).AddTo(this);
+        All_CreateActor();
         base.Start();
     }
-    public void All_UpdateHour(int hour)
+    private void All_CreateActor()
     {
-        if (actor_Bind == null && hour == 0) { CreateActor(); }
-    }
-    private void CreateActor()
-    {
+        if (actor_Bind != null) return;
         MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
         {
             name = "Actor/NPC_Guard",
@@ -29,9 +22,9 @@ public class BuildingObj_Home_Guard : BuildingObj_Manmade
             callBack = ((actor) =>
             {
                 actor_Bind = actor.GetComponent<ActorManager>();
-                actor_Bind.brainManager.State_SetHomePos(buildingTile.tilePos);
-                actor_Bind.brainManager.State_SetActivityPos(buildingTile.tilePos);
-                actor_Bind.brainManager.State_SetWorkPos(buildingTile.tilePos);
+                actor_Bind.brainManager.ForState_SetHomePos(buildingTile.tilePos);
+                actor_Bind.brainManager.ForState_SetActivityPos(buildingTile.tilePos);
+                actor_Bind.brainManager.ForState_SetWorkPos(buildingTile.tilePos);
             })
         });
     }

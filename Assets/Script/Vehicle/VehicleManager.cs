@@ -52,13 +52,13 @@ public class VehicleManager : MonoBehaviour
     {
         if (!actorManager_Drive) { actorManager_Drive = actor; }
         actorManager_Passenger.Add(actor);
-        StartCoroutine(actor.vehicleManager.AllClient_GetOnVehicle(this));
+        //StartCoroutine(actor.vehicleManager.AllClient_GetOnVehicle(this));
     }
     public virtual void FromRPC_AllClient_GetOff(ActorManager actor)
     {
         if (actorManager_Drive == actor) { actorManager_Drive = null; }
         actorManager_Passenger.Remove(actor);
-        StartCoroutine(actor.vehicleManager.AllClient_GetOffVehicle(this));
+        //StartCoroutine(actor.vehicleManager.AllClient_GetOffVehicle(this));
     }
     #endregion
     #region//Æô¶¯¹Ø±Õ

@@ -36,12 +36,14 @@ public class GameEvent
         public short index;
     }
     /// <summary>
-    /// 服务端:时间更新
+    /// 服务端:小时更新
     /// </summary>
-    public class GameEvent_State_UpdateTime
+    public class GameEvent_State_UpdateHour
     {
         public int hour;
-        public int date;
+        public int hourPerDay;
+        public int day;
+        public int gameTime;
         public GlobalTime now;
     }
     /// <summary>
@@ -50,8 +52,11 @@ public class GameEvent
     public class GameEvent_All_UpdateSecond
     {
         public int second;
+        public int secondPerHour;
         public int hour;
+        public int hourPerDay;
         public int day;
+        public int gameTime;
         public GlobalTime now;
     }
     /// <summary>
@@ -60,7 +65,9 @@ public class GameEvent
     public class GameEvent_All_UpdateHour
     {
         public int hour;
+        public int hourPerDay;
         public int day;
+        public int gameTime;
         public GlobalTime now;
     }
     /// <summary>

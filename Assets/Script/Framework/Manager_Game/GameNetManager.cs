@@ -10,7 +10,7 @@ using System;
 using System.Drawing;
 
 public class GameNetManager : NetworkBehaviour
-{
+{ 
     public void Start()
     {
         MessageBroker.Default.Receive<GameEvent.GameEvent_Local_SpawnActor>().Subscribe(_ =>
@@ -21,13 +21,25 @@ public class GameNetManager : NetworkBehaviour
         {
             RPC_Local_SpawnItem(_.itemData, _.itemOwner, _.pos);
         }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_State_SpawnActor>().Subscribe(_ =>
+        {
+            ForState_AddActorSpawnQuest(_.name, _.pos, _.callBack);
+        }).AddTo(this);
         MessageBroker.Default.Receive<GameEvent.GameEvent_State_SpawnItem>().Subscribe(_ =>
         {
             SpawnItem(_.itemData, _.itemOwner, _.pos);
         }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_State_SpawnActor>().Subscribe(_ =>
+        MessageBroker.Default.Receive<GameEvent.GameEvent_State_AddOneHour>().Subscribe(_ =>
         {
-            SpawnActor(_.name, _.pos, _.callBack);
+            AddOneHour();
+        }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_State_ChangeTime>().Subscribe(_ =>
+        {
+            ChangeTime(_.hour);
+        }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_ChangeWeather>().Subscribe(_ =>
+        {
+            ChangeWeather(_.index);
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_Local_SaveMapData>().Subscribe(_ =>
         {
@@ -42,53 +54,47 @@ public class GameNetManager : NetworkBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_Local_ChangeBuildingInfo>().Subscribe(_ =>
         {
-            RPC_LocalInput_ChangeBuildingInfo(_.pos, _.info);
+            RPC_LocalInput_ChangeBuildingInfo(_.pos, _.data);
+        }).AddTo(this);
+        MessageBroker.Default.Receive<MapEvent.MapEvent_State_ChangeBuildingInfo>().Subscribe(_ =>
+        {
+            State_TrySendBuildingTileInfoData(_.pos, _.data);
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_Local_CreateBuildingArea>().Subscribe(_ =>
         {
-            RPC_LocalInput_CreateBuildingArea(_.buildingPos, _.buildingID, (int)_.areaSize);
+            RPC_LocalInput_TryToCreateBuilding(_.buildingPos, _.buildingID, (int)_.areaSize);
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_State_CreateBuildingArea>().Subscribe(_ =>
         {
             if (Object.HasStateAuthority)
             {
-                OnlyState_CreateBuildingArea(_.buildingPos, _.buildingID, _.areaSize);
+                State_TryToCreateBuilding(_.buildingPos, _.buildingID, _.areaSize);
             }
         }).AddTo(this);
-
         MessageBroker.Default.Receive<MapEvent.MapEvent_Local_CreateGround>().Subscribe(_ =>
         {
-            RPC_LocalInput_CreateFloor(_.groundPos, _.groundID);
+            RPC_LocalInput_TryToCreateGround(_.groundPos, _.groundID);
         }).AddTo(this);
         MessageBroker.Default.Receive<MapEvent.MapEvent_Local_ChangeSunLight>().Subscribe(_ =>
         {
-            RPC_LocalInput_ChangeSun(_.distance);
+            RPC_LocalInput_ChangeSun(_.range);
         }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_State_AddOneHour>().Subscribe(_ =>
-        {
-            AddOneHour();
-        }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_State_ChangeTime>().Subscribe(_ =>
-        {
-            ChangeTime(_.hour);
-        }).AddTo(this);
-        MessageBroker.Default.Receive<GameEvent.GameEvent_Local_ChangeWeather>().Subscribe(_ =>
-        {
-            ChangeWeather(_.index);
-        }).AddTo(this);
-
     }
 
     public override void Spawned()
     {
-        base.Spawned();
-        OnSecondChange();
         OnHourChange();
+        OnDayChange();
+        OnSunLightChange();
         OnWeatherChange();
-        OnDistanceChange();
+        base.Spawned();
     }
-
-    #region//创建角色与物体
+    public override void FixedUpdateNetwork()
+    {
+        if (Object.HasStateAuthority) ForState_ProcessSpawnBatch(Runner.DeltaTime);
+        base.FixedUpdateNetwork();
+    }
+    #region//创建角色
     /// <summary>
     /// 创建角色
     /// </summary>
@@ -97,21 +103,140 @@ public class GameNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
     public void RPC_Local_SpawnActor(string name, Vector3 postion)
     {
-        SpawnActor(name, postion, null);
+        ForState_AddActorSpawnQuest(name, postion, null);
     }
-    private void SpawnActor(string name, Vector3 postion, System.Action<ActorManager> action)
+    private Queue<ActorSpawnQuest> queue_ActorSpawnQuests = new Queue<ActorSpawnQuest>();
+    private Dictionary<string, GameObject> prefabCache = new Dictionary<string, GameObject>();
+    private Dictionary<string, bool> prefabLoading = new Dictionary<string, bool>(); // 防止重复加载
+    private const float FLOAT_SPAWN_INTERVAL = 0.2f;
+    private float float_SpawnTimer;
+    private int int_SpawnsPerBatch = 1; 
+    private void ForState_ProcessSpawnBatch(float dt)
     {
-        if (Object.HasStateAuthority)
+        if (queue_ActorSpawnQuests.Count <= 0 || MapManager.Instance.queue_BuildingPending.Count > 0) return;
+
+        if (float_SpawnTimer >= FLOAT_SPAWN_INTERVAL)
         {
-            GameObject obj = Resources.Load<GameObject>(name);
-            NetworkObject networkObject = Runner.Spawn(obj, postion, Quaternion.identity);
-            networkObject.AssignInputAuthority(Runner.LocalPlayer);
-            if (action != null)
+            float_SpawnTimer = 0f;
+
+            int processedCount = 0;
+            while (processedCount < int_SpawnsPerBatch && queue_ActorSpawnQuests.Count > 0)
             {
-                action.Invoke(networkObject.GetComponent<ActorManager>());
+                var quest = queue_ActorSpawnQuests.Dequeue();
+
+                // 检查预制体是否已缓存
+                if (prefabCache.ContainsKey(quest.path))
+                {
+                    // 已缓存，直接生成
+                    ForState_SpawnFromCache(quest, prefabCache[quest.path]);
+                    processedCount++;
+                }
+                else if (!prefabLoading.ContainsKey(quest.path))
+                {
+                    // 未缓存且未在加载中，开始异步加载
+                    StartCoroutine(ForState_LoadAndCachePrefab(quest));
+                    processedCount++;
+                }
+                else
+                {
+                    // 正在加载中，重新放回队列头部等待
+                    var tempList = new List<ActorSpawnQuest> { quest };
+                    tempList.AddRange(queue_ActorSpawnQuests);
+                    queue_ActorSpawnQuests = new Queue<ActorSpawnQuest>(tempList);
+                    break;
+                }
             }
         }
+        else
+        {
+            float_SpawnTimer += dt;
+        }
     }
+    private void ForState_AddActorSpawnQuest(string name, Vector3 postion, System.Action<ActorManager> action)
+    {
+        queue_ActorSpawnQuests.Enqueue(new ActorSpawnQuest(name, postion, action));
+    }
+    /// <summary>
+    /// 异步加载并缓存预制体
+    /// </summary>
+    private IEnumerator ForState_LoadAndCachePrefab(ActorSpawnQuest quest)
+    {
+        string path = quest.path;
+
+        // 标记正在加载
+        prefabLoading[path] = true;
+
+        // 异步加载
+        ResourceRequest request = Resources.LoadAsync<GameObject>(path);
+        yield return request;
+
+        GameObject prefab = request.asset as GameObject;
+        if (prefab != null)
+        {
+            // 缓存预制体
+            prefabCache[path] = prefab;
+            //Debug.Log($"Cached prefab: {path}");
+        }
+        else
+        {
+            Debug.LogError($"Failed to load prefab: {path}");
+        }
+
+        // 移除加载标记
+        prefabLoading.Remove(path);
+
+        // 重新尝试生成该角色（如果需要）
+        if (prefab != null && Object.HasStateAuthority)
+        {
+            ForState_SpawnFromCache(quest, prefab);
+        }
+    }
+    private void ForState_SpawnFromCache(ActorSpawnQuest quest, GameObject prefab)
+    {
+        if (prefab == null)
+        {
+            Debug.LogError($"Prefab is null for: {quest.path}");
+            return;
+        }
+        if (!Object.HasStateAuthority)
+        {
+            Debug.LogWarning("Lost state authority during spawn");
+            return;
+        }
+
+        // 实例化并生成网络对象
+        NetworkObject networkObject = Runner.Spawn(prefab, quest.pos, Quaternion.identity);
+        if (networkObject == null)
+        {
+            Debug.LogError($"Failed to spawn actor: {quest.path}");
+            return;
+        }
+
+        networkObject.AssignInputAuthority(Runner.LocalPlayer);
+        quest.callBack?.Invoke(networkObject.GetComponent<ActorManager>());
+    }
+    private void ForState_SpawnFromCacheAsync(ActorSpawnQuest quest, GameObject prefab)
+    {
+        if (prefab == null)
+        {
+            Debug.LogError($"Prefab is null for: {quest.path}");
+            return;
+        }
+        if (!Object.HasStateAuthority)
+        {
+            Debug.LogWarning("Lost state authority during spawn");
+            return;
+        }
+
+
+        Fusion.NetworkSpawnOp networkSpawnOp = 
+            Runner.SpawnAsync(prefab, quest.pos, Quaternion.identity, Runner.LocalPlayer,
+            (runner, netobj) => { },
+            (NetworkSpawnFlags)0,
+            (result) => { quest.callBack?.Invoke(result.Object.GetComponent<ActorManager>()); });
+    }
+    #endregion
+    #region//创建物体
     /// <summary>
     /// 创建物体
     /// </summary>
@@ -131,10 +256,8 @@ public class GameNetManager : NetworkBehaviour
             NetworkObject networkPlayerObject = Runner.Spawn(obj, postion, Quaternion.identity, Object.StateAuthority);
             networkPlayerObject.GetComponent<ItemNetObj>().State_Init(data);
             networkPlayerObject.GetComponent<ItemNetObj>().State_BindOwner(owner);
-            //networkPlayerObject.GetComponent<ItemNetObj>().State_CombineItem();
         }
     }
-
     #endregion
     #region//地图保存和读取
     private MapInfoData bind_MapInfoData = null;
@@ -142,7 +265,7 @@ public class GameNetManager : NetworkBehaviour
     private MapTileInfoData bind_BuildingTileInfoData = null;
     private MapTileTypeData bind_GroundTileTypeData = null;
     private bool mapDataAlready = false;
-    private int mapSeed;
+    private int bind_MapSeed;
 
     private async Task LoadMap()
     {
@@ -153,7 +276,9 @@ public class GameNetManager : NetworkBehaviour
         bind_GroundTileTypeData = floorTypeData;
         await Task.Delay(100);
         Debug.Log("服务器地图初始化成功");
-        InitMap();
+        InitTimerLoop();
+        InitMapSeed();
+        InitSunLight();
     }
     private void SaveMap()
     {
@@ -163,20 +288,7 @@ public class GameNetManager : NetworkBehaviour
             Debug.Log("服务器地图保存成功");
         }
     }
-    private void InitMap()
-    {
-        InitLoop();
-        InitSeed();
-        InitDistance();
-    }
-    private void InitLoop()
-    {
-        Debug.Log("开始计算世界时间");
-        Hour = bind_MapInfoData.hour;
-        Day = bind_MapInfoData.date;
-        InvokeRepeating("AddOneSecond", 1, 1);
-    }
-    private void InitSeed()
+    private void InitMapSeed()
     {
         string str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         int seedInt = 0;
@@ -187,19 +299,28 @@ public class GameNetManager : NetworkBehaviour
             int temp = str.IndexOf(c);
             seedInt += temp * (int)Mathf.Pow(10, i);
         }
-        mapSeed = seedInt;
+        bind_MapSeed = seedInt;
     }
-    private void InitDistance()
+    private void InitSunLight()
     {
-        Distance = bind_MapInfoData.distance;
+        SunLight = bind_MapInfoData.distance;
     }
     #endregion
     #region//时间周期
+    public readonly int int_SecondsPerHour = 120;
+    public readonly int int_HourPerDay = 10;
+    public void InitTimerLoop()
+    {
+        Debug.Log("开始计算世界时间");
+        Hour = bind_MapInfoData.hour;
+        Day = bind_MapInfoData.date;
+        InvokeRepeating("AddOneSecond", 1, 1);
+    }
     public void AddOneSecond()
     {
         if (Object.HasStateAuthority)
         {
-            if (Second < 60)
+            if (Second < int_SecondsPerHour)
             {
                 Second += 1;
             }
@@ -213,7 +334,7 @@ public class GameNetManager : NetworkBehaviour
     {
         if (Object.HasStateAuthority)
         {
-            if (Hour < 10)
+            if (Hour < int_HourPerDay)
             {
                 Hour += 1;
             }
@@ -265,71 +386,194 @@ public class GameNetManager : NetworkBehaviour
     /// <summary>
     /// 本地端请求地图数据
     /// </summary>
-    /// <param name="center">区域中心(只能是20的倍数)</param>
-    /// <param name="player"></param>
-    public void Local_RequestMapData(Vector3Int center, short size)
+    /// <param name="blockArray">地块列表</param>
+    /// <param name="size">地块尺寸</param>
+    public void Local_RequestMapData(NetPos[] blockArray, short size)
     {
-        RPC_LocalInput_RequestMapData(center, size, Runner.LocalPlayer);
+        RPC_LocalInput_RequestMapData(blockArray, size, Runner.LocalPlayer);
     }
     /// <summary>
-    /// 本地端更改地图中心
+    /// 本地端发送本地玩家位置
     /// </summary>
-    /// <param name="center">区域中心(只能是20的倍数)</param>
-    /// <param name="player"></param>
-    public void Local_SendMapCenter(Vector2Int center, short size)
+    /// <param name="pos">区域中心(只能是20的倍数)</param>
+    /// <param name="size"></param>
+    public void Local_SendPlayerPos(NetPos pos, short size)
     {
-        RPC_LocalInput_SendMapCneter(center, size, Runner.LocalPlayer);
+        RPC_LocalInput_ChangePlayerPos(pos, size, Runner.LocalPlayer);
     }
-    /// <summary>
-    /// 本地端更新地图中心
-    /// </summary>
-    /// <param name="center"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    private void Local_UpdateMapCenter(PlayerRef player, Vector3Int center, int width, int height, int seed)
+    #endregion
+    #region//服务端发送
+    private void State_TryToCreateGround(NetPos pos, short id)
     {
-        //Debug.Log("收到服务器地图信息(地图绘制中心)/中心" + center + "尺寸" + width + "/" + height);
-        MapManager.Instance.UpdatePlayerCenterInMap(player, center, width, height, seed);
-    }
-    /// <summary>
-    /// 本地端获得地图数据(建筑类别)
-    /// </summary>
-    /// <param name="tileList"></param>
-    /// <param name="center"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    private void Local_ReceiveBuildTypeData(short[] tileTypeList, Vector3Int center, short width, short height)
-    {
-        //Debug.Log("收到服务器地图信息(建筑类别)/中心" + center + "尺寸" + width + "/" + height);
-        if (MapManager.Instance.AddBuildingAreaInMap(center))
+        RPC_StateCall_SendGroundTileType(pos, id);
+        int tempIndex = CalculateTileIndex(pos.X, pos.Y);
+        if (id > 0)
         {
-            int index = 0;
-            for (int x = -width / 2; x < width / 2; x++)
+            bind_GroundTileTypeData.tileDic[tempIndex] = id;
+        }
+        else
+        {
+            bind_GroundTileTypeData.tileDic[tempIndex] = 9999;
+        }
+    }
+    private void State_TryToCreateBuilding(NetPos pos, short id, AreaSize size)
+    {
+        State_CreateBuilding(pos, id);
+        State_FillArea(pos, 99, BuildingSizeHelper.GetOffsets(size));
+    }
+    private void State_CreateBuilding(NetPos pos, short id)
+    {
+        if (MapManager.Instance.GetBuilding(pos, out BuildingTile buildingTile))
+        {
+            AreaSize size = BuildingConfigData.GetBuildingConfig(buildingTile.tileID).Building_Size;
+            State_FillArea(pos, 0, BuildingSizeHelper.GetOffsets(size));
+        }
+        int tempIndex = CalculateTileIndex(pos.X, pos.Y);
+        RPC_StateCall_SendBuildingTileType(pos, id);
+        if (id > 0)
+        {
+            bind_BuildingTileTypeData.tileDic[tempIndex] = id;
+        }
+        else
+        {
+            bind_BuildingTileTypeData.tileDic.Remove(tempIndex);
+        }
+    }
+    private void State_FillArea(NetPos pos, short id, NetPos[] offsets)
+    {
+        // 跳过第一个位置（主位置），因为主位置会在外部删除
+        for (int i = 1; i < offsets.Length; i++)
+        {
+            State_CreateBuilding(pos + (NetPos)offsets[i], id);
+        }
+    }
+
+    /// <summary>
+    /// 发送地图信息
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="size"></param>
+    /// <param name="player"></param>
+    /// <returns></returns>
+    private async Task State_TrySendMap(NetPos center, short size, PlayerRef player)
+    {
+        State_TrySendGroundTileTypeData(center, size, size, player);
+        State_TrySendBuildingTileTypeData(center, size, size, player);
+        await State_TrySendBuildingTileInfoData(center, size, size, player);
+    }
+    /// <summary>
+    /// 发送地面类型数据(批量)
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="player"></param>
+    private void State_TrySendGroundTileTypeData(NetPos center, short width, short height, PlayerRef player)
+    {
+        short[] tempTileArray = new short[width * height];
+        int index = 0;
+        for (int x = -width / 2; x < width / 2; x++)
+        {
+            for (int y = -height / 2; y < height / 2; y++)
             {
-                for (int y = -height / 2; y < height / 2; y++)
+                int tempIndex = CalculateTileIndex(center.X + x, center.Y + y);
+                if (bind_GroundTileTypeData.tileDic.TryGetValue(tempIndex,out short val))
                 {
-                    if (tileTypeList[index] > 0)
-                    {
-                        int x1 = center.x + x;
-                        int y1 = center.y + y;
-                        MapManager.Instance.InitBuilding(tileTypeList[index], new Vector3Int(x1, y1, 0), out BuildingTile buildingTile);
-                    }
+                    tempTileArray[index] = val;
+                }
+                else
+                {
+                    tempTileArray[index] = 9000;
+                }
+                index++;
+            }
+        }
+        RPC_StateCall_SendGroundTileTypeData(player, tempTileArray, (Vector2Int)center, width, height);
+    }
+    /// <summary>
+    /// 发送建筑类型数据(批量)
+    /// </summary>
+    /// <param name="center">区域中心</param>
+    /// <param name="width">区域宽</param>
+    /// <param name="height">区域高</param>
+    /// <param name="player">目标客户端</param>
+    private void State_TrySendBuildingTileTypeData(NetPos center, short width, short height, PlayerRef player)
+    {
+        short[] tempTileArray = new short[width * height];
+        int index = 0;
+        for (int x = -width / 2; x < width / 2; x++)
+        {
+            for (int y = -height / 2; y < height / 2; y++)
+            {
+                int tempIndex = CalculateTileIndex(center.X + x, center.Y + y);
+                if (bind_BuildingTileTypeData.tileDic.TryGetValue(tempIndex, out short val))
+                {
+                    tempTileArray[index] = val;
+                }
+                else
+                {
+                    tempTileArray[index] = 0;
+                }
+                index++;
+            }
+        }
+        RPC_StateCall_SendBuildingTileTypeData(player, tempTileArray, (Vector2Int)center, width, height);
+    }
+    /// <summary>
+    /// 发送建筑信息数据(批量)
+    /// </summary>
+    /// <param name="center">区域中心</param>
+    /// <param name="width">区域宽</param>
+    /// <param name="height">区域高</param>
+    /// <param name="player">目标客户端</param>
+    private async Task State_TrySendBuildingTileInfoData(NetPos center, short width, short height, PlayerRef player)
+    {
+        int index = 0;
+        for (int x = -width / 2; x < width / 2; x++)
+        {
+            for (int y = -height / 2; y < height / 2; y++)
+            {
+                int tempIndex = CalculateTileIndex(center.X + x, center.Y + y);
+                if (bind_BuildingTileInfoData.mapData.TryGetValue(tempIndex, out byte[] data))
+                {
+                    RPC_StateCall_SendBuildingTileInfoData(player, data, new Vector2Int(center.X + x, center.Y + y));
                     index++;
+                    if (index % 10 == 0) { await Task.Delay(1); }
                 }
             }
-            MapManager.Instance.DrawBuilding(center, width + 2, height + 2);
         }
     }
     /// <summary>
-    /// 本地端获得地图数据(建筑信息)
+    /// 发送建筑信息数据
     /// </summary>
-    private void Local_ReceiveBuildInfoData(string tileInfo, Vector2Int pos)
+    /// <param name="pos"></param>
+    /// <param name="info"></param>
+    private void State_TrySendBuildingTileInfoData(NetPos pos, byte[] data)
     {
-        if (tileInfo.Length > 0)
-        {
-            MapManager.Instance.GetBuilding((Vector3Int)pos, out BuildingTile buildingTile);
-            buildingTile.tileObj.All_UpdateInfo(tileInfo);
-        }
+        RPC_StateCall_SendBuildingTileInfoData(Runner.LocalPlayer, data, (Vector2Int)pos);
+        int tempIndex = CalculateTileIndex(pos.X, pos.Y);
+        bind_BuildingTileInfoData.mapData[tempIndex] = data;
+    }
+
+    private int CalculateTileIndex(int x,int y)
+    {
+        int tempX = x + 30000;
+        int tempY = y + 30000;
+        return tempY > tempX
+            ? tempY * tempY + tempY + tempY - tempX
+            : tempX * tempX + tempY;
+    }
+    #endregion
+    #region//客户端接收
+    /// <summary>
+    /// 本地端获得地图数据(基本信息)
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    private void Local_ReceivePlayerPos(PlayerRef player, NetPos center, int width, int height, int seed)
+    {
+        MapManager.Instance.UpdatePlayerPosInMapGrid(player, center, width, height, seed);
     }
     /// <summary>
     /// 本地端获得地图数据(地块类别)
@@ -338,206 +582,175 @@ public class GameNetManager : NetworkBehaviour
     /// <param name="center"></param>
     /// <param name="width"></param>
     /// <param name="height"></param>
-    private void Local_ReceiveGroundTypeData(short[] tileList, Vector3Int center, short width, short height)
+    private void Local_ReceiveGroundTypeData(short[] tileList, NetPos center, short width, short height)
     {
-        //Debug.Log("收到服务器地图信息(地块类别)/中心" + center + "尺寸" + width + "/" + height);
         if (MapManager.Instance.AddGroundAreaInMap(center))
         {
-            int index = 0;
-            for (int x = -width / 2; x < width / 2; x++)
-            {
-                for (int y = -height / 2; y < height / 2; y++)
-                {
-                    int x1 = center.x + x;
-                    int y1 = center.y + y;
-                    MapManager.Instance.CreateGround(tileList[index], new Vector3Int(x1, y1, 0));
-                    index++;
-                }
-            }
-            MapManager.Instance.DrawGround(center, width + 2, height + 2);
+            MapManager.Instance.AddPendingGround(tileList, center, width, height);
         }
     }
-    #endregion
-
-    #region//服务端
     /// <summary>
-    /// 为某人初始化地图
+    /// 本地端获得地图数据(地块类别)
     /// </summary>
-    /// <param name="center">中心</param>
-    /// <param name="center">尺寸</param>
-    /// <param name="player">目标玩家</param>
-    /// <returns></returns>
-    private async Task State_TryInitMapForSomeone(Vector3Int center, short size, PlayerRef player)
+    /// <param name="id"></param>
+    /// <param name="center"></param>
+    private void Local_ReceiveGroundTypeData(short id, NetPos center)
     {
-        State_TrySendGroundTileTypeData(center, size, size, player);
-        State_TrySendBuildingTileTypeData(center, size, size, player);
-        await State_TrySendBuildingTileInfoData(center, size, size, player);
-
+        MapManager.Instance.AddPendingGround(id, center);
     }
     /// <summary>
-    /// 发送地图中心
+    /// 本地端获得地图数据(建筑类别)
     /// </summary>
+    /// <param name="tileList"></param>
     /// <param name="center"></param>
     /// <param name="width"></param>
     /// <param name="height"></param>
-    /// <param name="player"></param>
-    /// <param name="seed"></param>
-    private void State_TrySendMapCenter(Vector3Int center, int width, int height, PlayerRef player, int seed)
+    private void Local_ReceiveBuildingTypeData(short[] tileList, NetPos center, short width, short height)
     {
-        RPC_StateCall_UpdateMapCenter(player, center, width, height, seed);
-    }
-    /// <summary>
-    /// 发送建筑类型数据
-    /// </summary>
-    /// <param name="center">区域中心</param>
-    /// <param name="width">区域宽</param>
-    /// <param name="height">区域高</param>
-    /// <param name="player">目标客户端</param>
-    private void State_TrySendBuildingTileTypeData(Vector3Int center, short width, short height, PlayerRef player)
-    {
-        short[] tempTileTypeArray = new short[width * height];
-        int index = 0;
-        for (int x = -width / 2; x < width / 2; x++)
+        if (MapManager.Instance.AddBuildingAreaInMap(center))
         {
-            for (int y = -height / 2; y < height / 2; y++)
-            {
-                int tempX = center.x + x + 30000;
-                int tempY = center.y + y + 30000;
-                int tempIndex;
-                if (tempY > tempX)
-                {
-                    tempIndex = tempY * tempY + tempY + tempY - tempX;
-                }
-                else
-                {
-                    tempIndex = tempX * tempX + tempY;
-                }
-
-                if (bind_BuildingTileTypeData.tileDic.ContainsKey(tempIndex))
-                {
-                    short tileType = bind_BuildingTileTypeData.tileDic[tempIndex];
-                    tempTileTypeArray[index] = tileType;
-                }
-                else
-                {
-                    //bind_BuildingTileTypeData.tileDic.Add(tempIndex, 0);
-                    tempTileTypeArray[index] = 0;
-                }
-                index++;
-            }
-        }
-        RPC_StateCall_SendBuildingTileTypeData(player, tempTileTypeArray, (Vector2Int)center, width, height);
-    }
-    /// <summary>
-    /// 发送建筑信息数据
-    /// </summary>
-    /// <param name="center">区域中心</param>
-    /// <param name="width">区域宽</param>
-    /// <param name="height">区域高</param>
-    /// <param name="player">目标客户端</param>
-    private async Task State_TrySendBuildingTileInfoData(Vector3Int center, short width, short height, PlayerRef player)
-    {
-        int index = 0;
-        for (int x = -width / 2; x < width / 2; x++)
-        {
-            for (int y = -height / 2; y < height / 2; y++)
-            {
-                int tempX = center.x + x + 30000;
-                int tempY = center.y + y + 30000;
-                int tempIndex;
-                if (tempY > tempX)
-                {
-                    tempIndex = tempY * tempY + tempY + tempY - tempX;
-                }
-                else
-                {
-                    tempIndex = tempX * tempX + tempY;
-                }
-                string tileInfo = "";
-                if (bind_BuildingTileInfoData.tileDic.ContainsKey(tempIndex))
-                {
-                    tileInfo = bind_BuildingTileInfoData.tileDic[tempIndex];
-                }
-                RPC_StateCall_SendBuildingTileInfoData(player, tileInfo, new Vector2Int(center.x + x, center.y + y));
-                index++;
-            }
-            await Task.Delay(1);
+            MapManager.Instance.AddPendingBuildings(tileList, center, width, height);
         }
     }
     /// <summary>
-    /// 发送地面类型数据
+    /// 本地端获得地图数据(建筑类别)
     /// </summary>
+    private void Local_ReceiveBuildingTypeData(short id, NetPos center)
+    {
+        MapManager.Instance.AddPendingBuilding(id, center);
+    }
+    /// <summary>
+    /// 本地端获得地图数据(建筑信息)
+    /// </summary>
+    private void Local_ReceiveBuildingInfoData(byte[] tileInfo, NetPos pos)
+    {
+        MapManager.Instance.AddPendingBuildingInfo((Vector3Int)pos, tileInfo);
+    }
+    /// <summary>
+    /// 本地端获得地图数据(建筑生命值)
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="hp"></param>
+    private void Local_ReceiveBuildingHpData(NetPos pos, int hp)
+    {
+        if (MapManager.Instance.GetBuilding(pos, out BuildingTile buildingTile))
+        {
+            buildingTile.tileObj.All_UpdateHP(hp);
+        }
+    }
+    #endregion
+    #region//RPC(服务器→客户端)
+    /// <summary>
+    /// 服务端给某人发送地图中心
+    /// </summary>
+    /// <param name="target"></param>
     /// <param name="center"></param>
     /// <param name="width"></param>
     /// <param name="height"></param>
-    /// <param name="player"></param>
-    private void State_TrySendGroundTileTypeData(Vector3Int center, short width, short height, PlayerRef player)
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_UpdatePlayerPos(/*[RpcTarget]*/PlayerRef target, NetPos center, int width, int height, int seed)
     {
-        short[] tempTileArray = new short[width * height];
-        int index = 0;
-        for (int x = -width / 2; x < width / 2; x++)
-        {
-            for (int y = -height / 2; y < height / 2; y++)
-            {
-                int tempX = center.x + x + 30000;
-                int tempY = center.y + y + 30000;
-                int tempIndex;
-                if (tempY > tempX)
-                {
-                    tempIndex = tempY * tempY + tempY + tempY - tempX;
-                }
-                else
-                {
-                    tempIndex = tempX * tempX + tempY;
-                }
-
-                if (bind_GroundTileTypeData.tileDic.ContainsKey(tempIndex))
-                {
-                    short tileType = bind_GroundTileTypeData.tileDic[tempIndex];
-                    tempTileArray[index] = tileType;
-                }
-                else
-                {
-                    //bind_GroundTileTypeData.tileDic.Add(tempIndex, 1001);
-                    tempTileArray[index] = 9000;
-                }
-                index++;
-            }
-        }
-        RPC_StateCall_SendGroundTileTypeData(player, tempTileArray, (Vector2Int)center, width, height);
+        Local_ReceivePlayerPos(target, center, width, height, seed);
+    }
+    /// <summary>
+    /// 服务端发送建筑类别数据(批量)
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="tileList"></param>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_SendBuildingTileTypeData(/*[RpcTarget]*/PlayerRef target, short[] tileTypeList, NetPos center, short width, short height)
+    {
+        Local_ReceiveBuildingTypeData(tileTypeList, (Vector3Int)center, width, height);
+    }
+    /// <summary>
+    /// 服务端发送建筑类别数据
+    /// </summary>
+    /// <param name="pos"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_SendBuildingTileType(NetPos pos, short id)
+    {
+        Local_ReceiveBuildingTypeData(id, pos);
+    }
+    /// <summary>
+    /// 服务端发送建筑信息数据
+    /// </summary>
+    /// <param name="target"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_SendBuildingTileInfoData(/*[RpcTarget]*/PlayerRef target, byte[] tileInfo, NetPos pos)
+    {
+        Local_ReceiveBuildingInfoData(tileInfo, pos);
+    }
+    /// <summary>
+    /// 服务端发送建筑生命值数据
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="hp"></param>
+    /// <param name="player"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_SendBuildingTileHp(NetPos pos, int hp, PlayerRef player)
+    {
+        Local_ReceiveBuildingHpData(pos, hp);
+    }
+    /// <summary>
+    /// 服务端发送地面类别数据(批量)
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="tileList"></param>
+    /// <param name="center"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_SendGroundTileTypeData(/*[RpcTarget]*/ PlayerRef target, short[] tileList, NetPos center, short width, short height)
+    {
+        Local_ReceiveGroundTypeData(tileList, (Vector3Int)center, width, height);
+    }
+    /// <summary>
+    /// 服务端发送地面类别数据
+    /// </summary>
+    /// <param name="pos"></param>
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
+    private void RPC_StateCall_SendGroundTileType(NetPos pos, short id)
+    {
+        Local_ReceiveGroundTypeData(id, pos);
     }
     #endregion
-
-    #region//RPC
+    #region//RPC(客户端→服务器)
     /// <summary>
     /// 客户端请求地图数据
     /// </summary>
     /// <param name="center"></param>
     /// <param name="player"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private async void RPC_LocalInput_RequestMapData(Vector3Int center, short size, PlayerRef player)
+    private async void RPC_LocalInput_RequestMapData(NetPos[] centers, short size, PlayerRef player)
     {
         if (Object.HasStateAuthority)
         {
-            //Debug.Log("服务器尝试发送地图数据");
             if (!mapDataAlready)
             {
-                //Debug.Log("服务器地图未初始化,先初始化");
                 mapDataAlready = true;
                 await LoadMap();
             }
-            else
+            for (int i = 0; i < centers.Length; i++)
             {
-                //Debug.Log("服务器地图已经初始化");
+                await State_TrySendMap(centers[i], size, player);
             }
-            await State_TryInitMapForSomeone(center, size, player);
         }
     }
+    /// <summary>
+    /// 客户端修改地图中心
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="size"></param>
+    /// <param name="player"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_SendMapCneter(Vector2Int center, short size, PlayerRef player)
+    private void RPC_LocalInput_ChangePlayerPos(NetPos center, short size, PlayerRef player)
     {
-        State_TrySendMapCenter((Vector3Int)center, size, size, player, mapSeed);
+        RPC_StateCall_UpdatePlayerPos(player, center, size, size, bind_MapSeed);
     }
+
     /// <summary>
     /// 客户端更改地块生命值
     /// </summary>
@@ -545,14 +758,14 @@ public class GameNetManager : NetworkBehaviour
     /// <param name="offset"></param>
     /// <param name="player"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_ChangeBuildingHp(Vector3Int pos, int offset, PlayerRef player)
+    private void RPC_LocalInput_ChangeBuildingHp(NetPos pos, int offset, PlayerRef player)
     {
         if (Object.HasStateAuthority)
         {
             if (MapManager.Instance.GetBuilding(pos, out BuildingTile buildingTile))
             {
                 int newHp = buildingTile.tileObj.local_Hp + offset;
-                RPC_StateCall_TileUpdateHp(pos, newHp, player);
+                RPC_StateCall_SendBuildingTileHp(pos, newHp, player);
             }
             else
             {
@@ -565,259 +778,36 @@ public class GameNetManager : NetworkBehaviour
     /// </summary>
     /// <param name="pos"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_ChangeBuildingInfo(Vector3Int pos, string info)
+    private void RPC_LocalInput_ChangeBuildingInfo(NetPos pos, byte[] data)
     {
         if (Object.HasStateAuthority)
         {
-            RPC_StateCall_ChangeBuildingInfo(pos, info);
-            int tempX = pos.x + 30000;
-            int tempY = pos.y + 30000;
-            int tempIndex;
-            if (tempY > tempX)
-            {
-                tempIndex = tempY * tempY + tempY + tempY - tempX;
-            }
-            else
-            {
-                tempIndex = tempX * tempX + tempY;
-            }
-            bind_BuildingTileInfoData.tileDic[tempIndex] = info;
+            State_TrySendBuildingTileInfoData(pos, data);
         }
     }
     /// <summary>
     /// 客户端输入对区域的改变
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_CreateBuildingArea(Vector3Int pos, short id, int size)
+    private void RPC_LocalInput_TryToCreateBuilding(NetPos pos, short id, int size)
     {
         if (Object.HasStateAuthority)
         {
-            OnlyState_CreateBuildingArea(pos, id, (AreaSize)size);
+            State_TryToCreateBuilding(pos, id, (AreaSize)size);
         }
     }
     /// <summary>
-    /// 服务器改变一个区域的建筑
-    /// </summary>
-    /// <param name="pos"></param>
-    /// <param name="id"></param>
-    /// <param name="size"></param>
-    private void OnlyState_CreateBuildingArea(Vector3Int pos, short id, AreaSize size)
-    {
-        OnlyState_CreateBuilding(pos, id);
-        switch (size)
-        {
-            case AreaSize._1X1:
-                break;
-            case AreaSize._1X2:
-                OnlyState_CreateBuilding(pos + Vector3Int.up, 99);
-                break;
-            case AreaSize._2X1:
-                OnlyState_CreateBuilding(pos + Vector3Int.right, 99);
-                break;
-            case AreaSize._2X2:
-                OnlyState_CreateBuilding(pos + Vector3Int.up, 99);
-                OnlyState_CreateBuilding(pos + Vector3Int.right, 99);
-                OnlyState_CreateBuilding(pos + Vector3Int.up + Vector3Int.right, 99);
-                break;
-            case AreaSize._3X3:
-                OnlyState_CreateBuilding(pos + Vector3Int.up, 99);
-                OnlyState_CreateBuilding(pos + Vector3Int.down, 99);
-                OnlyState_CreateBuilding(pos + Vector3Int.left, 99);
-                OnlyState_CreateBuilding(pos + Vector3Int.right, 99);
-                OnlyState_CreateBuilding(pos + Vector3Int.up + Vector3Int.left, 99);
-                OnlyState_CreateBuilding(pos + Vector3Int.up + Vector3Int.right, 99);
-                OnlyState_CreateBuilding(pos + Vector3Int.down + Vector3Int.left, 99);
-                OnlyState_CreateBuilding(pos + Vector3Int.down + Vector3Int.right, 99);
-                break;
-        }
-    }
-    /// <summary>
-    /// 服务器改变单个建筑
-    /// </summary>
-    /// <param name="pos"></param>
-    /// <param name="id"></param>
-    private void OnlyState_CreateBuilding(Vector3Int pos, short id)
-    {
-        MapManager.Instance.GetBuilding(pos, out BuildingTile buildingTile);
-        if (buildingTile != null)
-        {
-            AreaSize size = BuildingConfigData.GetBuildingConfig(buildingTile.tileID).Building_Size;
-            switch (size)
-            {
-                case AreaSize._1X1:
-                    break;
-                case AreaSize._1X2:
-                    OnlyState_CreateBuilding(pos + Vector3Int.up, 0);
-                    break;
-                case AreaSize._2X1:
-                    OnlyState_CreateBuilding(pos + Vector3Int.right, 0);
-                    break;
-                case AreaSize._2X2:
-                    OnlyState_CreateBuilding(pos + Vector3Int.up, 0);
-                    OnlyState_CreateBuilding(pos + Vector3Int.right, 0);
-                    OnlyState_CreateBuilding(pos + Vector3Int.up + Vector3Int.right, 0);
-                    break;
-                case AreaSize._3X3:
-                    OnlyState_CreateBuilding(pos + Vector3Int.up, 0);
-                    OnlyState_CreateBuilding(pos + Vector3Int.down, 0);
-                    OnlyState_CreateBuilding(pos + Vector3Int.left, 0);
-                    OnlyState_CreateBuilding(pos + Vector3Int.right, 0);
-                    OnlyState_CreateBuilding(pos + Vector3Int.up + Vector3Int.right, 0);
-                    OnlyState_CreateBuilding(pos + Vector3Int.up + Vector3Int.left, 0);
-                    OnlyState_CreateBuilding(pos + Vector3Int.down + Vector3Int.right, 0);
-                    OnlyState_CreateBuilding(pos + Vector3Int.down + Vector3Int.left, 0);
-                    break;
-            }
-
-        }
-        int tempX = pos.x + 30000;
-        int tempY = pos.y + 30000;
-        int tempIndex;
-        if (tempY > tempX)
-        {
-            tempIndex = tempY * tempY + tempY + tempY - tempX;
-        }
-        else
-        {
-            tempIndex = tempX * tempX + tempY;
-        }
-        RPC_StateCall_CreateBuilding(pos, id);
-        if (id > 0)
-        {
-            bind_BuildingTileTypeData.tileDic[tempIndex] = id;
-        }
-        else
-        {
-            bind_BuildingTileTypeData.tileDic.Remove(tempIndex);
-        }
-    }
-    /// <summary>
-    /// 客户端输入对地块的改变
+    /// 客户端改变地面
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_CreateFloor(Vector3Int pos, short id)
+    private void RPC_LocalInput_TryToCreateGround(NetPos pos, short id)
     {
         if (Object.HasStateAuthority)
         {
-            RPC_StateCall_CreateGround(pos, id);
-
-            int tempX = pos.x + 30000;
-            int tempY = pos.y + 30000;
-            int tempIndex;
-            if (tempY > tempX)
-            {
-                tempIndex = tempY * tempY + tempY + tempY - tempX;
-            }
-            else
-            {
-                tempIndex = tempX * tempX + tempY;
-            }
-
-            bind_GroundTileTypeData.tileDic[tempIndex] = id;
+            State_TryToCreateGround(pos, id);
         }
     }
 
-    /// <summary>
-    /// 服务端给某人发送地图中心
-    /// </summary>
-    /// <param name="target"></param>
-    /// <param name="center"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_UpdateMapCenter(/*[RpcTarget]*/PlayerRef target, Vector3Int center, int width, int height, int seed)
-    {
-        Local_UpdateMapCenter(target, center, width, height, seed);
-    }
-    /// <summary>
-    /// 服务端发送建筑类别数据
-    /// </summary>
-    /// <param name="target"></param>
-    /// <param name="tileList"></param>
-    /// <param name="center"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_SendBuildingTileTypeData(/*[RpcTarget]*/PlayerRef target, short[] tileTypeList, Vector2Int center, short width, short height)
-    {
-        Local_ReceiveBuildTypeData(tileTypeList, (Vector3Int)center, width, height);
-    }
-    /// <summary>
-    /// 服务端发送建筑信息数据
-    /// </summary>
-    /// <param name="target"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_SendBuildingTileInfoData(/*[RpcTarget]*/PlayerRef target, string tileInfo, Vector2Int pos)
-    {
-        Local_ReceiveBuildInfoData(tileInfo, pos);
-    }
-    /// <summary>
-    /// 服务端发送地面类别数据
-    /// </summary>
-    /// <param name="target"></param>
-    /// <param name="tileList"></param>
-    /// <param name="center"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_SendGroundTileTypeData(/*[RpcTarget]*/ PlayerRef target, short[] tileList, Vector2Int center, short width, short height)
-    {
-        Local_ReceiveGroundTypeData(tileList, (Vector3Int)center, width, height);
-    }
-    /// <summary>
-    /// 服务器通知更新地块生命值
-    /// </summary>
-    /// <param name="pos"></param>
-    /// <param name="hp"></param>
-    /// <param name="player"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_TileUpdateHp(Vector3Int pos, int hp, PlayerRef player)
-    {
-        if (MapManager.Instance.GetBuilding(pos, out BuildingTile buildingTile))
-        {
-            buildingTile.tileObj.All_UpdateHP(hp);
-        }
-    }
-    /// <summary>
-    /// 服务器通知改变建筑
-    /// </summary>
-    /// <param name="pos"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_CreateBuilding(Vector3Int pos, int id)
-    {
-        MapManager.Instance.CreateBuilding(id, pos, out _);
-        MapManager.Instance.DrawBuilding(pos, 2, 2);
-    }
-    /// <summary>
-    /// 服务器通知更新建筑信息
-    /// </summary>
-    /// <param name="pos"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_ChangeBuildingInfo(Vector3Int pos, string info)
-    {
-        MapManager.Instance.GetBuilding(pos, out BuildingTile buildingTile);
-        buildingTile.tileObj.All_UpdateInfo(info);
-    }
-    /// <summary>
-    /// 服务器通知改变地板
-    /// </summary>
-    /// <param name="pos"></param>
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
-    private void RPC_StateCall_CreateGround(Vector3Int pos, int id)
-    {
-        MapManager.Instance.CreateGround(id, pos);
-        MapManager.Instance.DrawGround(pos, 2, 2);
-    }
-    /// <summary>
-    /// 客户端改变太阳
-    /// </summary>
-    /// <param name="distance"></param>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_LocalInput_ChangeSun(short distance)
-    {
-        bind_MapInfoData.distance = distance;
-        Distance = distance;
-    }
     /// <summary>
     /// 客户端改变天气
     /// </summary>
@@ -827,6 +817,16 @@ public class GameNetManager : NetworkBehaviour
     {
         Weather = index;
     }
+    /// <summary>
+    /// 客户端改变光照范围
+    /// </summary>
+    /// <param name="distance"></param>
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    private void RPC_LocalInput_ChangeSun(short distance)
+    {
+        bind_MapInfoData.distance = distance;
+        SunLight = distance;
+    }
 
     #endregion
     #region//Network
@@ -834,10 +834,10 @@ public class GameNetManager : NetworkBehaviour
     public short Second { get; set; }
     [Networked, OnChangedRender(nameof(OnHourChange)), HideInInspector]
     public short Hour { get; set; }
-    [Networked, HideInInspector]
+    [Networked, OnChangedRender(nameof(OnDayChange)), HideInInspector]
     public short Day { get; set; }
-    [Networked, OnChangedRender(nameof(OnDistanceChange)), HideInInspector]
-    public short Distance { get; set; }
+    [Networked, OnChangedRender(nameof(OnSunLightChange)), HideInInspector]
+    public short SunLight { get; set; }
     [Networked, OnChangedRender(nameof(OnWeatherChange)), HideInInspector]
     public short Weather { get; set; }
     public void OnSecondChange()
@@ -848,9 +848,13 @@ public class GameNetManager : NetworkBehaviour
     {
         WorldManager.Instance.UpdateHour(Hour, Day);
     }
-    public void OnDistanceChange()
+    public void OnDayChange()
     {
-        WorldManager.Instance.UpdateDistance(Distance);
+        
+    }
+    public void OnSunLightChange()
+    {
+        WorldLightManager.Instance.UpdateSunLight(SunLight);
     }
     public void OnWeatherChange()
     {
@@ -859,4 +863,6 @@ public class GameNetManager : NetworkBehaviour
     }
     #endregion
 
+    #region //ReliableData
+    #endregion
 }

@@ -34,7 +34,7 @@ public class GroundObj : MonoBehaviour
     /// </summary>
     public virtual void All_ActorStandOn(ActorManager actor)
     {
-
+        actor.bodyController.StandOnWater(false);
     }
     /// <summary>
     /// ½ÇÉ«Ô¶Àë
@@ -44,4 +44,8 @@ public class GroundObj : MonoBehaviour
     {
         return false;
     }
+    public virtual float All_SpeedOffset()
+    {
+        return 1;
+    } 
 }

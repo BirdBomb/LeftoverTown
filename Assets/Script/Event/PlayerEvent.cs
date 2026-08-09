@@ -268,7 +268,7 @@ public class PlayerEvent
 
     }
     #endregion
-
+    #region//玩家其他操作
     /// <summary>
     /// 本地玩家:掉落一个物体
     /// </summary>
@@ -286,18 +286,24 @@ public class PlayerEvent
     /// <summary>
     /// 本地玩家:创造建筑
     /// </summary>
-    public class PlayerEvent_Local_TryBuildBuilding 
+    public class PlayerEvent_Local_TryBuildBuilding
     {
         public AreaSize size;
-        public bool force = false; 
+        public bool force = false;
         public int id;
+    }
+    /// <summary>
+    /// 本地玩家:赚钱
+    /// </summary>
+    public class PlayerEvent_Local_TryEarn
+    {
+        public int coin;
     }
     /// <summary>
     /// 本地玩家:发送一个表情
     /// </summary>
     public class PlayerEvent_Local_SendEmoji
     {
-        public int id;
         public Emoji emoji;
     }
     /// <summary>
@@ -307,5 +313,20 @@ public class PlayerEvent
     {
         public string text;
     }
+    /// <summary>
+    /// 本地玩家:玩家操作
+    /// </summary>
+    public class PlayerEvent_Local_Action
+    {
+        public PlayerAction action;
+    }
+    /// <summary>
+    /// 本地玩家:任务完成
+    /// </summary>
+    public class PlayerEvent_Local_QuestComplete
+    {
+        public int id;
+    }
+    #endregion
 
 }

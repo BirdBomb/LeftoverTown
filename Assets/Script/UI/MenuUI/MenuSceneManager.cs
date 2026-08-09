@@ -56,19 +56,20 @@ public class MenuSceneManager : MonoBehaviour
         };
         CreateRandomArea(config, (pos, val) =>
         {
+            short id;
             if (val < 0.5f)
             {
-                mapManager.CreateGround(1001, pos);
+                id = 1001;
             }
             else if (val < 0.7f)
             {
-                mapManager.CreateGround(1000, pos);
+                id = 1000;
             }
             else
             {
-                mapManager.CreateGround(9000, pos);
+                id = 9000;
             }
-            mapManager.DrawGround(pos, 2, 2);
+            mapManager.AddPendingGround(id, pos);
         });
         CreateMapMod(Vector2Int.zero, MapModConfigData.GetMapModConfig(0));
 
@@ -104,9 +105,6 @@ public class MenuSceneManager : MonoBehaviour
         int to_x = (int)(islandArea.island_Center.x + islandArea.island_WholeSize);
         int from_y = (int)(islandArea.island_Center.y - islandArea.island_WholeSize);
         int to_y = (int)(islandArea.island_Center.y + islandArea.island_WholeSize);
-        Debug.Log(from_x + "/" + to_x);
-        Debug.Log(from_y + "/" + to_y);
-
         /*噪声图采样中心*/
         Vector2 noise_Center = islandArea.noise_Offset;
         /*噪声图采样尺寸(1-0)*/
@@ -147,13 +145,11 @@ public class MenuSceneManager : MonoBehaviour
         MapModData data_Map = Resources.Load<MapModData>($"MapModData/MapModData{mapModConfig.MapMod_ID}");
         foreach (KeyValuePair<Vector2Int, short> pair in data_Map.data_mapFloor)
         {
-            mapManager.CreateGround(pair.value, (Vector3Int)(pair.key + center));
-            mapManager.DrawGround((Vector3Int)(pair.key + center), 2, 2);
+            mapManager.AddPendingGround(pair.value, (Vector3Int)(pair.key + center));
         }
         foreach (KeyValuePair<Vector2Int, short> pair in data_Map.data_mapBuilding)
         {
-            mapManager.CreateBuilding(pair.value, (Vector3Int)(pair.key + center),out _);
-            mapManager.DrawBuilding((Vector3Int)(pair.key + center), 2, 2);
+            mapManager.AddPendingBuilding(pair.value, (Vector3Int)(pair.key + center));
         }
     }
 
@@ -363,7 +359,6 @@ public class MenuSceneManager : MonoBehaviour
     public void ChangeWeather(Weather weather)
     {
         weather_Now = weather;
-        Debug.Log("天气_" + weather_Now);
         switch (weather)
         {
             case Weather.Default:
@@ -421,7 +416,7 @@ public class MenuSceneManager : MonoBehaviour
     {
         float x = new System.Random().Next(-100, 100) * 0.01f * ruin_RangeX + transform.position.x;
         float y = new System.Random().Next(-100, 100) * 0.01f * ruin_RangeY + transform.position.y;
-        LiquidManager.Instance.AddWave(new Vector2(x, y), null, Vector2.one * 5);
+        LiquidManager.Instance.AddWave(new Vector2(x, y));
         //GameObject muzzleFire101 = PoolManager.Instance.GetEffectObj("Effect/Effect_WaterDrop_" + new System.Random().Next(0, 2));
         //muzzleFire101.transform.localScale = new Vector3(1 - (2 * new System.Random().Next(0, 2)), 1, 1);
         //muzzleFire101.transform.position = new Vector2(x, y);

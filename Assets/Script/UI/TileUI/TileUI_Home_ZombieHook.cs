@@ -44,7 +44,9 @@ public class TileUI_Home_ZombieHook : TileUI
     }
     public void DrawInfo()
     {
-        if (buildingObj_Bind.gameTime_CurTimeSign >= buildingObj_Bind.gameTime_UseableTime)
+        int gameTime_Useable = buildingObj_Bind.buildingData_Home_ZombieHook.ReadUseableTime();
+        WorldManager.Instance.GetTime_NowHour(out int gameTime_Now);
+        if (gameTime_Now >= gameTime_Useable)
         {
             text_Info.text = "被封住的地穴,下面传来明显不是人类的呼吸声，或许一些气味浓郁的肉会吸引那个生物";
         }
@@ -55,7 +57,10 @@ public class TileUI_Home_ZombieHook : TileUI
     } 
     public void PutIn(ItemData addData, ItemPath path)
     {
-        if (addData.I == buildingObj_Bind.itemData_ID && buildingObj_Bind.gameTime_CurTimeSign >= buildingObj_Bind.gameTime_UseableTime)
+        int gameTime_Useable = buildingObj_Bind.buildingData_Home_ZombieHook.ReadUseableTime();
+        WorldManager.Instance.GetTime_NowHour(out int gameTime_Now);
+
+        if (addData.I == buildingObj_Bind.itemData_ID && gameTime_Now >= gameTime_Useable)
         {
             ItemData putIn = addData;
             putIn.C = 1;
@@ -70,7 +75,8 @@ public class TileUI_Home_ZombieHook : TileUI
                 name = "Actor/Zombie_Hook",
                 pos = buildingObj_Bind.transform.position + Vector3.up * 2,
             });
-            buildingObj_Bind.WriteInfo();
+            buildingObj_Bind.buildingData_Home_ZombieHook.WriteUseableTime(gameTime_Now + buildingObj_Bind.int_UseableWait);
+            buildingObj_Bind.TryToPush();
         }
         else
         {

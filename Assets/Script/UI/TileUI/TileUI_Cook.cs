@@ -33,6 +33,7 @@ public class TileUI_Cook : TileUI
     public override void Hide()
     {
         buildingObj_Bind.OpenOrCloseAwakeUI(false);
+        buildingObj_Bind.All_Open(true);
         base.Hide();
     }
 
@@ -42,6 +43,7 @@ public class TileUI_Cook : TileUI
         transform_Panel.DOKill();
         transform_Panel.localScale = Vector3.one;
         transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        buildingObj_Bind.All_Open(false);
     }
     public void BindAllCell()
     {
@@ -52,18 +54,20 @@ public class TileUI_Cook : TileUI
     }
     public void DrawAllCell()
     {
-        gridCell_Raw0.UpdateData(buildingObj_Bind.itemData_Raw0);
-        gridCell_Raw1.UpdateData(buildingObj_Bind.itemData_Raw1);
-        gridCell_Raw2.UpdateData(buildingObj_Bind.itemData_Raw2);
-        gridCell_Food.UpdateData(buildingObj_Bind.itemData_Food);
+        buildingObj_Bind.buildingData_Machine_Cook.ReadItemRaw0(out ItemData itemData_Raw0);
+        buildingObj_Bind.buildingData_Machine_Cook.ReadItemRaw1(out ItemData itemData_Raw1);
+        buildingObj_Bind.buildingData_Machine_Cook.ReadItemRaw2(out ItemData itemData_Raw2);
+        buildingObj_Bind.buildingData_Machine_Cook.ReadItemFood(out ItemData itemData_Food);
+        gridCell_Raw0.UpdateData(itemData_Raw0);
+        gridCell_Raw1.UpdateData(itemData_Raw1);
+        gridCell_Raw2.UpdateData(itemData_Raw2);
+        gridCell_Food.UpdateData(itemData_Food);
     }
-    public void DrawBar(float val)
+    public void PlayBarAnima(float val)
     {
+        if (val == 0) { transform_Bar.localScale = new Vector3(0, 1, 1); }
         transform_Bar.DOKill();
         transform_Bar.DOScaleX(val, 1f).SetEase(Ease.Linear);
-    }
-    public void ShakeRaw()
-    {
         gridCell_Raw0.transform.DOShakePosition(0.5f);
         gridCell_Raw1.transform.DOShakePosition(0.5f);
         gridCell_Raw2.transform.DOShakePosition(0.5f);
@@ -71,19 +75,21 @@ public class TileUI_Cook : TileUI
     #region//取出放入
     public void Raw0PutIn(ItemData addData, ItemPath path)
     {
+        buildingObj_Bind.buildingData_Machine_Cook.ReadItemRaw0(out ItemData itemData);
         ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.I);
-        if (itemConfig.Item_Type == ItemType.Food && buildingObj_Bind.itemData_Raw0.I == 0)
+        if (itemConfig.Item_Type == ItemType.Food && itemData.I == 0)
         {
             ItemData putIn = addData;
             putIn.C = 1;
-            buildingObj_Bind.itemData_Raw0 = putIn;
+            itemData = putIn;
             ItemData resData = GameToolManager.Instance.SplitItem(addData, putIn);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
                 itemFrom = ItemFrom.OutSide
             });
-            buildingObj_Bind.WriteInfo();
+            buildingObj_Bind.buildingData_Machine_Cook.WriteItemRaw0(itemData);
+            buildingObj_Bind.TryToPush();
         }
         else
         {
@@ -96,25 +102,27 @@ public class TileUI_Cook : TileUI
     }
     public ItemData Raw0PutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        buildingObj_Bind.itemData_Raw0 = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.WriteInfo();
+        buildingObj_Bind.buildingData_Machine_Cook.WriteItemRaw0(GameToolManager.Instance.SplitItem(itemData_From, itemData_Out));
+        buildingObj_Bind.TryToPush();
         return itemData_Out;
     }
     public void Raw1PutIn(ItemData addData, ItemPath path)
     {
+        buildingObj_Bind.buildingData_Machine_Cook.ReadItemRaw1(out ItemData itemData);
         ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.I);
-        if (itemConfig.Item_Type == ItemType.Food && buildingObj_Bind.itemData_Raw1.I == 0)
+        if (itemConfig.Item_Type == ItemType.Food && itemData.I == 0)
         {
             ItemData putIn = addData;
             putIn.C = 1;
-            buildingObj_Bind.itemData_Raw1 = putIn;
+            itemData = putIn;
             ItemData resData = GameToolManager.Instance.SplitItem(addData, putIn);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
                 itemFrom = ItemFrom.OutSide
             });
-            buildingObj_Bind.WriteInfo();
+            buildingObj_Bind.buildingData_Machine_Cook.WriteItemRaw1(itemData);
+            buildingObj_Bind.TryToPush();
         }
         else
         {
@@ -127,25 +135,27 @@ public class TileUI_Cook : TileUI
     }
     public ItemData Raw1PutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        buildingObj_Bind.itemData_Raw1 = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.WriteInfo();
+        buildingObj_Bind.buildingData_Machine_Cook.WriteItemRaw1(GameToolManager.Instance.SplitItem(itemData_From, itemData_Out));
+        buildingObj_Bind.TryToPush();
         return itemData_Out;
     }
     public void Raw2PutIn(ItemData addData, ItemPath path)
     {
+        buildingObj_Bind.buildingData_Machine_Cook.ReadItemRaw2(out ItemData itemData);
         ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.I);
-        if (itemConfig.Item_Type == ItemType.Food && buildingObj_Bind.itemData_Raw2.I == 0)
+        if (itemConfig.Item_Type == ItemType.Food && itemData.I == 0)
         {
             ItemData putIn = addData;
             putIn.C = 1;
-            buildingObj_Bind.itemData_Raw2 = putIn;
+            itemData = putIn;
             ItemData resData = GameToolManager.Instance.SplitItem(addData, putIn);
             MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
             {
                 itemData = resData,
                 itemFrom = ItemFrom.OutSide,
             });
-            buildingObj_Bind.WriteInfo();
+            buildingObj_Bind.buildingData_Machine_Cook.WriteItemRaw2(itemData);
+            buildingObj_Bind.TryToPush();
         }
         else
         {
@@ -158,8 +168,8 @@ public class TileUI_Cook : TileUI
     }
     public ItemData Raw2PutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        buildingObj_Bind.itemData_Raw2 = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.WriteInfo();
+        buildingObj_Bind.buildingData_Machine_Cook.WriteItemRaw2(GameToolManager.Instance.SplitItem(itemData_From, itemData_Out));
+        buildingObj_Bind.TryToPush();
         return itemData_Out;
     }
     public void FoodPutIn(ItemData addData, ItemPath path)
@@ -172,8 +182,8 @@ public class TileUI_Cook : TileUI
     }
     public ItemData FoodPutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        buildingObj_Bind.itemData_Food = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.WriteInfo();
+        buildingObj_Bind.buildingData_Machine_Cook.WriteItemFood(GameToolManager.Instance.SplitItem(itemData_From, itemData_Out));
+        buildingObj_Bind.TryToPush();
         return itemData_Out;
     }
     #endregion

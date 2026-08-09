@@ -24,7 +24,7 @@ public class UI_ChooseActorPanel : MonoBehaviour
     public void ShowPanel()
     {
         transform_Panel.gameObject.SetActive(true);
-        transform_Panel.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        transform_Panel.transform.DOPunchScale(new Vector3(0.2f, 0.2f, 0), 0.2f);
         UpdatePanel();
     }
     public void Bind(Action actionPass, Action actionClose)
@@ -56,9 +56,10 @@ public class UI_ChooseActorPanel : MonoBehaviour
         {
             int index = i;
             string path = "PlayerData/Player" + index;
-            string data = FileManager.Instance.ReadFile(path);
+
+            PlayerData playerData = FileManager.Instance.ReadPlayerData(path);
             chooseActorBtns[index].gameObject.SetActive(true);
-            chooseActorBtns[index].Init(data, path,
+            chooseActorBtns[index].Init(playerData, path,
                (_) => { },
                (_) => { });
         }

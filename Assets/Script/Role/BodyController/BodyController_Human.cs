@@ -8,49 +8,60 @@ using UniRx;
 using Fusion.Addons.Physics;
 using DG.Tweening;
 using Unity.VisualScripting;
+using UnityEngine.Rendering;
 /// <summary>
 /// 人型身体控制器
 /// </summary>
 
 public class BodyController_Human : BodyController_Base
 {
-    [SerializeField, Header("身体节点")]
+
+    [Header("———全身———")]
+    [Header("全身节点")]
     public Transform transform_Body;
-    [SerializeField, Header("头部节点")]
-    public Transform transform_Head;
-    [SerializeField, Header("双手节点")]
+    public Animator animator_Body;
+    public AnimaEventListen animaEventListen_Body;
+    [Header("上半部分层级")]
+    public SortingGroup sortingGroup_Top;
+    [Header("下半部分层级")]
+    public SortingGroup sortingGroup_Down;
+    [Header("手持部分层级")]
+    public SortingGroup sortingGroup_HoldingItem;
+
+    [Header("———躯体———")]
+    [Header("躯体物品位置")]
+    public Transform transform_ItemOnTorso;
+    [HideInInspector]
+    public List<GameObject> gameObjects_ItemOnTorso = new List<GameObject>();
+    [Header("———双手———")]
+    [Header("双手节点")]
     public Transform transform_Hand;
-    [SerializeField, Header("右手节点")]
+    [Header("右手节点")]
     public Transform transform_RightHand;
-    [SerializeField, Header("左手节点")]
+    [Header("左手节点")]
     public Transform transform_LeftHand;
-    public ParticleSystem particleSystem_Dust_Left;
-    public ParticleSystem particleSystem_Dust_Right;
-    public ParticleSystem particleSystem_Dust_Small;
-    private bool bool_StepLeft = false;
-    [Header("身体")]
-    public SpriteRenderer spriteRenderer_Body;
-    private Material material_Body;
+    [Header("右手物品位置")]
+    public Transform transform_ItemInRightHand;
+    [Header("左手物品位置")]
+    public Transform transform_ItemInLeftHand;
+    [HideInInspector]
+    public List<GameObject> gameObjects_ItemInHand = new List<GameObject>();
+    public Animator animator_Hand;
+    public AnimaEventListen animaEventListen_Hand;
+
+    [Header("———头部———")]
+    [Header("头部节点")]
+    public Transform transform_Head;
+    [Header("头部物品位置")]
+    public Transform transform_ItemOnHead;
     [Header("头发")]
     public SpriteRenderer spriteRenderer_Hair;
     [Header("眼睛")]
     public SpriteRenderer spriteRenderer_Eye;
-
-    [SerializeField, Header("右手物品位置")]
-    public Transform transform_ItemInRightHand;
-    [SerializeField, Header("左手物品位置")]
-    public Transform transform_ItemInLeftHand;
-    [HideInInspector]
-    public List<GameObject> gameObjects_ItemInHand = new List<GameObject>();
-    [SerializeField, Header("头部物品位置")]
-    public Transform transform_ItemOnHead;
     [HideInInspector]
     public List<GameObject> gameObjects_ItemOnHead = new List<GameObject>();
-    [SerializeField, Header("身体物品位置")]
-    public Transform transform_ItemOnBody;
-    [HideInInspector]
-    public List<GameObject> gameObjects_ItemOnBody = new List<GameObject>();
-
+    public Animator animator_Head;
+    public AnimaEventListen animaEventListen_Head;
 
     private SpriteAtlas atlasHair;
     private SpriteAtlas atlasEye;
@@ -68,26 +79,33 @@ public class BodyController_Human : BodyController_Base
         base.InitFace(hairID, eyeID, hairColor);
     }
 
-    public Animator animator_Body;
-    public AnimaEventListen animaEventListen_Body;
 
-    public Animator animator_Head;
-    public AnimaEventListen animaEventListen_Head;
 
-    public Animator animator_Hand;
-    public AnimaEventListen animaEventListen_Hand;
 
-    public void Start()
+    public override void Start()
     {
-        animaEventListen_Body.BindCommonEvent((x) => 
+        base.Start();
+        animaEventListen_Body.BindCommonEvent((x) =>
         {
             if (x.Equals("Step"))
             {
                 PlayStep();
             }
         });
-        material_Body = new Material(spriteRenderer_Body.sharedMaterial);
-        spriteRenderer_Body.material = material_Body;
+        animaEventListen_Body.BindCommonEvent((x) =>
+        {
+            if (x.Equals("EnterWater"))
+            {
+                EnterWater();
+            }
+        });
+        animaEventListen_Body.BindCommonEvent((x) =>
+        {
+            if (x.Equals("ExitWater"))
+            {
+                ExitWater();
+            }
+        });
     }
     public override void SetAnimatorTrigger(BodyPart bodyPart, string name)
     {
@@ -149,23 +167,6 @@ public class BodyController_Human : BodyController_Base
         }
         base.SetAnimatorFunc(bodyPart, func);
     }
-    
-    public override void PlayStep()
-    {
-        
-        if (bool_StepLeft)
-        {
-            if (particleSystem_Dust_Left) particleSystem_Dust_Left.Play();
-            bool_StepLeft = false;
-        }
-        else
-        {
-            if (particleSystem_Dust_Right) particleSystem_Dust_Right.Play();
-            bool_StepLeft = true;
-        }
-        if (particleSystem_Dust_Small) particleSystem_Dust_Small.Play();
-        base.PlayStep();
-    }
     public override void TurnRight()
     {
         transform_Body.localScale = new Vector3(1, 1, 1);
@@ -217,5 +218,218 @@ public class BodyController_Human : BodyController_Base
         transform_Body.DOKill();
         transform_Body.transform.localScale = new Vector3(transform_Body.transform.localScale.x, 1, 1);
         transform_Body.DOPunchScale(new Vector3(0, -0.1f, 0), 0.2f);
+    }
+
+    #region//手
+    public void AddItemOnBothHand(GameObject itemObj, Vector3 pos, Quaternion quaternion, Vector3 scale)
+    {
+        itemObj.transform.SetParent(transform_Hand);
+        gameObjects_ItemInHand.Add(itemObj);
+        itemObj.transform.localPosition = pos;
+        itemObj.transform.localRotation = quaternion;
+        itemObj.transform.localScale = scale;
+    }
+    public void AddItemOnRightHand(GameObject itemObj, Vector3 pos, Quaternion quaternion, Vector3 scale)
+    {
+        itemObj.transform.SetParent(transform_ItemInRightHand);
+        gameObjects_ItemInHand.Add(itemObj);
+        itemObj.transform.localPosition = pos;
+        itemObj.transform.localRotation = quaternion;
+        itemObj.transform.localScale = scale;
+    }
+    public void AddItemOnLeftHand(GameObject itemObj, Vector3 pos, Quaternion quaternion, Vector3 scale)
+    {
+        itemObj.transform.SetParent(transform_ItemInLeftHand);
+        gameObjects_ItemInHand.Add(itemObj);
+        itemObj.transform.localPosition = pos;
+        itemObj.transform.localRotation = quaternion;
+        itemObj.transform.localScale = scale;
+    }
+    public void CleanItemInHand()
+    {
+        if (gameObjects_ItemInHand.Count > 0)
+        {
+            for (int i = 0; i < gameObjects_ItemInHand.Count; i++)
+            {
+                Destroy(gameObjects_ItemInHand[i]);
+            }
+        }
+        transform_ItemInRightHand.localScale = Vector3.one;
+        transform_ItemInRightHand.localPosition = Vector3.zero;
+        transform_ItemInRightHand.localRotation = Quaternion.identity;
+        transform_ItemInLeftHand.localScale = Vector3.one;
+        transform_ItemInLeftHand.localPosition = Vector3.zero;
+        transform_ItemInLeftHand.localRotation = Quaternion.identity;
+    }
+
+    public SpriteRenderer ShowRightHand(bool show)
+    {
+        SpriteRenderer spriteRenderer = transform_RightHand.gameObject.GetComponent<SpriteRenderer>();
+        spriteRenderer.enabled = show;
+        if (show)
+        {
+
+        }
+        return spriteRenderer;
+    }
+    public void ShowRightHandItem(short id)
+    {
+        if (id == 0)
+        {
+            transform_ItemInRightHand.GetComponent<SpriteRenderer>().sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
+            transform_ItemInRightHand.GetComponent<SpriteRenderer>().sortingOrder = 4;
+        }
+        else
+        {
+            transform_ItemInRightHand.GetComponent<SpriteRenderer>().sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + id);
+        }
+    }
+    public SpriteRenderer ShowLeftHand(bool show)
+    {
+        SpriteRenderer spriteRenderer = transform_LeftHand.gameObject.GetComponent<SpriteRenderer>();
+        spriteRenderer.enabled = show;
+        return spriteRenderer;
+    }
+    public void ShowLeftHandItem(short id)
+    {
+        if (id == 0)
+        {
+            transform_ItemInLeftHand.GetComponent<SpriteRenderer>().sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
+            transform_ItemInLeftHand.GetComponent<SpriteRenderer>().sortingOrder = 1;
+        }
+        else
+        {
+            transform_ItemInLeftHand.GetComponent<SpriteRenderer>().sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + id);
+        }
+    }
+
+    #endregion
+    #region//身
+    public void AddItemOnBody(GameObject itemObj, Vector3 pos, Quaternion quaternion, Vector3 scale)
+    {
+        itemObj.transform.SetParent(transform_ItemOnTorso);
+        gameObjects_ItemOnTorso.Add(itemObj);
+        itemObj.transform.localPosition = pos;
+        itemObj.transform.localRotation = quaternion;
+        itemObj.transform.localScale = scale;
+    }
+    public void ShowBodyItem(short id)
+    {
+        if (id == 0)
+        {
+            transform_ItemOnTorso.GetComponent<SpriteRenderer>().sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
+        }
+        else
+        {
+            transform_ItemOnTorso.GetComponent<SpriteRenderer>().sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + id);
+        }
+    }
+    public void CleanItemOnBody()
+    {
+        if (gameObjects_ItemOnTorso.Count > 0)
+        {
+            for (int i = 0; i < gameObjects_ItemOnTorso.Count; i++)
+            {
+                Destroy(gameObjects_ItemOnTorso[i]);
+            }
+        }
+        transform_ItemOnTorso.GetComponent<SpriteRenderer>().sprite = null;
+
+    }
+
+    #endregion
+    #region//头
+    public void AddItemOnHead(GameObject itemObj, Vector3 pos, Quaternion quaternion, Vector3 scale)
+    {
+        itemObj.transform.SetParent(transform_ItemOnHead);
+        gameObjects_ItemOnHead.Add(itemObj);
+        itemObj.transform.localPosition = pos;
+        itemObj.transform.localRotation = quaternion;
+        itemObj.transform.localScale = scale;
+    }
+    public void ShowHeadItem(short id)
+    {
+        if (id == 0)
+        {
+            transform_ItemOnHead.GetComponent<SpriteRenderer>().sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
+        }
+        else
+        {
+            transform_ItemOnHead.GetComponent<SpriteRenderer>().sprite = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_" + id);
+        }
+    }
+    public void CleanItemOnHead()
+    {
+        if (gameObjects_ItemOnHead.Count > 0)
+        {
+            for (int i = 0; i < gameObjects_ItemOnHead.Count; i++)
+            {
+                Destroy(gameObjects_ItemOnHead[i]);
+            }
+        }
+        transform_ItemOnHead.GetComponent<SpriteRenderer>().sprite = null;
+
+    }
+
+    #endregion
+
+    public override void StandOnWater(bool on)
+    {
+        if (bool_StandOnWater != on)
+        {
+            bool_StandOnWater = on;
+        }
+    }
+
+    public override void EnterWater()
+    {
+        bool_EnterWater = true;
+        sortingGroup_Root.enabled = !bool_EnterWater;
+        sortingGroup_Top.enabled = bool_EnterWater;
+        sortingGroup_Down.enabled = bool_EnterWater;
+        sortingGroup_HoldingItem.enabled = bool_EnterWater;
+        sortingGroup_HoldingItem.sortingOrder = 0;
+        //trans_Offset.localPosition = bool_Swim ? new Vector3(0, -1f, 0) : Vector3.zero;
+        LiquidManager.Instance.AddWave(transform.position + vector_WaveOffset, null, Vector3.one * 10);
+        LiquidManager.Instance.AddWave(transform.position + vector_WaveOffset, null, Vector3.one * 5);
+
+        GameObject waterEnter = PoolManager.Instance?.GetEffectObj("Effect/Effect_WaterEnter");
+        if (waterEnter != null)
+        {
+            // 随机翻转
+            waterEnter.transform.localScale = Vector3.one;
+            waterEnter.transform.position = transform.position + new Vector3(0, 0.2f, 0);
+            waterEnter.transform.localRotation = Quaternion.identity;
+        }
+
+        SetAnimatorTrigger(BodyPart.Hand, "Swim");
+        SetAnimatorTrigger(BodyPart.Head, "Swim");
+    }
+    public override void ExitWater()
+    {
+        bool_EnterWater = false;
+        sortingGroup_Root.enabled = !bool_EnterWater;
+        sortingGroup_Top.enabled = bool_EnterWater;
+        sortingGroup_Down.enabled = bool_EnterWater;
+        sortingGroup_HoldingItem.enabled = bool_EnterWater;
+        sortingGroup_HoldingItem.sortingOrder = 0;
+        SetAnimatorTrigger(BodyPart.Hand, "ExitWater");
+        SetAnimatorTrigger(BodyPart.Head, "ExitWater");
+        //trans_Offset.localPosition = bool_Swim ? new Vector3(0, -1f, 0) : Vector3.zero;
+    }
+    public override void UpdateWave(float dt)
+    {
+        if (bool_EnterWater)
+        {
+            LiquidManager.Instance.AddWave(transform_RightHand.position);
+            LiquidManager.Instance.AddWave(transform_LeftHand.position);
+        }
+        base.UpdateWave(dt);
+    }
+    public override void ShowAsRider(bool on, ActorManager vehicle)
+    {
+        //sortingGroup_HoldingItem.enabled = on;
+        //sortingGroup_HoldingItem.sortingOrder = on ? 4 : 0;
+        base.ShowAsRider(on, vehicle);
     }
 }

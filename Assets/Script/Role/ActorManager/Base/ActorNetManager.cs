@@ -10,30 +10,68 @@ using UnityEngine;
 /// </summary>
 public class ActorNetManager : NetworkBehaviour
 {
-    [Header("物理同步组件")]
+    [Header("同步物理组件")]
     public NetworkRigidbody2D networkRigidbody;
+    [Header("本地物理组件")]
+    public Rigidbody2D localRigidbody;
+    [Header("刚体碰撞器")]
+    public CircleCollider2D circleCollider2D;
+    [Header("触发碰撞器")]
+    public BoxCollider2D boxCollider2D;
+    /// <summary>
+    /// 开启本地权威
+    /// </summary>
+    [Header("开启本地权威")]
+    public bool local_Simulation = false;
+    private float float_LockTimer = 0;
+
+    private float float_SimulationTimer = 0;
+    private const float float_SyncCD = 0.2f; 
+    private const float float_SyncPositionTolerance = 0.25f;
     [Header("本地角色组件")]
     public ActorManager actorManager_Local;
     public override void Spawned()
     {
-        if (Object.HasStateAuthority)
-        {
-            actorManager_Local.State_Init();
-        }
+        actorManager_Local.AllClient_BindConfig();
+        if (Object.HasStateAuthority) actorManager_Local.State_Init();
         actorManager_Local.AllClient_Init();
         AllClient_InitNetData();
-        WorldManager.Instance.AddActor(actorManager_Local);
+        WorldActorManager.Instance.AddActor(actorManager_Local);
         base.Spawned();
     }
     public override void Despawned(NetworkRunner runner, bool hasState)
     {
-        WorldManager.Instance.SubActor(actorManager_Local);
+        WorldActorManager.Instance.SubActor(actorManager_Local);
         base.Despawned(runner, hasState);
     }
     public override void FixedUpdateNetwork()
     {
         if (actorManager_Local.actorAuthority.isState) actorManager_Local.State_FixedUpdateNetwork(Runner.DeltaTime);
         base.FixedUpdateNetwork();
+    }
+    /// <summary>
+    /// 本地端移动预测
+    /// </summary>
+    public void Local_PlaySimulation(bool on)
+    {
+        local_Simulation = on;
+        if (on)
+        {
+            if (networkRigidbody != null) networkRigidbody.enabled = false;
+            if (localRigidbody != null)
+            {
+                localRigidbody.isKinematic = false;
+                localRigidbody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            }
+        }
+        else
+        {
+            if (networkRigidbody != null) networkRigidbody.enabled = true;
+        }
+    }
+    public void Local_ChangeCollider(bool on)
+    {
+        circleCollider2D.enabled = on;
     }
     #region//(非本地)初始化>>>请求数据
     /// <summary>
@@ -42,9 +80,11 @@ public class ActorNetManager : NetworkBehaviour
     public void AllClient_InitNetData()
     {
         AllClient_RequestInfo();
-        OnItemHandChange();
-        OnItemHeadChange();
-        OnItemBodyChange();
+        AllClient_ItemHand_Broadcast();
+        AllClient_ItemHead_Broadcast();
+        AllClient_ItemBody_Broadcast();
+        AllClient_ItemAccessory_Broadcast();
+        AllClient_ItemConsumables_Broadcast();
     }
     /// <summary>
     /// 客户端向服务器请求数据
@@ -90,7 +130,6 @@ public class ActorNetManager : NetworkBehaviour
         Local_EyeID = eyeID;
         Local_HairColor = hairColor;
         actorManager_Local.bodyController.InitFace(Local_HairID, Local_EyeID, Local_HairColor);
-        actorManager_Local.actorUI.ShowName(Local_Name);
     }
     /// <summary>
     /// [向特定客户端]发送本地属性数据
@@ -171,7 +210,6 @@ public class ActorNetManager : NetworkBehaviour
         Local_EyeID = eyeID;
         Local_HairColor = hairColor;
         actorManager_Local.bodyController.InitFace(Local_HairID, Local_EyeID, Local_HairColor);
-        actorManager_Local.actorUI.ShowName(Local_Name);
     }
     /// <summary>
     /// 发送本地属性数据
@@ -210,14 +248,8 @@ public class ActorNetManager : NetworkBehaviour
     public short Local_HpMax { get; set; }
     public void OnCurHpChange()
     {
-        if (Net_HpCur <= 0)
-        {
-            actorManager_Local.AllClient_UpdateHpBar(0);
-        }
-        else
-        {
-            actorManager_Local.AllClient_UpdateHpBar((float)Net_HpCur / (float)Local_HpMax);
-        }
+        float barVal = Net_HpCur <= 0 ? 0 : (float)Net_HpCur / Local_HpMax;
+        actorManager_Local.AllClient_UpdateHpBar(barVal); 
         if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
         {
             MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateHPData()
@@ -235,7 +267,7 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_AllClient_HpChange(int parameter, int reason, NetworkId networkId)
     {
-        actorManager_Local.AllClient_Listen_MyselfHpChange(parameter, (HpChangeReason)reason, networkId);
+        actorManager_Local.ForAll_Listen_MyselfHpChange(parameter, (HpChangeReason)reason, networkId);
         if (actorManager_Local.actorAuthority.isState)
         {
             OnlyState_HpChange(parameter, reason, networkId);
@@ -244,22 +276,17 @@ public class ActorNetManager : NetworkBehaviour
     private void OnlyState_HpChange(int parameter, int reason, NetworkId networkId)
     {
         int hp = Net_HpCur + parameter;
-        if (hp < 0)
+
+        if (hp > 0)
         {
-            Net_HpCur = 0;
-            Net_SpeedCommon = 0;
-            actorManager_Local.State_Listen_MyselfDead(parameter, (HpChangeReason)reason, networkId);
-            RPC_AllClient_Dead();
-        }
-        else if (hp > Local_HpMax)
-        {
-            Net_HpCur = Local_HpMax;
-            actorManager_Local.State_Listen_MyselfHpChange(parameter, (HpChangeReason)reason, networkId);
+            Net_HpCur = hp > Local_HpMax ? Local_HpMax : (short)(Net_HpCur + parameter);
+            if (parameter < 0) actorManager_Local.ForState_Listen_MyselfInjured(parameter, (HpChangeReason)reason, networkId);
         }
         else
         {
-            Net_HpCur = (short)(Net_HpCur + parameter);
-            actorManager_Local.State_Listen_MyselfHpChange(parameter, (HpChangeReason)reason, networkId);
+            Net_HpCur = 0; Net_SpeedCommon = 0;
+            actorManager_Local.ForState_Listen_MyselfDead(parameter, (HpChangeReason)reason, networkId);
+            RPC_AllClient_Dead();
         }
     }
     /// <summary>
@@ -408,7 +435,7 @@ public class ActorNetManager : NetworkBehaviour
     }
     private void OnlyState_ChangeArmor(short val)
     {
-        Net_Armor += val;
+        Net_Armor = val;
     }
     #endregion
     #region//魔抗(所有客户端)
@@ -434,262 +461,274 @@ public class ActorNetManager : NetworkBehaviour
     }
     private void OnlyState_ChangeResistance(short val)
     {
-        Net_Resistance += val;
+        Net_Resistance = val;
     }
     #endregion
+    #region//载具(所有客户端)
+    [Networked, OnChangedRender(nameof(OnVehicleChange)), HideInInspector]
+    public NetworkId Net_Vehicle { get; set; }
+    public void OnVehicleChange()
+    {
+        if (Runner.FindObject(Net_Vehicle)&& Runner.FindObject(Net_Vehicle).TryGetComponent(out ActorManager actor))
+        {
+            actorManager_Local.vehicleManager.AllClient_SetVehicle(actor);
+        }
+        else
+        {
+            actorManager_Local.vehicleManager.AllClient_CleanVehicle();
+        }
+    }
+
+    #endregion
+
     #region//物体持握(所有客户端)
-    /// <summary>
-    /// 手部物体
-    /// </summary>
-    [Networked, OnChangedRender(nameof(OnItemHandChange)), HideInInspector]
-    public ItemData Net_ItemHand { get; set; }
-    public void OnItemHandChange()
+    private ItemData local_ItemHand;
+    public ItemData Local_ItemHand 
     {
-        actorManager_Local.itemManager.UpdateItemHand(Net_ItemHand);
+        get { return local_ItemHand; }
+        set 
+        {
+            if (!local_ItemHand.FullyEqual(value))
+            {
+                local_ItemHand = value;
+                actorManager_Local.itemManager.UpdateItemHand(local_ItemHand);
+                if (actorManager_Local.actorAuthority.isLocal)  { RPC_LocalInput_ItemHand_Upload(local_ItemHand); }
+            }
+        }
     }
-    /// <summary>
-    /// RPC:添加持握物体
-    /// </summary>
-    /// <param name="itemData_Add"></param>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemHand_Add(ItemData itemData_Add)
+    public void Local_ItemHand_Add(ItemData itemData)
     {
-        OnlyState_ItemHand_Add(itemData_Add);
-    }
-    public void OnlyState_ItemHand_Add(ItemData itemData_Add)
-    {
-        Net_ItemHand = GameToolManager.Instance.CombineItem(Net_ItemHand, itemData_Add, out ItemData itemData_Res);
+        Local_ItemHand = GameToolManager.Instance.CombineItem(Local_ItemHand, itemData, out ItemData itemData_Res);
         if (itemData_Res.I > 0 && itemData_Res.C > 0)
         {
             RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Hand);
         }
     }
-    /// <summary>
-    /// RPC:减少持握物体
-    /// </summary>
-    /// <param name="itemData_Sub"></param>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemHand_Sub(ItemData itemData_Sub)
+    public void Local_ItemHand_Sub(ItemData itemData)
     {
-        OnlyState_ItemHand_Sub(itemData_Sub);
+        Local_ItemHand = GameToolManager.Instance.SplitItem(Local_ItemHand, itemData);
     }
-    public void OnlyState_ItemHand_Sub(ItemData itemData_Sub)
+    public void Local_ItemHand_Change(ItemData itemData_Old, ItemData itemData_New)
     {
-        Net_ItemHand = GameToolManager.Instance.SplitItem(Net_ItemHand, itemData_Sub);
+        if (Local_ItemHand.Equals(itemData_Old)) Local_ItemHand = itemData_New;
     }
     /// <summary>
-    /// RPC:修改持握物品
+    /// 上传本地手持物体
     /// </summary>
     /// <param name="itemData"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemHand_Change(ItemData itemData_Old, ItemData itemData_New)
+    public void RPC_LocalInput_ItemHand_Upload(ItemData itemData) 
     {
-        OnlyState_ItemHand_Change(itemData_Old, itemData_New);
+        Net_ItemHand = itemData;
     }
-    public void OnlyState_ItemHand_Change(ItemData itemData_Old, ItemData itemData_New)
+    /// <summary>
+    /// 手部物体
+    /// </summary>
+    [Networked, OnChangedRender(nameof(AllClient_ItemHand_Broadcast)), HideInInspector]
+    public ItemData Net_ItemHand { get; set; }
+    /// <summary>
+    /// 将服务器信息广播给除了本地端之外的客户端
+    /// </summary>
+    public void AllClient_ItemHand_Broadcast()
     {
-        if (Net_ItemHand.Equals(itemData_Old))
-        {
-            Net_ItemHand = itemData_New;
-        }
+        if (!actorManager_Local.actorAuthority.isLocal) { Local_ItemHand = Net_ItemHand; }
     }
-
     #endregion
     #region//物体帽子(所有客户端)
-    /// <summary>
-    /// 头部物体
-    /// </summary>
-    [Networked, OnChangedRender(nameof(OnItemHeadChange)), HideInInspector]
-    public ItemData Net_ItemHead { get; set; }
-    public void OnItemHeadChange()
+    private ItemData loacl_ItemHead;
+    public ItemData Local_ItemHead
     {
-        actorManager_Local.itemManager.UpdateItemHead(Net_ItemHead);
+        get { return loacl_ItemHead; }
+        set
+        {
+            if (!loacl_ItemHead.FullyEqual(value))
+            {
+                loacl_ItemHead = value;
+                actorManager_Local.itemManager.UpdateItemHead(loacl_ItemHead);
+                if (actorManager_Local.actorAuthority.isLocal) { RPC_LocalInput_ItemHead_Upload(loacl_ItemHead); }
+            }
+        }
     }
-    /// <summary>
-    /// RPC:添加头戴物体
-    /// </summary>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemHead_Add(ItemData itemData_Add)
+    public void Local_ItemHead_Add(ItemData itemData)
     {
-        Debug.Log(itemData_Add.I);
-        OnlyState_ItemHead_Add(itemData_Add);
-    }
-    public void OnlyState_ItemHead_Add(ItemData itemData_Add)
-    {
-        Net_ItemHead = GameToolManager.Instance.CombineItem(Net_ItemHead, itemData_Add, out ItemData itemData_Res);
+        Local_ItemHead = GameToolManager.Instance.CombineItem(Local_ItemHead, itemData, out ItemData itemData_Res);
         if (itemData_Res.I > 0 && itemData_Res.C > 0)
         {
             RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Head);
         }
     }
-    /// <summary>
-    /// RPC:减少头戴物体
-    /// </summary>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemHead_Sub(ItemData itemData_Sub)
+    public void Local_ItemHead_Sub(ItemData itemData)
     {
-        OnlyState_ItemHead_Sub(itemData_Sub);
+        Local_ItemHead = GameToolManager.Instance.SplitItem(Local_ItemHead, itemData);
     }
-    public void OnlyState_ItemHead_Sub(ItemData itemData_Sub)
+    public void Local_ItemHead_Change(ItemData itemData_Old, ItemData itemData_New)
     {
-        Net_ItemHead = GameToolManager.Instance.SplitItem(Net_ItemHead, itemData_Sub);
+        if (Local_ItemHead.Equals(itemData_Old)) Local_ItemHead = itemData_New; 
     }
     /// <summary>
-    /// RPC:更改头戴物体
+    /// 上传本地手持物体
     /// </summary>
     /// <param name="itemData"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemHead_Change(ItemData itemData_Old, ItemData itemData_New)
+    public void RPC_LocalInput_ItemHead_Upload(ItemData itemData)
     {
-        OnlyState_ItemHead_Change(itemData_Old, itemData_New);
+        Net_ItemHead = itemData;
     }
-    public void OnlyState_ItemHead_Change(ItemData oldItemData, ItemData newItemData)
+    /// <summary>
+    /// 头部物体
+    /// </summary>
+    [Networked, OnChangedRender(nameof(AllClient_ItemHead_Broadcast)), HideInInspector]
+    public ItemData Net_ItemHead { get; set; }
+    public void AllClient_ItemHead_Broadcast()
     {
-        if (Net_ItemHead.Equals(oldItemData))
-        {
-            Net_ItemHead = newItemData;
-        }
+        if (!actorManager_Local.actorAuthority.isLocal) { Local_ItemHead = Net_ItemHead; }
     }
 
     #endregion
     #region//物体衣物(所有客户端)
-    [Networked, OnChangedRender(nameof(OnItemBodyChange)), HideInInspector]
-    public ItemData Net_ItemBody { get; set; }
-    public void OnItemBodyChange()
+    private ItemData loacl_ItemBody;
+    public ItemData Local_ItemBody
     {
-        actorManager_Local.itemManager.UpdateItemBody(Net_ItemBody);
+        get { return loacl_ItemBody; }
+        set
+        {
+            if (!loacl_ItemBody.FullyEqual(value))
+            {
+                loacl_ItemBody = value;
+                actorManager_Local.itemManager.UpdateItemBody(loacl_ItemBody);
+                if (actorManager_Local.actorAuthority.isLocal) { RPC_LocalInput_ItemBody_Upload(loacl_ItemBody); }
+            }
+        }
     }
-    /// <summary>
-    /// RPC:添加穿着物体
-    /// </summary>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemBody_Add(ItemData itemData_Add)
+    public void Local_ItemBody_Add(ItemData itemData)
     {
-        OnlyState_ItemBody_Add(itemData_Add);
-    }
-    public void OnlyState_ItemBody_Add(ItemData itemData_Add)
-    {
-        Net_ItemBody = GameToolManager.Instance.CombineItem(Net_ItemBody, itemData_Add, out ItemData itemData_Res);
+        Local_ItemBody = GameToolManager.Instance.CombineItem(Local_ItemBody, itemData, out ItemData itemData_Res);
         if (itemData_Res.I > 0 && itemData_Res.C > 0)
         {
             RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Body);
         }
     }
-    /// <summary>
-    /// RPC:减少穿着物体
-    /// </summary>
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemBody_Sub(ItemData itemData_Sub)
+    public void Local_ItemBody_Sub(ItemData itemData)
     {
-        OnlyState_ItemBody_Sub(itemData_Sub);
+        Local_ItemBody = GameToolManager.Instance.SplitItem(Local_ItemBody, itemData);
     }
-    public void OnlyState_ItemBody_Sub(ItemData itemData_Sub)
+    public void Local_ItemBody_Change(ItemData itemData_Old, ItemData itemData_New)
     {
-        Net_ItemBody = GameToolManager.Instance.SplitItem(Net_ItemBody, itemData_Sub);
+        if (Local_ItemBody.Equals(itemData_Old)) Local_ItemBody = itemData_New;
     }
     /// <summary>
-    /// RPC:修改穿着物体
+    /// 上传本地手持物体
     /// </summary>
     /// <param name="itemData"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemBody_Change(ItemData itemData_Old, ItemData itemData_New)
+    public void RPC_LocalInput_ItemBody_Upload(ItemData itemData)
     {
-        OnlyState_ItemBody_Change(itemData_Old, itemData_New);
-    }
-    public void OnlyState_ItemBody_Change(ItemData itemData_Old, ItemData itemData_New)
-    {
-        if (Net_ItemBody.Equals(itemData_Old))
-        {
-            Net_ItemBody = itemData_New;
-        }
+        Net_ItemBody = itemData;
     }
 
+
+    [Networked, OnChangedRender(nameof(AllClient_ItemBody_Broadcast)), HideInInspector]
+    public ItemData Net_ItemBody { get; set; }
+    public void AllClient_ItemBody_Broadcast()
+    {
+        if (!actorManager_Local.actorAuthority.isLocal) { Local_ItemBody = Net_ItemBody; }
+    }
     #endregion
     #region//物体饰品(所有客户端)
-    [Networked, OnChangedRender(nameof(OnItemAccessoryChange)), HideInInspector]
-    public ItemData Net_ItemAccessory { get; set; }
-    public void OnItemAccessoryChange()
+    private ItemData loacl_ItemAccessory;
+    public ItemData Local_ItemAccessory
     {
-        actorManager_Local.itemManager.UpdateItemAccessory(Net_ItemAccessory);
+        get { return loacl_ItemAccessory; }
+        set
+        {
+            if (!loacl_ItemAccessory.FullyEqual(value))
+            {
+                loacl_ItemAccessory = value;
+                actorManager_Local.itemManager.UpdateItemAccessory(loacl_ItemAccessory);
+                if (actorManager_Local.actorAuthority.isLocal) { RPC_LocalInput_ItemAccessory_Upload(loacl_ItemAccessory); }
+            }
+        }
     }
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemAccessory_Add(ItemData itemData_Add)
+    public void Local_ItemAccessory_Add(ItemData itemData)
     {
-        OnlyState_ItemAccessory_Add(itemData_Add);
-    }
-    public void OnlyState_ItemAccessory_Add(ItemData itemData_Add)
-    {
-        Net_ItemAccessory = GameToolManager.Instance.CombineItem(Net_ItemAccessory, itemData_Add, out ItemData itemData_Res);
+        Local_ItemAccessory = GameToolManager.Instance.CombineItem(Local_ItemAccessory, itemData, out ItemData itemData_Res);
         if (itemData_Res.I > 0 && itemData_Res.C > 0)
         {
             RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Accessory);
         }
     }
+    public void Local_ItemAccessory_Sub(ItemData itemData)
+    {
+        Local_ItemAccessory = GameToolManager.Instance.SplitItem(Local_ItemAccessory, itemData);
+    }
+    public void Local_ItemAccessory_Change(ItemData itemData_Old, ItemData itemData_New)
+    {
+        if (Local_ItemAccessory.Equals(itemData_Old)) Local_ItemAccessory = itemData_New;
+    }
+    /// <summary>
+    /// 上传本地手持物体
+    /// </summary>
+    /// <param name="itemData"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemAccessory_Sub(ItemData itemData_Sub)
+    public void RPC_LocalInput_ItemAccessory_Upload(ItemData itemData)
     {
-        OnlyState_ItemAccessory_Sub(itemData_Sub);
+        Net_ItemAccessory = itemData;
     }
-    public void OnlyState_ItemAccessory_Sub(ItemData itemData_Sub)
+    [Networked, OnChangedRender(nameof(AllClient_ItemAccessory_Broadcast)), HideInInspector]
+    public ItemData Net_ItemAccessory { get; set; }
+    public void AllClient_ItemAccessory_Broadcast()
     {
-        Net_ItemAccessory = GameToolManager.Instance.SplitItem(Net_ItemAccessory, itemData_Sub);
+        if (!actorManager_Local.actorAuthority.isLocal) { Local_ItemAccessory = Net_ItemAccessory; }
     }
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemAccessory_Change(ItemData itemData_Old, ItemData itemData_New)
-    {
-        OnlyState_ItemAccessory_Change(itemData_Old, itemData_New);
-    }
-    public void OnlyState_ItemAccessory_Change(ItemData itemData_Old, ItemData itemData_New)
-    {
-        if (Net_ItemAccessory.Equals(itemData_Old))
-        {
-            Net_ItemAccessory = itemData_New;
-        }
-    }
-
     #endregion
     #region//物体耗材(所有客户端)
-    [Networked, OnChangedRender(nameof(OnItemConsumablesChange)), HideInInspector]
-    public ItemData Net_ItemConsumables { get; set; }
-    public void OnItemConsumablesChange()
+    private ItemData loacl_ItemConsumables;
+    public ItemData Local_ItemConsumables
     {
-        actorManager_Local.itemManager.UpdateItemConsumables(Net_ItemConsumables);
+        get { return loacl_ItemConsumables; }
+        set
+        {
+            if (!loacl_ItemConsumables.FullyEqual(value))
+            {
+                loacl_ItemConsumables = value;
+                actorManager_Local.itemManager.UpdateItemConsumables(loacl_ItemConsumables);
+                if (actorManager_Local.actorAuthority.isLocal) { RPC_LocalInput_ItemConsumables_Upload(loacl_ItemConsumables); }
+            }
+        }
     }
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemConsumables_Add(ItemData itemData_Add)
+    public void Local_ItemConsumables_Add(ItemData itemData)
     {
-        OnlyState_ItemConsumables_Add(itemData_Add);
-    }
-    public void OnlyState_ItemConsumables_Add(ItemData itemData_Add)
-    {
-        Net_ItemConsumables = GameToolManager.Instance.CombineItem(Net_ItemConsumables, itemData_Add, out ItemData itemData_Res);
+        Local_ItemConsumables = GameToolManager.Instance.CombineItem(Local_ItemConsumables, itemData, out ItemData itemData_Res);
         if (itemData_Res.I > 0 && itemData_Res.C > 0)
         {
             RPC_State_ItemInBag_Add(itemData_Res, (short)ItemFrom.Consumables);
         }
     }
+    public void Local_ItemConsumables_Sub(ItemData itemData)
+    {
+        Local_ItemConsumables = GameToolManager.Instance.SplitItem(Local_ItemConsumables, itemData);
+    }
+    public void Local_ItemConsumables_Change(ItemData itemData_Old, ItemData itemData_New)
+    {
+        if (Local_ItemConsumables.Equals(itemData_Old)) Local_ItemConsumables = itemData_New;
+    }
+    /// <summary>
+    /// 上传本地手持物体
+    /// </summary>
+    /// <param name="itemData"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemConsumables_Sub(ItemData itemData_Sub)
+    public void RPC_LocalInput_ItemConsumables_Upload(ItemData itemData)
     {
-        OnlyState_ItemConsumables_Sub(itemData_Sub);
+        Net_ItemConsumables = itemData;
     }
-    public void OnlyState_ItemConsumables_Sub(ItemData itemData_Sub)
+    [Networked, OnChangedRender(nameof(AllClient_ItemConsumables_Broadcast)), HideInInspector]
+    public ItemData Net_ItemConsumables { get; set; }
+    public void AllClient_ItemConsumables_Broadcast()
     {
-        Net_ItemConsumables = GameToolManager.Instance.SplitItem(Net_ItemConsumables, itemData_Sub);
-    }
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    public void RPC_LocalInput_ItemConsumables_Change(ItemData itemData_Old, ItemData itemData_New)
-    {
-        OnlyState_ItemConsumables_Change(itemData_Old, itemData_New);
-    }
-    public void OnlyState_ItemConsumables_Change(ItemData itemData_Old, ItemData itemData_New)
-    {
-        if (Net_ItemConsumables.Equals(itemData_Old))
-        {
-            Net_ItemConsumables = itemData_New;
-        }
+        if (!actorManager_Local.actorAuthority.isLocal) { Local_ItemConsumables = Net_ItemConsumables; }
     }
     #endregion
+
     #region//物体背包(只在本地端计算)
     public int Local_BagCapacity = 40;
     public int Local_BagItemCount = 0;
@@ -877,10 +916,26 @@ public class ActorNetManager : NetworkBehaviour
     #endregion
 
     #region//金币(只在本地端计算)
+
+    private int _localCoin;
     /// <summary>
     /// 金币
     /// </summary>
-    public int Local_Coin { get; set; }
+    public int Local_Coin
+    {
+        get => _localCoin;
+        set
+        {
+            _localCoin = value;
+            if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
+            {
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateCoinData()
+                {
+                    Coin = _localCoin,
+                });
+            }
+        }
+    }
     /// <summary>
     /// 本地端支付
     /// </summary>
@@ -903,13 +958,6 @@ public class ActorNetManager : NetworkBehaviour
     private void RPC_State_UpdateCoin(int newVal)
     {
         Local_Coin = newVal;
-        if (actorManager_Local.actorAuthority.isPlayer && actorManager_Local.actorAuthority.isLocal)
-        {
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateCoinData()
-            {
-                Coin = Local_Coin,
-            });
-        }
     }
 
     #endregion
@@ -944,7 +992,7 @@ public class ActorNetManager : NetworkBehaviour
     #region//Buff(只在本地端计算)
     public List<BuffData> Local_GetBuffList()
     {
-        actorManager_Local.buffManager.Local_GetBuff(out List<BuffData> buffdata);
+        actorManager_Local.buffManager.Local_GetBuffList(out List<BuffData> buffdata);
         return buffdata;
     }
     public void Local_SetBuffList(List<BuffData> buffDatas)
@@ -965,189 +1013,6 @@ public class ActorNetManager : NetworkBehaviour
         actorManager_Local.buffManager.All_PlayBuffEffect(ID,index);
     }
     #endregion
-    #region//Skill(只在本地端计算)
-    private List<short> Local_SkillList { get; } = new List<short>();
-    public List<short> Local_GetSkillList()
-    {
-        return new List<short>(Local_SkillList);
-    }
-    public void Local_SetSkillList(List<short> skillDatas)
-    {
-        Local_ClearSkill();
-        for (int i = 0; i < skillDatas.Count; i++)
-        {
-            Local_AddSkill(skillDatas[i]);
-        }
-        
-    }
-    public void Local_AddSkill(short skill)
-    {
-        if (!Local_SkillList.Contains(skill))
-        {
-            Local_SkillList.Add(skill);
-
-            int skillPoint = Local_Level;
-            for (int i = 0; i < Local_SkillList.Count; i++)
-            {
-                skillPoint -= SkillConfigData.GetStatusConfig(Local_SkillList[i]).Skill_Cost;
-            }
-            Local_AddBuff(skill, 0, Vector3Int.zero);
-            MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateSkill()
-            {
-                Skills = new List<short>(Local_SkillList),
-                Point = skillPoint
-            });
-        }
-    }
-    public void Local_ClearSkill()
-    {
-        for (int i = 0; i < Local_SkillList.Count; i++)
-        {
-            //Local_AddSkill(skillDatas[i]);
-        }
-        Local_SkillList.Clear();
-        int skillPoint = Local_Level;
-        for (int i = 0; i < Local_SkillList.Count; i++)
-        {
-            skillPoint -= SkillConfigData.GetStatusConfig(Local_SkillList[i]).Skill_Cost;
-        }
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateSkill()
-        {
-            Skills = new List<short>(Local_SkillList),
-            Point = skillPoint
-        });
-
-    }
-    #endregion
-    #region//Level(只在本地端计算)
-    private int Local_Level { get; set; }
-    private int Local_Exp { get; set; }
-    public int Local_GetLevel()
-    {
-        return Local_Level;
-    }
-    public int Local_GetExp()
-    {
-        return Local_Exp;
-    }
-    public void Local_SetLevelAndExp(int level, int exp)
-    {
-        Local_LevelUp(level - Local_Level);
-        Local_ExpUp(exp - Local_Exp);
-    }
-    public void Local_ExpUp(int val)
-    {
-        int levelUp = 0;
-        int expCur = Local_Exp + val;
-        int expCapacity = (Local_Level + levelUp) * 5 + 45;
-        while (expCur > expCapacity)
-        {
-            levelUp++;
-            expCur = expCur - expCapacity;
-            expCapacity = (Local_Level + levelUp) * 5 + 45;
-        }
-        Local_LevelUp(levelUp);
-        Local_Exp = expCur;
-        int skillPoint = Local_Level;
-        for (int i = 0; i < Local_SkillList.Count; i++)
-        {
-            skillPoint -= SkillConfigData.GetStatusConfig(Local_SkillList[i]).Skill_Cost;
-        }
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateSkill()
-        {
-            Skills = new List<short>(Local_SkillList),
-            Point = skillPoint
-        });
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateExpData()
-        {
-            Level = Local_Level,
-            Exp_Cur = Local_Exp,
-            Exp_Capacity = expCapacity,
-        });
-    }
-    public void Local_LevelUp(int val)
-    {
-        Local_Level += val;
-        int skillPoint = Local_Level;
-        int expCapacity = Local_Level * 5 + 45;
-
-        for (int i = 0; i < Local_SkillList.Count; i++)
-        {
-            skillPoint -= SkillConfigData.GetStatusConfig(Local_SkillList[i]).Skill_Cost;
-        }
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateSkill()
-        {
-            Skills = new List<short>(Local_SkillList),
-            Point = skillPoint
-        });
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateExpData()
-        {
-            Level = Local_Level,
-            Exp_Cur = Local_Exp,
-            Exp_Capacity = expCapacity,
-        });
-    }
-    #endregion
-    #region//Quest(只在本地端计算)
-    private List<int> Local_QuestList { get; } = new List<int>();
-    private short Local_QuestLevel;
-    public List<int> Local_GetQuestList()
-    {
-        return new List<int>(Local_QuestList);
-    }
-    public short Local_GetQuestLevel()
-    {
-        return Local_QuestLevel;
-    }
-    public void Local_SetQuestList(List<int> questDatas,short level)
-    {
-        Local_ClearQuest();
-        for (int i = 0; i < questDatas.Count; i++)
-        {
-            Local_AddQuest(questDatas[i]);
-        }
-        MessageBroker.Default.Publish(new UIEvent.UIEvent_UpdateQuest()
-        {
-            Quests = Local_GetQuestList(),
-            Level = Local_GetQuestLevel()
-        });
-    }
-    public void Local_AddQuest(int quest)
-    {
-        if (!Local_QuestList.Contains(quest))
-        {
-            Local_QuestList.Add(quest);
-        }
-    }
-    public void Local_ClearQuest()
-    {
-        Local_QuestList.Clear();
-    }
-
-    #endregion
-    #region//掉落物品(只在本地端计算)
-    private List<ItemData> Local_LootItems { get; } = new List<ItemData>(15);
-    /// <summary>
-    /// 获得掉落物体
-    /// </summary>
-    /// <returns></returns>
-    public List<ItemData> Local_GetLootItems()
-    {
-        return new List<ItemData>(Local_LootItems);
-    }
-    /// <summary>
-    /// 设置掉落物体
-    /// </summary>
-    /// <param name="itemDatas"></param>
-    public void Local_SetLootItems(List<ItemData> itemDatas)
-    {
-        Local_LootItems.Clear();
-        for (int i = 0; i < itemDatas.Count; i++)
-        {
-            Local_LootItems.Add(itemDatas[i]);
-        }
-    }
-    #endregion
     #region//角色技能操作
     /// <summary>
     /// 更改攻击状态
@@ -1156,11 +1021,7 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     public void RPC_State_NpcChangeAttackState(bool attacking)
     {
-        actorManager_Local.AllClient_Listen_ChangeAttackState(attacking);
-        if (actorManager_Local.actorAuthority.isState)
-        {
-            actorManager_Local.State_Listen_ChangeAttackState(attacking);
-        }
+        actorManager_Local.ForAll_Listen_ChangeAttackState(attacking);
     }
     /// <summary>
     /// 更改攻击目标
@@ -1169,11 +1030,7 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     public void RPC_State_NpcChangeAttackTarget(NetworkId id)
     {
-        actorManager_Local.AllClient_Listen_ChangeAttackTarget(id);
-        if (actorManager_Local.actorAuthority.isState)
-        {
-            actorManager_Local.State_Listen_ChangeAttackTarget(id);
-        }
+        actorManager_Local.ForAll_Listen_ChangeAttackTarget(id);
     }
 
     /// <summary>
@@ -1183,37 +1040,33 @@ public class ActorNetManager : NetworkBehaviour
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     public void RPC_State_NpcChangeThreatenedTarget(NetworkId id)
     {
-        actorManager_Local.AllClient_Listen_ChangeThreatenedTarget(id);
-        if (actorManager_Local.actorAuthority.isState)
-        {
-            actorManager_Local.State_Listen_ChangeThreatenedTarget(id);
-        }
+        actorManager_Local.ForAll_Listen_ChangeThreatenedTarget(id);
     }
 
     /// <summary>
     /// 使用技能
     /// </summary>
-    /// <param name="parameter"></param>
+    /// <param name="id"></param>
+    /// <param name="vector3"></param>
     /// <param name="networkId"></param>
     [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All)]
     public void RPC_State_NpcUseSkill(int id, Vector3Int vector3, NetworkId networkId)
     {
-        actorManager_Local.AllClient_Listen_NpcAction(id, vector3, networkId);
+        actorManager_Local.ForAll_Listen_NpcAction(id, vector3, networkId);
     }
     /// <summary>
     /// 使用技能
     /// </summary>
+    /// <param name="id"></param>
+    /// <param name="vector3"></param>
+    /// <param name="networkId"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
     public void RPC_Local_NpcUseSkill(int id, Vector3Int vector3, NetworkId networkId)
     {
-        actorManager_Local.AllClient_Listen_NpcAction(id, vector3, networkId);
+        actorManager_Local.ForAll_Listen_NpcAction(id, vector3, networkId);
     }
     #endregion
     #region//角色位移
-    /// <summary>
-    /// 锁定位置倒数
-    /// </summary>
-    float time_LockPos = 0;
     /// <summary>
     /// 本地端更改玩家位置
     /// </summary>
@@ -1222,28 +1075,131 @@ public class ActorNetManager : NetworkBehaviour
     {
         State_SetNetworkRigidbody(pos);
     }
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    public void RPC_Local_SyncNetworkTransform(Vector3 pos)
+    {
+        if (Vector3.Distance(pos, transform.position) > 0.5f)
+        {
+            State_SetNetworkRigidbody(pos);
+        }
+    }
+    /// <summary>
+    /// 网络权威设置位置
+    /// </summary>
+    /// <param name="pos"></param>
     private void State_SetNetworkRigidbody(Vector3 pos)
     {
-        time_LockPos = 0.5f;
-        networkRigidbody.Rigidbody.velocity = Vector2.zero;
-        networkRigidbody.Rigidbody.position = (pos);
+        float_LockTimer = 0.05f;
+        if (!local_Simulation)
+        {
+            if (networkRigidbody != null)
+            {
+                networkRigidbody.Rigidbody.velocity = Vector2.zero;
+                networkRigidbody.Rigidbody.position = (pos);
+                actorManager_Local.bodyController.Local_ResetPos(pos);
+            }
+        }
+        else
+        {
+            localRigidbody.velocity = Vector2.zero;
+            localRigidbody.MovePosition(pos);
+        }
     }
+    private Dictionary<ExternalForceType, Vector2> dic_ExternalForce = new Dictionary<ExternalForceType, Vector2>();
+    public Vector3 dic_ResultantForce { get; set; }
+    public enum ExternalForceType { Pull, Wind, MySleft }
+    public void State_SetExternalForce(Vector2 forceDir, ExternalForceType forceType)
+    {
+        dic_ExternalForce[forceType] = forceDir;
+        dic_ResultantForce = Vector2.zero;
+        foreach (var kvp in dic_ExternalForce)
+        {
+            dic_ResultantForce += (Vector3)kvp.Value;
+        }
+        
+    }
+    public void State_CleanExternalForce(ExternalForceType forceType)
+    {
+        dic_ExternalForce.Remove(forceType);
+        dic_ResultantForce = Vector3.zero;
+    }
+    /// <summary>
+    /// 网络权威移动位置
+    /// </summary>
+    /// <param name="dir"></param>
+    /// <param name="dt"></param>
+    public Vector3 State_MoveNetworkRigidbody(Vector2 dir, float dt)
+    {
+        dir = dir.normalized;
+        float speed = actorManager_Local.actionManager.Client_GetSpeed();
+        Vector3 velocity = new Vector3(dir.x * speed, dir.y * speed, 0);
+        Vector3 pos = transform.position + (velocity + dic_ResultantForce) * dt;
+        State_UpdateNetworkRigidbody(pos, speed, dt);
+        return pos;
+    }
+    /// <summary>
+    /// 本地模拟移动位置
+    /// </summary>
+    /// <param name="dir"></param>
+    /// <param name="dt"></param>
+    /// <returns></returns>
+    public Vector3 Local_MoveNetworkRigidbody(Vector2 dir, float dt) 
+    {
+        dir = dir.normalized;
+        float speed = actorManager_Local.actionManager.Client_GetSpeed();
+        Vector3 velocity = new Vector2(dir.x * speed, dir.y * speed);
+        Vector3 pos = transform.position + (velocity + dic_ResultantForce) * dt;
+        Local_UpdateSimulationRigidbody(pos, velocity.magnitude, dt);
+        return pos;
+    }
+
+    /// <summary>
+    /// 网络权威更新位置
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="speed"></param>
+    /// <param name="dt"></param>
     public void State_UpdateNetworkRigidbody(Vector3 pos, float speed, float dt)
     {
-        if (networkRigidbody/* && actorManager_Local.actorAuthority.isState*/)
+        if (!local_Simulation && Object.HasStateAuthority)
         {
-            if (time_LockPos <= 0)
+            if (float_LockTimer > 0) { float_LockTimer -= dt; return; }
+            if (networkRigidbody && networkRigidbody.Rigidbody.velocity.magnitude <= speed)
             {
-                if (networkRigidbody.Rigidbody.velocity.magnitude <= speed)
-                {
-                    networkRigidbody.Rigidbody.velocity = Vector2.zero;
-                    networkRigidbody.Rigidbody.position = (pos);
-                }
+                networkRigidbody.Rigidbody.velocity = Vector2.zero;
+                networkRigidbody.Rigidbody.position = (pos);
             }
-            else
+        }
+    }
+    /// <summary>
+    /// 本地模拟更新位置
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="speed"></param>
+    /// <param name="dt"></param>
+    public void Local_UpdateSimulationRigidbody(Vector3 pos, float speed, float dt)
+    {
+        if (local_Simulation)
+        {
+            if (float_LockTimer > 0) { float_LockTimer -= dt; return; }
+            if (localRigidbody && localRigidbody.velocity.magnitude <= speed)
             {
-                time_LockPos -= dt;
+                localRigidbody.velocity = Vector2.zero;
+                localRigidbody.MovePosition(pos);
             }
+            Local_TryToSync(pos, dt);
+        }
+    }
+    public void Local_TryToSync(Vector3 pos, float dt)
+    {
+        if (float_SimulationTimer > float_SyncCD)
+        {
+            float_SimulationTimer = 0;
+            RPC_Local_SyncNetworkTransform(pos);
+        }
+        else
+        {
+            float_SimulationTimer += dt;
         }
     }
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
@@ -1256,44 +1212,52 @@ public class ActorNetManager : NetworkBehaviour
     }
     private void State_AddForce(Vector2 dir, short force)
     {
-        if (networkRigidbody.Rigidbody.velocity == Vector2.zero)
+        if (networkRigidbody)
         {
-            networkRigidbody.Rigidbody.velocity = dir * force;
-        }
-        else
-        {
-            if (Vector2.Dot(networkRigidbody.Rigidbody.velocity, dir) > 0.2)
+            if (networkRigidbody.Rigidbody.velocity == Vector2.zero)
             {
-                /*同向--取大*/
-                if ((dir * force).magnitude > networkRigidbody.Rigidbody.velocity.magnitude)
-                {
-                    networkRigidbody.Rigidbody.velocity = dir * force;
-                }
+                networkRigidbody.Rigidbody.velocity = dir * force;
             }
             else
             {
-                /*异向--抵消*/
-                networkRigidbody.Rigidbody.velocity += dir * force;
+                if (Vector2.Dot(networkRigidbody.Rigidbody.velocity, dir) > 0.2)
+                {
+                    /*同向--取大*/
+                    if ((dir * force).magnitude > networkRigidbody.Rigidbody.velocity.magnitude)
+                    {
+                        networkRigidbody.Rigidbody.velocity = dir * force;
+                    }
+                }
+                else
+                {
+                    /*异向--抵消*/
+                    networkRigidbody.Rigidbody.velocity += dir * force;
+                }
             }
         }
     }
     #endregion
     #region//角色动作
-    
+    /// <summary>
+    /// 身体动作
+    /// </summary>
+    /// <param name="id">动作ID</param>
+    /// <param name="speed">动作速度</param>
+    /// <param name="pos">动作绑定位置</param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_Local_SetBodyAction(short id)
+    public void RPC_Local_SetBodyAction(short id, float speed, Vector2 pos)
     {
-        actorManager_Local.bodyController.PlayBodyAction((BodyAction)id);
+        actorManager_Local.bodyController.PlayBodyAction((BodyActionType)id, speed, pos);
     }
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_Local_SetHeadAction(short id)
+    public void RPC_Local_SetHeadAction(short id, float speed)
     {
-        actorManager_Local.bodyController.PlayHeadAction((HeadAction)id);
+        actorManager_Local.bodyController.PlayHeadAction((HeadActionType)id, speed);
     }
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_Local_SetHandAction(short id)
+    public void RPC_Local_SetHandAction(short id, float speed)
     {
-        actorManager_Local.bodyController.PlayHandAction((HandAction)id);
+        actorManager_Local.bodyController.PlayHandAction((HandActionType)id, speed);
     }
 
     #endregion
@@ -1302,15 +1266,9 @@ public class ActorNetManager : NetworkBehaviour
     /// 本地端发送表情
     /// </summary>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_LocalInput_SendEmoji(short id,short distance)
+    public void RPC_LocalInput_SendEmoji(short id, float duration, bool loop, short distance)
     {
-        MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_SomeoneSendEmoji
-        {
-            actor = actorManager_Local,
-            emoji = (Emoji)id,
-            distance = distance
-        });
-        actorManager_Local.actorUI.SendEmoji((Emoji)id);
+        actorManager_Local.actorUI.SendEmoji((Emoji)id, duration, loop, distance);
     }
     /// <summary>
     /// 本地端发送语言
@@ -1318,15 +1276,9 @@ public class ActorNetManager : NetworkBehaviour
     /// <param name="text"></param>
     /// <param name="id"></param>
     [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
-    public void RPC_LocalInput_SendText(string text, int id)
+    public void RPC_LocalInput_SendText(string text, int id, float duration, bool loop, short distance)
     {
-        MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_SomeoneSendEmoji
-        {
-            actor = actorManager_Local,
-            emoji = (Emoji)id,
-            distance = 10
-        });
-        actorManager_Local.actorUI.SendText(text);
+        actorManager_Local.actorUI.SendText(text, (Emoji)id, duration, loop, distance);
     }
     /// <summary>
     /// 本地端犯罪
@@ -1400,7 +1352,7 @@ public class ActorNetManager : NetworkBehaviour
     {
         if (actorManager_Local.actorAuthority.isState)
         {
-            actorManager_Local.pathManager.State_SetFrezzeTime(time);
+            actorManager_Local.pathManager.State_Stop(time);
         }
     }
     /// <summary>

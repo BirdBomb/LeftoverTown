@@ -152,9 +152,9 @@ public class UI_CreateActor : MonoBehaviour
         playerData.Hair_Color = Color.HSVToRGB(hairColorValueH / 1f, hairColorValueS / 1f, hairColorValueV / 1f);
         image_Hair.color = playerData.Hair_Color;
     }
-    public void Create()
+    public async void Create()
     {
-        FileManager.Instance.WriteFile(path, JsonConvert.SerializeObject(playerData));
+        await FileManager.Instance.WriteBytes(path, playerData);
         transform_Panel.gameObject.SetActive(false);
         if (action_Create != null)
         {

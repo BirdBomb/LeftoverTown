@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.U2D;
 
@@ -27,20 +28,10 @@ public class ActorItemManager
     }
     public void Listen_UpdateSecond(int val)
     {
-        if (itemBase_OnHand != null)
-        {
-            itemBase_OnHand.OnHand_UpdateTime(val);
-        }
-        if (itemBase_OnHead != null)
-        {
-            
-        }
-        if (itemBase_OnBody != null)
-        {
-            
-        }
+        itemBase_OnHand?.OnHand_UpdateTime(val);
+        itemBase_OnHead?.OnHead_UpdateTime(val);
+        itemBase_OnBody?.OnBody_UpdateTime(val);
     }
-
     #region//手
     public void UpdateItemHand(ItemData data)
     {
@@ -95,30 +86,11 @@ public class ActorItemManager
     {
         if (itemBase_OnHand != null) { itemBase_OnHand.OnHand_Over(actorManager, bodyController); }
         itemBase_OnHand = new ItemBase();
-        if (bodyController.gameObjects_ItemInHand.Count > 0)
-        {
-            for (int i = 0; i < bodyController.gameObjects_ItemInHand.Count; i++)
-            {
-                UnityEngine.Object.Destroy(bodyController.gameObjects_ItemInHand[i]);
-            }
-        }
-        bodyController.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = true;
-        bodyController.transform_RightHand.GetComponent<SpriteRenderer>().enabled = true;
-
-        bodyController.transform_ItemInRightHand.localScale = Vector3.one;
-        bodyController.transform_ItemInRightHand.localPosition = Vector3.zero;
-        bodyController.transform_ItemInRightHand.localRotation = Quaternion.identity;
-        bodyController.transform_ItemInLeftHand.localScale = Vector3.one;
-        bodyController.transform_ItemInLeftHand.localPosition = Vector3.zero;
-        bodyController.transform_ItemInLeftHand.localRotation = Quaternion.identity;
-        bodyController.transform_ItemInLeftHand.GetComponent<SpriteRenderer>().sprite
-            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        bodyController.transform_ItemInLeftHand.GetComponent<SpriteRenderer>().sortingOrder = 1;
-
-        bodyController.transform_ItemInRightHand.GetComponent<SpriteRenderer>().sprite
-            = Resources.Load<SpriteAtlas>("Atlas/ItemSprite").GetSprite("Item_Default");
-        bodyController.transform_ItemInRightHand.GetComponent<SpriteRenderer>().sortingOrder = 4;
-
+        bodyController.CleanItemInHand();
+        bodyController.ShowRightHand(true);
+        bodyController.ShowRightHandItem(0);
+        bodyController.ShowLeftHand(true);
+        bodyController.ShowLeftHandItem(0);
     }
     #endregion
     #region//头
@@ -160,6 +132,11 @@ public class ActorItemManager
         {
             ResetItemOnHead();
         }
+        if (actorManager.actorAuthority.isLocal)
+        {
+            actorManager.actionManager.Local_ResetArmor();
+            actorManager.actionManager.Local_ResetResistance();
+        }
         lastItemID_OnHead = data.I;
     }
     public void CreateItemOnHead(ItemData data)
@@ -174,23 +151,13 @@ public class ActorItemManager
     {
         if (itemBase_OnHead != null) { itemBase_OnHead.OnHead_Over(actorManager, bodyController); }
         itemBase_OnHead = new ItemBase();
-        if (bodyController.gameObjects_ItemOnHead.Count > 0)
-        {
-            for (int i = 0; i < bodyController.gameObjects_ItemOnHead.Count; i++)
-            {
-                UnityEngine.Object.Destroy(bodyController.gameObjects_ItemOnHead[i]);
-            }
-        }
-        bodyController.transform_ItemOnHead.GetComponent<SpriteRenderer>().sprite = null;
+        bodyController.CleanItemOnHead();
     }
     #endregion
     #region//身
     public void UpdateItemBody(ItemData data)
     {
-        if (bodyController == null)
-        {
-            return;
-        }
+        if (bodyController == null) return;
         if (data.I >= 0)
         {
             if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
@@ -221,6 +188,11 @@ public class ActorItemManager
         {
             ResetItemOnBody();
         }
+        if (actorManager.actorAuthority.isLocal)
+        {
+            actorManager.actionManager.Local_ResetArmor();
+            actorManager.actionManager.Local_ResetResistance();
+        }
         lastItemID_OnBody = data.I;
     }
     public void CreateItemOnBody(ItemData data)
@@ -235,32 +207,19 @@ public class ActorItemManager
     {
         if (itemBase_OnBody != null) { itemBase_OnBody.OnBody_Over(actorManager, bodyController); }
         itemBase_OnBody = new ItemBase();
-        if (bodyController.gameObjects_ItemOnBody.Count > 0)
-        {
-            for (int i = 0; i < bodyController.gameObjects_ItemOnBody.Count; i++)
-            {
-                UnityEngine.Object.Destroy(bodyController.gameObjects_ItemOnBody[i]);
-            }
-        }
-        bodyController.transform_ItemOnBody.GetComponent<SpriteRenderer>().sprite = null;
+        bodyController.CleanItemOnBody();
     }
     #endregion
     #region//饰品
     public void UpdateItemAccessory(ItemData data)
     {
-        if (bodyController == null)
+        if (bodyController == null)return;
+        if (data.I >= 0 && actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            return;
-        }
-        if (data.I >= 0)
-        {
-            if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_ItemAccessory_Update()
             {
-                MessageBroker.Default.Publish(new UIEvent.UIEvent_ItemAccessory_Update()
-                {
-                    itemData = data
-                });
-            }
+                itemData = data
+            });
         }
     }
 
@@ -268,19 +227,13 @@ public class ActorItemManager
     #region//耗材
     public void UpdateItemConsumables(ItemData data)
     {
-        if (bodyController == null)
+        if (bodyController == null) return;
+        if (data.I >= 0 && actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            return;
-        }
-        if (data.I >= 0)
-        {
-            if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
+            MessageBroker.Default.Publish(new UIEvent.UIEvent_ItemConsumables_Update()
             {
-                MessageBroker.Default.Publish(new UIEvent.UIEvent_ItemConsumables_Update()
-                {
-                    itemData = data
-                });
-            }
+                itemData = data
+            });
         }
     }
     #endregion

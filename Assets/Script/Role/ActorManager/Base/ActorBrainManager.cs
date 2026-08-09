@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,7 @@ public class ActorBrainManager
     public void Bind(ActorManager actorManager)
     {
         this.actorManager = actorManager;
-        WorldManager.Instance.GetTime(out day_Now,out hour_Now,out globalTime_Now);
+        WorldManager.Instance.GetTime_Detail(out day_Now,out hour_Now,out globalTime_Now);
     }
     #region//时间感知
     /// <summary>
@@ -39,13 +40,35 @@ public class ActorBrainManager
     /// 周围角色
     /// </summary>
     public List<ActorManager> actorManagers_Nearby = new List<ActorManager>();
-
+    public void State_AddNearbyActors(ActorManager actorManager)
+    {
+        if (!actorManagers_Nearby.Contains(actorManager))
+        {
+            actorManagers_Nearby.Add(actorManager);
+        }
+    }
+    public void State_RemoveNearbyActors(ActorManager actorManager)
+    {
+        actorManagers_Nearby.Remove(actorManager);
+    }
+    public List<ActorManager> State_GetNearbyActors()
+    {
+        return actorManagers_Nearby;
+    }
     #endregion
     #region//攻击感知
     /// <summary>
-    /// 攻击角色
+    /// 攻击目标
     /// </summary>
     public ActorManager allClient_actorManager_AttackTarget;
+    /// <summary>
+    /// 攻击欲望
+    /// </summary>
+    public float all_AttackDesire = 0;
+    /// <summary>
+    /// 攻击目标在视野范围内
+    /// </summary>
+    public bool all_AttackTargetInView = false;
     /// <summary>
     /// 攻击角色网络id
     /// </summary>
@@ -53,23 +76,91 @@ public class ActorBrainManager
     /// <summary>
     /// 当前是否是攻击状态
     /// </summary>
-    public bool allClient_AttackState = false;
+    public bool allClient_AttackingRunning = false;
 
+    public void ForAll_SetAttackTarget(ActorManager actorManager)
+    {
+        allClient_actorManager_AttackTarget = actorManager;
+        ForAll_UpdateAttackTargetInView(false);
+        ForAll_SetAttackDesire(allClient_actorManager_AttackTarget? 5:0);
+    }
+    public bool ForAll_GetAttackTarget(out ActorManager actorManager)
+    {
+        actorManager = allClient_actorManager_AttackTarget;
+        if(actorManager == null || actorManager.actorState == ActorState.Dead) { return false; }
+        return true;
+    }
+    public bool ForAll_GetAttackDesire(out float val)
+    {
+        val = all_AttackDesire;
+        return all_AttackDesire > 0;
+    }
+    public void ForAll_SetAttackDesire(float val)
+    {
+        all_AttackDesire = val;
+    }
+    public bool ForAll_CheckAttackTargetInView() { return all_AttackTargetInView; }
+    public void ForAll_UpdateAttackTargetInView(bool inView) { all_AttackTargetInView = inView; }
+    public void ForAll_SetAttackID(Fusion.NetworkId id)
+    {
+        allClient_actorManager_AttackTargetID = id;
+    }
     #endregion
     #region//威胁感知
     /// <summary>
-    /// 威胁角色
-    /// </summary>
-    public List<ActorManager> actorManagers_ThreatenedTarget = new List<ActorManager>();
-    /// <summary>
     /// 威胁角色(优先)
     /// </summary>
-    public ActorManager allClient_actorManager_ThreatenedTarget;
+    public ActorManager allClient_actorManager_ThreatenedTarget = null;
+    /// <summary>
+    /// 威胁角色(上一个)
+    /// </summary>
+    public ActorManager allClient_actorManager_LastThreatenedTarget = null;
+    /// <summary>
+    /// 威胁欲望
+    /// </summary>
+    public float all_ThreatenedDesire = 0;
+    /// <summary>
+    /// 威胁角色在视野范围内
+    /// </summary>
+    public bool all_ThreatenedTargetInView = false;
+
     /// <summary>
     /// 威胁角色网络id
     /// </summary>
     public Fusion.NetworkId allClient_actorManager_ThreatenedTargetID;
+    public void ForAll_SetThreatenedTarget(ActorManager actorManager)
+    {
+        allClient_actorManager_LastThreatenedTarget =
+            allClient_actorManager_ThreatenedTarget ? allClient_actorManager_ThreatenedTarget : allClient_actorManager_LastThreatenedTarget;
+        allClient_actorManager_ThreatenedTarget = actorManager;
+        if (allClient_actorManager_ThreatenedTarget != null) { ForAll_SetThreatenedDesire(1); }
+    }
+    public bool ForAll_GetThreatenedTarget(out ActorManager actorManager)
+    {
+        actorManager = allClient_actorManager_ThreatenedTarget;
+        if (actorManager == null || actorManager.actorState == ActorState.Dead) { return false; }
+        return true;
+    }
+    public bool ForAll_CheckLastThreatenedTarget(ActorManager actorManager)
+    {
+        return allClient_actorManager_LastThreatenedTarget == actorManager;
+    }
+    public bool ForAll_GetThreatenedDesire(out float val)
+    {
+        val = all_ThreatenedDesire;
+        return all_ThreatenedDesire > 0;
+    }
+    public void ForAll_SetThreatenedDesire(float val)
+    {
+        all_ThreatenedDesire = val;
+    }
+    public bool ForAll_CheckThreatenedTargetInView() { return all_ThreatenedTargetInView; }
+    public void ForAll_UpdateThreatenedTargetInView(bool inView) { all_ThreatenedTargetInView = inView; }
 
+    public void ForAll_SetThreatenedID(Fusion.NetworkId id)
+    {
+        allClient_actorManager_ThreatenedTargetID = id;
+    }
     #endregion
     #region//拾取逻辑
     /// <summary>
@@ -80,35 +171,42 @@ public class ActorBrainManager
     /// 目标物品
     /// </summary>
     public ItemNetObj allClient_ItemNetObj_Target = null;
+    public void ForAll_AddNearbyItem(ItemNetObj itemNetObj)
+    {
+        if (!allClient_ItemNetObj_Nearby.Contains(itemNetObj))
+        {
+            allClient_ItemNetObj_Nearby.Add(itemNetObj);
+        }
+    }
+    public void ForAll_RemoveNearbyItem(ItemNetObj itemNetObj)
+    {
+        allClient_ItemNetObj_Nearby.Remove(itemNetObj);
+    }
     /// <summary>
     /// 将最近的物品设定为目标
     /// </summary>
     /// <returns>是否有最近物体</returns>
-    public bool State_FocusOnNearbyItem()
+    public bool ForAll_FocusOnNearbyItem()
     {
         ItemNetObj target = null;
-        float distance = float.MaxValue;
+        float maxDistanceSqr = float.MaxValue;
         for (int i = 0; i < allClient_ItemNetObj_Nearby.Count; i++)
         {
-            float temp = Vector2.Distance(actorManager.transform.position, allClient_ItemNetObj_Nearby[i].transform.position);
-            if (temp < distance)
+            Vector2 dir = actorManager.transform.position - allClient_ItemNetObj_Nearby[i].transform.position;
+            float distSqr = dir.x * dir.x + dir.y * dir.y;
+            if (distSqr < maxDistanceSqr)
             {
-                distance = temp;
+                maxDistanceSqr = distSqr;
                 target = allClient_ItemNetObj_Nearby[i];
             }
         }
-        if (target != null)
-        {
-            /*前往目标*/
-            allClient_ItemNetObj_Target = target;
-            return true;
-        }
-        else
-        {
-            /*没有目标*/
-            allClient_ItemNetObj_Target = null;
-            return false;
-        }
+        allClient_ItemNetObj_Target = target ? target : null;
+        return target != null;
+    }
+    public bool ForAll_GetTargetItem(out ItemNetObj itemNetObj)
+    {
+        itemNetObj = allClient_ItemNetObj_Target;
+        return itemNetObj != null;
     }
     #endregion
     #region//地点感知
@@ -117,45 +215,52 @@ public class ActorBrainManager
     /// 设置出生点
     /// </summary>
     /// <param name="pos"></param>
-    public void State_SetHomePos(Vector3Int pos)
+    public void ForState_SetHomePos(Vector3Int pos)
     {
         state_homePostion.isValue = true;
         state_homePostion.position = pos;
+    }
+    public void ForState_ResetHomePos()
+    {
+        state_homePostion.isValue = false;
     }
     public SleepPostion state_sleepPostion;
     /// <summary>
     /// 设置睡眠点
     /// </summary>
     /// <param name="pos"></param>
-    public void State_SetSleepPos(Vector3Int pos)
+    public void ForState_SetSleepPos(Vector3Int pos)
     {
         state_sleepPostion.isValue = true;
         state_sleepPostion.position = pos;
     }
-    public void ResetSleepPos()
+    public void ForState_ResetSleepPos()
     {
         state_sleepPostion.isValue = false;
     }
-
     public ActivityPostion state_ActivityPostion;
     /// <summary>
     /// 设置活动点
     /// </summary>
-    public void State_SetActivityPos(Vector3Int pos)
+    public void ForState_SetActivityPos(Vector3Int pos)
     {
         state_ActivityPostion.isValue = true;
         state_ActivityPostion.position = pos;
+    }
+    public void ForState_ResetActivityPos()
+    {
+        state_ActivityPostion.isValue= false;
     }
     public WorkPostion state_workPostion;
     /// <summary>
     /// 设置工作点
     /// </summary>
-    public void State_SetWorkPos(Vector3Int pos)
+    public void ForState_SetWorkPos(Vector3Int pos)
     {
         state_workPostion.isValue = true;
         state_workPostion.position = pos;
     }
-    public void State_ResetWorkPos()
+    public void ForState_ResetWorkPos()
     {
         state_workPostion.isValue = false;
         state_workPostion.position = Vector3Int.zero;
@@ -165,12 +270,12 @@ public class ActorBrainManager
     /// 设置搜寻点
     /// </summary>
     /// <param name="pos"></param>
-    public void State_SetSearchPos(Vector3Int pos)
+    public void ForState_SetSearchPos(Vector3Int pos)
     {
         state_searchPostion.isValue = true;
         state_searchPostion.position = pos;
     }
-    public void State_ResetSearchPos()
+    public void ForState_ResetSearchPos()
     {
         state_searchPostion.isValue = false;
     }
@@ -180,13 +285,13 @@ public class ActorBrainManager
     /// </summary>
     /// <param name="pos">用餐点位置</param>
     /// <param name="foodCount">食物总数</param>
-    public void State_SetFoodPos(Vector3Int pos,int foodCount = 3)
+    public void ForState_SetFoodPos(Vector3Int pos,int foodCount = 3)
     {
         state_foodPositon.isValue = true;
         state_foodPositon.foodCount = foodCount;
         state_foodPositon.position = pos;
     }
-    public void State_ResetFoodPos()
+    public void ForState_ResetFoodPos()
     {
         state_foodPositon.isValue = false;
     }

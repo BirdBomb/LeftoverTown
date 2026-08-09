@@ -15,12 +15,27 @@ public class EnvironmentManager : SingleTon<EnvironmentManager>, ISingleTon
     [SerializeField, Header("下雨粒子")]
     private ParticleSystem particleSystem_Rain;
     private Weather weather_Now;
+    #region 随机数
+    private static readonly System.Random random = new System.Random();
+    private static readonly object randomLock = new object(); // 线程安全（虽然Unity单线程）
+    #endregion
+    #region 雨滴效果缓存
+    private readonly string[] waterDropPaths = new string[]
+    {
+        "Effect/Effect_WaterDrop_0",
+        "Effect/Effect_WaterDrop_1"
+    };
+    #endregion
     public void Init()
     {
     }
     private void FixedUpdate()
     {
         if (weather_Now == Weather.Rain)
+        {
+            Ruin(Time.fixedDeltaTime);
+        }
+        else
         {
             Ruin(Time.fixedDeltaTime);
         }
@@ -33,9 +48,12 @@ public class EnvironmentManager : SingleTon<EnvironmentManager>, ISingleTon
         {
             case Weather.Default:
                 {
+                    //particleSystem_Fierce.Stop();
+                    //particleSystem_Rain.Stop();
+                    //particleSystem_Breeze.Play();
                     particleSystem_Fierce.Stop();
-                    particleSystem_Rain.Stop();
-                    particleSystem_Breeze.Play();
+                    particleSystem_Breeze.Stop();
+                    particleSystem_Rain.Play();
                     break;
                 }
             case Weather.Rain:
@@ -84,15 +102,28 @@ public class EnvironmentManager : SingleTon<EnvironmentManager>, ISingleTon
     }
     private void CreateRaindrop()
     {
-        float x = new System.Random().Next(-100, 100) * 0.01f * ruin_RangeX + transform.position.x;
-        float y = new System.Random().Next(-100, 100) * 0.01f * ruin_RangeY + transform.position.y;
-        LiquidManager.Instance.AddWave(new Vector2(x, y));
-        GameObject muzzleFire101 = PoolManager.Instance.GetEffectObj("Effect/Effect_WaterDrop_" + new System.Random().Next(0, 2));
-        muzzleFire101.transform.localScale = new Vector3(1 - (2 * new System.Random().Next(0, 2)), 1, 1);
-        muzzleFire101.transform.position = new Vector2(x, y);
-        muzzleFire101.transform.localRotation = Quaternion.identity;
+        float x = (NextRandom(-100, 100) * 0.01f * ruin_RangeX) + transform.position.x;
+        float y = (NextRandom(-100, 100) * 0.01f * ruin_RangeY) + transform.position.y;
+        Vector2 position = new Vector2(x, y);
+        LiquidManager.Instance?.AddWave(position);
+        GameObject waterDrop = PoolManager.Instance?.GetEffectObj(waterDropPaths[NextRandom(0, waterDropPaths.Length)]);
+        if (waterDrop != null)
+        {
+            // 随机翻转
+            int flip = NextRandom(0, 2);
+            waterDrop.transform.localScale = new Vector3(1 - (2 * flip), 1, 1);
+            waterDrop.transform.position = position;
+            waterDrop.transform.localRotation = Quaternion.identity;
+        }
     }
     #endregion
+    private int NextRandom(int min, int max)
+    {
+        lock (randomLock)
+        {
+            return random.Next(min, max);
+        }
+    }
 }
 public enum Weather
 {

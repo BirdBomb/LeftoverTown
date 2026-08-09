@@ -82,48 +82,48 @@ public class Bullet_Arrow : BulletBase
         vectoe3_LastPos = vectoe3_CurPos;
         vectoe3_CurPos = transform.position;
         RaycastHit2D[] hit2D = Physics2D.LinecastAll(vectoe3_LastPos, vectoe3_CurPos + vectoe3_MoveDir * float_BulletSpeed * dt, layerMask_Target);
-        for (int i = 0; i < hit2D.Length; i++)
+        foreach (var hit in hit2D)
         {
-            if (hit2D[i].collider.CompareTag("Actor"))
+            if (hit.collider.CompareTag("Actor"))
             {
-                if (hit2D[i].collider.isTrigger && hit2D[i].transform.TryGetComponent(out ActorManager actor))
+                if (hit.collider.isTrigger && hit.transform.TryGetComponent(out ActorManager actor) && !actorManagers_Ignore.Contains(actor))
                 {
-                    if (!actorManagers_Ignore.Contains(actor))
+                    actorManagers_Ignore.Add(actor);
+                    if (actorManager_Owner.actionManager.CheckApplyDamageTarget(actor, DamageTarget.WithoutMe))
                     {
-                        actorManagers_Ignore.Add(actor);
-                        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Blood");
-                        effect.GetComponent<EffectBase>().SetEffect(vectoe3_MoveDir);
-                        effect.transform.position = actor.transform.position;
-                        Attack(actor);
+                        AttackActor(actor);
+                        Effect(actor.transform.position);
                     }
                 }
             }
             else
             {
-                hit2D[i].transform.DOKill();
-                hit2D[i].transform.localScale = Vector3.one;
-                hit2D[i].transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
-                Boom(hit2D[i].point);
+                AttackObj(hit);
             }
         }
     }
-    private void Attack(ActorManager actor)
+    private void AttackActor(ActorManager actor)
     {
         if (actorAuthority_Owner.isLocal)
         {
             if (float_BulletAttackDemage > 0)
             {
-                GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
-                effect.GetComponent<Effect_Impact>().PlayPiercing(vectoe3_MoveDir);
-                effect.transform.position = actor.transform.position;
-
-                actor.actorHpManager.TakeDamage(float_BulletAttackDemage, DamageState.AttackPiercingDamage, actorManager_Owner.actorNetManager);
+                actorManager_Owner.actionManager.ApplyDamageToActor
+                        (float_BulletAttackDemage, DamageState.AttackPiercingDamage, DamageTarget.WithoutMe, actor, out ApplyActorDamageCallBack callBack_0);
             }
             if (float_BulletMagicDemage > 0)
             {
-                actor.actorHpManager.TakeDamage(float_BulletMagicDemage, DamageState.MagicDamage, actorManager_Owner.actorNetManager);
+                actorManager_Owner.actionManager.ApplyDamageToActor
+                    (float_BulletMagicDemage, DamageState.MagicDamage, DamageTarget.WithoutMe, actor, out ApplyActorDamageCallBack callBack_1);
             }
         }
+    }
+    private void AttackObj(RaycastHit2D hit)
+    {
+        hit.transform.DOKill();
+        hit.transform.localScale = Vector3.one;
+        hit.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        Boom(hit.point);
     }
     private void Boom(Vector2 pos)
     {
@@ -136,6 +136,13 @@ public class Bullet_Arrow : BulletBase
             Recycle(pos);
         }
     }
+    private void Effect(Vector2 pos)
+    {
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+        effect.GetComponent<Effect_Impact>().PlayPiercing(vectoe3_MoveDir);
+        effect.transform.position = pos;
+    }
+
     private void Recycle(Vector2 pos)
     {
         if (actorAuthority_Owner.isState)

@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
@@ -59,14 +60,16 @@ public class GameUI_Status : MonoBehaviour
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateExpData>().Subscribe(_ =>
         {
             text_Lv.text = _.Level.ToString();
-            text_Lv.transform.DOShakePosition(0.1f, 5);
-            text_Exp.text = (_.Exp_Cur + "/" + _.Exp_Capacity).ToString();
+            text_Lv.transform.DOKill();
+            text_Lv.transform.localScale = Vector3.one;
+            text_Lv.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.2f);
+            text_Exp.text = ($" {_.Exp_Cur} / {_.Exp_Capacity}").ToString();
             bar_Exp.DOKill();
             bar_Exp.DOScaleX(((float)_.Exp_Cur + 0.1f) / ((float)_.Exp_Capacity + 0.1f), 0.1f);
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateHPData>().Subscribe(_ =>
         {
-            text_Hp.text = _.HP_Cur.ToString();
+            text_Hp.text = Math.Round(_.HP_Cur * 0.1f).ToString();
             text_Hp.transform.DOShakePosition(0.1f, 5);
             bar_Hp.DOKill();
             bar_Hp.DOScaleY(((float)_.HP_Cur + 0.1f) / ((float)_.HP_Max + 0.1f), 0.1f);
@@ -87,21 +90,24 @@ public class GameUI_Status : MonoBehaviour
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateArmorData>().Subscribe(_ =>
         {
-            text_Armor.text = _.Armor.ToString();
+            text_Armor.text = Math.Round(_.Armor * 0.1f, 1).ToString();
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateResistanceData>().Subscribe(_ =>
         {
-            text_Resistance.text = _.Resistance.ToString();
+            text_Resistance.text = Math.Round(_.Resistance * 0.1f, 1).ToString();
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateCoinData>().Subscribe(_ =>
         {
-            DOTween.To(() => val_Coin, x => val_Coin = x, _.Coin, 1).OnComplete(() =>
-            {
-                text_Coin.transform.localScale = Vector3.one;
-                text_Coin.transform.rotation = Quaternion.identity;
-                text_Coin.transform.DOPunchScale(new Vector3(0.2f, 0.2f, 0), 0.1f);
-                text_Coin.transform.DOShakeRotation(0.1f, new Vector3(0, 0, 30));
-            });
+            text_Coin.transform.localScale = Vector3.one;
+            text_Coin.transform.rotation = Quaternion.identity;
+            val_Coin = _.Coin;
+            //DOTween.To(() => val_Coin, x => val_Coin = x, _.Coin, 1).OnComplete(() =>
+            //{
+            //    text_Coin.transform.localScale = Vector3.one;
+            //    text_Coin.transform.rotation = Quaternion.identity;
+            //    text_Coin.transform.DOPunchScale(new Vector3(0.2f, 0.2f, 0), 0.1f);
+            //    text_Coin.transform.DOShakeRotation(0.1f, new Vector3(0, 0, 30));
+            //});
         }).AddTo(this);
         MessageBroker.Default.Receive<UIEvent.UIEvent_UpdateFineData>().Subscribe(_ =>
         {

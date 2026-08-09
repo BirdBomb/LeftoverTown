@@ -71,12 +71,6 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         action_ClickLeft = clickLeft;
         action_ClickRight = clickRight;
     }
-    public void BindGrid(ItemPath itemPath, Action<ItemData, ItemPath> putIn, Func<ItemData, ItemData, ItemPath, ItemData> putOut)
-    {
-        itemPath_Bind = itemPath;
-        action_PutIn = putIn;
-        action_PutOut = putOut;
-    }
     #endregion
     #region//更新格子
     /// <summary>
@@ -116,8 +110,8 @@ public class UI_GridCell : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     /// <param name="data"></param>
     private void UpdateItemBase(ItemData data)
     {
-        _bindItemBase.UpdateDataFromNet(data);
-        _bindItemBase.GridCell_Draw(this);
+        _bindItemBase?.UpdateDataFromNet(data);
+        _bindItemBase?.GridCell_Draw(this);
     }
     /// <summary>
     /// 清空数据

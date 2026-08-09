@@ -50,38 +50,15 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         {
             if (bool_InPreview)
             {
+                Local_UpdateItemRaw();
                 bool_GetAllRaw = Local_CheckRaw();
                 Local_UpdatePreviewColor(bool_GetEmpty && bool_GetAllRaw);
             }
         }).AddTo(this);
     }
-    public void Update()
-    {
-        if (bool_InPreview)
-        {
-            Local_UpdatePreviewPos();
-            if (Input.GetKeyDown(KeyCode.Mouse0) && !EventSystem.current.IsPointerOverGameObject())
-            {
-                Local_TryBuild();
-            }
-            if (Input.GetKeyDown(KeyCode.Mouse1))
-            {
-                Local_ClosePreview();
-            }
-            if (Input.GetKeyDown(KeyCode.Tab))
-            {
-                if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.TryBuildBuilding)
-                {
-                    int_GroupIndex += 1;
-                    int_GroupIndex = Mathf.Abs(int_GroupIndex);
-                    Local_UpdatePreviewSprite();
-                }
-            }
-        }
-
-    }
     /*建筑预览*/
     #region
+    [Header("-----建筑预览-----")]
     [Header("建筑预览图集")]
     public SpriteAtlas spriteAtlas_BuildingPreview;
     [Header("地面预览图集")]
@@ -90,6 +67,10 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     public SpriteRenderer spriteRenderer_Preview;
     [Header("预览位置")]
     public Transform transform_Preview;
+    [Header("建造进度条")]
+    public Transform transform_SingalBar;
+    [Header("建造进度条填充")]
+    public Transform transform_SingalFull;
     [Header("建筑禁止建造图片")]
     public List<SpriteRenderer> spriteRenderer_BuildBlocks = new List<SpriteRenderer>();
     [Header("建筑范围图片")]
@@ -107,16 +88,62 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// </summary>
     private Vector3Int vector3Int_CurPreviewPos;
 
+    private Camera camera_Main;
+
     private BuildingConfig buildingConfig_Target;
     private GroundConfig groundConfig_Target;
     private BuildState buildState_Target = BuildState.Sleep;
     private bool bool_GetAllRaw = false;
     private bool bool_GetEmpty = false;
-    private int int_GroupIndex = 0;
-    /// <summary>
-    /// 正在预览
-    /// </summary>
     private bool bool_InPreview = false;
+    private int int_GroupIndex = 0;
+    private float float_PressTimer = 0;
+    private float float_PressTime = 0.5f;
+
+    private Dictionary<int, int> itemRaw_Cache = new Dictionary<int, int>();
+    public void Update() 
+    {
+        if (bool_InPreview)
+        {
+            Local_UpdatePreviewPos();
+            if (!EventSystem.current.IsPointerOverGameObject())
+            {
+                if (Input.GetKey(KeyCode.Mouse0) && bool_GetEmpty && bool_GetAllRaw)
+                {
+                    if (float_PressTimer < float_PressTime)
+                    {
+                        float_PressTimer += Time.deltaTime;
+                        Local_UpdateBar();
+                    }
+                    else
+                    {
+                        float_PressTimer = 0;
+                        Local_TryBuild();
+                        Local_UpdateBar();
+                    }
+                }
+                else
+                {
+                    float_PressTimer = 0;
+                    Local_UpdateBar();
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKeyDown(KeyCode.Escape))
+            {
+                Local_ClosePreview();
+            }
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                if (buildState_Target == BuildState.ForceBuildBuilding || buildState_Target == BuildState.TryBuildBuilding)
+                {
+                    int_GroupIndex += 1;
+                    int_GroupIndex = Mathf.Abs(int_GroupIndex);
+                    Local_UpdatePreviewSprite();
+                }
+            }
+        }
+
+    }
 
     public void Local_Init(BuildingConfig buildingConfig, BuildState buildState)
     {
@@ -167,8 +194,8 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// </summary>
     private void Local_UpdatePreviewPos()
     {
-        Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        vector3Int_CurPreviewPos = MapManager.Instance.tilemap_Building.WorldToCell(pos);
+        if (camera_Main == null) camera_Main = Camera.main;
+        vector3Int_CurPreviewPos = MapManager.Instance.grid_Building.WorldToCell(camera_Main.ScreenToWorldPoint(Input.mousePosition));
         if (vector3Int_LastPreviewPos != vector3Int_CurPreviewPos)
         {
             vector3Int_LastPreviewPos = vector3Int_CurPreviewPos;
@@ -210,27 +237,22 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
             }
         }
     }
-    private void Local_LoopBuildRange()
-    {
-        spriteRenderer_BuildRange.color = new Color(1, 1, 1, 0.5f);
-        spriteRenderer_BuildRange.DOFade(0.2f, 2).SetLoops(-1, LoopType.Yoyo);
-    }
     private void Local_UpdatePreviewColor(bool white)
     {
         if (white)
         {
-            spriteRenderer_Preview.color = new Color(1, 1, 1, 0.5f);
+            spriteRenderer_Preview.color = new Color(1, 1, 1, 1f);
         }
         else
         {
-            spriteRenderer_Preview.color = new Color(1, 0, 0, 0.5f);
+            spriteRenderer_Preview.color = new Color(1, 0, 0, 1f);
         }
     }
     public void Local_TryBuild()
     {
         if (bool_InPreview)
         {
-            spriteRenderer_Preview.color = new Color(1, 0, 0, 0.5f);
+            spriteRenderer_Preview.color = new Color(1, 0, 0, 1f);
             switch (buildState_Target)
             {
                 case BuildState.ForceBuildBuilding:
@@ -302,6 +324,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     public void Local_OpenPreview(BuildState buildState)
     {
         bool_InPreview = true;
+        Local_UpdateItemRaw();
         spriteRenderer_Preview.gameObject.SetActive(true);
         spriteRenderer_BuildRange.gameObject.SetActive(true);
         CursorManager.Instance.AddCursor(CursorManager.CursorType.Build);
@@ -323,7 +346,11 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         spriteRenderer_BuildRange.gameObject.SetActive(false);
         CursorManager.Instance.SubCursor(CursorManager.CursorType.Build);
     }
-
+    public void Local_UpdateBar()
+    {
+        transform_SingalBar.gameObject.SetActive(float_PressTimer != 0);
+        transform_SingalFull.transform.localScale = new Vector3(1, float_PressTimer / float_PressTime, 1);
+    }
     /// <summary>
     /// 检查位置
     /// </summary>
@@ -376,6 +403,27 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
         return temp;
     }
     /// <summary>
+    /// 更新原料
+    /// </summary>
+    private void Local_UpdateItemRaw()
+    {
+        itemRaw_Cache.Clear();
+        List<ItemData> data = WorldActorManager.Instance.GetPlayer().actorManager_Bind.actorNetManager.Local_ItemBag_Get();
+
+        for (int i = 0; i < data.Count; i++)
+        {
+            int itemId = data[i].I;
+            if (itemRaw_Cache.ContainsKey(itemId))
+            {
+                itemRaw_Cache[itemId] += data[i].C;
+            }
+            else
+            {
+                itemRaw_Cache[itemId] = data[i].C;
+            }
+        }
+    }
+    /// <summary>
     /// 检查材料
     /// </summary>
     /// <returns></returns>
@@ -406,24 +454,16 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// <returns></returns>
     private bool Local_CheckRaw(List<ItemRaw> raws)
     {
-        bool temp = true;
-        List<ItemData> data = WorldManager.Instance.playerCoreLocal.actorManager_Bind.actorNetManager.Local_ItemBag_Get();
         for (int i = 0; i < raws.Count; i++)
         {
-            int itemCount = 0;
-            for (int j = 0; j < data.Count; j++)
+            int requiredId = raws[i].ID;
+            int requiredCount = raws[i].Count;
+            if (!itemRaw_Cache.TryGetValue(requiredId, out int itemCount) || itemCount < requiredCount)
             {
-                if (data[j].I == raws[i].ID)
-                {
-                    itemCount += data[j].C;
-                }
-            }
-            if (itemCount < raws[i].Count)
-            {
-                temp = false;
+                return false; // 一旦发现材料不足，立即返回
             }
         }
-        return temp;
+        return true;
     }
     /// <summary>
     /// 消耗材料
@@ -461,6 +501,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     #endregion
     /*地图标记*/
     #region
+    [Header("-----地图标记-----")]
     [Header("标记图片")]
     public SpriteRenderer spriteRenderer_Singal;
     [Header("标记位置")]
@@ -479,6 +520,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     private void Local_SetPlayerPos(Vector3Int pos)
     {
         vector3Int_PlayerPos = pos;
+        Local_UpdateSingalPos();
     }
     /// <summary>
     /// 更新标记位置
@@ -486,7 +528,7 @@ public class MapPreviewManager : SingleTon<MapPreviewManager>, ISingleTon
     /// <param name="pos"></param>
     private void Local_UpdateSingalPos()
     {
-        transform_Singal.position = MapManager.Instance.tilemap_Building.CellToWorld(vector3Int_PlayerPos + vector3Int_SingalOffset) + new Vector3(0.5f, 0.5f, 0);
+        transform_Singal.position = MapManager.Instance.grid_Building.CellToWorld(vector3Int_PlayerPos + vector3Int_SingalOffset) + new Vector3(0.5f, 0.5f, 0);
         transform_Singal.DOKill();
         transform_Singal.localScale = Vector3.one;
         transform_Singal.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.2f);

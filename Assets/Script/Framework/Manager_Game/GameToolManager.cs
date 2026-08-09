@@ -265,4 +265,11 @@ public class GameToolManager : SingleTon<GameToolManager>, ISingleTon
         }
         return itemDatas_List;
     }
+    public ItemData CreateItem(short id, short count = 1)
+    {
+        Type type = Type.GetType("Item_" + id.ToString());
+        ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(id, out ItemData initData);
+        initData.C = count;
+        return initData;
+    }
 }

@@ -4,154 +4,104 @@ using UnityEngine;
 using UniRx;
 using Fusion;
 using System;
+using static GameEvent;
 /// <summary>
 /// 护卫
 /// </summary>
 public class ActorManager_NPC_Guard : ActorManager_NPC
 {
+    private float float_ViewDistance = 10;
     #region//监听
-    public override void State_Listen_RoleCommit(ActorManager who, CommitState commit, short val)
+    public override void ForState_Listen_RoleCommit(GameEvent.GameEvent_AllClient_SomeoneCommit eventData)
     {
-        if (actionManager.LookAt(who, State_CalculateView()))
+        if (actionManager.LookAt(eventData.actor, State_CalculateView()))
         {
-            who.actionManager.AllClient_SetFine(commit, val);
-            State_TryToSendEmoji(0, Emoji.Yell);
+            eventData.actor.actionManager.AllClient_SetFine(eventData.commit, eventData.fine);
         }
-    }
-    public override void State_Listen_RoleSendEmoji(ActorManager actor, Emoji emoji, float distance)
-    {
-        if (brainManager.allClient_actorManager_AttackTarget != null || brainManager.allClient_actorManager_ThreatenedTarget != null)
-        {
-            return;
-        }
-        if (actionManager.HearTo(actor, distance))
-        {
-            if (emoji == Emoji.Yell)
-            {
-                State_TryToSendEmoji(0.5f, Emoji.Puzzled);
-                State_Follow(actor.pathManager.vector3Int_CurPos);
-            }
-        }
-        base.State_Listen_RoleSendEmoji(actor, emoji, distance);
+        base.ForState_Listen_RoleCommit(eventData);
     }
     #endregion
     #region//检查
-    /// <summary>
-    /// 检查附近角色
-    /// </summary>
-    /// <returns>终止思考</returns>
     public override bool State_CheckNearbyActor()
     {
-        for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
+        var temp = brainManager.State_GetNearbyActors();
+        foreach (var actor in temp)
         {
-            if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], config.short_View))
+            if (!actionManager.LookAt(actor, State_CalculateView())) continue;
+            if (actor.actorNetManager.Local_Fine > 0)
             {
-                if (brainManager.actorManagers_Nearby[i].actorNetManager.Local_Fine > 0)
-                {
-                    State_TryToSendEmoji(0, Emoji.Attack);
-                    State_InAttack(brainManager.actorManagers_Nearby[i]);
-                    return true;
-                }
-                if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Monster_Common)
-                {
-                    State_TryToSendEmoji(0, Emoji.Attack);
-                    State_InAttack(brainManager.actorManagers_Nearby[i]);
-                    return true;
-                }
+                State_InAttack(actor);
+                return true;
+            }
+            if (actor.statusManager.statusType == StatusType.Monster_Common)
+            {
+                State_InAttack(actor);
+                return true;
             }
         }
         return false;
     }
     #endregion
     #region//行为逻辑
-    /// <summary>
-    /// 根据时间决定动作(经常触发)
-    /// </summary>
     public override void State_ThinkByTimeUpdate(int date, int hour, GlobalTime time)
     {
-        if (time == GlobalTime.Forenoon)
+        switch (time)
         {
-            if (!State_Think_GoToSleep())
-            {
-                State_Think_GoToStroll_Long(10, 5);
-            }
-            return;
+            case GlobalTime.Forenoon:
+                {
+                    if (State_Think_GoToSleep()) return;
+                    break;
+                }
+            case GlobalTime.Highnoon:
+                {
+                    if (State_Think_GoForFood()) return;
+                    break;
+                }
         }
-        if (time == GlobalTime.Highnoon)
-        {
-            if (!State_Think_GoForFood())
-            {
-                State_Think_GoToStroll_Long(10, 5);
-            }
-            return;
-        }
-        if (time == GlobalTime.Dusk || time == GlobalTime.Evening)
-        {
-            if (!State_Think_GoToWork())
-            {
-                State_Think_GoToStroll_Long(10, 5);
-            }
-            return;
-        }
-        State_Think_GoToStroll_Long(10, 5);
+        if (State_Think_GoToWork()) return;
+        base.State_ThinkByTimeUpdate(date, hour, time);
+
     }
-    /// <summary>
-    /// 根据时间变化决定动作(关键时间触发)
-    /// </summary>
     public override void State_ThinkByTimeChange(int date, int hour, GlobalTime globalTime)
     {
         switch (globalTime)
         {
             case GlobalTime.Morning:
-                State_PutDownHand();
+                StartCoroutine(State_Think_FindWorkPos());
+                State_PutOnHand(State_ChooseWeapon);
                 break;
             case GlobalTime.Forenoon:
-                State_Think_FindBed();
+                State_PutDownHand();
+                StartCoroutine(State_Think_FindSleepPos());
                 break;
             case GlobalTime.Highnoon:
-                State_Think_FindFood();
+                StartCoroutine(State_Think_FindFoodPos());
+                break;
+            case GlobalTime.Afternoon:
+                StartCoroutine(State_Think_FindWorkPos());
+                State_PutOnHand(State_ChooseWeapon);
                 break;
             case GlobalTime.Dusk:
-                State_PutOnHand((itemConfig) =>
-                {
-                    if (itemConfig.Item_Type == ItemType.Weapon) return true;
-                    return false;
-                });
+                StartCoroutine(State_Think_FindWorkPos());
+                State_PutOnHand(State_ChooseWeapon);
                 break;
             case GlobalTime.Evening:
-                State_PutOnHand((itemConfig) =>
-                {
-                    if (itemConfig.Item_Type == ItemType.Weapon) return true;
-                    return false;
-                });
+                StartCoroutine(State_Think_FindWorkPos());
+                State_PutOnHand(State_ChooseWeapon);
                 break;
         }
-    }
-    public override void State_Think_BetweenStroll()
-    {
-        for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
-        {
-            if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], 5))
-            {
-                if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Human_Common)
-                {
-                    State_TryToSendEmoji(0.5f, Emoji.Greeting, 5);
-                }
-                else if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Human_Bigwigs)
-                {
-                    State_TryToSendEmoji(0.5f, Emoji.Greeting, 5);
-                }
-            }
-        }
-        base.State_Think_BetweenStroll();
     }
     public override void State_OutAttack()
     {
-        if (brainManager.globalTime_Now != GlobalTime.Evening)
+        if (brainManager.globalTime_Now == GlobalTime.Forenoon || brainManager.globalTime_Now == GlobalTime.Highnoon)
         {
             State_PutDownHand();
         }
         base.State_OutAttack();
+    }
+    public override bool State_Think_CheckWorkPlace(BuildingTile buildingTile)
+    {
+        return buildingTile.tileID == 2011;
     }
     #endregion
     #region//威胁逻辑
@@ -161,7 +111,7 @@ public class ActorManager_NPC_Guard : ActorManager_NPC
     }
     #endregion
     #region//交互
-    public override bool Local_CanDialog()
+    public override bool Local_IsInteractable()
     {
         return false;
     }

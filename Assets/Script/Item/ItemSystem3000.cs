@@ -17,18 +17,18 @@ public class ItemSystem3000
 public class Item_3000 : ItemBase_Food
 {
     private int config_Food = 5;
-    public override bool Check()
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.AddFood(config_Food);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        base.OnHand_EatAction(actor);
     }
 }
 /// <summary>
@@ -37,18 +37,17 @@ public class Item_3000 : ItemBase_Food
 public class Item_3001 : ItemBase_Food
 {
     private int config_Food = 5;
-    public override bool Check()
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.AddFood(config_Food);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        base.OnHand_EatAction(actor);
     }
 }
 /// <summary>
@@ -57,18 +56,20 @@ public class Item_3001 : ItemBase_Food
 public class Item_3002 : ItemBase_Food
 {
     private int config_Food = 5;
-    public override bool Check()
+    private int config_San = 1;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        desc = desc.Replace("/AddSan/", $"+{config_San}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.AddFood(config_Food);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        actor.sanManager.AddSan(config_San);
+        base.OnHand_EatAction(actor);
     }
 }
 /// <summary>
@@ -76,19 +77,18 @@ public class Item_3002 : ItemBase_Food
 /// </summary>
 public class Item_3003 : ItemBase_Food
 {
-    private int config_Food = 8;
-    public override bool Check()
+    private int config_Food = 1;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.AddFood(config_Food);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        base.OnHand_EatAction(actor);
     }
 }
 /// <summary>
@@ -96,22 +96,60 @@ public class Item_3003 : ItemBase_Food
 /// </summary>
 public class Item_3004 : ItemBase_Food
 {
-    private int config_Food = 2;
-    public override bool Check()
+    private int config_San = 5;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddSan/", $"+{config_San}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.AddFood(config_Food);
-        base.Eat();
+        actor.sanManager.AddSan(config_San);
+        base.OnHand_EatAction(actor);
     }
 }
-
+/// <summary>
+/// ’”‘ÛπΩ
+/// </summary>
+public class Item_3005 : ItemBase_Food
+{
+    private int config_San = 5;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
+    {
+        desc = desc.Replace("/SubSan/", $"-{config_San}");
+        return base.GridCell_UpdateDesc(desc);
+    }
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
+    {
+        actor.sanManager.SubSan(config_San);
+        base.OnHand_EatAction(actor);
+    }
+}
+/// <summary>
+/// ›Æπ˚
+/// </summary>
+public class Item_3006 : ItemBase_Food
+{
+    private int config_Food = 5;
+    private int config_San = 1;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
+    {
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        desc = desc.Replace("/AddSan/", $"+{config_San}");
+        return base.GridCell_UpdateDesc(desc);
+    }
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
+    {
+        actor.hungryManager.AddFood(config_Food);
+        base.OnHand_EatAction(actor);
+    }
+}
 #endregion
 #region//»‚µ∞
 /// <summary>
@@ -119,19 +157,21 @@ public class Item_3004 : ItemBase_Food
 /// </summary>
 public class Item_3100 : ItemBase_Food
 {
-    private int config_Food = 2;
-    public override bool Check()
+    private int config_Food = 5;
+    private int config_San = 2;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        desc = desc.Replace("/SubSan/", $"-{config_San}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.AddFood(config_Food);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        actor.sanManager.SubSan(config_San);
+        base.OnHand_EatAction(actor);
     }
 }
 /// <summary>
@@ -139,19 +179,21 @@ public class Item_3100 : ItemBase_Food
 /// </summary>
 public class Item_3101 : ItemBase_Food
 {
-    private int config_Food = 2;
-    public override bool Check()
+    private int config_Food = 5;
+    private int config_San = 2;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        desc = desc.Replace("/SubSan/", $"-{config_San}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.AddFood(config_Food);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        actor.sanManager.SubSan(config_San);
+        base.OnHand_EatAction(actor);
     }
 }
 /// <summary>
@@ -159,19 +201,21 @@ public class Item_3101 : ItemBase_Food
 /// </summary>
 public class Item_3102 : ItemBase_Food
 {
-    private int config_Food = 2;
-    public override bool Check()
+    private int config_Food = 5;
+    private int config_San = 2;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        desc = desc.Replace("/SubSan/", $"-{config_San}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.AddFood(config_Food);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        actor.sanManager.SubSan(config_San);
+        base.OnHand_EatAction(actor);
     }
 }
 /// <summary>
@@ -179,19 +223,21 @@ public class Item_3102 : ItemBase_Food
 /// </summary>
 public class Item_3103 : ItemBase_Food
 {
-    private int config_Food = 1;
-    public override bool Check()
+    private int config_Food = 5;
+    private int config_San = 2;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        desc = desc.Replace("/SubSan/", $"-{config_San}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.AddFood(config_Food);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        actor.sanManager.SubSan(config_San);
+        base.OnHand_EatAction(actor);
     }
 }
 /// <summary>
@@ -199,20 +245,24 @@ public class Item_3103 : ItemBase_Food
 /// </summary>
 public class Item_3104 : ItemBase_Food
 {
-    private int config_Food = 0;
-    public override bool Check()
+    private int config_Food = 5;
+    private int config_San = 2;
+    private int config_Hp = 50;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        desc = desc.Replace("/SubSan/", $"-{config_San}");
+        desc = desc.Replace("/SubHp/", $"-{config_Hp * 0.1f}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.SubFood(-config_Food);
-        owner.sanManager.SubSan(-10);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        actor.sanManager.SubSan(config_San);
+        actor.actionManager.TakeDamage(config_Hp, DamageState.RealDamage, null);
+        base.OnHand_EatAction(actor);
     }
 }
 /// <summary>
@@ -220,20 +270,21 @@ public class Item_3104 : ItemBase_Food
 /// </summary>
 public class Item_3105 : ItemBase_Food
 {
-    private int config_Food = 0;
-    public override bool Check()
+    private int config_Food = 5;
+    private int config_San = 2;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        desc = desc.Replace("/SubSan/", $"-{config_San}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.SubFood(-config_Food);
-        owner.sanManager.SubSan(-10);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        actor.sanManager.SubSan(config_San);
+        base.OnHand_EatAction(actor);
     }
 }
 /// <summary>
@@ -242,21 +293,22 @@ public class Item_3105 : ItemBase_Food
 public class Item_3110 : ItemBase_Food
 {
     private int config_Food = 5;
-    public override bool Check()
+    private int config_San = 2;
+    #region//–ﬁ∏ƒ√Ë ˆ
+    public override string GridCell_UpdateDesc(string desc)
     {
-        if (owner.actorAuthority.isPlayer && (owner.actorNetManager.Net_FoodCur + config_Food / 2 > owner.actorNetManager.Local_FoodMax))
-        {
-            return false;
-        }
-        return base.Check();
+        desc = desc.Replace("/AddFood/", $"+{config_Food}");
+        desc = desc.Replace("/SubSan/", $"-{config_San}");
+        return base.GridCell_UpdateDesc(desc);
     }
-    public override void Eat()
+    #endregion
+    public override void OnHand_EatAction(ActorManager actor)
     {
-        owner.hungryManager.AddFood(config_Food);
-        base.Eat();
+        actor.hungryManager.AddFood(config_Food);
+        actor.sanManager.SubSan(config_San);
+        base.OnHand_EatAction(actor);
     }
 }
-
 #endregion
 #region//∆‰À˚
 /// <summary>
@@ -264,6 +316,13 @@ public class Item_3110 : ItemBase_Food
 /// </summary>
 public class Item_3200 : ItemBase_Materials
 {
-    
+
+}
+/// <summary>
+/// Ã«∑€
+/// </summary>
+public class Item_3201 : ItemBase_Materials
+{
+
 }
 #endregion

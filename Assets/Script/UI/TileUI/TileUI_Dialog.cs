@@ -18,6 +18,10 @@ public class TileUI_Dialog : TileUI
     private LocalizeStringEvent localizeString_Info;
 
     public List<TileUI_DialogOption> dialogOptions = new List<TileUI_DialogOption>();
+    public override bool NeedToOpenBagPanel()
+    {
+        return false;
+    }
     public void InitDialog(string nameTable, string nameEntry, string infoTable, string infoEntry)
     {
         transform_RealPanel.DOKill();
@@ -26,24 +30,29 @@ public class TileUI_Dialog : TileUI
         localizeString_Name.StringReference.SetReference(nameTable, nameEntry);
         localizeString_Info.StringReference.SetReference(infoTable, infoEntry);
     }
-    public void InitOption(List<DialogOption> options)
+    public void ResetDialog()
     {
         for (int i = 0; i < dialogOptions.Count; i++)
         {
             dialogOptions[i].Hide();
         }
+        MoveDialog(0);
+    }
+    public IEnumerator InitOption(List<DialogOption> options)
+    {
+        yield return new WaitForSeconds(0.1f);
         for (int i = 0; i < options.Count; i++)
         {
             if (i < dialogOptions.Count)
             {
-                dialogOptions[i].Init(options[i].optionTable, options[i].optionEntry, options[i].optionAction);
+                dialogOptions[options.Count - i - 1].Init("Role_String", options[i].optionEntry, options[i].optionAction);
             }
         }
         MoveDialog(options.Count);
     }
     private void MoveDialog(int count)
     {
-        transform_RealPanel.DOLocalMoveY(count * 72, 0.1f);
+        transform_RealPanel.DOLocalMoveY(count * 52, 0.1f);
     }
 }
 public class DialogOption
@@ -51,4 +60,12 @@ public class DialogOption
     public string optionTable;
     public string optionEntry;
     public Action optionAction;
+    public DialogOption(string textKey, Action action)
+    {
+        optionEntry = textKey; optionAction = action;
+    }
+    public DialogOption()
+    {
+        
+    }
 }

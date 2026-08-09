@@ -6,14 +6,16 @@ using UniRx;
 public class BuildingObj_Home_Chicken : BuildingObj_ResourcePoint
 {
     private ActorManager actor_Bind;
-
-    public override void All_UpdateHour(int hour)
+    [Header("角色生成时间")]
+    public int time_CreateActor = 1;
+    public override void All_OnHourUpdate(GameEvent.GameEvent_All_UpdateHour eventData)
     {
-        if (actor_Bind == null && hour == 1) { CreateActor(); }
-        base.All_UpdateHour(hour);
+        if (eventData.hour == time_CreateActor) All_CreateActor();
+        base.All_OnHourUpdate(eventData);
     }
-    private void CreateActor()
+    private void All_CreateActor()
     {
+        if (actor_Bind) return;
         MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
         {
             name = "Actor/Animal_Chicken",
@@ -21,7 +23,8 @@ public class BuildingObj_Home_Chicken : BuildingObj_ResourcePoint
             callBack = ((actor) =>
             {
                 actor_Bind = actor.GetComponent<ActorManager>();
-                actor_Bind.brainManager.State_SetHomePos(buildingTile.tilePos);
+                actor_Bind.brainManager.ForState_SetHomePos(buildingTile.tilePos);
+                actor_Bind.brainManager.ForState_SetActivityPos(buildingTile.tilePos);
             })
         });
     }

@@ -57,18 +57,12 @@ public class ItemLocalObj_Hoe : ItemLocalObj
     {
         actorManager = owner;
 
-        transform.SetParent(body.transform_ItemInRightHand);
-        body.gameObjects_ItemInHand.Add(gameObject);
-        transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.identity;
-        transform.localScale = Vector3.one;
+        body.AddItemOnRightHand(gameObject, Vector3.zero, Quaternion.identity, Vector3.one);
+        spriteRenderer_Hand.color = body.ShowRightHand(false).color;
+
 
         config_HoeCD = config_HoeDuraction / config_HoeSpeed;
         config_HoeCDRec = config_HoeSpeed / config_HoeDuraction;
-
-        spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
-        body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
-
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
             MapPreviewManager.Instance.Local_ShowSingal(Vector3Int.zero);

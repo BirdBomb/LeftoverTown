@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+/// <summary>
+/// ÉÕÖÆÊý¾Ý
+/// </summary>
 public class RefiningConfigData
 {
     public static RefiningConfig GetRefiningConfig(int ID)
@@ -10,6 +12,7 @@ public class RefiningConfigData
     }
     public readonly static List<RefiningConfig> refiningConfigs = new List<RefiningConfig>()
     {
+        new RefiningConfig(){RefiningBeforeID = 1013,RefiningAfterID = 1113,RefiningSecond = 10},
         new RefiningConfig(){RefiningBeforeID = 1014,RefiningAfterID = 1114,RefiningSecond = 10},
         new RefiningConfig(){RefiningBeforeID = 1015,RefiningAfterID = 1115,RefiningSecond = 10},
         new RefiningConfig(){RefiningBeforeID = 3000,RefiningAfterID = 4006,RefiningSecond = 5},

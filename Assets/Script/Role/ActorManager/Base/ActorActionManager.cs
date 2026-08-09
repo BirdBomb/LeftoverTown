@@ -10,6 +10,7 @@ public class ActorActionManager
     private BodyController_Base bodyController;
     private LayerMask layerMask_ItemObj;
     private LayerMask layerMask_Wall;
+    private System.Random random = new System.Random();
     public void Bind(ActorManager actorManager)
     {
         this.actorManager = actorManager;
@@ -42,7 +43,7 @@ public class ActorActionManager
         List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
         index = index % items.Count;
         ItemData oldBagItem = items[index];
-        ItemData oldHandItem = actorManager.actorNetManager.Net_ItemHand;
+        ItemData oldHandItem = actorManager.actorNetManager.Local_ItemHand;
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
         {
             index = index,
@@ -63,7 +64,7 @@ public class ActorActionManager
         List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
         index = index % items.Count;
         ItemData oldBagItem = items[index];
-        ItemData oldHeadItem = actorManager.actorNetManager.Net_ItemHead;
+        ItemData oldHeadItem = actorManager.actorNetManager.Local_ItemHead;
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
         {
             index = index,
@@ -84,7 +85,7 @@ public class ActorActionManager
         List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
         index = index % items.Count;
         ItemData oldBagItem = items[index];
-        ItemData oldBodyItem = actorManager.actorNetManager.Net_ItemBody;
+        ItemData oldBodyItem = actorManager.actorNetManager.Local_ItemBody;
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
         {
             index = index,
@@ -104,7 +105,7 @@ public class ActorActionManager
         List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
         index = index % items.Count;
         ItemData oldBagItem = items[index];
-        ItemData oldConsumablesItem = actorManager.actorNetManager.Net_ItemConsumables;
+        ItemData oldConsumablesItem = actorManager.actorNetManager.Local_ItemConsumables;
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
         {
             index = index,
@@ -124,7 +125,7 @@ public class ActorActionManager
         List<ItemData> items = actorManager.actorNetManager.Local_ItemBag_Get();
         index = index % items.Count;
         ItemData oldBagItem = items[index];
-        ItemData oldConsumablesItem = actorManager.actorNetManager.Net_ItemConsumables;
+        ItemData oldConsumablesItem = actorManager.actorNetManager.Local_ItemConsumables;
         MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Change()
         {
             index = index,
@@ -164,51 +165,176 @@ public class ActorActionManager
     public void FaceTo(Vector2 dir)
     {
         bodyController.faceDir = dir.normalized;
-        if (bodyController.faceDir.x > 0.1f) bodyController.FaceRight();
-        if (bodyController.faceDir.x < -0.1f) bodyController.FaceLeft();
+        if(bodyController.faceDir.x >= 0)
+        {
+            bodyController.FaceRight();
+        }
+        else
+        {
+            bodyController.FaceLeft();
+        }
     }
     public void TurnTo(Vector2 dir)
     {
         bodyController.turnDir = dir.normalized;
-        if (bodyController.turnDir.x > 0.1f) bodyController.TurnRight();
-        if (bodyController.turnDir.x < -0.1f) bodyController.TurnLeft();
+        if (bodyController.turnDir.x > 0.1f) { bodyController.TurnRight(); return; }
+        if (bodyController.turnDir.x < -0.1f) { bodyController.TurnLeft(); return; }
     }
     public bool LookAt(ActorManager who, float view)
     {
-        if (who)
+        if (who == null || who.actorState == ActorState.Dead) return false;
+        float viewSqr = view * view;
+        float distanceSqr = (actorManager.transform.position - who.transform.position).sqrMagnitude;
+        if (distanceSqr >= viewSqr || Physics2D.LinecastAll(who.transform.position, actorManager.transform.position, layerMask_Wall).Length > 0)
         {
-            if (Vector3.Distance(actorManager.transform.position, who.transform.position) >= view)
-            {
-                return false;
-            }
-            if (Physics2D.LinecastAll(who.transform.position, actorManager.transform.position, layerMask_Wall).Length > 0)
-            {
-                return false;
-            }
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
     public bool HearTo(ActorManager who, float view)
     {
-        if (who != actorManager)//这个人不是我
+        if (who == null || who.actorState == ActorState.Dead) return false;
+        float viewSqr = view * view;
+        float distanceSqr = (actorManager.transform.position - who.transform.position).sqrMagnitude;
+        if (distanceSqr >= viewSqr)
         {
-            if (Vector3.Distance(actorManager.transform.position, who.transform.position) >= view)
-            {
-                return false;
-            }
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
+    #endregion
+    #region//伤害相关
+    /// <summary>
+    /// 是否是合法攻击目标
+    /// </summary>
+    /// <param name="actor"></param>
+    /// <param name="damageTarget"></param>
+    /// <returns></returns>
+    public bool CheckApplyDamageTarget(ActorManager actor, DamageTarget damageTarget)
+    {
+        switch(damageTarget)
+        {
+            case DamageTarget.All: return true;
+            case DamageTarget.WithoutMe:
+                {
+                    if (actor == actorManager ||
+                        actor == actorManager.vehicleManager.actorManager_Vehicle ||
+                        actor == actorManager.vehicleManager.actorManager_Rider)
+                    {
+                        return false;
+                    }
+                    break;
+                }
+        }
+        return true;
+    }
+    /// <summary>
+    /// 造成伤害
+    /// </summary>
+    /// <param name="val"></param>
+    /// <param name="damageState"></param>
+    /// <param name="to"></param>
+    public void ApplyDamageToActors(int val, DamageState damageState,DamageTarget damageTarget, List<ActorManager> targets,out List<ApplyActorDamageCallBack> callBack)
+    {
+        callBack = new List<ApplyActorDamageCallBack>();
+        foreach (ActorManager actor in targets)
+        {
+            if (!CheckApplyDamageTarget(actor, damageTarget)) continue;
+            int realDamage = actor.actionManager.TakeDamage(val, damageState, actorManager);
+            callBack.Add(new ApplyActorDamageCallBack(actor, realDamage));
+        }
+    }
+    public void ApplyDamageToActor(int val, DamageState damageState, DamageTarget damageTarget, ActorManager target, out ApplyActorDamageCallBack callBack)
+    {
+        if (!CheckApplyDamageTarget(target, damageTarget)) 
+        {
+            callBack = null;
+            return;
+        }
+        int realDamage = target.actionManager.TakeDamage(val, damageState, actorManager);
+        callBack = new ApplyActorDamageCallBack(target, realDamage);
+    }
+
+    /// <summary>
+    /// 造成伤害
+    /// </summary>
+    /// <param name="val"></param>
+    /// <param name="damageState"></param>
+    /// <param name="targets"></param>
+    /// <param name="callBack"></param>
+    public void ApplyDamageToBuilidngs(int val,DamageState damageState,List<BuildingObj> targets,out List<ApplyBuildingDamageCallBack> callBack)
+    {
+        callBack = new List<ApplyBuildingDamageCallBack>();
+        foreach (BuildingObj buildingObj in targets)
+        {
+            int realDamage = buildingObj.Local_TakeDamage(val, damageState, actorManager.actorNetManager);
+            callBack.Add(new ApplyBuildingDamageCallBack(buildingObj, realDamage));
+        }
+    }
+    /// <summary>
+    /// 受到伤害
+    /// </summary>
+    /// <param name="val"></param>
+    /// <param name="damageState"></param>
+    /// <param name="from"></param>
+    public int TakeDamage(int val, DamageState damageState, ActorManager from)
+    {
+        NetworkId networkId = new NetworkId();
+        if (actorManager.actorState == ActorState.Dead) return 0;
+        if (from == null || from.actorNetManager.Object.Id == null) 
+        {
+
+        }
+        else
+        {
+            networkId = from.actorNetManager.Object.Id;
+        }
+        switch (damageState)
+        {
+            case DamageState.AttackPiercingDamage:
+                {
+                    val = val > actorManager.actorNetManager.Net_Armor ? val - actorManager.actorNetManager.Net_Armor : 0;
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
+                }
+                break;
+            case DamageState.AttackSlashingDamage:
+                {
+                    val = val > actorManager.actorNetManager.Net_Armor ? val - actorManager.actorNetManager.Net_Armor : 0;
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
+                }
+                break;
+            case DamageState.AttackBludgeoningDamage:
+                {
+                    val = val > actorManager.actorNetManager.Net_Armor ? val - actorManager.actorNetManager.Net_Armor : 0;
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.AttackDamage, networkId);
+                }
+                break;
+            case DamageState.MagicDamage:
+                {
+                    val = val > actorManager.actorNetManager.Net_Resistance ? val - actorManager.actorNetManager.Net_Resistance : 0;
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.MagicDamage, networkId);
+                }
+                break;
+            case DamageState.RealDamage:
+                {
+                    actorManager.actorNetManager.RPC_AllClient_HpChange(-val, (int)HpChangeReason.RealDamage, networkId);
+                }
+                break;
+        }
+        actorManager.bodyController.Flash();
+        actorManager.bodyController.Shake();
+        return val;
+    }
+
     #endregion
     #region//死亡相关
     public void Dead()
     {
         if (actorManager.actorState != ActorState.Dead)
         {
+            actorManager.vehicleManager.AllClient_CleanVehicle();
+            actorManager.vehicleManager.AllClient_CleanRider();
             actorManager.actorState = ActorState.Dead;
-            actorManager.AllClient_UpdateHpBar(0);
             if (actorManager.actorAuthority.isPlayer)
             {
                 DeadPlayer();
@@ -237,6 +363,9 @@ public class ActorActionManager
             Despawn();
         }
     }
+    /// <summary>
+    /// 销毁
+    /// </summary>
     public void Despawn()
     {
         actorManager.actorNetManager.Runner.Despawn(actorManager.actorNetManager.Object);
@@ -246,7 +375,50 @@ public class ActorActionManager
     /// </summary>
     public void DropDown()
     {
-        List<ItemData> dropItem = actorManager.actorNetManager.Local_GetLootItems();
+        List<ItemData> dropItem = actorManager.actorNetManager.Local_ItemBag_Get();
+        if (actorManager.actorNetManager.Local_ItemHand.I > 0) dropItem.Add(actorManager.actorNetManager.Local_ItemHand);
+        if (actorManager.actorNetManager.Local_ItemHead.I > 0) dropItem.Add(actorManager.actorNetManager.Local_ItemHead);
+        if (actorManager.actorNetManager.Local_ItemBody.I > 0) dropItem.Add(actorManager.actorNetManager.Local_ItemBody);
+        if (actorManager.actorNetManager.Local_ItemAccessory.I > 0) dropItem.Add(actorManager.actorNetManager.Local_ItemAccessory);
+        if (actorManager.actorNetManager.Local_ItemConsumables.I > 0) dropItem.Add(actorManager.actorNetManager.Local_ItemConsumables);
+
+        int weightCount = 0;
+        if (actorManager.actorConfig.LootFixed_List != null)
+        {
+            LootFixedInfo[] lootFixedInfos = actorManager.actorConfig.LootFixed_List;
+            for (int i = 0; i < lootFixedInfos.Length; i++)
+            {
+                Type type = Type.GetType("Item_" + lootFixedInfos[i].ID.ToString());
+                ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(lootFixedInfos[i].ID, out ItemData initData);
+                initData.C = (short)random.Next(lootFixedInfos[i].CountMin, lootFixedInfos[i].CountMax);
+                dropItem.Add(initData);
+            }
+        }
+        if (actorManager.actorConfig.LootRandom_List != null)
+        {
+            LootRandomInfo[] lootRandomInfos = actorManager.actorConfig.LootRandom_List;
+            for (int i = 0; i < lootRandomInfos.Length; i++)
+            {
+                weightCount += (int)lootRandomInfos[i].Weight;
+            }
+            for (int i = 0; i < actorManager.actorConfig.LootRandom_Count; i++)
+            {
+                int temp = 0;
+                for (int j = 0; j < lootRandomInfos.Length; j++)
+                {
+                    temp += (int)lootRandomInfos[i].Weight;
+                    if (random.Next(0, weightCount) < temp)
+                    {
+                        Type type = Type.GetType("Item_" + lootRandomInfos[i].ID.ToString());
+                        ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(lootRandomInfos[i].ID, out ItemData initData);
+                        initData.C = (short)random.Next(lootRandomInfos[i].CountMin, lootRandomInfos[i].CountMax);
+                        dropItem.Add(initData);
+                        break;
+                    }
+                }
+            }
+        }
+
         for (int i = 0; i < dropItem.Count; i++)
         {
             float angle = i * (360 / dropItem.Count);
@@ -266,22 +438,54 @@ public class ActorActionManager
     }
     #endregion
     #region//速度相关
-    /// <summary>
-    /// 地块速度影响参数
-    /// </summary>
-    private float client_SpeedOffset_Floor;
     public float Client_GetSpeed()
     {
         float temp = actorManager.actorNetManager.Net_SpeedCommon * 0.1f;
         if (actorManager.actorAuthority.isPlayer)
         {
-            float sanRatio = actorManager.sanManager.GetSanRatio();
-            float sanOffset = (sanRatio < 0.3f) ? Mathf.Lerp(0.5f, 1.0f, sanRatio / 0.3f) : 1f;
-            temp = temp * sanOffset;
+            temp = Client_CalculateMoveSpeedBySan(temp);
+            temp = Client_CalculateMoveSpeedByFloor(temp);
+        }
+        else
+        {
+            if (actorManager.vehicleManager.vehicleState == VehicleState.AsVehicle)
+            {
+                temp *= 2;
+            }
         }
         return temp;
     }
-
+    public float Client_CalculateMoveSpeedBySan(float speed)
+    {
+        //float sanRatio = actorManager.sanManager.GetSanRatio();
+        float sanRatio = 1;
+        float sanOffset = (sanRatio < 0.3f) ? Mathf.Lerp(0.5f, 1.0f, sanRatio / 0.3f) : 1f;
+        speed = speed * sanOffset;
+        return speed; 
+    }
+    public float Client_CalculateMoveSpeedByFloor(float speed)
+    {
+        speed = actorManager.pathManager.ForAll_GetSpeedOffset() * speed;
+        return speed;
+    }
+    #endregion
+    #region//护甲与魔抗相关
+    public void Local_ResetArmor()
+    {
+        int armor = 0;
+        armor = actorManager.itemManager.itemBase_OnHead != null ? actorManager.itemManager.itemBase_OnHead.OnHead_CalculateArmor(armor) : armor;
+        armor = actorManager.itemManager.itemBase_OnBody != null ? actorManager.itemManager.itemBase_OnBody.OnBody_CalculateArmor(armor) : armor;
+        armor = actorManager.buffManager.Local_CalculateArmor(armor);
+        actorManager.actorNetManager.RPC_LocalInput_ChangeArmor((short)armor);
+    }
+    public void Local_ResetResistance()
+    {
+        int resistance = 0;
+        resistance = actorManager.itemManager.itemBase_OnHead != null ? actorManager.itemManager.itemBase_OnHead.OnHead_CalculateResistance(resistance) : resistance;
+        resistance = actorManager.itemManager.itemBase_OnBody != null ? actorManager.itemManager.itemBase_OnBody.OnBody_CalculateResistance(resistance) : resistance;
+        resistance = actorManager.buffManager.Local_CalculateResistance(resistance);
+        actorManager.actorNetManager.RPC_LocalInput_ChangeResistance((short)resistance);
+    }
     #endregion
     #region//其他相关
     /// <summary>
@@ -291,6 +495,7 @@ public class ActorActionManager
     /// <param name="force"></param>
     public void Client_TakeForce(Vector2 dir, short force)
     {
+        return;
         actorManager.actorNetManager.RPC_AllClient_AddForce(dir, force);
     }
     public bool PayCoin(int coin)
@@ -350,13 +555,13 @@ public class ActorActionManager
             actorManager.actorNetManager.RPC_Local_ChangeFine(0);
         }
     }
-    public void AllClient_SendEmoji(short emojiID,short distance)
+    public void AllClient_SendEmoji(short emojiID, float duration, bool loop, short distance)
     {
-       actorManager.actorNetManager.RPC_LocalInput_SendEmoji(emojiID, distance);
+        actorManager.actorNetManager.RPC_LocalInput_SendEmoji(emojiID, duration, loop, distance);
     }
-    public void AllClient_SendText(string text,int id)
+    public void AllClient_SendText(string text, short emojiID, float duration, bool loop, short distance)
     {
-       actorManager.actorNetManager.RPC_LocalInput_SendText(text,id);
+       actorManager.actorNetManager.RPC_LocalInput_SendText(text, emojiID, duration, loop, distance);
     }
     #endregion
     #region//Play
@@ -369,12 +574,45 @@ public class ActorActionManager
     {
         
     }
+    public void PlayBloodSplash(float sleep,Vector3 dir)
+    {
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Blood");
+        effect.GetComponent<EffectBase>().SetEffect(dir);
+        effect.transform.position = actorManager.transform.position;
+    }
     public void PlayPickUp(float speed, Func<string,bool> func)
     {
-        bodyController.SetAnimatorTrigger(BodyPart.Hand, "Pick");
         bodyController.SetAnimatorTrigger(BodyPart.Head, "Pick");
+        bodyController.SetAnimatorTrigger(BodyPart.Hand, "Pick");
         bodyController.SetAnimatorFunc(BodyPart.Hand, func);
     }
+
     #endregion
 
+}
+/// <summary>
+/// 伤害回调
+/// </summary>
+public class ApplyActorDamageCallBack
+{
+    public ActorManager target;
+    public int realDamage;
+    public ApplyActorDamageCallBack(ActorManager actor, int damage)
+    {
+        target = actor;
+        realDamage = damage;
+    }
+}
+/// <summary>
+/// 伤害回调
+/// </summary>
+public struct ApplyBuildingDamageCallBack
+{
+    public BuildingObj target;
+    public int realDamage;
+    public ApplyBuildingDamageCallBack(BuildingObj buildingObj, int damage)
+    {
+        target = buildingObj;
+        realDamage = damage;
+    }
 }

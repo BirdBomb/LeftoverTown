@@ -1,0 +1,185 @@
+using DG.Tweening;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Rendering.Universal;
+
+public class Bullet_Piercing : BulletBase
+{
+    [Header("子弹贴图")]
+    public SpriteRenderer spriteRenderer_Bullet;
+    [Header("子弹光效")]
+    public Light2D light2D_Bullet;
+    [Header("子弹物理伤害")]
+    public short config_BaseAttackDamage;
+    [Header("子弹魔法伤害")]
+    public short config_BaseMagicDamage;
+    [Header("子弹速度")]
+    public short config_BaseSpeed;
+    [Header("衰减速度")]
+    public float config_DownSpeed;
+    [Header("子弹力量")]
+    public float config_BaseForce;
+    [Header("子弹可以穿透的层数")]
+    public int config_PiercingPower;
+    private int temp_PiercingTimer;
+    private List<ActorManager> actorManagers_Ignore = new List<ActorManager>();
+    private List<GameObject> buildingObj_Ignore = new List<GameObject>();
+    public override void InitBullet()
+    {
+        transform.DOKill();
+        transform.localScale = Vector3.one;
+        spriteRenderer_Bullet.enabled = true;
+        light2D_Bullet.enabled = true;
+        light2D_Bullet.intensity = 0.5f;
+        temp_PiercingTimer = 0;
+        actorManagers_Ignore.Clear();
+        buildingObj_Ignore.Clear();
+    }
+    public override void SetPhysics(Vector3 pos, Vector2 dir, float speedOffset, float forceOffset)
+    {
+        transform.position = pos;
+        vectoe3_CurPos = transform.position;
+        vectoe3_LastPos = transform.position;
+        vectoe3_MoveDir = dir;
+        float_BulletSpeed = config_BaseSpeed + speedOffset;
+        float_BulletForce = config_BaseForce + forceOffset;
+        if (float_BulletSpeed < 0) { float_BulletSpeed = 1; }
+        if (float_BulletForce < 0) { float_BulletSpeed = 0; }
+        transform.right = vectoe3_MoveDir;
+        base.SetPhysics(pos, dir, speedOffset, forceOffset);
+    }
+    public override void SetDamage(int AdOffset, int MdOffset)
+    {
+        float_BulletAttackDemage = config_BaseAttackDamage + AdOffset;
+        float_BulletMagicDemage = config_BaseMagicDamage + MdOffset;
+        if (float_BulletAttackDemage < 0) { float_BulletAttackDemage = 0; }
+        if (float_BulletMagicDemage < 0) { float_BulletMagicDemage = 0; }
+        base.SetDamage(AdOffset, MdOffset);
+    }
+    public override void SetOwner(ActorManager owner)
+    {
+        actorManager_Owner = owner;
+        actorAuthority_Owner = actorManager_Owner.actorAuthority;
+        actorManagers_Ignore.Add(actorManager_Owner);
+        base.SetOwner(owner);
+    }
+    public void FixedUpdate()
+    {
+        if (!_hide)
+        {
+            Move(Time.fixedDeltaTime);
+            SpeedDown(Time.fixedDeltaTime);
+            Check(Time.fixedDeltaTime);
+        }
+    }
+    private void Move(float dt)
+    {
+        transform.position += vectoe3_MoveDir * float_BulletSpeed * dt;
+    }
+    private void SpeedDown(float dt)
+    {
+        if (light2D_Bullet.intensity > 0)
+        {
+            light2D_Bullet.intensity -= dt;
+        }
+        if (float_BulletSpeed > 0)
+        {
+            float_BulletSpeed -= dt * config_DownSpeed;
+        }
+        else
+        {
+            HideBullet();
+        }
+    }
+    private void Check(float dt)
+    {
+        vectoe3_LastPos = vectoe3_CurPos;
+        vectoe3_CurPos = transform.position;
+        RaycastHit2D[] hit2D = Physics2D.LinecastAll(vectoe3_LastPos, vectoe3_CurPos + vectoe3_MoveDir * float_BulletSpeed * dt, layerMask_Target);
+        foreach (var hit in hit2D)
+        {
+            if (hit.collider.CompareTag("Actor"))
+            {
+                if (hit.collider.isTrigger && hit.transform.TryGetComponent(out ActorManager actor)&& !actorManagers_Ignore.Contains(actor))
+                {
+                    actorManagers_Ignore.Add(actor);
+                    if (actorManager_Owner.actionManager.CheckApplyDamageTarget(actor, DamageTarget.WithoutMe))
+                    {
+                        actor.actionManager.PlayBloodSplash(float_BulletSpeed, vectoe3_MoveDir);
+                        AttackActor(actor);
+                        Effect(actor.transform.position);
+                    }
+                    continue;
+                }
+            }
+            else
+            {
+                if (!buildingObj_Ignore.Contains(hit.collider.gameObject)) 
+                {
+                    buildingObj_Ignore.Add(hit.collider.gameObject);
+                    AttackObj(hit);
+                    Effect(hit.transform.position);
+                    continue;
+                }
+            }
+        }
+    }
+    private void AttackActor(ActorManager actor)
+    {
+        if (actorAuthority_Owner.isLocal)
+        {
+            actor.actionManager.Client_TakeForce(vectoe3_MoveDir, (short)float_BulletForce);
+            if (float_BulletAttackDemage > 0)
+            {
+                actorManager_Owner.actionManager.ApplyDamageToActor
+                        (float_BulletAttackDemage, DamageState.AttackPiercingDamage, DamageTarget.WithoutMe, actor, out ApplyActorDamageCallBack callBack_0);
+            }
+            if (float_BulletMagicDemage > 0)
+            {
+                actorManager_Owner.actionManager.ApplyDamageToActor
+                    (float_BulletMagicDemage, DamageState.MagicDamage, DamageTarget.WithoutMe, actor, out ApplyActorDamageCallBack callBack_1);
+            }
+        }
+    }
+    private void AttackObj(RaycastHit2D hit)
+    {
+        hit.transform.DOKill();
+        hit.transform.localScale = Vector3.one;
+        hit.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+        if (temp_PiercingTimer >= config_PiercingPower)
+        {
+            Boom(hit.point);
+        }
+        else
+        {
+            temp_PiercingTimer++;
+        }
+    }
+
+    /// <summary>
+    /// 爆炸
+    /// </summary>
+    /// <param name="pos"></param>
+    private void Boom(Vector2 pos)
+    {
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_BulletBoom");
+        effect.transform.localScale = new Vector3(1 - (2 * new System.Random().Next(0, 2)), 1, 1);
+        effect.transform.position = pos;
+        float_BulletSpeed = 0;
+    }
+    private void Effect(Vector2 pos)
+    {
+        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+        effect.GetComponent<Effect_Impact>().PlayPiercing(vectoe3_MoveDir);
+        effect.transform.position = pos;
+    }
+
+    public override void HideBullet()
+    {
+        _hide = true;
+        spriteRenderer_Bullet.enabled = false;
+        light2D_Bullet.enabled = false;
+        base.HideBullet();
+    }
+
+}

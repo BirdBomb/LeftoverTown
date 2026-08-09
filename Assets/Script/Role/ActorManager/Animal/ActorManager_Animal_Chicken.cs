@@ -10,23 +10,25 @@ public class ActorManager_Animal_Chicken : ActorManager_Animal
 {
     public override void State_ThinkByTimeUpdate(int date, int hour, GlobalTime time)
     {
-        if (time == GlobalTime.Evening)
+        switch (time)
         {
-            if (pathManager.vector3Int_CurPos == brainManager.state_homePostion.position)
-            {
-                actionManager.Despawn();
-                return;
-            }
+            case GlobalTime.Evening:
+                {
+                    if (pathManager.vector3Int_CurPos == brainManager.state_homePostion.position)
+                    {
+                        actionManager.Despawn();
+                    }
+                    else
+                    {
+                        if (!State_Think_GoToHome()) State_Think_GoToStroll_Long(4, 5);
+                    }
+                    return;
+                }
         }
-        State_Think_GoToStroll_Long(2, 5);
+        State_Think_GoToStroll_Long(4, 5);
     }
     public override void State_ThinkByTimeChange(int date, int hour, GlobalTime time)
     {
-        if (time == GlobalTime.Evening)
-        {
-            State_Think_GoToHome();
-        }
         base.State_ThinkByTimeUpdate(date, hour, time);
     }
-
 }

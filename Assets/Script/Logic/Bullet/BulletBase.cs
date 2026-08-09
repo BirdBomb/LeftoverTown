@@ -75,6 +75,15 @@ public class BulletBase : MonoBehaviour
 
     }
     /// <summary>
+    /// 初始化子弹生命周期
+    /// </summary>
+    /// <param name="time"></param>
+    public virtual void SetLifeTime(float time)
+    {
+        if (IsInvoking("HideBullet")) CancelInvoke("HideBullet");
+        Invoke("HideBullet", time);
+    }
+    /// <summary>
     /// 初始化子弹伤害
     /// </summary>
     public virtual void SetDamage(int AdOffset,int MdOffset)

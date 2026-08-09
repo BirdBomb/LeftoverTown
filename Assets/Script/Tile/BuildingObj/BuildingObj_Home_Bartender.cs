@@ -10,18 +10,11 @@ public class BuildingObj_Home_Bartender : BuildingObj_Manmade
     public override void Start()
     {
         CreateActor();
-        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
-        {
-            All_UpdateHour(_.hour);
-        }).AddTo(this);
         base.Start();
-    }
-    public void All_UpdateHour(int hour)
-    {
-        if (actor_Bind == null && hour == 0) { CreateActor(); }
     }
     private void CreateActor()
     {
+        if (actor_Bind) return;
         MessageBroker.Default.Publish(new GameEvent.GameEvent_State_SpawnActor()
         {
             name = "Actor/NPC_Bartender",
@@ -29,7 +22,8 @@ public class BuildingObj_Home_Bartender : BuildingObj_Manmade
             callBack = ((actor) =>
             {
                 actor_Bind = actor.GetComponent<ActorManager>();
-                actor_Bind.brainManager.State_SetHomePos(buildingTile.tilePos);
+                actor_Bind.brainManager.ForState_SetHomePos(buildingTile.tilePos);
+                actor_Bind.brainManager.ForState_SetActivityPos(buildingTile.tilePos);
             })
         });
     }

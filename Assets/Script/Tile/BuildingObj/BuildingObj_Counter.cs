@@ -16,7 +16,8 @@ public class BuildingObj_Counter : BuildingObj_Manmade
     private Sprite sprite_S;
     public override void All_OnDraw()
     {
-        Around around = MapManager.Instance.CheckBuilding_FourSide(buildingTile.tileID, buildingTile.tilePos);
+        Around around = MapManager.Instance.CheckAround_Building(buildingTile.tilePos, (int id) => { return id == buildingTile.tileID; }, DirectionType.Four);
+
         if (around.R && around.L)
         {
             spriteRenderer.sprite = sprite_M;

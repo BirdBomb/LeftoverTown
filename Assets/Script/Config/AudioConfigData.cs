@@ -30,10 +30,13 @@ public class AudioConfigData
         new AudioConfig(){ Audio_ID = 2007,Audio_Name = "ItemAudio_Spray",Audio_MaxDistance = 5},
 
         new AudioConfig(){ Audio_ID = 3000,Audio_Name = "BuildingAudio_WoodHit",Audio_MaxDistance = 20},
+        new AudioConfig(){ Audio_ID = 3001,Audio_Name = "BuildingAudio_WoodBomb",Audio_MaxDistance = 20},
         new AudioConfig(){ Audio_ID = 3002,Audio_Name = "BuildingAudio_RockHit",Audio_MaxDistance = 20},
         new AudioConfig(){ Audio_ID = 3003,Audio_Name = "BuildingAudio_RockBomb",Audio_MaxDistance = 20},
         new AudioConfig(){ Audio_ID = 3004,Audio_Name = "BuildingAudio_DoorOpen",Audio_MaxDistance = 20},
         new AudioConfig(){ Audio_ID = 3005,Audio_Name = "BuildingAudio_DoorClose",Audio_MaxDistance = 20},
+        new AudioConfig(){ Audio_ID = 3006,Audio_Name = "BuildingAudio_BoxOpen",Audio_MaxDistance = 20},
+        new AudioConfig(){ Audio_ID = 3007,Audio_Name = "BuildingAudio_BoxClose",Audio_MaxDistance = 20},
 
         new AudioConfig(){ Audio_ID = 4000,Audio_Name = "HumanAudio_Step",Audio_MaxDistance = 10},
 

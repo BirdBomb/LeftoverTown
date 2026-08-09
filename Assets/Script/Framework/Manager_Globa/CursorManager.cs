@@ -6,21 +6,22 @@ using UnityEngine.UI;
 
 public class CursorManager : SingleTon<CursorManager>, ISingleTon
 {
+    [Header("Cursor Textures")]
     public Texture2D texture_CommonCursor;
     public Texture2D texture_BuildCursor;
     public Texture2D texture_AimCursor;
     public Texture2D texture_WeaponCursor;
     public Texture2D texture_ToolCursor;
+    [Header("UI Elements")]
     public Transform transform_Follow;
     public Image image_Aim;
+    [Header("Settings")]
     public float float_moveSpeed;
+    public CursorMode cursorMode = CursorMode.Auto;
 
     private Vector3 vector3_ref;
-    private Vector3 vector3_targetPos;
-    private Vector3 vector3_curPos;
-    public CursorMode cursorMode = CursorMode.Auto;
-    private List<CursorType> cursorStateList = new List<CursorType>();
-
+    private Stack<CursorType> cursorStateStack = new Stack<CursorType>();
+    private CursorType currentCursorType = CursorType.Common;
     public enum CursorType
     {
         Common,
@@ -35,63 +36,71 @@ public class CursorManager : SingleTon<CursorManager>, ISingleTon
     }
     public void Init()
     {
-        
+        if (image_Aim != null)
+            image_Aim.gameObject.SetActive(false);
+
+        ChangeCursor(CursorType.Common);
     }
     private void FollowCursor()
     {
-        if (transform_Follow != null)
-        {
-            // 计算目标位置
-            vector3_targetPos = Input.mousePosition;
-            vector3_curPos = Vector3.SmoothDamp(transform_Follow.position, vector3_targetPos, ref vector3_ref, float_moveSpeed);
-            transform_Follow.position = vector3_curPos;
-        }
+        if (transform_Follow == null) return;
 
+        // 只有瞄准镜激活时才需要跟随
+        if (image_Aim != null && image_Aim.gameObject.activeSelf)
+        {
+            transform_Follow.position = Vector3.SmoothDamp(
+                transform_Follow.position,
+                Input.mousePosition,
+                ref vector3_ref,
+                float_moveSpeed
+            );
+        }
     }
     public void AddCursor(CursorType cursorType)
     {
-        if (!cursorStateList.Contains(cursorType))
+        if (cursorStateStack.Count == 0 || cursorStateStack.Peek() != cursorType)
         {
-            cursorStateList.Add(cursorType);
+            cursorStateStack.Push(cursorType);
+            ChangeCursor(cursorType);
         }
-        ChangeCursor(cursorType);
     }
     public void SubCursor(CursorType cursorType)
     {
-        if (cursorStateList.Contains(cursorType))
+        if (cursorStateStack.Count > 0 && cursorStateStack.Peek() == cursorType)
         {
-            cursorStateList.Remove(cursorType); 
-        }
-        if (cursorStateList.Count > 0)
-        {
-            ChangeCursor(cursorStateList[cursorStateList.Count - 1]);
-        }
-        else
-        {
-            ChangeCursor(CursorType.Common);
+            cursorStateStack.Pop();
+            ChangeCursor(cursorStateStack.Count > 0 ? cursorStateStack.Peek() : CursorType.Common);
         }
     }
     private void ChangeCursor(CursorType cursorType)
     {
-        image_Aim.gameObject.SetActive(false);
+        if (currentCursorType == cursorType) return;
+
+        currentCursorType = cursorType;
+
+        // 隐藏瞄准镜UI
+        if (image_Aim != null)
+            image_Aim.gameObject.SetActive(cursorType == CursorType.Aim);
+
+        // 设置系统光标
+        Texture2D cursorTexture = GetCursorTexture(cursorType);
+        Vector2 hotspot = GetCursorHotspot(cursorType);
+        Cursor.SetCursor(cursorTexture, hotspot, cursorMode);
+    }
+    private Texture2D GetCursorTexture(CursorType cursorType)
+    {
         switch (cursorType)
         {
-            case CursorType.Common:
-                Cursor.SetCursor(texture_CommonCursor, Vector2.zero, cursorMode);
-                break;
-            case CursorType.Build:
-                Cursor.SetCursor(texture_BuildCursor, Vector2.zero, cursorMode);
-                break;
-            case CursorType.Aim:
-                Cursor.SetCursor(texture_AimCursor, Vector2.zero, cursorMode);
-                image_Aim.gameObject.SetActive(true);
-                break;
-            case CursorType.Weapon:
-                Cursor.SetCursor(texture_WeaponCursor, Vector2.zero, cursorMode);
-                break;
-            case CursorType.Tool:
-                Cursor.SetCursor(texture_ToolCursor, Vector2.zero, cursorMode);
-                break;
+            case CursorType.Common: return texture_CommonCursor;
+            case CursorType.Build: return texture_BuildCursor;
+            case CursorType.Aim: return texture_AimCursor;
+            case CursorType.Weapon: return texture_WeaponCursor;
+            case CursorType.Tool: return texture_ToolCursor;
+            default: return null;
         }
+    }
+    private Vector2 GetCursorHotspot(CursorType cursorType)
+    {
+        return Vector2.zero; // 默认左上角
     }
 }

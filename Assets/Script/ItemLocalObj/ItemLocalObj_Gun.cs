@@ -147,7 +147,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
         }
     }
     #region//子弹操作
-    private List<short> bulletList = new List<short>() { 9010 };
+    private List<short> bulletList = new List<short>() { 9010, 9011 };
     /// <summary>
     /// 检查子弹
     /// </summary>
@@ -156,7 +156,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
     {
         if (actorManager.actorAuthority.isPlayer)
         {
-            ItemData itemData = actorManager.actorNetManager.Net_ItemConsumables;
+            ItemData itemData = actorManager.actorNetManager.Local_ItemConsumables;
             if (bulletList.Contains(itemData.I) && itemData.C > 0)
             {
                 UseBullet(1);
@@ -182,7 +182,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
     {
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            ItemData _oldItemConsumables = actorManager.actorNetManager.Net_ItemConsumables;
+            ItemData _oldItemConsumables = actorManager.actorNetManager.Local_ItemConsumables;
             ItemData _newItemConsumables = _oldItemConsumables;
             _newItemConsumables.C--;
             if (_newItemConsumables.C <= 0)
@@ -259,7 +259,7 @@ public class ItemLocalObj_Gun : ItemLocalObj
         ItemData _newItemHand = itemData;
         _newItemHand.D--;
         UpdateDataByLocal(_newItemHand);
-        actorManager.actorNetManager.Net_ItemHand = _newItemHand;
+        actorManager.actorNetManager.Local_ItemHand_Change(_oldItemHand, _newItemHand);
     }
     /// <summary>
     /// 射击

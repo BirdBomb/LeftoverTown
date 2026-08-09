@@ -18,24 +18,36 @@ public class ActorManager_Player : ActorManager
         base.FixedUpdate();
     }
     #region//监听
-    public override void AllClient_AddListener()
+    public override void ForAll_AddListener()
     {
-        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
-        {
-            AllClient_Listen_UpdateTime(_.hour, _.day, _.now);
-        }).AddTo(this);
-        base.AllClient_AddListener();
+        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(ForAll_Listen_UpdateTime).AddTo(this);
+        base.ForAll_AddListener();
     }
-    public override void AllClient_Listen_UpdateTime(int hour, int date, GlobalTime globalTime)
+    public override void ForAll_SecondUpdate()
     {
-        base.AllClient_Listen_UpdateTime(hour, date, globalTime);
+        if (actorAuthority.isLocal)
+        {
+            bool outOfRange = Vector2.Distance(transform.position, WorldLightManager.Instance.light2D_Sun.transform.position) > WorldManager.Instance.gameNetManager.SunLight;
+            WorldLightManager.Instance.ChangeVignette(outOfRange);
+            if (outOfRange)
+            {
+                buffManager.Local_AddBuff(new BuffData(2000));
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_ShowTips() {  });
+            }
+            else 
+            { 
+                buffManager.Local_RemoveBuff(2000);
+                MessageBroker.Default.Publish(new UIEvent.UIEvent_HideTips() { });
+            }
+        }
+        base.ForAll_SecondUpdate();
     }
     #endregion
     #region//附近人物
     /// <summary>
     /// 最近的可以对话的角色
     /// </summary>
-    public ActorManager actorManager_Closest = null;
+    private ActorManager actorManager_Closest = null;
     public void Local_UpdateClosestActor()
     {
         if (brainManager.actorManagers_Nearby.Count > 0)
@@ -90,56 +102,53 @@ public class ActorManager_Player : ActorManager
     }
     public override void AllClient_Listen_RoleInView(ActorManager actor)
     {
-        if (actorAuthority.isLocal)
+        if(actorAuthority.isPlayer && actorAuthority.isLocal && actor.Local_IsInteractable())
         {
-            if (actor.Local_CanDialog())
-            {
-                brainManager.actorManagers_Nearby.Add(actor);
-            }
+            brainManager.State_AddNearbyActors(actor);
         }
         base.AllClient_Listen_RoleInView(actor);
     }
     public override void AllClient_Listen_RoleOutView(ActorManager actor)
     {
-        if (actorAuthority.isLocal)
+        if (actorAuthority.isPlayer && actorAuthority.isLocal)
         {
-            brainManager.actorManagers_Nearby.Remove(actor);
+            brainManager.State_RemoveNearbyActors(actor);
         }
         base.AllClient_Listen_RoleOutView(actor);
     }
     public void Local_Listen_Input(ActorManager actor, KeyCode keyCode)
     {
-        if (keyCode == KeyCode.R)
+        if (actorManager_Closest != null && brainManager.actorManagers_Nearby.Contains(actorManager_Closest))
         {
-            if (actorManager_Closest != null && brainManager.actorManagers_Nearby.Contains(actorManager_Closest))
-            {
-                actorManager_Closest.Local_GetPlayerInput_R(this);
-            }
+            actorManager_Closest.Local_GetPlayerInput(this, keyCode);
         }
     }
 
     #endregion
     #region//附近物体
-    public override void AllClient_Listen_ItemInView(ItemNetObj obj)
+    public override void ForAll_Listen_ItemInView(ItemNetObj obj)
     {
         if (actorAuthority.isLocal)
         {
             brainManager.allClient_ItemNetObj_Nearby.Add(obj);
         }
+        base.ForAll_Listen_ItemInView(obj);
     }
-    public override void AllClient_Listen_ItemOutView(ItemNetObj obj)
+    public override void ForAll_Listen_ItemOutView(ItemNetObj obj)
     {
         if (actorAuthority.isLocal)
         {
             brainManager.allClient_ItemNetObj_Nearby.Remove(obj);
         }
+        base.ForAll_Listen_ItemOutView(obj);
     }
-    public override void State_Listen_ItemOutView(ItemNetObj obj)
+    public override void ForState_Listen_ItemOutView(ItemNetObj obj)
     {
-        if (obj.Object && obj.Client_Owner == actorNetManager.Object.Id)
+        if (obj && obj.Object && actorNetManager && actorNetManager.Object && obj.Client_Owner == actorNetManager.Object.Id)
         {
             obj.State_RsetOwner();
         }
+        base.ForState_Listen_ItemOutView(obj);
     }
     public void Local_UpdateClosestItem()
     {

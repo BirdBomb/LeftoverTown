@@ -12,4 +12,12 @@ public class TileUI : MonoBehaviour
     {
         Destroy(gameObject);
     }
+    /// <summary>
+    /// 是否需要展开Bag
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool NeedToOpenBagPanel()
+    {
+        return true;
+    }
 }

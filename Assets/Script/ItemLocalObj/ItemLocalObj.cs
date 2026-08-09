@@ -29,6 +29,7 @@ public class ItemLocalObj : MonoBehaviour
     {
 
     }
+    #region 鼠标输入
     /// <summary>
     /// 按压左键
     /// </summary>
@@ -71,6 +72,7 @@ public class ItemLocalObj : MonoBehaviour
     {
 
     }
+    #endregion
     /// <summary>
     /// 更新时间
     /// </summary>

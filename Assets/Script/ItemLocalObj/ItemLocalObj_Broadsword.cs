@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-
+/// <summary>
+/// ½£
+/// </summary>
 public class ItemLocalObj_Broadsword : ItemLocalObj
 {
     [SerializeField]
@@ -15,7 +17,7 @@ public class ItemLocalObj_Broadsword : ItemLocalObj
 
     private int AttackDamage;
     private float AttackSpeed;
-    private float AttackExpend;
+    private float AttackAbrasion;
     private float AttackAbrasion_Temp;
 
     /// <summary>
@@ -52,22 +54,15 @@ public class ItemLocalObj_Broadsword : ItemLocalObj
     public override void HoldingStart(ActorManager owner, BodyController_Human body)
     {
         actorManager = owner;
-
-        transform.SetParent(body.transform_ItemInRightHand);
-        body.gameObjects_ItemInHand.Add(gameObject);
-        transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.identity;
-        transform.localScale = Vector3.one;
-
-        spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
-        body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
+        body.AddItemOnRightHand(gameObject, Vector3.zero, Quaternion.identity, Vector3.one);
+        spriteRenderer_Hand.color = body.ShowRightHand(false).color;
         base.HoldingStart(owner, body);
     }
     public void UpdateBroadswordData(int attackDamage, float attackSpeed, float attackExpend, ItemQuality itemQuality)
     {
         AttackDamage = attackDamage;
         AttackSpeed = attackSpeed;
-        AttackExpend = attackExpend;
+        AttackAbrasion = attackExpend;
         config_HackCD = config_HackDuraction / AttackSpeed;
     }
 
@@ -107,28 +102,35 @@ public class ItemLocalObj_Broadsword : ItemLocalObj
         {
             skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
             skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_HackMaxDistance, config_HackMaxRange, out Collider2D[] colliders);
+            List<ActorManager> catchActors = new List<ActorManager>();
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].tag.Equals("Actor"))
                 {
                     if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                     {
-                        if (actor != actorManager) { HackActor(actor); }
+                        catchActors.Add(actor);
                     }
                 }
             }
+            int damageCount = HackActors(catchActors);
+            if (damageCount > 0) AddAbrasion(AttackAbrasion);
         }
     }
-    private void HackActor(ActorManager actor)
+    private int HackActors(List<ActorManager> actors)
     {
-        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
-        effect.GetComponent<Effect_Impact>().PlaySlash(actor.transform.position - actorManager.transform.position, true);
-        effect.transform.position = actor.transform.position;
-
-        actor.actorHpManager.TakeDamage(AttackDamage, DamageState.AttackSlashingDamage, actorManager.actorNetManager);
-        AddAbrasion(AttackExpend);
+        int temp = 0;
+        actorManager.actionManager.ApplyDamageToActors
+            (AttackDamage, DamageState.AttackSlashingDamage, DamageTarget.WithoutMe, actors, out List<ApplyActorDamageCallBack> callBackList);
+        foreach (ApplyActorDamageCallBack callBack in callBackList)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlaySlash(callBack.target.transform.position - actorManager.transform.position, true);
+            effect.transform.position = callBack.target.transform.position;
+            temp += callBack.realDamage;
+        }
+        return temp;
     }
-
     /// <summary>
     /// ÀÛ¼ÆËðºÄ
     /// </summary>

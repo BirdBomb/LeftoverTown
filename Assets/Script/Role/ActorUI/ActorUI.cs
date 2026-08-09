@@ -5,128 +5,177 @@ using UnityEngine;
 using UnityEngine.U2D;
 using static Fusion.Allocator;
 using TMPro;
+using UniRx;
+using UnityEngine.Localization.Components;
+
 public class ActorUI : MonoBehaviour
 {
-    public Transform transform_HpPanel;
-    public Transform transform_HPBar;
-    public TextMeshPro textMeshPro_Name;
-    public TextMeshPro textMeshPro_Text;
-
-    public Transform transform_Bubble;
-    public Transform transform_Emoji;
     public SpriteAtlas spriteAtlas_Emoji;
-    public SpriteRenderer spriteRenderer_Emoji;
-    public Transform transform_Singal;
-    public Transform transform_SingalR;
-    public Transform transform_SingalTalk;
+    private ActorManager actorManager_Bind;
 
-    public void UpdateHPBar(float val)
+
+    public void Bind(ActorManager actorManager)
     {
-        transform_HPBar.localScale = new Vector3(val, 1, 1);
+        actorManager_Bind = actorManager;
     }
-    #region//Emoji
-    public void SendEmoji(Emoji emoji)
+    public void HideAllSingal()
     {
-        if (!transform_Singal.gameObject.activeSelf)
+        ShowSingal_R(false);
+        ShowSingal_Talk(false);
+        ShowSingal_Emoji(false);
+    }
+    #region//Singal_Emoji
+    private GameObject obj_SingalUI_Emoji;
+    private SpriteRenderer spriteRenderer_Emoji;
+    private EmojiQuest emojiQuest;
+    private Coroutine emojiLoop;
+    public void SendEmoji(Emoji emoji, float duration, bool isLoop, float distance)
+    {
+        emojiQuest.emoji = emoji;
+        emojiQuest.loop = isLoop;
+        emojiQuest.distance = distance;
+        if (emojiLoop != null) { StopCoroutine(emojiLoop); }
+        emojiLoop = StartCoroutine(EmojiLoop(duration));
+    }
+    private IEnumerator EmojiLoop(float duration)
+    {
+        do
         {
-            transform_Emoji.transform.DOKill();
-            transform_Emoji.transform.localScale = Vector3.zero;
-            transform_Emoji.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
-            if (emoji == Emoji.Talking)
+            ShowSingal_Emoji(true);
+            yield return new WaitForSeconds(duration);
+        }
+        while (emojiQuest.loop);
+        ShowSingal_Emoji(false);
+    }
+    private void ShowSingal_Emoji(bool on)
+    {
+        if (on)
+        {
+            HideAllSingal();
+            obj_SingalUI_Emoji = obj_SingalUI_Emoji ? obj_SingalUI_Emoji : PoolManager.Instance.GetObject("UI/ActorUI/SignalEmoji");
+            obj_SingalUI_Emoji.transform.SetParent(transform);
+            obj_SingalUI_Emoji.transform.localPosition = Vector3.zero;
+            obj_SingalUI_Emoji.transform.localScale = Vector3.one;
+            obj_SingalUI_Emoji.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_SingalUI_Emoji.TryGetComponent(out spriteRenderer_Emoji);
+            if (emojiQuest.emoji == Emoji.Talking)
             {
                 int random = new System.Random().Next(0, 10);
-                spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite("Emoji_" + (int)emoji + "_" + random);
+                spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite($"Emoji_{(int)emojiQuest.emoji}_{random}");
             }
             else
             {
-                spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite("Emoji_" + (int)emoji);
+                spriteRenderer_Emoji.sprite = spriteAtlas_Emoji.GetSprite($"Emoji_{(int)emojiQuest.emoji}");
             }
-            textMeshPro_Text.text = "";
-            if (IsInvoking("ResetEmoji"))
+            MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_SomeoneSendEmoji
             {
-                CancelInvoke("ResetEmoji");
-            }
-            Invoke("ResetEmoji", 1);
+                actor = actorManager_Bind,
+                emoji = emojiQuest.emoji,
+                distance = emojiQuest.distance,
+            });
+        }
+        else
+        {
+            PoolManager.Instance.ReleaseObject("UI/ActorUI/SignalEmoji", obj_SingalUI_Emoji);
+            obj_SingalUI_Emoji = null;
+            spriteRenderer_Emoji = null;
         }
     }
-    private void ResetEmoji()
-    {
-        transform_Emoji.transform.DOScale(Vector3.zero, 0.25f);
-        textMeshPro_Text.text = "";
-    }
+
     #endregion
-    #region//Text
-    public void SendText(string text)
+    #region//Singal_Text
+    private GameObject obj_SingalUI_Text;
+    private SpriteRenderer spriteRenderer_Text;
+    private TextQuest textQuest;
+    private Coroutine textLoop;
+
+    public void SendText(string text, Emoji emoji, float duration, bool isLoop, float distance)
     {
-        if (!transform_Singal.gameObject.activeSelf)
+        textQuest.text = text;
+        textQuest.emoji = emoji;
+        textQuest.loop = isLoop;
+        textQuest.distance = distance;
+        if (textLoop != null) { StopCoroutine(textLoop); }
+        textLoop = StartCoroutine(TextLoop(duration));
+
+    }
+    private IEnumerator TextLoop(float duration)
+    {
+        do
         {
-            transform_Bubble.transform.DOKill();
-            transform_Bubble.transform.localScale = Vector3.zero;
-            transform_Bubble.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
-            textMeshPro_Text.text = text;
-            if (IsInvoking("ResetText"))
+            ShowSingal_Text(true);
+            yield return new WaitForSeconds(duration);
+        }
+        while (textQuest.loop);
+        ShowSingal_Text(false);
+    }
+    private void ShowSingal_Text(bool on)
+    {
+        if (on)
+        {
+            HideAllSingal();
+            obj_SingalUI_Text = obj_SingalUI_Text ? obj_SingalUI_Text : PoolManager.Instance.GetObject("UI/ActorUI/SignalText");
+            obj_SingalUI_Text.transform.SetParent(transform);
+            obj_SingalUI_Text.transform.localPosition = Vector3.zero;
+            obj_SingalUI_Text.transform.localScale = Vector3.one;
+            obj_SingalUI_Text.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_SingalUI_Text.transform.Find("Canvas/Text").TryGetComponent(out TextMeshProUGUI text);
+            text.text = textQuest.text;
+            MessageBroker.Default.Publish(new GameEvent.GameEvent_AllClient_SomeoneSendEmoji
             {
-                CancelInvoke("ResetText");
-            }
-            Invoke("ResetText", 1);
+                actor = actorManager_Bind,
+                emoji = textQuest.emoji,
+                distance = textQuest.distance,
+            });
+        }
+        else
+        {
+            PoolManager.Instance.ReleaseObject("UI/ActorUI/SignalText", obj_SingalUI_Text);
+            obj_SingalUI_Text = null;
+            spriteRenderer_Emoji = null;
         }
     }
-    private void ResetText()
+
+    #endregion
+    #region//Singal_R
+    private GameObject obj_SingalUI_R;
+    public void ShowSingal_R(bool on)
     {
-        transform_Bubble.transform.DOScale(Vector3.zero, 0.25f);
-        textMeshPro_Text.text = "";
+        if(on)
+        {
+            HideAllSingal();
+            obj_SingalUI_R = obj_SingalUI_R ? obj_SingalUI_R : PoolManager.Instance.GetObject("UI/ActorUI/SignalR");
+            obj_SingalUI_R.transform.SetParent(transform);
+            obj_SingalUI_R.transform.localPosition = Vector3.zero;
+            obj_SingalUI_R.transform.localScale = Vector3.one;
+            obj_SingalUI_R.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+
+        }
+        else
+        {
+            PoolManager.Instance.ReleaseObject("UI/ActorUI/SignalR", obj_SingalUI_R);
+            obj_SingalUI_R = null;
+        }
     }
     #endregion
-    #region//Name
-    public void ShowName(string str)
+    #region//Singal_Talk
+    private GameObject obj_SingalUI_Talk;
+    public void ShowSingal_Talk(bool on)
     {
-        if (!str.Equals(""))
+        if (on)
         {
-            textMeshPro_Name.text = str;
+            HideAllSingal();
+            obj_SingalUI_Talk = obj_SingalUI_Talk ? obj_SingalUI_Talk : PoolManager.Instance.GetObject("UI/ActorUI/SignalTalk");
+            obj_SingalUI_Talk.transform.SetParent(transform);
+            obj_SingalUI_Talk.transform.localPosition = Vector3.zero;
+            obj_SingalUI_Talk.transform.localScale = Vector3.one;
+            obj_SingalUI_Talk.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
         }
-    }
-    #endregion
-    #region//Singal
-    public void ShowSingal()
-    {
-        ResetEmoji();
-        ResetText();
-        transform_Singal.DOKill();
-        transform_Singal.gameObject.SetActive(true);
-        transform_Singal.transform.localScale = Vector3.one;
-        transform_Singal.DOPunchScale(new Vector3(-0.1f, 0.1f, 0), 0.2f);
-        if (IsInvoking("HideSingal"))
+        else
         {
-            CancelInvoke("HideSingal");
+            PoolManager.Instance.ReleaseObject("UI/ActorUI/SignalTalk", obj_SingalUI_Talk);
+            obj_SingalUI_Talk = null;
         }
-        Invoke("HideSingal", 5);
-    }
-    public void HideSingal()
-    {
-        transform_Singal.gameObject.SetActive(false);
-        textMeshPro_Text.text = "";
-    }
-    public void ShowSingalR()
-    {
-        ResetEmoji();
-        ResetText();
-        transform_Singal.DOKill();
-        transform_Singal.gameObject.SetActive(true);
-        transform_SingalR.gameObject.SetActive(true);
-        transform_SingalTalk.gameObject.SetActive(false);
-        transform_Singal.transform.localScale = Vector3.one;
-        transform_Singal.DOPunchScale(new Vector3(-0.1f, 0.1f, 0), 0.2f);
-    }
-    public void ShowSingalTalk()
-    {
-        ResetEmoji();
-        ResetText();
-        transform_Singal.DOKill();
-        transform_Singal.gameObject.SetActive(true);
-        transform_SingalTalk.gameObject.SetActive(true);
-        transform_SingalR.gameObject.SetActive(false);
-        transform_Singal.transform.localScale = Vector3.one;
-        transform_Singal.DOPunchScale(new Vector3(-0.1f, 0.1f, 0), 0.2f);
     }
 
     #endregion
@@ -182,3 +231,5 @@ public enum Emoji
     /// </summary>
     TalkEnd,
 }
+public struct EmojiQuest { public Emoji emoji; public bool loop; public float distance; }
+public struct TextQuest { public string text;public Emoji emoji; public bool loop; public float distance; }

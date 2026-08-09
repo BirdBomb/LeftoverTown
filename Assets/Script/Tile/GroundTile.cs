@@ -84,38 +84,14 @@ public class GroundTile : TileBase
         }
         return false;
     }
-
-    #region//路径信息
-    /// <summary>
-    /// 总权重
-    /// </summary>
-    [HideInInspector]
-    public float _temp_DistanceMain;
-    /// <summary>
-    /// 距离起点的距离
-    /// </summary>
-    [HideInInspector]
-    public float _temp_DistanceToFrom;
-    /// <summary>
-    /// 距离终点的距离
-    /// </summary>
-    [HideInInspector]
-    public float _temp_DistanceToTarget;
-    /// <summary>
-    /// 上一个瓦片
-    /// </summary>
-    [HideInInspector]
-    public GroundTile _temp_fatherTile;
-
-    public void ResetTilePathInfo()
+    public float GetSpeedOffset()
     {
-        _temp_DistanceToFrom = 0;
-        _temp_DistanceToTarget = 0;
-        _temp_DistanceMain = 0;
-
-        _temp_fatherTile = null;
+        if (tileObj)
+        {
+            return tileObj.All_SpeedOffset();
+        }
+        return 1;
     }
-    #endregion
 #if UNITY_EDITOR
     [MenuItem("Assets/Create/GroundTile")]
     public static void CreateBaseTile()

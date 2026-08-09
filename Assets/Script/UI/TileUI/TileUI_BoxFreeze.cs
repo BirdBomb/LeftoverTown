@@ -5,96 +5,33 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TileUI_BoxFreeze : TileUI
+public class TileUI_BoxFreeze : TileUI_BoxBase
 {
-    [SerializeField, Header("格子面板")]
-    private Transform transform_Panel;
-    [SerializeField, Header("格子列表")]
-    private List<UI_GridCell> gridCells_List = new List<UI_GridCell>();
-
-    private BuildingObj_BoxFreeze buildingObj_Bind;
-
-    private void Awake()
+    public override void PutIn(ItemData itemData_Add, ItemPath path)
     {
-        BindAllCell();
+        itemData_Add = Freeze(itemData_Add);
+        base.PutIn(itemData_Add, path);
     }
-    public override void Show()
+    public override ItemData PutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        transform_Panel.DOKill();
-        transform_Panel.localScale = Vector3.one;
-        transform_Panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
-        base.Show();
+        return Thaw(base.PutOut(itemData_From, itemData_Out, itemPath));
     }
-    public override void Hide()
+    private ItemData Freeze(ItemData itemData)
     {
-        buildingObj_Bind.OpenOrCloseAwakeUI(false);
-        base.Hide();
-    }
-    public void BindBuilding(BuildingObj_BoxFreeze buildingObj)
-    {
-        buildingObj_Bind = buildingObj;
-        buildingObj_Bind.OpenOrCloseAwakeUI(true);
-    }
-    public void BindAllCell()
-    {
-        for (int i = 0; i < gridCells_List.Count; i++)
-        {
-            int index = i;
-            gridCells_List[i].BindGrid(new ItemPath(ItemFrom.Default, index), PutIn, PutOut, null, null);
-        }
-    }
-    public void DrawEveryCell()
-    {
-        for (int i = 0; i < gridCells_List.Count; i++)
-        {
-            if (i < buildingObj_Bind.itemDatas_List.Count)
-            {
-                if (buildingObj_Bind.itemDatas_List[i].I != 0)
-                {
-                    gridCells_List[i].UpdateData(buildingObj_Bind.itemDatas_List[i]);
-                }
-                else
-                {
-                    gridCells_List[i].CleanItemBase();
-                }
-            }
-            else
-            {
-                gridCells_List[i].CleanItemBase();
-            }
-        }
-    }
-    public void PutIn(ItemData addData, ItemPath path)
-    {
-        ItemConfig itemConfig = ItemConfigData.GetItemConfig(addData.I);
-        if (itemConfig.Item_Type == ItemType.Food || itemConfig.Item_Type == ItemType.Dishes) 
-        {
-            addData.V = 0;
-        }
-
-        GameToolManager.Instance.PutInItemList(buildingObj_Bind.itemDatas_List, addData, path.itemIndex, gridCells_List.Count, out ItemData resData);
-        if (resData.I > 0 && resData.C != 0)
-        {
-            MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
-            {
-                itemData = resData,
-                itemFrom = ItemFrom.OutSide
-            });
-        }
-        buildingObj_Bind.WriteInfo();
-    }
-    public ItemData PutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
-    {
-        ItemData itemData_New = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.itemDatas_List = GameToolManager.Instance.ChangeItemList(buildingObj_Bind.itemDatas_List, itemData_New, itemPath.itemIndex);
-
-        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData_Out.I);
+        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.I);
         if (itemConfig.Item_Type == ItemType.Food || itemConfig.Item_Type == ItemType.Dishes)
         {
-            itemData_Out.V = 100;
+            itemData.V = 0;
         }
-
-        buildingObj_Bind.WriteInfo();
-        return itemData_Out;
+        return itemData;
+    }
+    private ItemData Thaw(ItemData itemData)
+    {
+        ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.I);
+        if (itemConfig.Item_Type == ItemType.Food || itemConfig.Item_Type == ItemType.Dishes)
+        {
+            itemData.V = 100;
+        }
+        return itemData;
     }
 }

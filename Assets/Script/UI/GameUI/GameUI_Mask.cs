@@ -21,6 +21,14 @@ public class GameUI_Mask : MonoBehaviour
             CloseReviveCountDown();
 
         }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_ShowTips>().Subscribe(_ =>
+        {
+            ShowTipes();
+        }).AddTo(this);
+        MessageBroker.Default.Receive<UIEvent.UIEvent_HideTips>().Subscribe(_ =>
+        {
+            HideTips();
+        }).AddTo(this);
     }
     #region//¸´»îµ¹¼ÆÊ±
     public Transform trans_RevivePanel;
@@ -66,4 +74,13 @@ public class GameUI_Mask : MonoBehaviour
     }
 
     #endregion
+    public TextMeshProUGUI text_Tilps;
+    public void ShowTipes()
+    {
+        text_Tilps.gameObject.SetActive(true);
+    }
+    public void HideTips()
+    {
+        text_Tilps.gameObject.SetActive(false);
+    }
 }

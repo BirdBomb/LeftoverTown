@@ -6,19 +6,27 @@ using UnityEngine;
 public class MapCreate_ConfigBuilding 
 {
     private MapCreate bind_MapCreater;
-    public async Task CreateConfigBuilding(MapCreate mapCreater)
+    public async Task CreateSunBuilding(MapCreate mapCreater)
     {
         bind_MapCreater = mapCreater;
         bind_MapCreater.text_Waiting.text = "正在坠落太阳";
         MapModConfig mapConfig_0 = MapModConfigData.GetMapModConfig(0);
         CreateMapMod(Vector2Int.zero, mapConfig_0);
         await Task.Yield();
+    }
+    public async Task CreateConfigBuilding(MapCreate mapCreater)
+    {
         bind_MapCreater.text_Waiting.text = "正在进行一场失败的实验";
         MapModConfig mapConfig_100 = MapModConfigData.GetMapModConfig(100);
         CreateMapMod(new Vector2Int((int)(-bind_MapCreater.config_Map.map_Size * 0.5f), (int)(bind_MapCreater.config_Map.map_Size * 0.5f)), mapConfig_100);
         await Task.Yield();
+        bind_MapCreater.text_Waiting.text = "正在进行另一场失败的实验";
+        MapModConfig mapConfig_101 = MapModConfigData.GetMapModConfig(101);
+        CreateMapMod(new Vector2Int(0, 50), mapConfig_101);
+        await Task.Yield();
         bind_MapCreater.text_Waiting.text = "正在定居";
         MapModConfig mapConfig_200 = MapModConfigData.GetMapModConfig(200);
+        CreateMapMod(new Vector2Int(0, -50), mapConfig_200);
     }
     private void CreateMapMod(Vector2Int center, MapModConfig mapModConfig)
     {
@@ -36,18 +44,8 @@ public class MapCreate_ConfigBuilding
             {
                 tempIndex = tempX * tempX + tempY;
             }
-            if (bind_MapCreater.data_mapGroundData.tileDic.ContainsKey(tempIndex))
-            {
-                bind_MapCreater.data_mapGroundData.tileDic[tempIndex] = pair.value;
-            }
-            else
-            {
-                bind_MapCreater.data_mapGroundData.tileDic.Add(tempIndex, pair.value);
-            }
-            if (bind_MapCreater.data_mapBuildingData.tileDic.ContainsKey(tempIndex))
-            {
-                bind_MapCreater.data_mapBuildingData.tileDic.Remove(tempIndex);
-            }
+            bind_MapCreater.data_mapGroundData.tileDic[tempIndex] = pair.value;
+            if (bind_MapCreater.data_mapBuildingData.tileDic.ContainsKey(tempIndex)) bind_MapCreater.data_mapBuildingData.tileDic.Remove(tempIndex);
         }
         foreach (KeyValuePair<Vector2Int, short> pair in data_Map.data_mapBuilding)
         {
@@ -62,16 +60,8 @@ public class MapCreate_ConfigBuilding
             {
                 tempIndex = tempX * tempX + tempY;
             }
-            if (bind_MapCreater.data_mapBuildingData.tileDic.ContainsKey(tempIndex))
-            {
-                bind_MapCreater.data_mapBuildingData.tileDic[tempIndex] = pair.value;
-            }
-            else
-            {
-                bind_MapCreater.data_mapBuildingData.tileDic.Add(tempIndex, pair.value);
-            }
+            bind_MapCreater.data_mapBuildingData.tileDic[tempIndex] = pair.value;
         }
-
     }
 
 }

@@ -5,24 +5,22 @@ using UnityEngine;
 
 public class BuildingObj_Home_Zombie : BuildingObj_Manmade
 {
-    private ActorManager zombie;
+    private ActorManager actor_Bind;
+    [Header("角色生成时间")]
+    public int time_CreateActor = 1;
     public override void Start()
     {
-        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(_ =>
-        {
-            ListenTimeUpdate(_.now);
-        }).AddTo(this);
+        MessageBroker.Default.Receive<GameEvent.GameEvent_All_UpdateHour>().Subscribe(All_OnHourUpdate).AddTo(this);
         base.Start();
     }
-    private void ListenTimeUpdate(GlobalTime globalTime)
+    public void All_OnHourUpdate(GameEvent.GameEvent_All_UpdateHour eventData)
     {
-        if (globalTime == GlobalTime.Evening)
-        {
-            if (zombie == null) CreateZombie();
-        }
+        if (eventData.hour == time_CreateActor) All_CreateActor();
     }
-    private void CreateZombie()
+
+    private void All_CreateActor()
     {
+        if (actor_Bind) return;
         int random = new System.Random().Next(0, 100);
         if (random < 100)
         {
@@ -32,8 +30,8 @@ public class BuildingObj_Home_Zombie : BuildingObj_Manmade
                 pos = transform.position,
                 callBack = ((actor) =>
                 {
-                    zombie = actor.GetComponent<ActorManager>();
-                    zombie.brainManager.State_SetHomePos(buildingTile.tilePos);
+                    actor_Bind = actor.GetComponent<ActorManager>();
+                    actor_Bind.brainManager.ForState_SetHomePos(buildingTile.tilePos);
                 })
             });
         }
@@ -45,8 +43,8 @@ public class BuildingObj_Home_Zombie : BuildingObj_Manmade
                 pos = transform.position,
                 callBack = ((actor) =>
                 {
-                    zombie = actor.GetComponent<ActorManager>();
-                    zombie.brainManager.State_SetHomePos(buildingTile.tilePos);
+                    actor_Bind = actor.GetComponent<ActorManager>();
+                    actor_Bind.brainManager.ForState_SetHomePos(buildingTile.tilePos);
                 })
             });
         }
@@ -58,8 +56,8 @@ public class BuildingObj_Home_Zombie : BuildingObj_Manmade
                 pos = transform.position,
                 callBack = ((actor) =>
                 {
-                    zombie = actor.GetComponent<ActorManager>();
-                    zombie.brainManager.State_SetHomePos(buildingTile.tilePos);
+                    actor_Bind = actor.GetComponent<ActorManager>();
+                    actor_Bind.brainManager.ForState_SetHomePos(buildingTile.tilePos);
                 })
             });
         }

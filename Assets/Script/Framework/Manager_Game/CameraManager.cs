@@ -9,10 +9,10 @@ public class CameraManager : SingleTon<CameraManager>, ISingleTon
 {
     [Header("主摄像机")]
     public Camera camera_Main;
-    [Header("主摄像机位置")]
-    public Transform tran_Camera;
     [Header("地下摄像机")]
     public Camera camera_UnderGround;
+    [Header("主摄像机位置")]
+    public Transform tran_Camera;
     [Header("地下摄像机位置")]
     public Transform tran_UnderGround;
     [Header("地下摄像机纹理")]
@@ -39,6 +39,13 @@ public class CameraManager : SingleTon<CameraManager>, ISingleTon
     /// 当前屏幕高度
     /// </summary>
     private int currentScreenHeight;
+
+    public void Init()
+    {
+        LightBreath();
+    }
+
+    #region//屏幕跟随
     private void Update()
     {
         if (currentScreenWidth != Screen.width || currentScreenHeight != Screen.height)
@@ -55,30 +62,12 @@ public class CameraManager : SingleTon<CameraManager>, ISingleTon
             // 计算目标位置
             vector3_targetPos = tran_target.position + vector3_offset;
             vector3_curPos = Vector3.SmoothDamp(transform.position, vector3_targetPos, ref vector3_ref, float_moveSpeed);
-            vector3_curPos.z = -10f;
             transform.position = vector3_curPos;
         }
-    }
-
-    public void Init()
-    {
-        LightBreath();
     }
     public void FollowTarget(Transform followTo)
     {
         tran_target = followTo;
-    }
-    public void Shake(float time, float strength)
-    {
-        tran_Camera.DOKill();
-        tran_Camera.localPosition = Vector3.zero;
-        tran_Camera.DOShakePosition(time, strength);
-    }
-    public void LightBreath()
-    {
-        spriteRenderer_LightShake.DOKill();
-        spriteRenderer_LightShake.color = new Color(1, 1, 1, 0.4f);
-        spriteRenderer_LightShake.DOFade(0.1f, 8f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
     }
     private void UpdateScreen()
     {
@@ -121,8 +110,21 @@ public class CameraManager : SingleTon<CameraManager>, ISingleTon
             // 释放原有的RT
             renderTexture_UnderGround.Release();
             // 创建新的RT，尺寸可以是屏幕的1/2或1/4以提高性能
-            renderTexture_UnderGround.width = Mathf.Max(1, currentScreenWidth );
-            renderTexture_UnderGround.height = Mathf.Max(1, currentScreenHeight );
+            renderTexture_UnderGround.width = Mathf.Max(1, currentScreenWidth);
+            renderTexture_UnderGround.height = Mathf.Max(1, currentScreenHeight);
         }
     }
+    #endregion
+    #region//屏幕效果
+    /// <summary>
+    /// 呼吸光效
+    /// </summary>
+    public void LightBreath()
+    {
+        if (spriteRenderer_LightShake == null) return;
+        spriteRenderer_LightShake.DOKill();
+        spriteRenderer_LightShake.color = new Color(1, 1, 1, 0.4f);
+        spriteRenderer_LightShake.DOFade(0.1f, 8f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
+    }
+    #endregion
 }

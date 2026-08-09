@@ -112,7 +112,6 @@ public class TileUI_Dictionary : TileUI
         for (int i = 0; i < itemList.Count; i++)
         {
             int temp = itemList[i];
-            Debug.Log(temp);
             CreateRawConfig rawConfig = CreateRawConfigData.GetCreateRawConfig(temp);
             if (rawConfig.Create_RawList.Find((x) => { return x.ID == itemData_Check.I; }).ID != 0)
             {

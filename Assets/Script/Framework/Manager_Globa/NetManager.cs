@@ -42,18 +42,6 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
     public override void Start()
     {
         NetworkRunner.CloudConnectionLost += OnCloudConnectionLost;
-        MessageBroker.Default.Receive<NetEvent.NetEvent_JoinGame>().Subscribe(_ =>
-        {
-            JoinRoom(_.RoomInfo, _.RoomName);
-        });
-        MessageBroker.Default.Receive<NetEvent.NetEvent_CreateGame>().Subscribe(_ =>
-        {
-            CreateRoom(_.RoomName, _.RoomType);
-        });
-        MessageBroker.Default.Receive<NetEvent.NetEvent_QuitGame>().Subscribe(_ =>
-        {
-            QuitRoom();
-        });
         base.Start();
     }
     private void CreateNetCore()
@@ -78,7 +66,37 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
             Destroy(networkRunner);
         }
     }
-    public async void CreateRoom(string roomName,int roomType)
+    public async void QuitRoom()
+    {
+        await DestroyNetCore();
+        SceneManager.LoadScene("MenuScene");
+    }
+    /// <summary>
+    /// 加入会话大厅
+    /// </summary>
+    /// <returns></returns>
+    public async Task<StartGameResult> JoinSessionLobby()
+    {
+        CheckNetCore();
+        StartGameResult startGameResult = await networkRunner.JoinSessionLobby(SessionLobby.ClientServer);
+        if (startGameResult.Ok)
+        {
+            Debug.Log("加入公共会话大厅成功");
+        }
+        else
+        {
+            Debug.Log($"加入公共会话大厅失败:原因{startGameResult.ShutdownReason}");
+            await DestroyNetCore();
+        }
+        return startGameResult;
+    }
+    /// <summary>
+    /// 创建房间
+    /// </summary>
+    /// <param name="roomName"></param>
+    /// <param name="roomType"></param>
+    /// <returns></returns>
+    public async Task<StartGameResult> CreateRoom(string roomName, int roomType,int playerCount)
     {
         CheckNetCore();
         Dictionary<string, SessionProperty> gameProperty = new Dictionary<string, SessionProperty>() { };
@@ -113,11 +131,18 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
             SessionName = roomName,
             Scene = scene,
             IsVisible = isVisible,
+            PlayerCount = playerCount,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>(),
             SessionProperties = gameProperty
-        });
+        }) ;
+        return startGameResult;
     }
-    public async void JoinRoom(SessionInfo sessionInfo, string roomName)
+    /// <summary>
+    /// 加入房间
+    /// </summary>
+    /// <param name="sessionInfo"></param>
+    /// <param name="roomName"></param>
+    public async Task<StartGameResult> JoinRoom(SessionInfo sessionInfo, string roomName)
     {
         CheckNetCore();
         GameMode gameMode = (GameMode)((int)sessionInfo.Properties["GameMode"]);
@@ -128,34 +153,16 @@ public class NetManager : SingleTon<NetManager>,ISingleTon
         {
             sceneInfo.AddSceneRef(scene, LoadSceneMode.Additive);
         }
-        await networkRunner.StartGame(new StartGameArgs()
+        var startGameResult = await networkRunner.StartGame(new StartGameArgs()
         {
             GameMode = gameMode,
             SessionName = roomName,
             Scene = scene,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
+        return startGameResult;
+    }
 
-    }
-    public async void QuitRoom()
-    {
-        await DestroyNetCore();
-        SceneManager.LoadScene("MenuScene");
-    }
-    public async void JoinSessionLobby()
-    {
-        CheckNetCore();
-        StartGameResult startGameResult = await networkRunner.JoinSessionLobby(SessionLobby.ClientServer);
-        if (startGameResult.Ok)
-        {
-            Debug.Log("加入公共会话大厅成功");
-        }
-        else
-        {
-            Debug.Log($"加入公共会话大厅失败:原因{startGameResult.ShutdownReason}");
-            await DestroyNetCore();
-        }
-    }
     public void UpdateFusionSetting(FusionAppSettings settings)
     {
         PhotonAppSettings.Global.AppSettings = settings;

@@ -9,8 +9,8 @@ public class PlayerData
         Name = "";
         Level_Cur = 1;
         Exp_Cur = 0;
-        Hp_Cur = 100;
-        Hp_Max = 100;
+        Hp_Cur = 1000;
+        Hp_Max = 1000;
         Armor_Cur = 0;
         Resistance_Cur = 0;
         Food_Cur = 100;

@@ -12,7 +12,7 @@ public class BuildingObj : MonoBehaviour
     [HideInInspector]
     public BuildingTile buildingTile;
     [HideInInspector]
-    public string info;
+    public byte[] local_ByteData;
     [HideInInspector]
     public int local_Hp = 0;
     [HideInInspector]
@@ -37,7 +37,11 @@ public class BuildingObj : MonoBehaviour
     }
     public virtual void Start()
     {
-        
+        DrawShadow();
+    }
+    public virtual void OnDisable()
+    {
+        RemoveShadow();
     }
     #region//交互
     /// <summary>
@@ -101,6 +105,74 @@ public class BuildingObj : MonoBehaviour
     public virtual void OpenOrCloseUI(bool open)
     {
     }
+    public Vector3 All_GetTileGenter()
+    {
+        BuildingConfig config = BuildingConfigData.GetBuildingConfig(buildingTile.tileID);
+        Vector3 offset = Vector3.zero;
+        switch (config.Building_Size)
+        {
+            case AreaSize._1X1:
+                {
+                    offset = Vector3.zero;
+                    break;
+                }
+            case AreaSize._1X2:
+                {
+                    offset = new Vector3(0, 0.5f, 0);
+                    break;
+                }
+            case AreaSize._2X1:
+                {
+                    offset = new Vector3(0.5f, 0, 0);
+                    break;
+                }
+            case AreaSize._2X2:
+                {
+                    offset = new Vector3(0.5f, 0.5f, 0);
+                    break;
+                }
+            case AreaSize._3X3:
+                {
+                    offset = new Vector3(0, 1f, 0);
+                    break;
+                }
+        }
+        return offset;
+    }
+    public string All_GetTileSize()
+    {
+        BuildingConfig config = BuildingConfigData.GetBuildingConfig(buildingTile.tileID);
+        string size = "HighlightUI_1x1";
+        switch (config.Building_Size)
+        {
+            case AreaSize._1X1:
+                {
+                    size = "HighlightUI_1x1";
+                    break;
+                }
+            case AreaSize._1X2:
+                {
+                    size = "HighlightUI_1x2";
+                    break;
+                }
+            case AreaSize._2X1:
+                {
+                    size = "HighlightUI_2x1";
+                    break;
+                }
+            case AreaSize._2X2:
+                {
+                    size = "HighlightUI_2x2";
+                    break;
+                }
+            case AreaSize._3X3:
+                {
+                    size = "HighlightUI_3x3";
+                    break;
+                }
+        }
+        return size;
+    }
     /// <summary>
     /// 是否可以高亮
     /// </summary>
@@ -112,49 +184,108 @@ public class BuildingObj : MonoBehaviour
     #endregion
     #region//信息
     /// <summary>
-    /// 更改信息
+    /// 获得信息
     /// </summary>
-    public virtual void Local_ChangeInfo(string info)
+    public virtual void All_ReceiveData(byte[] data)
     {
+        bool changing = !data.Equals(local_ByteData);
+        this.local_ByteData = data;
+        if (changing) { All_OnRawDataUpdate(); }
+    }
+    /// <summary>
+    /// 推送信息
+    /// </summary>
+    /// <param name="data"></param>
+    public void All_PushData(byte[] data) 
+    {
+        All_ReceiveData(data);
         MessageBroker.Default.Publish(new MapEvent.MapEvent_Local_ChangeBuildingInfo
         {
             pos = buildingTile.tilePos,
-            info = info
+            data = data
         });
     }
     /// <summary>
-    /// 更新信息
+    /// 客户端推送信息
     /// </summary>
-    public virtual void All_UpdateInfo(string info)
+    /// <param name="data"></param>
+    public void ForState_PushData(byte[] data)
     {
-        this.info = info;
+        MessageBroker.Default.Publish(new MapEvent.MapEvent_State_ChangeBuildingInfo
+        {
+            pos = buildingTile.tilePos,
+            data = data
+        });
+    }
+    /// <summary>
+    /// 信息更新时调用
+    /// </summary>
+    public virtual void All_OnRawDataUpdate()
+    {
+
     }
     #endregion
     #region//掉落
-    /// <summary>
-    /// 计算掉落物
-    /// </summary>
-    public virtual List<ItemData> State_GetLootItem(List<BaseLootInfo> baseLootInfos, List<ExtraLootInfo> extraLootInfos)
+    public virtual List<ItemData> Tool_GetRandomItemList(LootRandomInfo[] lootInfos,int count)
     {
         List<ItemData> lootItemDatas = new List<ItemData>();
-        if (baseLootInfos != null)
+        if (lootInfos == null) return lootItemDatas;
+        int weightCount = 0;
+        for (int i = 0; i < lootInfos.Length; i++)
         {
-            for (int i = 0; i < baseLootInfos.Count; i++)
-            {
-                lootItemDatas.Add(Local_GetItemData(baseLootInfos[i].ID, (short)new System.Random().Next(baseLootInfos[i].CountMin, baseLootInfos[i].CountMax + 1)));
-            }
+            weightCount += (int)lootInfos[i].Weight;
         }
-        if (extraLootInfos != null)
+        System.Random rand = new System.Random();
+        for (int c = 0; c < count; c++)
         {
-            for (int i = 0; i < extraLootInfos.Count; i++)
+            int temp = 0;
+            for (int i = 0; i < lootInfos.Length; i++)
             {
-                int random = new System.Random().Next(0, 1000);
-                if (random <= extraLootInfos[i].Weight)
+                int random = rand.Next(0, weightCount);
+                temp += (int)lootInfos[i].Weight;
+                if (random < temp)
                 {
-                    lootItemDatas.Add(Local_GetItemData(extraLootInfos[i].ID, extraLootInfos[i].Count));
+                    lootItemDatas.Add(Tool_CreateItemData(lootInfos[i].ID, (short)new System.Random().Next(lootInfos[i].CountMin, lootInfos[i].CountMax + 1)));
+                    break;
                 }
             }
         }
+        return lootItemDatas;
+
+    }
+    public virtual ItemData Tool_GetRandomItem(LootRandomInfo[] lootInfos,System.Random random)
+    {
+        if (lootInfos == null) return new ItemData();
+        short id = 0;
+        short count = 0;
+        int weightCount = 0;
+        int temp = 0;
+        for (int i = 0; i < lootInfos.Length; i++)
+        {
+            weightCount += (int)lootInfos[i].Weight;
+        }
+        for (int i = 0; i < lootInfos.Length; i++)
+        {
+            var val = random.Next(0, weightCount);
+            temp += (int)lootInfos[i].Weight;
+            if (val < temp)
+            {
+                id = lootInfos[i].ID;
+                count = (short)random.Next(lootInfos[i].CountMin, lootInfos[i].CountMax + 1);
+                break;
+            }
+        }
+        return Tool_CreateItemData(id, count);
+    }
+    public virtual List<ItemData> Tool_GetFixedItemList(LootFixedInfo[] lootInfos)
+    {
+        List<ItemData> lootItemDatas = new List<ItemData>();
+        if (lootInfos == null) return lootItemDatas;
+        for (int i = 0; i < lootInfos.Length; i++)
+        {
+            lootItemDatas.Add(Tool_CreateItemData(lootInfos[i].ID, (short)new System.Random().Next(lootInfos[i].CountMin, lootInfos[i].CountMax + 1)));
+        }
+        Debug.Log(lootItemDatas.Count);
         return lootItemDatas;
     }
     /// <summary>
@@ -180,7 +311,7 @@ public class BuildingObj : MonoBehaviour
             });
         }
     }
-    public ItemData Local_GetItemData(short ID, short Count)
+    public ItemData Tool_CreateItemData(short ID, short Count)
     {
         Type type = Type.GetType("Item_" + ID.ToString());
         ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData(ID, out ItemData initData);
@@ -203,10 +334,9 @@ public class BuildingObj : MonoBehaviour
         {
             val = 0;
         }
-        Vector2 offset = 0.025f * new Vector2(new System.Random().Next(-10, 10), new System.Random().Next(-5, 5));
         Effect_NumUI damageUI = PoolManager.Instance.GetEffectObj("Effect/Effect_NumUI").GetComponent<Effect_NumUI>();
-        damageUI.transform.position = (Vector2)transform.position + Vector2.up + offset;
-        damageUI.PlayShow((-val).ToString(), Color.white, offset);
+        damageUI.transform.position = (Vector2)transform.position + Vector2.up;
+        damageUI.Init(Math.Round(-val * 0.1f, 1).ToString(), Color.white, NumPlayType.Jump);
         return val;
     }
     /// <summary>
@@ -249,6 +379,7 @@ public class BuildingObj : MonoBehaviour
     /// <param name="newHp"></param>
     public virtual void All_UpdateHP(int newHp)
     {
+        if (local_Hp <= 0 && newHp <= 0) return;
         if (newHp <= 0) { All_Broken(); }
         else
         {
@@ -338,6 +469,21 @@ public class BuildingObj : MonoBehaviour
     {
 
     }
+    #endregion
+    #region//阴影
+    public virtual void DrawShadow()
+    {
+        
+    }
+    public virtual void RemoveShadow()
+    {
+        
+    }
 
     #endregion
+}
+[System.Serializable]
+public class BuildingSpriteList
+{
+    public List<Sprite> sprites;
 }

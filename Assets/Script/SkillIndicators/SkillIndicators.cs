@@ -17,7 +17,7 @@ public class SkillIndicators : MonoBehaviour
     {
         lineRenderer_Line = gameObject.GetComponent<LineRenderer>();
         lineRenderer_Line.positionCount = 20;
-        lineRenderer_Line.useWorldSpace = false;//不使用世界坐标
+        lineRenderer_Line.useWorldSpace = true;//不使用世界坐标
     }
     #region//更新指示器数据
     /// <summary>
@@ -134,9 +134,9 @@ public class SkillIndicators : MonoBehaviour
         angle += 1;
         float startAngle;
 
-        //if (dir.x >= 0) { startAngle = Vector2.Angle(dir, Vector2.up); }
-        //else { startAngle = Vector2.Angle(dir, Vector2.down) + 180; }
-        startAngle = Vector2.Angle(dir, Vector2.up);
+        if (dir.x >= 0) { startAngle = Vector2.Angle(dir, Vector2.up); }
+        else { startAngle = Vector2.Angle(dir, Vector2.down) + 180; }
+        //startAngle = Vector2.Angle(dir, Vector2.up);
 
         startAngle += angle * 0.5f;
 
@@ -149,7 +149,7 @@ public class SkillIndicators : MonoBehaviour
             tempUp.x = Mathf.Sin(Mathf.Deg2Rad * (startAngle + angleUp)) * radius;
             tempUp.y = Mathf.Cos(Mathf.Deg2Rad * (startAngle + angleUp)) * radius;
             angleUp -= (angle / pointCoint);
-            lineRenderer_Line.SetPosition(i, tempUp);
+            lineRenderer_Line.SetPosition(i, tempUp + transform_CenterTrans.position);
         }
     }
     /// <summary>

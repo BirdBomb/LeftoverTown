@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 public class MapCreate_River 
 {
-    MapCreate creater;
+    MapCreate mapCreate_Bind;
     /// <summary>
     /// 生成河流
     /// </summary>
@@ -12,16 +12,15 @@ public class MapCreate_River
     /// <returns></returns>
     public async Task CreateRiver(MapCreate mapCreater)
     {
-        creater = mapCreater;
-        creater.text_Waiting.text = "正在生成河流";
-        ///
+        mapCreate_Bind = mapCreater;
+        mapCreate_Bind.text_Waiting.text = "正在生成河流";
         MapCreate.RiverConfig config_RiverFromCenterToLeftDown;
         config_RiverFromCenterToLeftDown = new MapCreate.RiverConfig()
         {
             vector2_Start = new Vector2(0, 0),
-            vector2_End = new Vector2(-creater.config_Map.map_Size, -creater.config_Map.map_Size),
+            vector2_End = new Vector2(-mapCreate_Bind.config_Map.map_Size, -mapCreate_Bind.config_Map.map_Size),
             river_NoiseScale = 40f,
-            river_NoiseOffset = creater.GetRandomOffset(),
+            river_NoiseOffset = mapCreate_Bind.GetRandomOffset(),
             river_Curvature = 1f,
             river_DirectionInfluence = 0.25f,
             river_Width = 4,
@@ -30,15 +29,15 @@ public class MapCreate_River
             river_ForkMinDistance = 50,
             river_MaxStep = 9999,
             river_ArrivalTolerance = 10,
-            river_Bounds = new Rect(-creater.config_Map.map_Size, -creater.config_Map.map_Size, creater.config_Map.map_Size * 2, creater.config_Map.map_Size * 2),
+            river_Bounds = new Rect(-mapCreate_Bind.config_Map.map_Size, -mapCreate_Bind.config_Map.map_Size, mapCreate_Bind.config_Map.map_Size * 2, mapCreate_Bind.config_Map.map_Size * 2),
         };
         MapCreate.RiverConfig config_RiverFromCenterToRightUp;
         config_RiverFromCenterToRightUp = new MapCreate.RiverConfig()
         {
             vector2_Start = new Vector2(0, 0),
-            vector2_End = new Vector2(creater.config_Map.map_Size, creater.config_Map.map_Size),
+            vector2_End = new Vector2(mapCreate_Bind.config_Map.map_Size, mapCreate_Bind.config_Map.map_Size),
             river_NoiseScale = 40f,
-            river_NoiseOffset = creater.GetRandomOffset(),
+            river_NoiseOffset = mapCreate_Bind.GetRandomOffset(),
             river_Curvature = 1f,
             river_DirectionInfluence = 0.25f,
             river_Width = 4,
@@ -47,15 +46,15 @@ public class MapCreate_River
             river_ForkMinDistance = 50,
             river_MaxStep = 9999,
             river_ArrivalTolerance = 10,
-            river_Bounds = new Rect(-creater.config_Map.map_Size, -creater.config_Map.map_Size, creater.config_Map.map_Size * 2, creater.config_Map.map_Size * 2),
+            river_Bounds = new Rect(-mapCreate_Bind.config_Map.map_Size, -mapCreate_Bind.config_Map.map_Size, mapCreate_Bind.config_Map.map_Size * 2, mapCreate_Bind.config_Map.map_Size * 2),
         };
         MapCreate.RiverConfig config_RiverFromLeftUpToCenter;
         config_RiverFromLeftUpToCenter = new MapCreate.RiverConfig()
         {
-            vector2_Start = new Vector2(-creater.config_Map.map_Size, creater.config_Map.map_Size),
+            vector2_Start = new Vector2(-mapCreate_Bind.config_Map.map_Size, mapCreate_Bind.config_Map.map_Size),
             vector2_End = new Vector2(0, 0),
             river_NoiseScale = 40f,
-            river_NoiseOffset = creater.GetRandomOffset(),
+            river_NoiseOffset = mapCreate_Bind.GetRandomOffset(),
             river_Curvature = 1f,
             river_DirectionInfluence = 0.25f,
             river_Width = 4,
@@ -64,15 +63,15 @@ public class MapCreate_River
             river_ForkMinDistance = 50,
             river_MaxStep = 9999,
             river_ArrivalTolerance = 10,
-            river_Bounds = new Rect(-creater.config_Map.map_Size, -creater.config_Map.map_Size, creater.config_Map.map_Size * 2, creater.config_Map.map_Size * 2),
+            river_Bounds = new Rect(-mapCreate_Bind.config_Map.map_Size, -mapCreate_Bind.config_Map.map_Size, mapCreate_Bind.config_Map.map_Size * 2, mapCreate_Bind.config_Map.map_Size * 2),
         };
         MapCreate.RiverConfig config_RiverFromCenterToRightDown;
         config_RiverFromCenterToRightDown = new MapCreate.RiverConfig()
         {
             vector2_Start = new Vector2(0, 0),
-            vector2_End = new Vector2(creater.config_Map.map_Size, -creater.config_Map.map_Size),
+            vector2_End = new Vector2(mapCreate_Bind.config_Map.map_Size, -mapCreate_Bind.config_Map.map_Size),
             river_NoiseScale = 40f,
-            river_NoiseOffset = creater.GetRandomOffset(),
+            river_NoiseOffset = mapCreate_Bind.GetRandomOffset(),
             river_Curvature = 1f,
             river_DirectionInfluence = 0.25f,
             river_Width = 4,
@@ -81,7 +80,7 @@ public class MapCreate_River
             river_ForkMinDistance = 50,
             river_MaxStep = 9999,
             river_ArrivalTolerance = 10,
-            river_Bounds = new Rect(-creater.config_Map.map_Size, -creater.config_Map.map_Size, creater.config_Map.map_Size * 2, creater.config_Map.map_Size * 2),
+            river_Bounds = new Rect(-mapCreate_Bind.config_Map.map_Size, -mapCreate_Bind.config_Map.map_Size, mapCreate_Bind.config_Map.map_Size * 2, mapCreate_Bind.config_Map.map_Size * 2),
         };
 
         await mapCreater.GenerateRiverSystemAsync(config_RiverFromCenterToLeftDown, DrawRiver, DrawBridge, DammingRiver);
@@ -89,7 +88,6 @@ public class MapCreate_River
         await mapCreater.GenerateRiverSystemAsync(config_RiverFromLeftUpToCenter, DrawRiver, DrawBridge, DammingRiver);
         await mapCreater.GenerateRiverSystemAsync(config_RiverFromCenterToRightDown, DrawRiver, DrawBridge, DammingRiver);
     }
-
     public int Vector2ToIndex(int x, int y)
     {
         int tempX = x + 30000;
@@ -120,9 +118,10 @@ public class MapCreate_River
             {
                 if (Mathf.Abs(x) + Mathf.Abs(y) == riverSegment.width) continue;
                 index = Vector2ToIndex(Mathf.RoundToInt(riverSegment.position.x + x), Mathf.RoundToInt(riverSegment.position.y + y));
-                if (creater.data_mapGroundData.tileDic.ContainsKey(index) && creater.data_mapGroundData.tileDic[index] != 9000)
+                if (mapCreate_Bind.data_mapGroundData.tileDic.TryGetValue(index,out var value) && value != 9000)
                 {
-                    creater.data_mapGroundData.tileDic[index] = 9000;
+                    mapCreate_Bind.data_mapGroundData.tileDic[index] = 9000;
+                    mapCreate_Bind.data_mapBuildingData.tileDic.Remove(index);
                 }
             }
         }
@@ -135,7 +134,7 @@ public class MapCreate_River
     private bool DammingRiver(MapCreate.RiverSegment riverSegment)
     {
         int index = Vector2ToIndex(Mathf.RoundToInt(riverSegment.position.x), Mathf.RoundToInt(riverSegment.position.y));
-        if (creater.data_mapGroundData.tileDic.ContainsKey(index) && creater.data_mapGroundData.tileDic[index] != 9000)
+        if (mapCreate_Bind.data_mapGroundData.tileDic.ContainsKey(index) && mapCreate_Bind.data_mapGroundData.tileDic[index] != 9000)
         {
             return false;
         }
@@ -173,5 +172,4 @@ public class MapCreate_River
         //    }
         //}
     }
-
 }

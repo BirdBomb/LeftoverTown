@@ -84,12 +84,12 @@ public class Bullet_AcidBubble : BulletBase
         {
             if (hit2D[i].collider.CompareTag("Actor"))
             {
-                if (hit2D[i].collider.isTrigger && hit2D[i].transform.TryGetComponent(out ActorManager actor))
+                if (hit2D[i].collider.isTrigger && hit2D[i].transform.TryGetComponent(out ActorManager actor) && !actorManagers_Ignore.Contains(actor))
                 {
-                    if (!actorManagers_Ignore.Contains(actor))
+                    actorManagers_Ignore.Add(actor);
+                    if (actorManager_Owner.actionManager.CheckApplyDamageTarget(actor, DamageTarget.WithoutMe))
                     {
-                        actorManagers_Ignore.Add(actor);
-                        Attack(actor);
+                        AttackActor(actor);
                         Boom(hit2D[i].point);
                         return;
                     }
@@ -97,32 +97,34 @@ public class Bullet_AcidBubble : BulletBase
             }
             else
             {
-                hit2D[i].transform.DOKill();
-                hit2D[i].transform.localScale = Vector3.one;
-                hit2D[i].transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
+                AttackObj(hit2D[i]);
                 Boom(hit2D[i].point);
             }
 
         }
     }
-    private void Attack(ActorManager actor)
+    private void AttackActor(ActorManager actor)
     {
         if (actorAuthority_Owner.isLocal)
         {
-            actor.actionManager.Client_TakeForce(vectoe3_MoveDir, (short)float_BulletForce);
             if (float_BulletAttackDemage > 0)
             {
-                GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
-                effect.GetComponent<Effect_Impact>().PlayPiercing(vectoe3_MoveDir);
-                effect.transform.position = actor.transform.position;
-
-                actor.actorHpManager.TakeDamage(float_BulletAttackDemage, DamageState.AttackPiercingDamage, actorManager_Owner.actorNetManager);
+                actorManager_Owner.actionManager.ApplyDamageToActor
+                        (float_BulletAttackDemage, DamageState.AttackPiercingDamage, DamageTarget.WithoutMe, actor, out ApplyActorDamageCallBack callBack_0);
             }
             if (float_BulletMagicDemage > 0)
             {
-                actor.actorHpManager.TakeDamage(float_BulletMagicDemage, DamageState.MagicDamage, actorManager_Owner.actorNetManager);
+                actorManager_Owner.actionManager.ApplyDamageToActor
+                    (float_BulletMagicDemage, DamageState.MagicDamage, DamageTarget.WithoutMe, actor, out ApplyActorDamageCallBack callBack_1);
             }
+
         }
+    }
+    private void AttackObj(RaycastHit2D hit2D)
+    {
+        hit2D.transform.DOKill();
+        hit2D.transform.localScale = Vector3.one;
+        hit2D.transform.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
     }
     private void Boom(Vector2 pos)
     {

@@ -24,7 +24,7 @@ public class ActorHungryManager
         if (timer_Hungry > int_ReHungry)
         {
             timer_Hungry = 0;
-            SubFood(-1);
+            SubFood(1);
         }
     }
     public float GetFoodRatio()
@@ -42,7 +42,7 @@ public class ActorHungryManager
     {
         if (actorManager.actorAuthority.isPlayer && actorManager.actorAuthority.isLocal)
         {
-            actorManager.actorNetManager.RPC_LocalInput_FoodChange((short)val);
+            actorManager.actorNetManager.RPC_LocalInput_FoodChange((short)-val);
         }
         return actorManager.actorNetManager.Net_FoodCur;
     }
@@ -52,6 +52,7 @@ public class ActorHungryManager
         {
             actorManager.actorNetManager.RPC_LocalInput_FoodChange((short)val);
         }
+        actorManager.AllClient_ShowNumUI($"+{val}", new Color32(255, 128, 0, 255), Vector2.up, NumPlayType.Float);
         return actorManager.actorNetManager.Net_FoodCur;
     }
 }

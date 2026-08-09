@@ -59,8 +59,6 @@ public class ItemLocalObj_FishRod : ItemLocalObj
     /// </summary>
     public float config_reapingTime = 0.5f;
 
-    [HideInInspector]
-    public ActorManager actorManager_Owner;
     private Vector3 pos_FishHookCur = Vector3.zero;
     private short areaID = 0;
 
@@ -93,16 +91,9 @@ public class ItemLocalObj_FishRod : ItemLocalObj
     {
         actorManager = owner;
 
-        transform.SetParent(body.transform_RightHand);
-        body.gameObjects_ItemInHand.Add(gameObject);
-        transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.identity;
-        transform.localScale = Vector3.one;
-        actorManager_Owner = owner;
-        tran_RightHand.GetComponent<SpriteRenderer>().sprite = body.transform_RightHand.GetComponent<SpriteRenderer>().sprite;
-        body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
-        tran_LeftHand.GetComponent<SpriteRenderer>().sprite = body.transform_LeftHand.GetComponent<SpriteRenderer>().sprite;
-        body.transform_LeftHand.GetComponent<SpriteRenderer>().enabled = false;
+        body.AddItemOnRightHand(gameObject, Vector3.zero, Quaternion.identity, Vector3.one);
+        tran_RightHand.GetComponent<SpriteRenderer>().sprite = body.ShowRightHand(false).sprite;
+        tran_LeftHand.GetComponent<SpriteRenderer>().sprite = body.ShowLeftHand(false).sprite;
         ShowLine(false);
         base.HoldingStart(owner, body);
     }

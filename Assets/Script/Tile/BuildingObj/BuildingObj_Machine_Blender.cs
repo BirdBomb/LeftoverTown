@@ -2,64 +2,39 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Accessibility;
+using WebSocketSharp;
 
 public class BuildingObj_Machine_Blender : BuildingObj_Manmade
 {
-    public GameObject obj_SingalFUI;
-    public GameObject obj_SingalAwakeUI;
-    public GameObject obj_HightlightUI;
-    [SerializeField]
-    private GameObject prefab_UI;
+    public GameObject prefab_UI;
     private TileUI_Blender tileUI_Bind = null;
-    public ItemData itemData_From;
-    public ItemData itemData_To;
+    protected GameObject obj_SingalUI_F;
+    protected GameObject obj_SingalUI_Awake;
+    protected GameObject obj_HighlightUI;
+
+    public BuildingData_Blender buildingData_Blender = new BuildingData_Blender();
     #region//信息更新与上传
-    public override void All_UpdateInfo(string info)
+    public override void All_OnRawDataUpdate()
     {
-        if (tileUI_Bind)
-        {
-            ReadInfo(info);
-        }
-        base.All_UpdateInfo(info);
+        buildingData_Blender.Deserialize(local_ByteData);
+        tileUI_Bind?.DrawAllCell();
+        base.All_OnRawDataUpdate();
     }
-    public void ReadInfo(string info)
+    public void All_TryToPush()
     {
-        itemData_From = new ItemData();
-        itemData_To = new ItemData();
-        string[] strings = info.Split("/*I*/");
-        for (int i = 0; i < strings.Length; i++)
-        {
-            if (strings[i] != "")
-            {
-                if (i == 0)
-                {
-                    itemData_From = JsonUtility.FromJson<ItemData>(strings[i]);
-                }
-                else if (i == 1)
-                {
-                    itemData_To = JsonUtility.FromJson<ItemData>(strings[i]);
-                }
-            }
-        }
-        if (tileUI_Bind)
-        {
-            tileUI_Bind.DrawAllCell();
-        }
-    }
-    public void WriteInfo()
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.Append(JsonUtility.ToJson(itemData_From));
-        builder.Append("/*I*/" + JsonUtility.ToJson(itemData_To));
-        Local_ChangeInfo(builder.ToString());
+        All_PushData(buildingData_Blender.Serialize());
     }
     #endregion
     #region//制造
     public void Local_Blender()
     {
+        buildingData_Blender.ReadItemDataFrom(out ItemData itemData_From);
+        buildingData_Blender.ReadItemDataTo(out ItemData itemData_To);
         if (itemData_From.C > 0 && itemData_From.I > 0)
         {
             BlenderConfig blenderConfig = BlenderConfigData.GetBlenderConfig(itemData_From.I);
@@ -70,7 +45,6 @@ public class BuildingObj_Machine_Blender : BuildingObj_Manmade
                 ItemData itemData_Expend = itemData_From;
                 itemData_Expend.C = 1;
                 itemData_From = GameToolManager.Instance.SplitItem(itemData_From, itemData_Expend);
-
                 Type type = Type.GetType("Item_" + toID.ToString());
                 ((ItemBase)Activator.CreateInstance(type)).StaticAction_InitData((short)toID, out ItemData initData);
                 initData.C = (short)toCount;
@@ -92,16 +66,19 @@ public class BuildingObj_Machine_Blender : BuildingObj_Manmade
                     }
                 }
             }
-            WriteInfo();
+            buildingData_Blender.WriteItemDataFrom(itemData_From);
+            buildingData_Blender.WriteItemDataTo(itemData_To);
+            All_TryToPush();
         }
     }
     #endregion
     #region//瓦片交互
     public override void Local_ActorInputKeycode(ActorManager actor, KeyCode code)
     {
-        if (code == KeyCode.F)
+        switch (code)
         {
-            OpenOrCloseUI(tileUI_Bind == null);
+            case KeyCode.F:
+                OpenOrCloseUI(tileUI_Bind == null); break;
         }
         base.Local_ActorInputKeycode(actor, code);
     }
@@ -117,50 +94,43 @@ public class BuildingObj_Machine_Blender : BuildingObj_Manmade
     }
     public override void OpenOrCloseHighlightUI(bool open)
     {
-        obj_SingalFUI.transform.DOKill();
         if (open)
         {
-            obj_SingalFUI.SetActive(true);
-            obj_SingalFUI.transform.localScale = Vector3.one;
-            obj_SingalFUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_SingalUI_F = obj_SingalUI_F ? obj_SingalUI_F : PoolManager.Instance.GetObject("UI/TileUI/SignalUI_F");
+            obj_SingalUI_F.transform.position = transform.position + All_GetTileGenter();
+            obj_SingalUI_F.transform.localScale = Vector3.one;
+            obj_SingalUI_F.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            obj_HighlightUI = obj_HighlightUI ? obj_HighlightUI : PoolManager.Instance.GetObject("UI/TileUI/" + All_GetTileSize());
+            obj_HighlightUI.transform.position = transform.position;
+            obj_HighlightUI.transform.localScale = Vector3.one;
+            obj_HighlightUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
         }
         else
         {
-            obj_SingalFUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_SingalFUI.SetActive(false);
-            });
-        }
-        obj_HightlightUI.transform.DOKill();
-        if (open)
-        {
-            obj_HightlightUI.SetActive(true);
-            obj_HightlightUI.transform.localScale = Vector3.one;
-            obj_HightlightUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
-        }
-        else
-        {
-            obj_HightlightUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_HightlightUI.SetActive(false);
-            });
+            PoolManager.Instance.ReleaseObject("UI/TileUI/SignalUI_F", obj_SingalUI_F);
+            obj_SingalUI_F = null;
+            PoolManager.Instance.ReleaseObject("UI/TileUI/" + All_GetTileSize(), obj_HighlightUI);
+            obj_HighlightUI = null;
         }
     }
     public override void OpenOrCloseAwakeUI(bool open)
     {
-        obj_SingalAwakeUI.transform.DOKill();
         if (open)
         {
-            obj_SingalAwakeUI.SetActive(true);
-            obj_SingalAwakeUI.transform.localScale = Vector3.one;
-            obj_SingalAwakeUI.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
+            if (obj_SingalUI_F)
+            {
+                PoolManager.Instance.ReleaseObject("UI/TileUI/SignalUI_F", obj_SingalUI_F);
+                obj_SingalUI_F = null;
+            }
+            obj_SingalUI_Awake = obj_SingalUI_Awake ? obj_SingalUI_Awake : PoolManager.Instance.GetObject("UI/TileUI/SignalUI_Awake");
+            obj_SingalUI_Awake.transform.position = transform.position + All_GetTileGenter();
+            obj_SingalUI_Awake.transform.localScale = Vector3.one;
+            obj_SingalUI_Awake.transform.DOPunchScale(new Vector3(-0.1f, 0.2f, 0), 0.2f).SetEase(Ease.InOutBack);
         }
         else
         {
-            obj_SingalAwakeUI.transform.DOScale(Vector3.zero, 0.1f).OnComplete(() =>
-            {
-                obj_SingalAwakeUI.SetActive(false);
-            });
+            PoolManager.Instance.ReleaseObject("UI/TileUI/SignalUI_Awake", obj_SingalUI_Awake);
+            obj_SingalUI_Awake = null;
         }
     }
     public override void OpenOrCloseUI(bool open)
@@ -170,7 +140,7 @@ public class BuildingObj_Machine_Blender : BuildingObj_Manmade
             UIManager.Instance.ShowTileUI(prefab_UI, out TileUI tileUI);
             tileUI_Bind = tileUI.GetComponent<TileUI_Blender>();
             tileUI_Bind.BindBuilding(this);
-            ReadInfo(info);
+            tileUI_Bind.DrawAllCell();
         }
         else
         {
@@ -183,4 +153,89 @@ public class BuildingObj_Machine_Blender : BuildingObj_Manmade
         return true;
     }
     #endregion
+}
+public class BuildingData_Blender
+{
+    public ItemData itemData_From;
+    public ItemData itemData_To;
+    public void WriteItemDataFrom(ItemData itemData) { itemData_From = itemData; }
+    public void ReadItemDataFrom(out ItemData itemData) { itemData = itemData_From; }
+    public void WriteItemDataTo(ItemData itemData) { itemData_To = itemData; }
+    public void ReadItemDataTo(out ItemData itemData) { itemData = itemData_To; }
+    public byte[] Serialize()
+    {
+        using (var ms = new MemoryStream())
+        using (var writer = new BinaryWriter(ms))
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                switch (i) 
+                {
+                    case 0: 
+                        {
+                            writer.Write(itemData_From.I);
+                            writer.Write(itemData_From.C);
+                            writer.Write(itemData_From.V);
+                            writer.Write(itemData_From.D);
+                            writer.Write(itemData_From.S);
+                        }
+                        break;
+                    case 1:
+                        {
+                            writer.Write(itemData_To.I);
+                            writer.Write(itemData_To.C);
+                            writer.Write(itemData_To.V);
+                            writer.Write(itemData_To.D);
+                            writer.Write(itemData_To.S);
+                        }
+                        break;
+                }
+            }
+            return ms.ToArray();
+        }
+    }
+    public void Deserialize(byte[] data)
+    {
+        if (data == null || data.Length == 0)
+        {
+            itemData_From = new ItemData();
+            itemData_To = new ItemData();
+            return;
+        }
+
+        using (var ms = new MemoryStream(data))
+        using (var reader = new BinaryReader(ms))
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        {
+                            itemData_From = new ItemData
+                            {
+                                I = reader.ReadInt16(),
+                                C = reader.ReadInt16(),
+                                V = reader.ReadInt16(),
+                                D = reader.ReadSByte(),
+                                S = reader.ReadInt16()
+                            };
+                        }
+                        break;
+                    case 1:
+                        {
+                            itemData_To = new ItemData
+                            {
+                                I = reader.ReadInt16(),
+                                C = reader.ReadInt16(),
+                                V = reader.ReadInt16(),
+                                D = reader.ReadSByte(),
+                                S = reader.ReadInt16()
+                            };
+                        }
+                        break;
+                }
+            }
+        }
+    }
 }

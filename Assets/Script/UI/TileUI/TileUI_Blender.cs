@@ -46,22 +46,25 @@ public class TileUI_Blender : TileUI
     }
     public void DrawAllCell()
     {
-        gridCell_From.UpdateData(buildingObj_Bind.itemData_From);
-        gridCell_To.UpdateData(buildingObj_Bind.itemData_To);
+        buildingObj_Bind.buildingData_Blender.ReadItemDataFrom(out ItemData itemData_From);
+        buildingObj_Bind.buildingData_Blender.ReadItemDataTo(out ItemData itemData_To);
+        gridCell_From.UpdateData(itemData_From);
+        gridCell_To.UpdateData(itemData_To);
     }
     #region/取出放入
     public void FromPutIn(ItemData addData, ItemPath path)
     {
+        buildingObj_Bind.buildingData_Blender.ReadItemDataFrom(out ItemData itemData_From);
         BlenderConfig blenderConfig = BlenderConfigData.GetBlenderConfig(addData.I);
         if (blenderConfig.blender_FromID != 0)
         {
-            if (buildingObj_Bind.itemData_From.I == 0)
+            if (itemData_From.I == 0)
             {
-                buildingObj_Bind.itemData_From = addData;
+                itemData_From = addData;
             }
-            else if (addData.I == buildingObj_Bind.itemData_From.I)
+            else if (addData.I == itemData_From.I)
             {
-                buildingObj_Bind.itemData_From = GameToolManager.Instance.CombineItem(buildingObj_Bind.itemData_From, addData, out ItemData res);
+                itemData_From = GameToolManager.Instance.CombineItem(itemData_From, addData, out ItemData res);
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = res,
@@ -85,12 +88,14 @@ public class TileUI_Blender : TileUI
                 itemFrom = ItemFrom.OutSide
             });
         }
-        buildingObj_Bind.WriteInfo();
+        buildingObj_Bind.buildingData_Blender.WriteItemDataFrom(itemData_From);
+        buildingObj_Bind.All_TryToPush();
     }
     public ItemData FromPutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        buildingObj_Bind.itemData_From = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.WriteInfo();
+        ItemData itemData = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
+        buildingObj_Bind.buildingData_Blender.WriteItemDataFrom(itemData);
+        buildingObj_Bind.All_TryToPush();
         return itemData_Out;
     }
     public void ToPutIn(ItemData addData, ItemPath path)
@@ -103,8 +108,9 @@ public class TileUI_Blender : TileUI
     }
     public ItemData ToPutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        buildingObj_Bind.itemData_To = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.WriteInfo();
+        ItemData itemData = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
+        buildingObj_Bind.buildingData_Blender.WriteItemDataTo(itemData);
+        buildingObj_Bind.All_TryToPush();
         return itemData_Out;
     }
     #endregion

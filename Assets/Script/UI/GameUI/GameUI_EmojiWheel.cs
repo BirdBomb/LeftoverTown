@@ -59,6 +59,10 @@ public class GameUI_EmojiWheel : MonoBehaviour
         Side = Direction.Center;
         transform.DOKill();
         transform.DOScale(Vector3.one, 0.2f);
+        MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_Action()
+        {
+            action = PlayerAction.OpenEmoji
+        });
     }
     private void Close()
     {
@@ -166,49 +170,49 @@ public class GameUI_EmojiWheel : MonoBehaviour
             case Direction.Up:
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
-                    emoji = (Emoji)0
+                    emoji = Emoji.Shock
                 });
                 break;
             case Direction.UpRight:
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
-                    emoji = (Emoji)1
+                    emoji = Emoji.Puzzled
                 });
                 break;
             case Direction.Right:
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
-                    emoji = (Emoji)2
+                    emoji = Emoji.Yell
                 });
                 break;
             case Direction.DownRight:
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
-                    emoji = (Emoji)3
+                    emoji = Emoji.Greeting
                 });
                 break;
             case Direction.Down:
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
-                    emoji = (Emoji)4
+                    emoji = Emoji.Menace
                 });
                 break;
             case Direction.DownLeft:
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
-                    emoji = (Emoji)5
+                    emoji = Emoji.Panic
                 });
                 break;
             case Direction.Left:
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
-                    emoji = (Emoji)6
+                    emoji = Emoji.Happy
                 });
                 break;
             case Direction.UpLeft:
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_SendEmoji()
                 {
-                    emoji = (Emoji)7
+                    emoji = Emoji.Unhappy
                 });
                 break;
         }

@@ -6,17 +6,13 @@ using UnityEngine;
 
 public class BodyController_OnlyBody : BodyController_Base
 {
-    [SerializeField]
-    private Transform transform_Body;
-    [SerializeField]
-    private SpriteRenderer spriteRenderer_Body;
-    [SerializeField]
-    private Animator animator_Body;
-    [SerializeField]
-    private AnimaEventListen animaEventListen_Body;
+    public Transform transform_Body;
+    public SpriteRenderer spriteRenderer_Body;
+    public Animator animator_Body;
+    public AnimaEventListen animaEventListen_Body;
     private Sequence sequence;
     private Material material;
-    public void Start()
+    public override void Start()
     {
         material = new Material(spriteRenderer_Body.sharedMaterial);
         spriteRenderer_Body.material = material;

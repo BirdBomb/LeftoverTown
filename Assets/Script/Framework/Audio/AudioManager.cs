@@ -17,6 +17,11 @@ public class AudioManager : SingleTon<AudioManager>, ISingleTon
     public void Init()
     {
     }
+    private void Update()
+    {
+        // 定期更新ClipManager（用于资源清理）
+        clipManager.Update();
+    }
     /// <summary>
     /// 更新音效设置
     /// </summary>
@@ -41,101 +46,94 @@ public class AudioManager : SingleTon<AudioManager>, ISingleTon
         return Mathf.Log10(x) * 20.0f;
 
     }
-    #region//BGM
-    private float volume_Music;
-    /// <summary>
-    /// 播放BGM
-    /// </summary>
-    /// <param name="AudioName"></param>
-    /// <param name="loop"></param>
-    public void PlayMusic(int AudioID, float volume, bool loop)
+    #region BGM
+
+    public void PlayMusic(int audioID, float volume, bool loop)
     {
-        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
-        SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
-        if (tmpClips == null)
+        AudioConfig audioConfig = GetAudioConfig(audioID);
+        SingleClip clip = clipManager.FindClipByID(audioConfig.Audio_Name);
+        if (clip == null) return;
+        AudioSource musicSource = sourceManager.GetMusicAudio();
+        musicSource.loop = loop;
+
+        // 使用 SingleClip 的 Play 方法
+        clip.Play(musicSource);
+
+        // 设置音量渐变
+        StartCoroutine(FadeInMusic(volume));
+    }
+    private IEnumerator FadeInMusic(float targetVolume)
+    {
+        AudioSource musicSource = sourceManager.GetMusicAudio();
+        float startVolume = 0f;
+        float duration = 5f;
+        float elapsed = 0f;
+
+        musicSource.volume = startVolume;
+
+        while (elapsed < duration)
         {
+            elapsed += Time.deltaTime;
+            musicSource.volume = Mathf.Lerp(startVolume, targetVolume, elapsed / duration);
+            yield return null;
+        }
+
+        musicSource.volume = targetVolume;
+    }
+    #endregion
+    #region Effect
+
+    public void Play3DEffect(int audioID, Vector3 pos)
+    {
+        AudioConfig audioConfig = GetAudioConfig(audioID);
+
+        SingleClip clip = clipManager.FindClipByID(audioConfig.Audio_Name);
+        if (clip == null) return;
+
+        AudioSource source = sourceManager.GetFreeAudio();
+        if (source == null)
+        {
+            Debug.LogWarning("[AudioManager] 没有可用的音频源");
             return;
         }
-        else
+
+        // 配置3D音效
+        source.spatialBlend = 1f;
+        source.maxDistance = audioConfig.Audio_MaxDistance;
+        source.transform.position = pos;
+
+        // 使用 SingleClip 的 Play 方法
+        clip.Play(source);
+    }
+    public void Play2DEffect(int audioID)
+    {
+        AudioConfig audioConfig = GetAudioConfig(audioID);
+
+        SingleClip clip = clipManager.FindClipByID(audioConfig.Audio_Name);
+        if (clip == null) return;
+
+        AudioSource source = sourceManager.GetFreeAudio();
+        if (source == null)
         {
-            SetMusicLoop(loop);
-            SetMusicVolume(volume);
-            tmpClips.Play(sourceManager.GetMusicAudio());
+            Debug.LogWarning("[AudioManager] 没有可用的音频源");
+            return;
         }
-    }
-    private void SetMusicLoop(bool loop)
-    {
-        sourceManager.MusicSource.loop = loop;
-    }
-    private void SetMusicVolume(float volume)
-    {
-        sourceManager.MusicSource.volume = 0;
-        DOTween.To(() => volume_Music, x => volume_Music = x, volume, 5f).OnUpdate(() =>
-        {
-            sourceManager.MusicSource.volume = volume_Music;
-        });
+
+        // 配置2D音效
+        source.spatialBlend = 0f;
+        source.maxDistance = audioConfig.Audio_MaxDistance;
+
+        // 使用 SingleClip 的 Play 方法
+        clip.Play(source);
     }
     #endregion
-    #region//Effect
-    /// <summary>
-    /// 播放音效
-    /// </summary>
-    /// <param name="AudioID"></param>
-    /// <param name="pos"></param>
-    public void Play3DEffect(int AudioID, Vector3 pos)
+    #region 辅助方法
+
+    private AudioConfig GetAudioConfig(int audioID)
     {
-        AudioSource tempSource = sourceManager.GetFreeAudio();
-        tempSource.spatialBlend = 1;
-
-        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
-        tempSource.maxDistance = audioConfig.Audio_MaxDistance;
-        SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
-
-        tempSource.transform.position = pos + new Vector3(0, 0, -10);
-        if (tmpClips != null)
-        {
-            tmpClips.Play(tempSource);
-        }
+        AudioConfig config = AudioConfigData.audioConfigs.Find(x => x.Audio_ID == audioID);
+        return config;
     }
-    /// <summary>
-    /// 播放音效
-    /// </summary>
-    /// <param name="AudioID"></param>
-    public void Play2DEffect(int AudioID)
-    {
-        AudioSource tempSource = sourceManager.GetFreeAudio();
-        tempSource.spatialBlend = 0;
 
-        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
-        tempSource.maxDistance = audioConfig.Audio_MaxDistance;
-        SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
-
-        if (tmpClips != null)
-        {
-            tmpClips.Play(tempSource);
-        }
-    }
     #endregion
-    /// <summary>
-    /// 播放音效
-    /// </summary>
-    /// <param name="AudioID"></param>
-    public void PlayEffect(int AudioID,Transform root = null)
-    {
-        AudioSource tempSource = sourceManager.GetFreeAudio();
-
-        AudioConfig audioConfig = AudioConfigData.audioConfigs.Find((x) => { return x.Audio_ID == AudioID; });
-
-        tempSource.maxDistance = audioConfig.Audio_MaxDistance;
-        SingleClip tmpClips = clipManager.FindClipByID(audioConfig.Audio_Name);
-        if (root != null)
-        {
-            tempSource.transform.parent = root;
-            tempSource.transform.localPosition = Vector3.zero;
-        }
-        if (tmpClips != null)
-        {
-            tmpClips.Play(tempSource);
-        }
-    }
 }

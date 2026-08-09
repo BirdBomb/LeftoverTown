@@ -8,26 +8,30 @@ using UnityEngine.UI;
 
 public class TileUI_DialogOption : MonoBehaviour
 {
-    [SerializeField]
-    private Transform panel;
-    [SerializeField]
-    private Button button;
-    [SerializeField]
-    private LocalizeStringEvent localizeStringEvent;
+    public Transform panel;
+    public Button button;
+    public LocalizeStringEvent localizeStringEvent;
+    public UI_ShakeText shakeText; 
     private Action action_Bind;
     public void Init(string nameTable, string nameEntry, Action action)
     {
+        Show();
+        button.onClick.AddListener(Click);
+        localizeStringEvent.StringReference.SetReference(nameTable, nameEntry);
+        shakeText.ReShake();
+        action_Bind = action;
+    }
+    public void Show()
+    {
+        button.interactable = true;
         panel.gameObject.SetActive(true);
         panel.DOKill();
         panel.localScale = Vector3.one;
         panel.DOPunchScale(new Vector3(0.1f, -0.1f, 0), 0.1f);
-
-        button.onClick.AddListener(Click);
-        localizeStringEvent.StringReference.SetReference(nameTable, nameEntry);
-        action_Bind = action;
     }
     public void Hide()
     {
+        button.interactable = false;
         panel.gameObject.SetActive(false);
         action_Bind = null;
     }

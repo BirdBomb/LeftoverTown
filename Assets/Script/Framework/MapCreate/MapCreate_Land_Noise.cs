@@ -7,29 +7,12 @@ using System.Threading.Tasks;
 /// </summary>
 public class MapCreate_Land_Noise 
 {
-    /// <summary>
-    /// 草地上的异色地块
-    /// </summary>
-    private short groundID_Grass = 1002;
-    /// <summary>
-    /// 草地上的异色地块
-    /// </summary>
-    private short groundID_Snow = 1003;
-    /// <summary>
-    /// 草地上的异色地块
-    /// </summary>
-    private short groundID_Desert = 1000;
-    private System.Random random = new System.Random();
-
-
-    /// <summary>
-    /// 涂色噪声半径
-    /// </summary>
-    public float land_NoiseSacle = 4;
-    /// <summary>
-    /// 涂色占比
-    /// </summary>
-    public float land_LakeWeight = 0.33f;
+    private MapCreate mapCreate_Bind;
+    private short groundID_Grass = 1002;//草地上的异色地块
+    private short groundID_Snow = 1003;//雪地上的异色地块
+    private short groundID_Desert = 1000;//沙漠上的异色地块
+    public float land_NoiseSacle = 4;//涂色噪声半径
+    public float land_LakeWeight = 0.33f;//涂色占比
 
     /// <summary>
     /// 大陆涂色
@@ -38,33 +21,35 @@ public class MapCreate_Land_Noise
     /// <returns></returns>
     public async Task CreateNoise(MapCreate mapCreater)
     {
-        mapCreater.text_Waiting.text = "正在给大陆涂色";
-        MapCreate.PerlinHollowConfig config;
-        config = new MapCreate.PerlinHollowConfig()
+        mapCreate_Bind = mapCreater;
+        mapCreate_Bind.text_Waiting.text = "正在给大陆涂色";
+        MapCreate.PerlinEvenlyConfig config;
+        config = new MapCreate.PerlinEvenlyConfig()
         {
             area_Center = Vector2.zero,
-            area_OuterRadius = mapCreater.config_Map.map_Size,
-            area_FillRadius = mapCreater.config_Map.map_Size - 10,
-            noise_Offset = mapCreater.GetRandomOffset(),
-            noise_Sacle = land_NoiseSacle,
+            area_OuterRadius = mapCreate_Bind.config_Map.map_Size,
+            area_FillRadius = mapCreate_Bind.config_Map.map_Size - 10,
+            noise_Offset = mapCreate_Bind.GetRandomOffset(),
+            noise_Scale = land_NoiseSacle,
         };
-        await mapCreater.GenerateArea(config, (index, perlinNoise, realNoise) =>
+        await mapCreate_Bind.GenerateEvenlyArea(config, DrawNoise);
+    }
+    public void DrawNoise(int index, float perlinNoise, float realNoise)
+    {
+        if (realNoise < land_LakeWeight)
         {
-            if (realNoise < land_LakeWeight)
+            if (mapCreate_Bind.data_mapGroundData.tileDic[index] == 1001)
             {
-                if (mapCreater.data_mapGroundData.tileDic[index] == 1001)
-                {
-                    mapCreater.data_mapGroundData.tileDic[index] = groundID_Grass;
-                }
-                else if (mapCreater.data_mapGroundData.tileDic[index] == 1004)
-                {
-                    mapCreater.data_mapGroundData.tileDic[index] = groundID_Snow;
-                }
-                else if (mapCreater.data_mapGroundData.tileDic[index] == 1005)
-                {
-                    mapCreater.data_mapGroundData.tileDic[index] = groundID_Desert;
-                }
+                mapCreate_Bind.data_mapGroundData.tileDic[index] = groundID_Grass;
             }
-        });
+            else if (mapCreate_Bind.data_mapGroundData.tileDic[index] == 1004)
+            {
+                mapCreate_Bind.data_mapGroundData.tileDic[index] = groundID_Snow;
+            }
+            else if (mapCreate_Bind.data_mapGroundData.tileDic[index] == 1005)
+            {
+                mapCreate_Bind.data_mapGroundData.tileDic[index] = groundID_Desert;
+            }
+        }
     }
 }

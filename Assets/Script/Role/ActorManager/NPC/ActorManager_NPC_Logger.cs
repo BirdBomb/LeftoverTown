@@ -10,77 +10,32 @@ using static GameEvent;
 /// </summary>
 public class ActorManager_NPC_Logger : ActorManager_NPC
 {
-    #region//监听
-    public override void State_Listen_RoleSendEmoji(ActorManager actor, Emoji emoji, float distance)
-    {
-        if (brainManager.allClient_actorManager_AttackTarget != null || brainManager.allClient_actorManager_ThreatenedTarget != null)
-        {
-            return;
-        }
-        if (actionManager.HearTo(actor, distance))
-        {
-            if (emoji == Emoji.Greeting)
-            {
-                //有人向我问候
-                if (brainManager.globalTime_Now != GlobalTime.Evening)
-                {
-                    State_Think_TalkStart(actor);
-                }
-            }
-            else if (emoji == Emoji.Talking)
-            {
-                //谈话中
-                if (brainManager.globalTime_Now != GlobalTime.Evening)
-                {
-                    State_Think_Talking(actor);
-                }
-            }
-            else if (emoji == Emoji.TalkEnd)
-            {
-                //谈话中
-                if (brainManager.globalTime_Now != GlobalTime.Evening)
-                {
-                    State_Think_TalkEnd(actor);
-                }
-            }
-            else if (emoji == Emoji.Yell)
-            {
-                //谈话中
-                State_TryToSendEmoji(0.5f, Emoji.Puzzled);
-                State_Follow(actor.pathManager.vector3Int_CurPos);
-            }
-        }
-    }
-    #endregion
     #region//行为逻辑
     /// <summary>
     /// 根据时间决定动作(经常触发)
     /// </summary>
     public override void State_ThinkByTimeUpdate(int date, int hour, GlobalTime time)
     {
-        if (time == GlobalTime.Morning)
+        switch (time)
         {
-            if (!State_Think_GoForFood())
-            {
-                State_Think_GoToStroll_Long(10, 5);
-            }
-            return;
+            case GlobalTime.Morning:
+                {
+                    if (State_Think_GoForFood()) return;
+                    break;
+                }
+            case GlobalTime.Dusk:
+                {
+                    if (State_Think_GoForFood()) return;
+                    break;
+                }
+            case GlobalTime.Evening:
+                {
+                    if (State_Think_GoToSleep()) return;
+                    break;
+                }
         }
-        else if (time == GlobalTime.Evening)
-        {
-            if (!State_Think_GoToSleep())
-            {
-                State_Think_GoToStroll_Long(10, 5);
-            }
-            return;
-        }
-        else
-        {
-            if (!State_Think_GoToWork())
-            {
-                State_Think_GoToStroll_Long(10, 5);
-            }
-        }
+        base.State_ThinkByTimeUpdate(date, hour, time);
+
     }
     /// <summary>
     /// 根据时间变化决定动作(关键时间触发)
@@ -90,112 +45,53 @@ public class ActorManager_NPC_Logger : ActorManager_NPC
         switch (globalTime)
         {
             case GlobalTime.Morning:
-                State_Think_FindFood();
-                break;
-            case GlobalTime.Forenoon:
-                State_Think_FindWork();
-                break;
-            case GlobalTime.Highnoon:
-                State_Think_FindWork();
+                StartCoroutine(State_Think_FindFoodPos());
                 break;
             case GlobalTime.Afternoon:
-                State_Think_FindWork();
+                StartCoroutine(State_Think_FindWorkPos());
                 break;
             case GlobalTime.Dusk:
-                State_Think_FindWork();
+                StartCoroutine(State_Think_FindFoodPos());
                 break;
             case GlobalTime.Evening:
-                State_Think_FindBed();
+                StartCoroutine(State_Think_FindSleepPos());
                 break;
         }
 
     }
-
-    public override bool State_Think_FindWork()
+    public override bool State_Think_CheckWorkPlace(BuildingTile buildingTile)
     {
-        brainManager.State_ResetWorkPos();
-        for (int i = -5; i < 5; i++)
-        {
-            for (int j = -5; j < 5; j++)
-            {
-                if (MapManager.Instance.GetBuilding(brainManager.state_homePostion.position + new Vector3Int(i, j, 0), out BuildingTile buildingTile))
-                {
-                    if (buildingTile.tileID == 2102)
-                    {
-                        Debug.Log("2102");
-                        brainManager.State_SetWorkPos(brainManager.state_homePostion.position + new Vector3Int(i, j, 0));
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    public override void State_Think_BetweenStroll()
-    {
-        for (int i = 0; i < brainManager.actorManagers_Nearby.Count; i++)
-        {
-            if (actionManager.LookAt(brainManager.actorManagers_Nearby[i], 5))
-            {
-                if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Human_Common)
-                {
-                    State_TryToSendEmoji(0.5f, Emoji.Greeting, 5);
-                }
-                else if (brainManager.actorManagers_Nearby[i].statusManager.statusType == StatusType.Human_Bigwigs)
-                {
-                    State_TryToSendEmoji(0.5f, Emoji.Greeting, 5);
-                }
-            }
-        }
-        base.State_Think_BetweenStroll();
+        return buildingTile.tileID == 2102;
     }
     #endregion
-
     #region//交互
-    /// <summary>
-    /// 更新谈话
-    /// </summary>
-    public override void Local_SetDialog(ActorManager player, int index)
+    public override void ForAll_InitDialog()
     {
-        List<DialogOption> dialogOptions = new List<DialogOption>();
-        DialogOption dialogOption_0 = new DialogOption();
-        DialogOption dialogOption_1 = new DialogOption();
-        switch (index)
-        {
-            case 0:
-                dialogOption_0.optionTable = "Role_String";
-                dialogOption_0.optionEntry = "Logger_Dialog0_Option0";
-                dialogOption_0.optionAction = (() =>
-                {
-                    Local_OverDialog(player);
-                });
-                dialogOption_1.optionTable = "Role_String";
-                dialogOption_1.optionEntry = "Logger_Dialog0_Option1";
-                dialogOption_1.optionAction = (() =>
-                {
-                    Local_StartDeal(player);
-                });
-                dialogOptions.Add(dialogOption_0);
-                dialogOptions.Add(dialogOption_1);
-                tileUI_Dialog.InitDialog("Role_String", "Logger_Name", "Role_String", "Logger_Dialog0");
-                tileUI_Dialog.InitOption(dialogOptions);
-                break;
-        }
+        dialogMap = new Dictionary<int, Action>();
+        dialogMap[0] = Dialog_Start;
     }
-    /// <summary>
-    /// 收购
-    /// </summary>
-    /// <param name="itemData"></param>
-    /// <returns></returns>
+    public override void Local_StartDialog()
+    {
+        base.Local_StartDialog();
+        ChooseDialog(0);
+    }
+    public void Dialog_Start()
+    {
+        List<DialogOption> options = new List<DialogOption>
+        {
+            new DialogOption("Logger_Dialog0_Option0", Local_StartDeal),
+            new DialogOption("Logger_Dialog0_Option1", Local_OverDialog)
+        };
+        ShowDialog("Logger_Dialog0", options);
+    }
+    #endregion
+    #region//交易
     public override int Local_Offer(ItemData itemData)
     {
-        int offer = 0;
         ItemConfig itemConfig = ItemConfigData.GetItemConfig(itemData.I);
-        if (itemConfig.Item_ID / 10 == 101)
-        {
-            offer = itemConfig.Item_Value * itemData.C * 2;
-        }
+        int offer = itemConfig.Item_Value * itemData.C / 2 + 1;
         return offer;
     }
     #endregion
+
 }

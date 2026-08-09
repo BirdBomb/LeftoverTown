@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingObj_Table_Wood : BuildingObj_Manmade
+public class BuildingObj_Table_Wood : BuildingObj_Table
 {
     [SerializeField]
     private SpriteRenderer spriteRenderer;
@@ -16,7 +16,7 @@ public class BuildingObj_Table_Wood : BuildingObj_Manmade
     private Sprite sprite_S;
     public override void All_OnDraw()
     {
-        Around around = MapManager.Instance.CheckBuilding_FourSide(buildingTile.tileID, buildingTile.tilePos);
+        Around around = MapManager.Instance.CheckAround_Building(buildingTile.tilePos, (int id) => { return id == buildingTile.tileID; }, DirectionType.Four);
         if (around.R && around.L)
         {
             spriteRenderer.sprite = sprite_M;

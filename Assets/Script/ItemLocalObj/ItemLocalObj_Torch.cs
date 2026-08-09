@@ -7,14 +7,11 @@ using UnityEngine.Rendering.Universal;
 
 public class ItemLocalObj_Torch : ItemLocalObj
 {
-    [SerializeField]
-    private Transform transform_Fire;
-    [SerializeField]
-    private Transform transform_Root;
-    [SerializeField]
-    private SpriteRenderer spriteRenderer_Hand;
-    [SerializeField]
-    private Light2D light2D;
+    public Transform transform_Fire;
+    public Transform transform_Root;
+    public Transform transform_Light;
+    public SpriteRenderer spriteRenderer_Hand;
+    public Light2D light2D;
     private float config_BurnTimer = 0;
     private float temp_BurnTimer = 0;
     private InputData inputData= new InputData();
@@ -22,14 +19,9 @@ public class ItemLocalObj_Torch : ItemLocalObj
     {
         actorManager = owner;
 
-        transform.SetParent(body.transform_ItemInRightHand);
-        body.gameObjects_ItemInHand.Add(gameObject);
-        transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.identity;
-        transform.localScale = Vector3.one;
+        body.AddItemOnRightHand(gameObject, Vector3.zero, Quaternion.identity, Vector3.one);
+        spriteRenderer_Hand.color = body.ShowRightHand(false).color;
 
-        spriteRenderer_Hand.color = body.transform_RightHand.GetComponent<SpriteRenderer>().color;
-        body.transform_RightHand.GetComponent<SpriteRenderer>().enabled = false;
         base.HoldingStart(owner, body);
     }
     public void UpdateTorchData(float lightRange,float expendSpeed,ItemQuality itemQuality)
@@ -62,12 +54,16 @@ public class ItemLocalObj_Torch : ItemLocalObj
         transform_Root.DOKill();
         transform_Root.DOLocalMoveX(0.4f, 0.2f);
         transform_Root.DOLocalRotate(new Vector3(0, 0, -45), 0.2f);
+        transform_Light.DOKill();
+        transform_Light.DOLocalMoveX(0.65f, 0.2f);
     }
     public void StretchBack()
     {
         transform_Root.DOKill();
         transform_Root.DOLocalMoveX(0f, 0.2f);
         transform_Root.DOLocalRotate(Vector3.zero, 0.2f);
+        transform_Light.DOKill();
+        transform_Light.DOLocalMoveX(0.25f, 0.2f);
     }
     public override void UpdateTime(int second)
     {

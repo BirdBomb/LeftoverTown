@@ -63,7 +63,7 @@ public class BuildingTile : TileBase
         }
     }
     /// <summary>
-    /// ¿¿½üÍßÆ¬
+    /// ½ÇÉ«¿¿½üÍßÆ¬
     /// </summary>
     public virtual bool NearbyTileByActor(ActorManager who)
     {
@@ -74,7 +74,7 @@ public class BuildingTile : TileBase
         return false;
     }
     /// <summary>
-    /// Õ¾ÔÚÍßÆ¬ÉÏ
+    /// ½ÇÉ«Õ¾ÔÚÍßÆ¬ÉÏ
     /// </summary>
     /// <param name="who"></param>
     public virtual void StandOnTileByActor(ActorManager who)
@@ -85,7 +85,7 @@ public class BuildingTile : TileBase
         }
     }
     /// <summary>
-    /// Ô¶ÀëÍßÆ¬
+    /// ½ÇÉ«Ô¶ÀëÍßÆ¬
     /// </summary>
     /// <returns></returns>
     public virtual bool FarawayTileByActor(ActorManager who)

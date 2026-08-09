@@ -23,6 +23,6 @@ public class GameUI_EscPanel : MonoBehaviour
     }
     private void Quit()
     {
-        MessageBroker.Default.Publish(new NetEvent.NetEvent_QuitGame() { });
+        NetManager.Instance.QuitRoom();
     }
 }

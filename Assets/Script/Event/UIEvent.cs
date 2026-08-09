@@ -15,6 +15,13 @@ public static class UIEvent
         public List<ItemData> itemDatas = new List<ItemData>();
     }
     /// <summary>
+    /// UI_拾起物体
+    /// </summary>
+    public class UIEvent_PickUpItem
+    {
+        public ItemData item;
+    }
+    /// <summary>
     /// UI_添加背包物体
     /// </summary>
     public class UIEvent_PutItemInBag
@@ -173,8 +180,7 @@ public static class UIEvent
     /// </summary>
     public class UIEvent_UpdateQuest
     {
-        public List<int> Quests = new List<int>();
-        public short Level;
+        public QuestConfig Quest;
     }
     /// <summary>
     /// UI-更新延迟
@@ -265,5 +271,19 @@ public static class UIEvent
     public class UIEvent_CloseReviveCountdown
     {
 
+    }
+    /// <summary>
+    /// 显示指引
+    /// </summary>
+    public class UIEvent_ShowTips
+    {
+       
+    }
+    /// <summary>
+    /// 隐藏指引
+    /// </summary>
+    public class UIEvent_HideTips
+    {
+       
     }
 }

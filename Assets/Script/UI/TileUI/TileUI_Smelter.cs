@@ -50,65 +50,56 @@ public class TileUI_Smelter : TileUI
     }
     public void DrawEveryCell()
     {
-        gridCell_RefiningBefore.UpdateData(buildingObj_Bind.itemData_RefiningBefore);
-        gridCell_RefiningAfter.UpdateData(buildingObj_Bind.itemData_RefiningAfter);
-        gridCell_Fuel.UpdateData(buildingObj_Bind.itemData_Fuel);
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadFuelItemData(out ItemData itemData_Fuel);
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadItemRefiningBefore(out ItemData itemData_RefiningBefore);
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadItemRefiningAfter(out ItemData itemData_RefiningAfter);
+        gridCell_RefiningBefore.UpdateData(itemData_RefiningBefore);
+        gridCell_RefiningAfter.UpdateData(itemData_RefiningAfter);
+        gridCell_Fuel.UpdateData(itemData_Fuel);
     }
     public void DrawBar()
     {
-        float fuelVal = buildingObj_Bind.gameTime_NextFuelSign - buildingObj_Bind.gameTime_LastTimeSign;
-        if (fuelVal > 0)
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadFuelMax(out int fuelBarMax);
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadFuelDepletedTimeSign(out int nextFuelSign);
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadRefiningMax(out int refiningBarMax);
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadRefiningCompeletSign(out int nextRefiningSign);
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadLastTimeSign(out int lastTimeSign);
+
+
+        transform_FuelBar.DOKill();
+        if (fuelBarMax <= 0) fuelBarMax = 60;
+        float fuelVal = (nextFuelSign - lastTimeSign) % fuelBarMax;
+        if (fuelVal > 0) 
         {
-            float temp;
-            if (fuelVal > buildingObj_Bind.config_Fuel.FuelSecond)
-            {
-                temp = fuelVal / 60f;
-            }
-            else
-            {
-                temp = fuelVal / (float)buildingObj_Bind.config_Fuel.FuelSecond;
-            }
-            transform_FuelBar.DOKill();
-            transform_FuelBar.DOScaleX(temp, 0.5f);
+            float val = fuelVal / (float)fuelBarMax;
+            if (val == 1) transform_FuelBar.localScale = new Vector3(1, 1, 1);
+            transform_FuelBar.DOScaleX(fuelVal / (float)fuelBarMax, 1f).SetEase(Ease.Linear); 
         }
-        else
-        {
-            transform_FuelBar.transform.localScale = new Vector3(0, 1, 1);
-        }
-        float refiningVal = buildingObj_Bind.gameTime_NextRefiningSign - buildingObj_Bind.gameTime_LastTimeSign;
-        if (refiningVal > 0)
-        {
-            float temp;
-            if (refiningVal > buildingObj_Bind.config_Refining.RefiningSecond)
-            {
-                temp = 0;
-            }
-            else
-            {
-                temp = 1 - refiningVal / (float)buildingObj_Bind.config_Refining.RefiningSecond;
-            }
-            transform_RefiningBar.DOKill();
-            transform_RefiningBar.DOScaleY(temp, 0.5f);
-        }
-        else
-        {
-            transform_RefiningBar.transform.localScale = new Vector3(1, 0, 1);
-        }
+        else transform_FuelBar.transform.localScale = new Vector3(0, 1, 1);
+
+        transform_RefiningBar.DOKill();
+        if (refiningBarMax <= 0) refiningBarMax = 60;
+        float refiningVal = (nextRefiningSign - lastTimeSign) % refiningBarMax;
+        if (refiningVal > 0) transform_RefiningBar.DOScaleY(1 - refiningVal / (float)refiningBarMax, 1f).SetEase(Ease.Linear);
+        else transform_RefiningBar.transform.localScale = new Vector3(1, 0, 1);
     }
     #region//¡∂÷∆
     private void RefiningBeforePutIn(ItemData addData, ItemPath path)
     {
-        RefiningConfig refiningConfig = RefiningConfigData.GetRefiningConfig(addData.I);
-        if (refiningConfig.RefiningBeforeID != 0)
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadItemRefiningBefore(out ItemData itemData_RefiningBefore);
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadRefiningCompeletSign(out int gameTime_NextRefiningSign);
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadLastTimeSign(out int gameTime_LastTimeSign);
+        RefiningConfig addItemFuelConfig = RefiningConfigData.GetRefiningConfig(addData.I);
+        if (addItemFuelConfig.RefiningBeforeID != 0)
         {
-            if (buildingObj_Bind.itemData_RefiningBefore.I == 0)
+            if (itemData_RefiningBefore.I == 0)
             {
-                buildingObj_Bind.itemData_RefiningBefore = addData;
-                buildingObj_Bind.gameTime_NextRefiningSign = refiningConfig.RefiningSecond + buildingObj_Bind.gameTime_LastTimeSign;
+                itemData_RefiningBefore = addData;
+                gameTime_NextRefiningSign = addItemFuelConfig.RefiningSecond + gameTime_LastTimeSign;
             }
-            else if (addData.I == buildingObj_Bind.itemData_RefiningBefore.I)
+            else if (addData.I == itemData_RefiningBefore.I)
             {
-                buildingObj_Bind.itemData_RefiningBefore = GameToolManager.Instance.CombineItem(buildingObj_Bind.itemData_RefiningBefore, addData, out ItemData res);
+                itemData_RefiningBefore = GameToolManager.Instance.CombineItem(itemData_RefiningBefore, addData, out ItemData res);
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = res,
@@ -132,12 +123,15 @@ public class TileUI_Smelter : TileUI
                 itemFrom = ItemFrom.OutSide
             });
         }
-        buildingObj_Bind.WriteInfo();
+        buildingObj_Bind?.buildingData_Machine_Smelter.WriteRefiningCompeletSign(gameTime_NextRefiningSign);
+        buildingObj_Bind?.buildingData_Machine_Smelter.WriteItemRefiningBefore(itemData_RefiningBefore);
+        buildingObj_Bind?.All_TryToPush();
     }
     private ItemData RefiningBeforePutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        buildingObj_Bind.itemData_RefiningBefore = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.WriteInfo();
+        ItemData itemData_RefiningBefore = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
+        buildingObj_Bind?.buildingData_Machine_Smelter.WriteItemRefiningBefore(itemData_RefiningBefore);
+        buildingObj_Bind?.All_TryToPush();
         return itemData_Out;
     }
     private void RefiningAfterPutIn(ItemData addData, ItemPath path)
@@ -150,25 +144,29 @@ public class TileUI_Smelter : TileUI
     }
     private ItemData RefiningAfterPutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        buildingObj_Bind.itemData_RefiningAfter = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.WriteInfo();
+        ItemData itemData_RefiningAfter = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
+        buildingObj_Bind?.buildingData_Machine_Smelter.WriteItemRefiningAfter(itemData_RefiningAfter);
+        buildingObj_Bind?.All_TryToPush();
         return itemData_Out;
     }
     #endregion
     #region//»º¡œ
     private void FuelPutIn(ItemData addData, ItemPath path)
     {
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadFuelItemData(out ItemData itemData_Fuel);
+        buildingObj_Bind.buildingData_Machine_Smelter.ReadFuelDepletedTimeSign(out int gameTime_NextFuelSign);
+        WorldManager.Instance.GetTime_NowSecond(out int now);
         FuelConfig fuelConfig = FuelConfigData.GetFuelConfig(addData.I);
         if (fuelConfig.FuelID != 0)
         {
-            if (buildingObj_Bind.itemData_Fuel.I == 0)
+            if (itemData_Fuel.I == 0)
             {
-                buildingObj_Bind.itemData_Fuel = addData;
-                buildingObj_Bind.gameTime_NextFuelSign = buildingObj_Bind.gameTime_LastTimeSign;
+                itemData_Fuel = addData;
+                gameTime_NextFuelSign = Mathf.Max(gameTime_NextFuelSign, now);
             }
-            else if (addData.I == buildingObj_Bind.itemData_Fuel.I)
+            else if (addData.I == itemData_Fuel.I)
             {
-                buildingObj_Bind.itemData_Fuel = GameToolManager.Instance.CombineItem(buildingObj_Bind.itemData_Fuel, addData, out ItemData res);
+                itemData_Fuel = GameToolManager.Instance.CombineItem(itemData_Fuel, addData, out ItemData res);
                 MessageBroker.Default.Publish(new PlayerEvent.PlayerEvent_Local_ItemBag_Add()
                 {
                     itemData = res,
@@ -192,12 +190,15 @@ public class TileUI_Smelter : TileUI
                 itemFrom = ItemFrom.OutSide
             });
         }
-        buildingObj_Bind.WriteInfo();
+        buildingObj_Bind.buildingData_Machine_Smelter.WriteFuelItemData(itemData_Fuel);
+        buildingObj_Bind.buildingData_Machine_Smelter.WriteFuelDepletedTimeSign(gameTime_NextFuelSign);
+        buildingObj_Bind.All_TryToPush();
     }
     private ItemData FuelPutOut(ItemData itemData_From, ItemData itemData_Out, ItemPath itemPath)
     {
-        buildingObj_Bind.itemData_Fuel = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
-        buildingObj_Bind.WriteInfo();
+        ItemData itemData_Fuel = GameToolManager.Instance.SplitItem(itemData_From, itemData_Out);
+        buildingObj_Bind?.buildingData_Machine_Smelter.WriteFuelItemData(itemData_Fuel);
+        buildingObj_Bind?.All_TryToPush();
         return itemData_Out;
     }
     #endregion

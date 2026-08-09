@@ -1,3 +1,4 @@
+using Fusion;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -73,6 +74,16 @@ public class BuffBase
     }
 
     #endregion
+    #region//计算
+    public virtual int Local_CalculateArmor(int armor)
+    {
+        return armor;
+    }
+    public virtual int Local_CalculateResistance(int resistance)
+    {
+        return resistance;
+    }
+    #endregion
     #region//外置方法
     /// <summary>
     /// 播放特效
@@ -98,16 +109,26 @@ public struct BuffData
     public short BuffID;
     public short BuffVal;
     public Vector3Int BuffPos;
+    public ActorManager BuffActor;
     public BuffData(short id)
     {
         BuffID = id;
         BuffVal = 0;
         BuffPos = Vector3Int.zero;
+        BuffActor = null;
     }
-    public BuffData(short id,short val,Vector3Int pos)
+    public BuffData(short id, short val, Vector3Int pos)
     {
         BuffID = id;
         BuffVal = val;
         BuffPos = pos;
+        BuffActor = null;
+    }
+    public BuffData(short id, short val, Vector3Int pos,ActorManager actor)
+    {
+        BuffID = id;
+        BuffVal = val;
+        BuffPos = pos;
+        BuffActor = actor;
     }
 }

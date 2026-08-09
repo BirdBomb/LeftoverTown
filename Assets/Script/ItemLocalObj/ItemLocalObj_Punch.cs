@@ -42,11 +42,7 @@ public class ItemLocalObj_Punch : ItemLocalObj
     {
         actorManager = owner;
 
-        transform.SetParent(body.transform_Hand);
-        body.gameObjects_ItemInHand.Add(gameObject);
-        transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.identity;
-        transform.localScale = Vector3.one;
+        body.AddItemOnBothHand(gameObject,Vector3.zero,Quaternion.identity,Vector3.zero);
 
         config_AttackCD = config_AttackDuraction / config_AttackSpeed;
         config_AttackCDRec = config_AttackSpeed / config_AttackDuraction;
@@ -59,7 +55,7 @@ public class ItemLocalObj_Punch : ItemLocalObj
             float_NextPunchTiming += config_AttackCD + 0.1f;
             if (new System.Random().Next(0, 2) == 0)
             {
-                actorManager.bodyController.SetAnimatorTrigger(BodyPart.Hand, "PunchRight");
+                actorManager.bodyController.SetAnimatorTrigger(BodyPart.Hand,"PunchRight");
                 actorManager.bodyController.SetAnimatorFloat(BodyPart.Hand, "PunchSpeed", config_AttackSpeed);
                 actorManager.bodyController.SetAnimatorFunc(BodyPart.Hand, Punch);
             }
@@ -98,49 +94,79 @@ public class ItemLocalObj_Punch : ItemLocalObj
         {
             if(str.Equals("PunchRight")|| str.Equals("PunchLeft"))
             {
-                skillIndicators.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
+                skillIndicators?.Shake_SkillIndicators(new Vector3(0.2f, 0.2f, 0), 0.1f);
                 skillIndicators.Checkout_SkillIndicators(inputData.mousePosition, config_AttackDistance, config_AttackRange, out Collider2D[] colliders);
+                List<ActorManager> catchActors = new List<ActorManager>();
+                List<BuildingObj> catchBuildings = new List<BuildingObj>();
                 for (int i = 0; i < colliders.Length; i++)
                 {
                     if (colliders[i].tag.Equals("TileObj"))
                     {
                         if (colliders[i].TryGetComponent(out BuildingObj building))
                         {
-                            PunchBuilding(building);
+                            catchBuildings.Add(building);
                         }
                     }
-                    else if (colliders[i].tag.Equals("Actor") && colliders[i].isTrigger)
+                    else if (colliders[i].tag.Equals("Actor"))
                     {
-                        if (colliders[i].transform.TryGetComponent(out ActorManager actor))
+                        if (colliders[i].isTrigger && colliders[i].transform.TryGetComponent(out ActorManager actor))
                         {
-                            if (actor != actorManager) { PunchActor(actor); }
+                            catchActors.Add(actor);
                         }
                     }
                 }
+                PunchBuildings(catchBuildings);
+                PunchActors(catchActors);
                 return true;
             }
         }
         return false;
     }
-    private void PunchActor(ActorManager actor)
+    private int PunchActors(List<ActorManager> actors)
     {
-        GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
-        effect.GetComponent<Effect_Impact>().PlayBludgeoning(actor.transform.position - actorManager.transform.position, true);
-        effect.transform.position = actor.transform.position;
-
-        actor.actorHpManager.TakeDamage(config_AttackDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
-    }
-    private void PunchBuilding(BuildingObj building)
-    {
-        int damage = 0;
-        damage += building.Local_TakeDamage(config_AttackDamage, DamageState.AttackReapDamage, actorManager.actorNetManager);
-        damage += building.Local_TakeDamage(config_AttackDamage, DamageState.AttackSlashingDamage, actorManager.actorNetManager);
-        damage += building.Local_TakeDamage(config_AttackDamage, DamageState.AttackBludgeoningDamage, actorManager.actorNetManager);
-        if (damage > 0)
+        int temp = 0;
+        actorManager.actionManager.ApplyDamageToActors
+            (config_AttackDamage, DamageState.AttackBludgeoningDamage, DamageTarget.WithoutMe, actors, out List<ApplyActorDamageCallBack> callBackList);
+        foreach (ApplyActorDamageCallBack callBack in callBackList)
         {
             GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
-            effect.GetComponent<Effect_Impact>().PlayBludgeoning(building.transform.position - actorManager.transform.position);
-            effect.transform.position = building.transform.position;
+            effect.GetComponent<Effect_Impact>().PlayBludgeoning(callBack.target.transform.position - actorManager.transform.position);
+            effect.transform.position = callBack.target.transform.position;
+            temp += callBack.realDamage;
         }
+        return temp;
     }
+    private int PunchBuildings(List<BuildingObj> buildings)
+    {
+        int temp = 0;
+        actorManager.actionManager.ApplyDamageToBuilidngs
+            (config_AttackDamage, DamageState.AttackReapDamage, buildings, out List<ApplyBuildingDamageCallBack> callBackList_0);
+        actorManager.actionManager.ApplyDamageToBuilidngs
+            (config_AttackDamage, DamageState.AttackSlashingDamage, buildings, out List<ApplyBuildingDamageCallBack> callBackList_1);
+        actorManager.actionManager.ApplyDamageToBuilidngs
+            (config_AttackDamage, DamageState.AttackBludgeoningDamage, buildings, out List<ApplyBuildingDamageCallBack> callBackList_2);
+        foreach (ApplyBuildingDamageCallBack callBack in callBackList_0)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlayBludgeoning(callBack.target.transform.position - actorManager.transform.position);
+            effect.transform.position = callBack.target.transform.position;
+            temp += callBack.realDamage;
+        }
+        foreach (ApplyBuildingDamageCallBack callBack in callBackList_1)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlayBludgeoning(callBack.target.transform.position - actorManager.transform.position);
+            effect.transform.position = callBack.target.transform.position;
+            temp += callBack.realDamage;
+        }
+        foreach (ApplyBuildingDamageCallBack callBack in callBackList_2)
+        {
+            GameObject effect = PoolManager.Instance.GetEffectObj("Effect/Effect_Impact");
+            effect.GetComponent<Effect_Impact>().PlayBludgeoning(callBack.target.transform.position - actorManager.transform.position);
+            effect.transform.position = callBack.target.transform.position;
+            temp += callBack.realDamage;
+        }
+        return temp;
+    }
+
 }

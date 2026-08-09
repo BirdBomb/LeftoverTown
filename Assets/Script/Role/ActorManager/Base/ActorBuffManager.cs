@@ -10,8 +10,8 @@ public class ActorBuffManager
 {
     private ActorManager actorManager;
     private Dictionary<short, BuffBase> bindBuffDic = new Dictionary<short, BuffBase>();
-    private List<short> bindBuffIDList = new List<short>();
     private List<BuffBase> bindBuffEntity = new List<BuffBase>();
+
     public void Bind(ActorManager actorManager)
     {
         this.actorManager = actorManager;
@@ -24,10 +24,7 @@ public class ActorBuffManager
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            for (int i = 0; i < bindBuffEntity.Count; i++)
-            {
-                bindBuffEntity[i].Listen_Local_UpdateSecond(actorManager);
-            }
+            for (int i = 0; i < bindBuffEntity.Count; i++) bindBuffEntity[i].Listen_Local_UpdateSecond(actorManager);
         }
     }
     /// <summary>
@@ -38,10 +35,7 @@ public class ActorBuffManager
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            for (int i = 0; i < bindBuffEntity.Count; i++)
-            {
-                bindBuffEntity[i].Listen_MyselfMove(actorManager, pos);
-            }
+            for (int i = 0; i < bindBuffEntity.Count; i++) bindBuffEntity[i].Listen_MyselfMove(actorManager, pos);
         }
     }
     /// <summary>
@@ -51,10 +45,7 @@ public class ActorBuffManager
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            for (int i = 0; i < bindBuffEntity.Count; i++)
-            {
-                bindBuffEntity[i].Listen_Local_UpdateHp(actorManager);
-            }
+            for (int i = 0; i < bindBuffEntity.Count; i++) bindBuffEntity[i].Listen_Local_UpdateHp(actorManager);
         }
     }
     /// <summary>
@@ -64,20 +55,17 @@ public class ActorBuffManager
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            for (int i = 0; i < bindBuffEntity.Count; i++)
-            {
-                bindBuffEntity[i].Listen_Local_UpdateHungry(actorManager);
-            }
+            for (int i = 0; i < bindBuffEntity.Count; i++) bindBuffEntity[i].Listen_Local_UpdateHungry(actorManager);
         }
     }
+    /// <summary>
+    /// 监听精神值改变
+    /// </summary>
     public void Listen_UpdateSan()
     {
         if (actorManager.actorAuthority.isLocal)
         {
-            for (int i = 0; i < bindBuffEntity.Count; i++)
-            {
-                bindBuffEntity[i].Listen_Local_UpdateSan(actorManager);
-            }
+            for (int i = 0; i < bindBuffEntity.Count; i++) bindBuffEntity[i].Listen_Local_UpdateSan(actorManager);
         }
     }
 
@@ -90,15 +78,13 @@ public class ActorBuffManager
     public void Local_InitBuffs(List<BuffData> buffDatas)
     {
         bindBuffEntity.Clear();
-        bindBuffIDList.Clear();
         bindBuffDic.Clear();
         MessageBroker.Default.Publish(new UIEvent.UIEvent_ClearBuff(){ });
         for (int i = 0; i < buffDatas.Count; i++)
         {
             BuffBase buff = Local_CreateBuff(buffDatas[i]);
             bindBuffEntity.Add(buff);
-            bindBuffIDList.Add(buffDatas[i].BuffID);
-            bindBuffDic.Add(buffDatas[i].BuffID, buff);
+            bindBuffDic.TryAdd(buffDatas[i].BuffID, buff);
         }
         Local_EssentialBuffs();
     }
@@ -134,13 +120,12 @@ public class ActorBuffManager
         if (bindBuffDic.TryGetValue(id, out var buff))
         {
             buffBase = buff as T;
-            return buffBase != null;
         }
         else
         {
             buffBase = null;
-            return false;
         }
+        return buffBase != null;
     }
     /// <summary>
     /// 添加Buff
@@ -148,12 +133,11 @@ public class ActorBuffManager
     /// <param name="buffData"></param>
     public void Local_AddBuff(BuffData buffData)
     {
-        if (!bindBuffIDList.Contains(buffData.BuffID))
+        if (!bindBuffDic.ContainsKey(buffData.BuffID))
         {
             BuffBase buff = Local_CreateBuff(buffData);
             buff.Listen_Local_AddOnActor(actorManager);
             bindBuffEntity.Add(buff);
-            bindBuffIDList.Add(buffData.BuffID);
             bindBuffDic.Add(buffData.BuffID, buff);
         }
     }
@@ -161,7 +145,7 @@ public class ActorBuffManager
     /// 获得Buff
     /// </summary>
     /// <param name="buffDatas"></param>
-    public void Local_GetBuff(out List<BuffData> buffDatas)
+    public void Local_GetBuffList(out List<BuffData> buffDatas)
     {
         List<BuffData> temp = new List<BuffData>();
         for (int i = 0; i < bindBuffEntity.Count; i++)
@@ -177,11 +161,10 @@ public class ActorBuffManager
     /// <param name="buffID"></param>
     public void Local_RemoveBuff(short buffID)
     {
-        if (bindBuffIDList.Contains(buffID))
+        if (bindBuffDic.ContainsKey(buffID))
         {
             BuffBase buff = bindBuffDic[buffID];
             bindBuffEntity.Remove(buff);
-            bindBuffIDList.Remove(buffID);
             bindBuffDic.Remove(buffID);
             buff.Listen_Local_SubFromActor(actorManager);
 
@@ -205,6 +188,23 @@ public class ActorBuffManager
         BuffBase buff = (BuffBase)Activator.CreateInstance(type);
         buff.PlayEffect(actorManager, index);
     }
-
+    #endregion
+    #region//计算
+    public int Local_CalculateArmor(int armor)
+    {
+        foreach (BuffBase buff in bindBuffEntity)
+        {
+            armor = buff.Local_CalculateArmor(armor);
+        }
+        return armor;
+    }
+    public int Local_CalculateResistance(int resistance)
+    {
+        foreach (BuffBase buff in bindBuffEntity)
+        {
+            resistance = buff.Local_CalculateResistance(resistance);
+        }
+        return resistance;
+    }
     #endregion
 }
