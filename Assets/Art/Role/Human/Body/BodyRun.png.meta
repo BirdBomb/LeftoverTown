@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: adbd4422effcde440827ce6b11715882
+guid: d46b233963a784044bc40399616ce0c4
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BodyWalk_0
+      name: BodyRun_0
       rect:
         serializedVersion: 2
         x: 0
@@ -124,14 +124,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 603b5b3ef5782e64bb72a78ab27ff1cd
-      internalID: -949446267
+      spriteID: e343eb901f7c4bb48a44623ae116f58c
+      internalID: -1782956167
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BodyWalk_1
+      name: BodyRun_1
       rect:
         serializedVersion: 2
         x: 16
@@ -145,14 +145,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 69c65b0a4a4b30b498f587f825d9989c
-      internalID: 1499423213
+      spriteID: 7ca7e3adac5cf7441b41e8c7e0a46467
+      internalID: 190848562
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BodyWalk_2
+      name: BodyRun_2
       rect:
         serializedVersion: 2
         x: 32
@@ -166,14 +166,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 856bc930282dd4a4886817416bc4ab51
-      internalID: -348280252
+      spriteID: 343e7394ff6699445b4ed54013a56b4e
+      internalID: -1681590888
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BodyWalk_3
+      name: BodyRun_3
       rect:
         serializedVersion: 2
         x: 48
@@ -187,8 +187,92 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6751f360ebbd0f4478351fc1f25eec4b
-      internalID: -524728908
+      spriteID: e808b9606677d4742be001d90412791e
+      internalID: -1704755846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BodyRun_4
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 16
+        height: 16
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d819008c590eced419da9d438a2b5b0c
+      internalID: 1905043153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BodyRun_5
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 0
+        width: 16
+        height: 16
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6d2394a601238e24aba18325078bd959
+      internalID: 481403948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BodyRun_6
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 16
+        height: 16
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c4d6684abfc307845bb226b50137d415
+      internalID: 840969062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BodyRun_7
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 0
+        width: 16
+        height: 16
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3a7ba61a995d7374cbfb84f4052116c6
+      internalID: -57367710
       vertices: []
       indices: 
       edges: []
@@ -204,10 +288,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      BodyWalk_0: -949446267
-      BodyWalk_1: 1499423213
-      BodyWalk_2: -348280252
-      BodyWalk_3: -524728908
+      BodyRun_0: -1782956167
+      BodyRun_1: 190848562
+      BodyRun_2: -1681590888
+      BodyRun_3: -1704755846
+      BodyRun_4: 1905043153
+      BodyRun_5: 481403948
+      BodyRun_6: 840969062
+      BodyRun_7: -57367710
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
