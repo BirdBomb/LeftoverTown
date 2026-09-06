@@ -1,4 +1,4 @@
-Shader "Custom/BuildingObj_Wall"
+Shader "Custom/BuildingObj_ShadowCatch"
 {
     Properties
     {

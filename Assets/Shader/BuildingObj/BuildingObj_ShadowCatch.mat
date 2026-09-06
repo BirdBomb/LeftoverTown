@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DistortBlend
-  m_Shader: {fileID: -6465566751694194690, guid: bb1c17e9855489a47ad36784ebac79a7, type: 3}
+  m_Name: BuildingObj_ShadowCatch
+  m_Shader: {fileID: 4800000, guid: 9cdfaedaa1af983449d5bc287a74ea84, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -23,41 +23,40 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _AddTex:
-        m_Texture: {fileID: 2800000, guid: 10bb1ea698757c64490a4c4266bf8be3, type: 3}
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - unity_Lightmaps:
+    - _MaskTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - unity_LightmapsInd:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - unity_ShadowMasks:
+    - _NormalMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _BaseShadow: 0.3
+    - _BaseY: -0.5
+    - _EnableExternalAlpha: 0
+    - _GroundOffset: 0
+    - _HeightScale: 1
+    - _NormalStrength: 1
+    - _ShadowAlpha: 0.29
+    - _ShadowCorrection: 0.29
+    - _ShadowHeight: 0.05
+    - _ShadowStrength: 0.3
+    - _SpriteHeight: 0
+    - _VisualHeight: 200
     m_Colors:
-    - _AddTexTrans: {r: 0.626, g: 0.48400003, b: 50, a: 50}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _MainTex_RelativeSize: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ShadowOffset: {r: 0, g: -0.1, b: 0, a: 0}
   m_BuildTextureStacks: []
---- !u!114 &6074650360683804909
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 7

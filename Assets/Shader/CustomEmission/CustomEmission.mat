@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BuildingObj_Wall
-  m_Shader: {fileID: 4800000, guid: 9cdfaedaa1af983449d5bc287a74ea84, type: 3}
+  m_Name: CustomEmission
+  m_Shader: {fileID: 4800000, guid: 157112b94ea7c9543a6afcfa488037fb, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -41,22 +41,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BaseShadow: 0.3
-    - _BaseY: -0.5
+    - _EmissionStrength: 2
     - _EnableExternalAlpha: 0
-    - _GroundOffset: 0
-    - _HeightScale: 1
-    - _NormalStrength: 1
-    - _ShadowAlpha: 0.29
-    - _ShadowCorrection: 0.29
-    - _ShadowHeight: 0.05
-    - _ShadowStrength: 0.3
-    - _SpriteHeight: 0
-    - _VisualHeight: 200
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _MainTex_RelativeSize: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadowOffset: {r: 0, g: -0.1, b: 0, a: 0}
   m_BuildTextureStacks: []
